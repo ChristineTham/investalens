@@ -50,7 +50,7 @@ Add net worth tracking, platform polish features, integrations, export enhanceme
 ## Architecture Impact
 
 - **Net Worth**: New models (Asset, Liability) separate from portfolio system
-- **Webhooks**: Event-driven with queue (use Vercel KV as simple queue)
+- **Webhooks**: Event-driven with queue (use database-backed queue or Vercel Runtime Cache)
 - **PDF Export**: Server-side rendering using react-pdf or puppeteer
 - **Audit Log**: New AuditEntry model, middleware to capture all mutations
 - **Notifications**: Email via Resend (free tier: 100 emails/day) or SendGrid

@@ -9,6 +9,18 @@ Build the core database schema, authentication system, portfolio/holding/transac
 - R0-P1 completed (project scaffolding exists)
 - Reference: `docs/ACCOUNT.md`, `docs/GETTING-STARTED.md`, `docs/DATA_IMPORT.md`
 
+## Recommended Skills
+
+Invoke these skills for best-practice guidance during this phase:
+- **nextauth-authentication** — Auth.js v5 setup, session management, OAuth providers
+- **prisma-client-api** — Query patterns (findMany, create, update, delete, $transaction)
+- **prisma-database-setup** — Schema design, relations, indexes
+- **next-best-practices** — Server actions, route handlers, RSC data patterns
+- **shadcn** — Component installation, composition, theming
+- **building-components** — Accessible, composable UI component APIs
+- **neon-postgres** — Connection pooling for serverless, Prisma + Neon config
+- **env-vars** — Auth secrets, database URL management
+
 ---
 
 ## Task 1: Complete Prisma Schema
@@ -19,7 +31,8 @@ Replace the placeholder schema with the full data model:
 
 ```prisma
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -869,10 +882,24 @@ Create these shadcn/ui components manually (copy the source code — no npx comm
 - `form.tsx` (wraps react-hook-form)
 - `avatar.tsx`
 - `sheet.tsx` (mobile sidebar)
+- `alert-dialog.tsx` (for destructive confirmations)
+- `tooltip.tsx` (required by TooltipProvider in root layout)
 
-Each component follows the standard shadcn/ui pattern: uses `@/lib/utils` cn() function, Radix primitives, and CVA for variants.
+Each component follows the standard shadcn/ui `new-york` style pattern: uses `@/lib/utils` cn() function, **Base UI** primitives (`@base-ui-components/react`), and CVA for variants.
 
-> **Note:** Use the exact source from https://ui.shadcn.com/docs/components — these are MIT-licensed copy-paste components.
+> **Important — Base UI imports:**
+> The CLI automatically pulls Base UI component variants when `"base": "base-ui"` is set in `components.json`. Import primitives from `@base-ui-components/react`:
+> ```tsx
+> // Base UI — headless primitives
+> import { Dialog } from "@base-ui-components/react/dialog"
+> import { Menu } from "@base-ui-components/react/menu"
+> import { Select } from "@base-ui-components/react/select"
+>
+> // NOT Radix — we don't use Radix packages
+> // import { Dialog } from "radix-ui"  ← WRONG for this project
+> ```
+
+> **Note:** Use the exact source from https://ui.shadcn.com/docs/components — these are MIT-licensed copy-paste components. Ensure you copy the `new-york` style variant with Base UI base. The CLI handles variant selection automatically when adding components via `pnpm dlx shadcn@latest add`. Avatar sizing is controlled via Tailwind classes (e.g., `className="h-8 w-8"`), not variant props.
 
 ---
 
@@ -940,7 +967,7 @@ export async function login(email: string, password: string) {
 - [ ] Single portfolio page with holdings table
 - [ ] Individual holding page with transaction history
 - [ ] Settings page
-- [ ] All core shadcn/ui components (16 components)
+- [ ] All core shadcn/ui components (18 components, new-york style, Base UI primitives)
 - [ ] TypeScript type augmentation for NextAuth session
 
 ## Notes for the Agent

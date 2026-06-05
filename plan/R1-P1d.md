@@ -9,6 +9,18 @@ Implement portfolio organisation features (custom groups, labels, sharing, conso
 - R1-P1a, P1b, P1c completed
 - Reference: `docs/ACCOUNT.md`, `docs/ASSETS.md`, `docs/API.md`, `docs/ACTIONS.md`
 
+## Recommended Skills
+
+Invoke these skills for best-practice guidance during this phase:
+- **next-best-practices** — API route handlers, middleware, error responses
+- **vercel-react-best-practices** — Dashboard RSC patterns, component optimisation
+- **routing-middleware** — Auth middleware for API routes, redirects
+- **prisma-client-api** — Complex queries (sharing access checks, aggregations)
+- **building-components** — Accessible drag-and-drop, interactive components
+- **runtime-cache** — API response caching, rate limit counters
+
+> **Note:** Bond analytics, corporate actions, and financial domain logic are not covered by general skills. Follow the plan details and reference `docs/ASSETS.md` and `docs/ACTIONS.md`.
+
 ---
 
 ## Task 1: Custom Groups & Labels
@@ -182,7 +194,7 @@ export async function authenticateApiRequest(request: Request): Promise<{ userId
 
 **File: `src/lib/api/rate-limit.ts`**
 
-Simple in-memory rate limiter (100 req/min per token). Use Vercel KV if available.
+Simple in-memory rate limiter (100 req/min per token). Use Vercel Runtime Cache API for distributed rate limiting.
 
 **API Route Files (`src/app/api/v1/`):**
 

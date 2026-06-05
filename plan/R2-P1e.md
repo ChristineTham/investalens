@@ -9,75 +9,71 @@ Implement AI-powered features (Gemini/Antigravity SDK for statement parsing), FI
 - R2-P1d complete (all analytics endpoints working)
 - Reference: `docs/ADVANCED.md` (AI Features), `docs/TOOLS.md`
 
+## Recommended Skills
+
+Invoke these skills for best-practice guidance during this phase:
+- **ai-sdk** — Vercel AI SDK for Gemini chat interface, structured output, streaming
+- **building-components** — Custom chat UI components with Base UI primitives
+- **vercel-react-best-practices** — FIRE calculator chart, market sentiment UI
+- **next-best-practices** — Streaming route for AI chat, server actions
+
+> **Note:** FIRE calculations, ETF decomposition, and market sentiment aggregation are domain-specific. Use `ai-sdk` for Gemini/Antigravity integration patterns. Build chat UI with Base UI + shadcn patterns (no AI Elements — that requires Radix).
+
 ---
 
 ## Task 1: AI Importer (Gemini / Antigravity SDK)
 
-**File: `api/python/ai_import.py`**
+**File: `src/app/api/ai-import/route.ts`**
 
-Use Google Antigravity SDK to parse unstructured financial statements:
+Use Vercel AI SDK with Google Gemini to parse unstructured financial statements. This runs in the **TypeScript layer** (not Python):
 
-```python
-from http.server import BaseHTTPRequestHandler
-import google.antigravity as ag
-import json
-from utils.response import success_response, error_response, parse_body
+```typescript
+import { generateObject } from "ai";
+import { google } from "@ai-sdk/google";
+import { z } from "zod";
 
-class handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        data = parse_body(self)
-        content = data.get("content", "")  # Text content from OCR/PDF extraction
-        document_type = data.get("documentType", "broker_statement")
-        
-        # Create Antigravity agent for structured extraction
-        agent = ag.Agent(
-            model="gemini-2.0-flash",
-            system_instruction="""You are a financial document parser. 
-            Extract all transactions from the provided document.
-            Return a JSON array of transactions with these fields:
-            - tradeDate (ISO 8601)
-            - instrumentCode (ticker symbol)
-            - marketCode (exchange, e.g. "ASX")
-            - transactionType (BUY, SELL, DIVIDEND, etc.)
-            - quantity (number)
-            - price (number per unit)
-            - brokerage (number, 0 if not shown)
-            - currency (3-letter code)
-            - comments (any notes)
-            If the document is a dividend statement, extract:
-            - paymentDate, instrumentCode, grossAmount, frankingCredits, netAmount
-            Only return valid JSON. No explanations."""
-        )
-        
-        response = agent.generate(content)
-        
-        try:
-            transactions = json.loads(response.text)
-            
-            result = {
-                "transactions": transactions,
-                "confidence": response.metadata.get("confidence", 0.8),
-                "warnings": [],
-            }
-            
-            # Validate extracted data
-            for i, tx in enumerate(transactions):
-                if not tx.get("tradeDate"):
-                    result["warnings"].append(f"Row {i}: missing date")
-                if not tx.get("instrumentCode"):
-                    result["warnings"].append(f"Row {i}: missing instrument code")
-            
-            success_response(self, result)
-        except json.JSONDecodeError:
-            error_response(self, 422, "AI could not parse document into structured format")
+const TransactionSchema = z.object({
+  tradeDate: z.string().describe("ISO 8601 date"),
+  instrumentCode: z.string().describe("Ticker symbol"),
+  marketCode: z.string().describe("Exchange code, e.g. ASX"),
+  transactionType: z.enum(["BUY", "SELL", "DIVIDEND", "INTEREST", "COUPON", "FEE", "DRP"]),
+  quantity: z.number(),
+  price: z.number().describe("Price per unit"),
+  brokerage: z.number().default(0),
+  currency: z.string().default("AUD"),
+  comments: z.string().optional(),
+});
+
+const ImportResultSchema = z.object({
+  transactions: z.array(TransactionSchema),
+  warnings: z.array(z.string()),
+});
+
+export async function POST(request: Request) {
+  const { content, documentType } = await request.json();
+
+  const { object } = await generateObject({
+    model: google("gemini-2.5-flash"),
+    schema: ImportResultSchema,
+    prompt: `You are a financial document parser.
+Document type: ${documentType}
+Extract all transactions from the following document content.
+
+${content}`,
+  });
+
+  return Response.json(object);
+}
 ```
+
+> **Note:** The AI importer uses the Vercel AI SDK (`ai` + `@ai-sdk/google`) from the TypeScript layer with structured output (Zod schema). `google-antigravity` exists but is an agent framework (not a doc parser) — see `docs/KNOWLEDGE.md` for details.
 
 **File: `src/lib/actions/ai-import.ts`**
 
 Server action for AI import:
 1. Accept file upload (PDF, image, text)
 2. Extract text content (use pdf-parse for PDFs, or send image directly)
-3. Call Python AI endpoint
+3. Call the TypeScript AI route handler (not Python)
 4. Return parsed transactions for user review
 5. User confirms/edits, then standard import pipeline handles the rest
 
@@ -290,7 +286,7 @@ export async function POST(req: Request) {
 
 ## Deliverables Checklist
 
-- [ ] AI Importer Python endpoint (Antigravity SDK)
+- [ ] AI Importer TypeScript endpoint (Vercel AI SDK + Gemini)
 - [ ] AI Import server action (file upload + text extraction)
 - [ ] AI Import UI (upload, parse, review, confirm)
 - [ ] FIRE Calculator (TypeScript, full projection)
@@ -305,7 +301,7 @@ export async function POST(req: Request) {
 
 ## Notes for the Agent
 
-- Antigravity SDK requires `GOOGLE_API_KEY` in environment
+- Vercel AI SDK Google provider requires `GOOGLE_GENERATIVE_AI_API_KEY` in environment
 - AI Import should gracefully degrade if API key not configured (show "unavailable" message)
 - FIRE Calculator is pure TypeScript — no Python dependency
 - ETF top holdings data: hardcode for common AU ETFs (VAS, VGS, IOZ, A200, VDHG) initially

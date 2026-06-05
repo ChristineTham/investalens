@@ -9,6 +9,14 @@ Implement Monte Carlo simulation (bootstrap, parametric, copula-based), advanced
 - R2-P1b complete (optimisation working)
 - Reference: `docs/ADVANCED.md` (Monte Carlo, Estimation Methods, Distributions)
 
+## Recommended Skills
+
+Invoke these skills for best-practice guidance during this phase:
+- **vercel-react-best-practices** — Fan chart and histogram component performance
+- **runtime-cache** — Cache MC simulation results, copula fitting
+
+> **Note:** Monte Carlo simulation, covariance estimation, distribution fitting, and copula models are pure statistical/data science domain. No general skills apply to the Python implementation.
+
 ---
 
 ## Task 1: Monte Carlo Simulation

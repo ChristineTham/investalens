@@ -9,44 +9,40 @@ Set up the Python serverless function infrastructure on Vercel and implement the
 - R1 complete
 - Reference: `docs/ADVANCED.md` (Backtesting section)
 
+## Recommended Skills
+
+Invoke these skills for best-practice guidance during this phase:
+- **next-best-practices** — API route handlers for Python function proxying
+- **runtime-cache** — Caching expensive backtest results (Vercel Runtime Cache API)
+- **vercel-react-best-practices** — Chart component performance, lazy loading
+- **env-vars** — Python function environment configuration
+
+> **Note:** Python/skfolio backtesting logic is domain-specific (quantitative finance). No general skills cover portfolio optimisation or walk-forward analysis. Follow the plan details.
+
 ---
 
 ## Task 1: Python Function Infrastructure
 
-**File: `api/requirements.txt`** (update)
+**Python dependencies** are managed via `pyproject.toml` (from `uv add` in R0-P0). Vercel reads `pyproject.toml` directly — no `requirements.txt` needed.
 
-```
-skfolio>=0.4.0
-scipy>=1.11.0
-numpy>=1.24.0
-pandas>=2.0.0
-statsmodels>=0.14.0
-google-antigravity>=0.1.0
-```
+Ensure these are in `pyproject.toml` (added via `uv add` in R0-P0):
+- `skfolio`, `scipy`, `numpy`, `pandas`, `statsmodels`
+
+> **Note:** `google-antigravity` is a real package (`uv add google-antigravity`) but it's an AI **agent framework** (autonomous file reading, command execution, code editing), NOT a document parsing library. For structured extraction of financial statements, the Vercel AI SDK (`ai` + `@ai-sdk/google`) with `generateObject` + Zod schemas is the correct choice — runs in the TypeScript layer with no compiled binary dependency.
 
 **File: `api/utils/response.py`**
 
-Shared utility for Python functions:
+Shared utility for FastAPI-based Python functions:
 ```python
-import json
-from http.server import BaseHTTPRequestHandler
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 
-def success_response(handler, data: dict):
-    handler.send_response(200)
-    handler.send_header("Content-Type", "application/json")
-    handler.end_headers()
-    handler.wfile.write(json.dumps(data).encode())
+def create_app() -> FastAPI:
+    """Create a FastAPI app for a Vercel serverless function."""
+    return FastAPI()
 
-def error_response(handler, status: int, message: str):
-    handler.send_response(status)
-    handler.send_header("Content-Type", "application/json")
-    handler.end_headers()
-    handler.wfile.write(json.dumps({"error": message}).encode())
-
-def parse_body(handler) -> dict:
-    content_length = int(handler.headers.get("Content-Length", 0))
-    body = handler.rfile.read(content_length)
-    return json.loads(body)
+def error_response(status: int, message: str):
+    raise HTTPException(status_code=status, detail=message)
 ```
 
 **File: `api/utils/transforms.py`**
@@ -192,7 +188,7 @@ export async function runBacktest(portfolioId: string, config: BacktestConfig) {
   const returnsData = await prepareReturnsData(portfolioId, config.startDate, config.endDate);
   const client = new AnalyticsClient();
   const result = await client.callFunction("backtest", { ...returnsData, config });
-  // Cache result in Vercel KV
+  // Cache result via Vercel Runtime Cache API
   return result;
 }
 ```
@@ -250,7 +246,7 @@ Detailed walk-forward with train/test visualization:
 - [ ] Backtesting UI (config form + results visualisation)
 - [ ] Strategy comparison endpoint
 - [ ] Walk-forward analysis endpoint
-- [ ] Result caching (Vercel KV)
+- [ ] Result caching (Vercel Runtime Cache API)
 - [ ] Equity curve chart component
 - [ ] Drawdown chart component
 

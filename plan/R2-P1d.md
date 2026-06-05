@@ -9,6 +9,14 @@ Implement factor models (Fama-French and custom), tactical allocation strategies
 - R2-P1c complete (estimation methods, distributions)
 - Reference: `docs/ADVANCED.md` (Factor Analysis, Tactical Allocation, Stress Testing, Model Validation)
 
+## Recommended Skills
+
+Invoke these skills for best-practice guidance during this phase:
+- **vercel-react-best-practices** — Heatmap and waterfall chart performance
+- **vercel-composition-patterns** — Tab-based stress test UI composition
+
+> **Note:** Factor analysis (Fama-French, PCA), tactical allocation, stress testing, and cross-validation are pure quantitative finance/data science domain. No general skills apply.
+
 ---
 
 ## Task 1: Factor Analysis

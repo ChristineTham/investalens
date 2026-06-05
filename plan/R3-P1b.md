@@ -9,6 +9,14 @@ Add international broker CSV templates, withholding tax tracking, international 
 - R3-P1a complete (multi-market, FX rates working)
 - Reference: `docs/DATA_IMPORT.md`, `docs/TAX.md`, `docs/ACTIONS.md`
 
+## Recommended Skills
+
+Invoke these skills for best-practice guidance during this phase:
+- **next-best-practices** — Server actions for import pipeline
+- **prisma-client-api** — Transaction-based import with rollback
+
+> **Note:** International broker CSV formats, withholding tax DTA rates, and global corporate actions are entirely domain-specific. No general skills apply.
+
 ---
 
 ## Task 1: International Broker Templates

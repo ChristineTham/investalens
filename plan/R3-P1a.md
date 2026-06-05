@@ -10,6 +10,17 @@ Build multi-market support: exchange registry, international instrument lookup, 
 - Open Exchange Rates API key (free tier: 1000 req/month)
 - Reference: `docs/ARCHITECTURE.md` (External Services)
 
+## Recommended Skills
+
+Invoke these skills for best-practice guidance during this phase:
+- **runtime-cache** — FX rate caching strategy (6-hour TTL)
+- **next-best-practices** — Cron route handlers, API patterns
+- **env-vars** — API key management (OPEN_EXCHANGE_RATES_APP_ID)
+- **prisma-client-api** — ExchangeRate table queries, unique constraints
+- **neon-postgres-egress-optimizer** — Efficient price + FX joins
+
+> **Note:** Exchange registry data, currency gain/loss calculations, and multi-currency valuation are domain-specific financial logic.
+
 ---
 
 ## Task 1: Exchange Registry

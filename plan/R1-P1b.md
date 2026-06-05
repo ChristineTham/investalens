@@ -9,6 +9,15 @@ Build the CSV import engine with custom field mapping, broker templates, validat
 - R1-P1a completed (schema, auth, CRUD exist)
 - Reference: `docs/DATA_IMPORT.md`, `docs/GETTING-STARTED.md`
 
+## Recommended Skills
+
+Invoke these skills for best-practice guidance during this phase:
+- **next-best-practices** — Server actions, route handlers, file upload patterns
+- **runtime-cache** — Caching price data (Vercel Runtime Cache API)
+- **prisma-client-api** — Batch inserts, upserts, transactions for import pipeline
+- **vercel-react-best-practices** — Multi-step wizard UI performance
+- **neon-postgres-egress-optimizer** — Efficient queries for price lookups
+
 ---
 
 ## Task 1: CSV Parser & Upload

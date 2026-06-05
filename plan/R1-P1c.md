@@ -9,6 +9,17 @@ Implement portfolio performance calculations, all standard reports, and Australi
 - R1-P1a and R1-P1b completed (schema, CRUD, prices available)
 - Reference: `docs/TOOLS.md`, `docs/TAX.md`
 
+## Recommended Skills
+
+Invoke these skills for best-practice guidance during this phase:
+- **vercel-react-best-practices** — Report component performance, data fetching patterns
+- **vercel-composition-patterns** — Composable report UI (compound components, context)
+- **runtime-cache** — Caching expensive report calculations
+- **next-best-practices** — Server actions for report generation, streaming
+- **prisma-client-api** — Complex aggregation queries for reports
+
+> **Note:** Financial calculations (MWR, CGT, parcels) and Australian tax rules are domain-specific logic not covered by general skills. Follow the plan details and reference `docs/TAX.md`.
+
 ---
 
 ## Task 1: Performance Calculation Engine

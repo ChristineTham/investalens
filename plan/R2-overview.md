@@ -68,5 +68,5 @@ Python functions do NOT access the database directly. The TypeScript layer:
 1. Fetches data from DB
 2. Transforms to analytics input format
 3. Calls Python function
-4. Stores results (Vercel KV cache for expensive computations)
+4. Caches results (Vercel Runtime Cache API for expensive computations)
 5. Returns to frontend

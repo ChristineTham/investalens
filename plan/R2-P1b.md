@@ -9,6 +9,15 @@ Implement portfolio optimisation using skfolio: Mean-Variance, Risk Parity, HRP,
 - R2-P1a complete (Python infrastructure, analytics client)
 - Reference: `docs/ADVANCED.md` (Optimisation Models, Efficient Frontier, Black-Litterman)
 
+## Recommended Skills
+
+Invoke these skills for best-practice guidance during this phase:
+- **vercel-react-best-practices** — Interactive chart performance (D3 + Recharts)
+- **vercel-composition-patterns** — Composable constraint panel UI
+- **runtime-cache** — Cache efficient frontier results (expensive computation)
+
+> **Note:** Portfolio optimisation (Mean-Variance, HRP, Black-Litterman) is pure quantitative finance domain. No general skills apply to the Python/skfolio implementation.
+
 ---
 
 ## Task 1: Mean-Variance Optimisation
