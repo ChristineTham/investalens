@@ -1,5 +1,7 @@
 # Getting Started with InvestaLens
 
+> **📖 Part of the [InvestaLens User Manual](../USER-MANUAL.md)** | Next: [Data Import](DATA_IMPORT.md)
+
 This guide walks you through setting up your InvestaLens portfolio and importing your investments.
 
 ## Overview
@@ -36,36 +38,32 @@ Separate portfolios are strongly recommended if you hold the same stock across m
 
 ## Adding Your Investments
 
-There are 3 ways to add your investments into your InvestaLens portfolio:
+There are several ways to add your investments into your InvestaLens portfolio:
 
-1. **Import from your broker** — Bulk import your historical trades directly from a supported broker
-2. **Import from a spreadsheet** — Bulk import your historical trades from a CSV file downloaded from your broker
-3. **Add manually** — Manually add individual holdings and trades one by one
+1. **Import from a CSV file** — Bulk import your historical trades from a CSV/spreadsheet exported from any broker or institution, with custom field mapping
+2. **Import via Sharesight** — If you use Sharesight, import your portfolio via their API
+3. **Import from your broker** — If InvestaLens supports a direct integration with your broker
+4. **Add manually** — Manually add individual holdings and trades one by one
 
-### Method 1: Import from Your Broker
+### Method 1: Bulk Import from a CSV File (Recommended)
 
-If InvestaLens supports your broker, you can import trades directly:
+Importing a CSV spreadsheet containing your historical buy and sell trades is the most flexible way to populate your portfolio. Almost every broker and financial institution allows you to download your transaction history as a spreadsheet.
 
-1. Navigate to **+ Add Investment**
-2. Select your broker from the list of supported brokers
-3. Follow the prompts to connect your broker account
-4. InvestaLens will import your trading history automatically
+InvestaLens supports **custom field mapping**, meaning you can import from any broker regardless of their CSV format. You map your file's columns to InvestaLens fields, and can save these mappings as templates for future imports.
 
-### Method 2: Bulk Import from a Spreadsheet (CSV)
-
-Importing a CSV spreadsheet containing your historical buy and sell trades is a quick way to populate your portfolio. Most brokers allow you to download your historical trade history as a spreadsheet.
+See [DATA_IMPORT.md](DATA_IMPORT.md) for the full list of supported fields and mapping capabilities.
 
 #### Requirements
 
 For your spreadsheet to successfully import:
 - The first row must contain a header for each column
-- The spreadsheet must contain the 5 compulsory data fields
+- The spreadsheet must contain at minimum the 5 compulsory data fields (column names don't need to match — you'll map them during import)
 
 #### Compulsory Fields
 
 | Field | Description | Format | Example |
 |-------|-------------|--------|---------|
-| Trade Date | The date of the trade | yyyy-mm-dd (must be in this order, use 4 digits for year) | 2005-05-22 |
+| Trade Date | The date of the trade | Any date format (configured during import) | 2005-05-22 |
 | Instrument Code | The instrument code (stock ticker, fund name, etc) | code | TLS |
 | Quantity | The quantity of shares bought or sold | Integer (positive value) | 1000 |
 | Price in Dollars | The price per share in the currency of the market | Decimal (up to 6dp) | 12.123456 |
@@ -92,19 +90,40 @@ For your spreadsheet to successfully import:
 6. Select **Individual trades** as the import type
 7. Click **Confirm Upload**
 8. Select the date and price format used in your file and click **Next**
-9. Map your spreadsheet columns to InvestaLens fields — ensure the 5 compulsory fields are matched. For columns that aren't needed, select "-"
+9. Map your spreadsheet columns to InvestaLens fields — ensure the 5 compulsory fields are matched. For columns that aren't needed, select "-". Optionally save this mapping as a template for future imports from the same broker.
 10. Review the itemised list of trades being imported
 11. Fix any rejected trades by clicking on the incorrect data and making adjustments
 12. Click **Import** to finalise
 13. Click **Go to Portfolio** to view your imported holdings
 
-After import, InvestaLens will calculate performance using a money-weighted return methodology (taking account of the size and timing of cash flows) and will automatically create dividends and corporate actions for the imported holdings.
+After import, InvestaLens will calculate performance using a money-weighted return methodology (taking account of the size and timing of cash flows) and will automatically create dividends and corporate actions for the imported holdings. See [ACTIONS.md](ACTIONS.md) for details on how corporate actions are handled.
 
 #### Opening Balances
 
 If you do not have all of your historical buy and sell transactions, you can import with **Opening Balances** instead. This sets up your current positions without full trade history.
 
-### Method 3: Add Holdings Manually
+### Method 2: Import via Sharesight API
+
+If you have a Sharesight account, you can connect it to InvestaLens:
+
+1. Click **+ Add Investment**
+2. Select **Connect Sharesight**
+3. Authenticate with your Sharesight credentials
+4. Select which portfolios to import
+5. InvestaLens will sync your holdings and transactions
+
+This is entirely optional — InvestaLens works without Sharesight.
+
+### Method 3: Import from a Supported Broker
+
+If InvestaLens has a direct integration with your broker:
+
+1. Navigate to **+ Add Investment**
+2. Select your broker from the list of supported brokers
+3. Follow the prompts to connect your broker account
+4. InvestaLens will import your trading history automatically
+
+### Method 4: Add Holdings Manually
 
 To add a new holding that isn't in your portfolio yet:
 
@@ -137,6 +156,8 @@ InvestaLens handles dividends in two ways:
 
 - **Automatic** — Dividends and corporate actions are automatically generated for holdings in your portfolio based on market data
 - **Manual** — Add dividends or adjustments manually when needed
+
+For supported asset types and which actions are automated, see [ASSETS.md](ASSETS.md) and [ACTIONS.md](ACTIONS.md).
 
 ## Dividend Reinvestments (DRP)
 
@@ -209,8 +230,8 @@ Once your portfolio is populated:
 1. **Review your holdings** — Check that all positions, quantities and cost bases are correct
 2. **Verify dividends** — Confirm any unconfirmed dividends match your records
 3. **Set up DRP** — Enable dividend reinvestment tracking where applicable
-4. **Add labels and custom groups** — Organise holdings for better reporting
-5. **Explore reports** — Run performance, tax and diversity reports
+4. **Add labels and custom groups** — Organise holdings for better reporting (see [ACCOUNT.md](ACCOUNT.md))
+5. **Explore reports** — Run performance, tax and diversity reports (see [TOOLS.md](TOOLS.md) and [TAX.md](TAX.md))
 6. **Set up ongoing sync** — Configure automatic trade imports from your broker
 
 ## Performance Calculation
@@ -222,3 +243,16 @@ Performance is calculated including:
 - Dividend and distribution income
 - Currency fluctuations (for foreign holdings)
 - Brokerage and fees
+
+---
+
+## Related Documentation
+
+| Document | Description |
+|----------|-------------|
+| [DATA_IMPORT.md](DATA_IMPORT.md) | Full import architecture, CSV field mapping, and broker templates |
+| [TOOLS.md](TOOLS.md) | All performance, allocation, and tax reports |
+| [ACCOUNT.md](ACCOUNT.md) | Portfolio settings, sharing, custom groups, and labels |
+| [ASSETS.md](ASSETS.md) | Supported asset types and stock exchanges |
+| [TAX.md](TAX.md) | Australian tax reporting (CGT, taxable income, AMIT) |
+| [ACTIONS.md](ACTIONS.md) | Corporate actions (splits, mergers, demergers, rights issues) |

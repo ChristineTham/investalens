@@ -1,8 +1,10 @@
 # Sharesight API Integration
 
+> **Note:** Sharesight is one of many supported import sources. InvestaLens does not depend on Sharesight. See [DATA_IMPORT.md](DATA_IMPORT.md) for the full data import architecture.
+
 ## Overview
 
-InvestaLens uses the [Sharesight API](https://api.sharesight.com/doc/) to import portfolio data. Sharesight provides OAuth2 authentication and REST endpoints for accessing portfolios, holdings, trades, and performance data.
+For users who have a Sharesight account, InvestaLens can optionally import portfolio data via the [Sharesight API](https://api.sharesight.com/doc/). Sharesight provides OAuth2 authentication and REST endpoints for accessing portfolios, holdings, trades, and performance data.
 
 ## Authentication
 
@@ -49,3 +51,12 @@ Sharesight uses OAuth2 Authorization Code flow:
 1. **Initial import**: Full fetch of all portfolios, holdings, and trades
 2. **Incremental sync**: Poll for changes periodically (configurable interval)
 3. **Manual refresh**: User-triggered full resync option
+
+---
+
+## Related Documentation
+
+| Document | Description |
+|----------|-------------|
+| [DATA_IMPORT.md](DATA_IMPORT.md) | Full import architecture and all supported sources |
+| [GETTING-STARTED.md](GETTING-STARTED.md) | How to connect Sharesight during onboarding |
