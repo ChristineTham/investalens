@@ -36,6 +36,7 @@ export function Header() {
             </div>
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
+              title="Sign out"
               className="flex items-center gap-1 rounded-md px-2 py-1 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
             >
               <LogOut className="h-4 w-4" />
