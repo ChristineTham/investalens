@@ -2,7 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { buildParcels, type SaleAllocationMethod } from "@/lib/calculations/parcels";
+import { buildParcels } from "@/lib/calculations/parcels";
 
 export interface UnrealisedCgtItem {
   instrumentCode: string;

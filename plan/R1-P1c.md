@@ -1,5 +1,10 @@
 # R1-P1c: Calculations, Reports & Tax
 
+## Status
+
+- Completed: 2026-06-09
+- Completion note: Performance/position/parcel calculation engines, 8 report modules, 4 tax reports (taxable income, CGT with 5 allocation methods, parcel matcher, unrealised CGT), 9 report pages, 4 tax pages, 5 Recharts chart components. All build and lint clean.
+
 ## Objective
 
 Implement portfolio performance calculations, all standard reports, and Australian tax reporting (CGT, Taxable Income, AMIT).

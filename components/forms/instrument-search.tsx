@@ -30,8 +30,8 @@ export function InstrumentSearch({
       return;
     }
 
-    setLoading(true);
     timeoutRef.current = setTimeout(async () => {
+      setLoading(true);
       const instruments = await searchInstruments(query, market);
       setResults(instruments);
       setIsOpen(instruments.length > 0);

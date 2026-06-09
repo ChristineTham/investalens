@@ -1,5 +1,3 @@
-import type { Decimal } from "../../generated/prisma/runtime/library";
-
 export interface DateRange {
   from: Date;
   to: Date;
@@ -9,14 +7,14 @@ export interface TransactionData {
   id: string;
   transactionType: string;
   tradeDate: Date;
-  quantity: number | Decimal;
-  price: number | Decimal;
-  brokerage: number | Decimal;
-  exchangeRate: number | Decimal;
+  quantity: number | { toNumber(): number };
+  price: number | { toNumber(): number };
+  brokerage: number | { toNumber(): number };
+  exchangeRate: number | { toNumber(): number };
   currency: string;
-  frankedAmount?: number | Decimal | null;
-  unfrankedAmount?: number | Decimal | null;
-  frankingCredits?: number | Decimal | null;
+  frankedAmount?: number | { toNumber(): number } | null;
+  unfrankedAmount?: number | { toNumber(): number } | null;
+  frankingCredits?: number | { toNumber(): number } | null;
 }
 
 export interface PriceData {
@@ -60,7 +58,6 @@ export function calculateHoldingPerformance(
   let dividends = 0;
   let quantity = 0;
   let costBase = 0;
-  let brokerage = 0;
 
   const filteredTx = transactions.filter(
     (tx) => tx.tradeDate >= dateRange.from && tx.tradeDate <= dateRange.to
@@ -76,12 +73,10 @@ export function calculateHoldingPerformance(
         totalBought += qty * price + broker;
         quantity += qty;
         costBase += qty * price + broker;
-        brokerage += broker;
         break;
       case "SELL":
         totalSold += qty * price - broker;
         quantity -= qty;
-        brokerage += broker;
         break;
       case "DIVIDEND":
       case "INTEREST":

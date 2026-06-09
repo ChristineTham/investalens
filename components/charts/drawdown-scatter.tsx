@@ -52,9 +52,9 @@ export function DrawdownScatter({ data }: DrawdownScatterProps) {
             border: "1px solid var(--border)",
             borderRadius: "var(--radius)",
           }}
-          formatter={(value: number, name: string) => [
-            `${value.toFixed(1)}%`,
-            name,
+          formatter={(value, name) => [
+            `${Number(value).toFixed(1)}%`,
+            String(name),
           ]}
         />
         <ReferenceLine y={0} stroke="var(--muted-foreground)" strokeDasharray="3 3" />

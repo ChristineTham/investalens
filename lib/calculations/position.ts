@@ -1,4 +1,4 @@
-import type { TransactionData, PriceData } from "./performance";
+import type { TransactionData } from "./performance";
 
 export interface Position {
   quantity: number;
