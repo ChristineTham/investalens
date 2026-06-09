@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getPortfolio } from "@/lib/actions/portfolio";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, Upload } from "lucide-react";
 
 export default async function PortfolioDetailPage({
   params,
@@ -23,6 +23,13 @@ export default async function PortfolioDetailPage({
             {portfolio.holdings.length} holdings
           </p>
         </div>
+        <Link
+          href={`/portfolio/${id}/import`}
+          className="inline-flex items-center gap-2 rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent"
+        >
+          <Upload className="h-4 w-4" />
+          Import CSV
+        </Link>
         <Link
           href={`/portfolio/${id}/add-holding`}
           className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
