@@ -2,6 +2,28 @@
 
 > **📖 Part of the [InvestaLens User Manual](../USER-MANUAL.md)** | Previous: [Account Management](ACCOUNT.md) | Next: [Tax Reporting](TAX.md)
 
+> **Implementation Status (R1 MVP)**
+>
+> | Feature | Status |
+> |---------|--------|
+> | Performance Report (MWR, annualised) | ✅ Implemented |
+> | Contribution Analysis | ✅ Implemented |
+> | Multi-Period Report | ✅ Implemented (server action, stub UI) |
+> | Sold Securities Report | ✅ Implemented |
+> | Future Income Report | ✅ Implemented |
+> | Dividend Calendar | ✅ Implemented (server action, stub UI) |
+> | Diversity Report | ✅ Implemented |
+> | Drawdown Risk Report | ✅ Implemented (server action, stub UI) |
+> | Historical Cost Report | ✅ Implemented (server action, stub UI) |
+> | All Trades Report | ✅ Implemented |
+> | Watchlist | ✅ Implemented |
+> | Exposure Report (ETF X-ray) | ⏳ To be Implemented (R2) |
+> | Multi-Currency Valuation | ⏳ To be Implemented (R3) |
+> | Share Checker | ⏳ To be Implemented (R2) |
+> | Market Sentiment | ⏳ To be Implemented (R2) |
+> | FIRE Calculator | ⏳ To be Implemented (R2) |
+> | Risk Analysis (X-ray) | ⏳ To be Implemented (R2) |
+
 ## Overview
 
 InvestaLens contains a number of powerful performance, asset allocation, and tax/compliance reports that you can run against your investment portfolio.

@@ -2,6 +2,20 @@
 
 > **📖 Part of the [InvestaLens User Manual](../USER-MANUAL.md)** | Previous: [Data Import](DATA_IMPORT.md) | Next: [Account Management](ACCOUNT.md)
 
+> **Implementation Status (R1 MVP)**
+>
+> | Feature | Status |
+> |---------|--------|
+> | Equities (ASX and 60+ exchanges via Yahoo Finance) | ✅ Implemented |
+> | ETFs and managed funds | ✅ Implemented |
+> | Bonds / fixed interest (with coupon, maturity, YTM) | ✅ Implemented |
+> | Custom investments | ✅ Implemented (schema supports) |
+> | Instrument search (Yahoo Finance) | ✅ Implemented |
+> | Cryptocurrencies | ✅ Implemented (via Yahoo Finance) |
+> | Net Worth & Liabilities | ⏳ To be Implemented (R4) |
+> | Property tracking | ⏳ To be Implemented |
+> | Multi-currency pricing | ⏳ To be Implemented (R3) |
+
 ## Overview
 
 InvestaLens supports tracking a wide range of investment types — from listed equities and ETFs to property, cryptocurrencies, and fixed income. This document covers every asset type you can track and how to add each one.

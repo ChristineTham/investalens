@@ -2,6 +2,23 @@
 
 > **📖 Part of the [InvestaLens User Manual](../USER-MANUAL.md)** | Previous: [Getting Started](GETTING-STARTED.md) | Next: [Assets](ASSETS.md)
 
+> **Implementation Status (R1 MVP)**
+>
+> | Feature | Status |
+> |---------|--------|
+> | CSV parser (papaparse, auto-detect) | ✅ Implemented |
+> | Field mapping engine | ✅ Implemented |
+> | Deduplication | ✅ Implemented |
+> | 9 broker templates (CommSec, SelfWealth, Stake, CMC Markets, CMC Invest, Bell Direct, nabtrade, FIIG, IB) | ✅ Implemented |
+> | 5-step import wizard UI | ✅ Implemented |
+> | Mapping template save/load | ⏳ To be Implemented |
+> | AI Importer (PDF/screenshot) | ⏳ To be Implemented (R2) |
+> | Broker API sync (Sharesight) | ⏳ To be Implemented (R4) |
+> | CSV export (trades, holdings, dividends) | ✅ Implemented (server action) |
+> | JSON full backup | ✅ Implemented (server action) |
+> | PDF export | ⏳ To be Implemented (R4) |
+> | Automated scheduled backups | ⏳ To be Implemented (R4) |
+
 ## Overview
 
 InvestaLens is a **standalone portfolio tracker** that does not depend on any single external service. It supports importing investment data from multiple sources, giving users full flexibility over how they bring in their portfolio data.

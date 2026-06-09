@@ -2,6 +2,23 @@
 
 > **📖 Part of the [InvestaLens User Manual](../USER-MANUAL.md)** | Previous: [Tax Reporting](TAX.md) | Next: [Advanced Analytics](ADVANCED.md)
 
+> **Implementation Status (R1 MVP)**
+>
+> | Feature | Status |
+> |---------|--------|
+> | Stock splits | ✅ Implemented |
+> | Bonus issues | ✅ Implemented |
+> | Return of capital | ✅ Implemented |
+> | Rights issues | ✅ Implemented |
+> | Mergers (MERGER_IN/OUT) | ✅ Implemented (server action) |
+> | DRP recording | ✅ Implemented |
+> | Corporate actions UI page | ✅ Implemented |
+> | Share consolidations | ✅ Supported via split with ratio < 1 |
+> | Demergers | ⏳ To be Implemented |
+> | IPO recording | ⏳ To be Implemented |
+> | Automated corporate action detection | ⏳ To be Implemented |
+> | Name/ticker change tracking | ⏳ To be Implemented |
+
 ## Overview
 
 InvestaLens automatically handles most corporate actions — splits, consolidations, name changes, dividends, and more. Some actions require manual recording because they involve a financial decision only you can make.

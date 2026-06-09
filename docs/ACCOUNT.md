@@ -2,6 +2,21 @@
 
 > **📖 Part of the [InvestaLens User Manual](../USER-MANUAL.md)** | Previous: [Assets](ASSETS.md) | Next: [Tools & Reports](TOOLS.md)
 
+> **Implementation Status (R1 MVP)**
+>
+> | Feature | Status |
+> |---------|--------|
+> | Create/rename/delete portfolios | ✅ Implemented |
+> | Tax residency & entity type settings | ✅ Implemented |
+> | Sale allocation method (5 methods) | ✅ Implemented |
+> | Portfolio sharing (read/write/admin) | ✅ Implemented (server action + UI) |
+> | Custom groups with categories | ✅ Implemented (server action + UI) |
+> | Labels (create, assign to holdings) | ✅ Implemented (server action + UI) |
+> | Consolidated view | ✅ Implemented (page) |
+> | Share transfers between portfolios | ✅ Supported via TRANSFER_IN/OUT |
+> | AI Importer | ⏳ To be Implemented (R2) |
+> | Emergency Fund tracker | ⏳ To be Implemented (R4) |
+
 ## Overview
 
 This document covers account setup, portfolio management, sharing, organisation features, and tax settings in InvestaLens.

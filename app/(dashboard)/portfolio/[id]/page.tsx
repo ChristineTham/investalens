@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getPortfolio } from "@/lib/actions/portfolio";
 import { ArrowLeft, Plus, Upload } from "lucide-react";
+import { PortfolioActions } from "@/components/forms/portfolio-actions";
 
 export default async function PortfolioDetailPage({
   params,
@@ -23,6 +24,7 @@ export default async function PortfolioDetailPage({
             {portfolio.holdings.length} holdings
           </p>
         </div>
+        <PortfolioActions portfolioId={id} currentName={portfolio.name} />
         <Link
           href={`/portfolio/${id}/import`}
           className="inline-flex items-center gap-2 rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent"

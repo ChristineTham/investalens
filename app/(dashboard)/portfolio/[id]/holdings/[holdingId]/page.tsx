@@ -5,6 +5,7 @@ import { getTransactions } from "@/lib/actions/transaction";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 import { redirect } from "next/navigation";
+import { AddTransactionForm } from "@/components/forms/add-transaction-form";
 
 export default async function HoldingDetailPage({
   params,
@@ -73,7 +74,10 @@ export default async function HoldingDetailPage({
       </div>
 
       <div>
-        <h2 className="text-lg font-medium">Transaction History</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-medium">Transaction History</h2>
+          <AddTransactionForm holdingId={holdingId} currency={holding.instrument.currency} />
+        </div>
         {transactions.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">
             No transactions recorded yet.

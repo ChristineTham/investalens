@@ -2,6 +2,27 @@
 
 Welcome to InvestaLens — a comprehensive portfolio tracker and optimiser for investors. This manual guides you through every aspect of the platform, from initial setup to advanced analytics.
 
+> **Implementation Status (R1 MVP)**
+>
+> | Section | Status |
+> |---------|--------|
+> | Getting Started (auth, portfolios, import, manual entry) | ✅ Implemented |
+> | CSV Import (9 broker templates, 5-step wizard) | ✅ Implemented |
+> | Supported Assets (equities, ETFs, bonds, crypto) | ✅ Implemented |
+> | Portfolio Management (groups, labels, sharing, consolidated) | ✅ Implemented |
+> | Performance & Reporting (6 performance + 4 allocation reports) | ✅ Implemented |
+> | Tax Reporting (Taxable Income, CGT, Unrealised CGT) | ✅ Implemented |
+> | Corporate Actions (split, bonus, ROC, rights, merger) | ✅ Implemented |
+> | Watchlist | ✅ Implemented |
+> | Data Export (CSV trades/holdings/dividends, JSON backup) | ✅ Implemented |
+> | API Access (portfolios, market search, auth, rate limiting) | ✅ Implemented |
+> | Research Tools (Share Checker, Market Sentiment) | ⏳ To be Implemented (R2) |
+> | Planning Tools (FIRE Calculator, Emergency Fund, Net Worth) | ⏳ To be Implemented (R2/R4) |
+> | Advanced Analytics (backtesting, Monte Carlo, optimisation) | ⏳ To be Implemented (R2) |
+> | AI Importer | ⏳ To be Implemented (R2) |
+> | PDF Export & Automated Backups | ⏳ To be Implemented (R4) |
+> | Webhooks | ⏳ To be Implemented (R4) |
+
 ---
 
 ## Table of Contents
@@ -26,10 +47,10 @@ Set up your account, create your first portfolio, and understand how InvestaLens
 
 ### What You'll Do First
 
-1. **Create your account** — A default portfolio is created automatically based on your tax residency
-2. **Import your investments** — Bring in your holdings via CSV, broker API, or manual entry
-3. **Review and confirm** — Verify dividends, set up DRP tracking, and organise holdings
-4. **Explore reports** — Run performance, tax, and allocation reports
+1. **Create your account** — Register at `/register` with name, email, and password (minimum 8 characters). Or sign in with Google OAuth.
+2. **Create a portfolio** — Click "New Portfolio" on `/portfolio`, choose tax residency and entity type
+3. **Import your investments** — Use the CSV import wizard or add holdings manually via instrument search
+4. **Explore reports** — Navigate to Reports or Tax for performance and tax analysis
 
 ### Key Concepts
 
@@ -57,30 +78,40 @@ InvestaLens is source-agnostic — import from any broker, any format.
 
 ### Import Methods (Ranked by Flexibility)
 
-| Method           | Best For                                                             | Guide                                                                              |
-| ---------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| **CSV Import**   | Any broker — map columns to InvestaLens fields, save templates       | [Data Import](docs/DATA_IMPORT.md)                                                 |
-| **AI Importer**  | PDFs, screenshots, non-standard formats — AI reads and maps the data | [Account](docs/ACCOUNT.md#ai-importer)                                             |
-| **Broker API**   | Supported brokers with automatic sync                                | [Getting Started](docs/GETTING-STARTED.md#method-3-import-from-a-supported-broker) |
-| **Manual Entry** | One-off trades, corrections, historical records                      | [Getting Started](docs/GETTING-STARTED.md#method-4-add-holdings-manually)          |
+| Method           | Best For                                                             | Status |
+| ---------------- | -------------------------------------------------------------------- | ------ |
+| **CSV Import**   | Any broker — map columns to InvestaLens fields via 5-step wizard     | ✅ Implemented |
+| **Manual Entry** | One-off trades, corrections — add transactions per holding           | ✅ Implemented |
+| **AI Importer**  | PDFs, screenshots, non-standard formats — AI reads and maps the data | ⏳ R2 |
+| **Broker API**   | Supported brokers with automatic sync                                | ⏳ R4 |
+
+### How to Import (CSV)
+
+1. Navigate to a portfolio detail page
+2. Click **"Import CSV"**
+3. **Upload** — drag and drop your broker's CSV file
+4. **Configure** — select a broker template (auto-fills mappings) or set date format/decimal separator manually
+5. **Map** — assign CSV columns to InvestaLens fields (Trade Date, Code, Quantity, Price, Type are required)
+6. **Review** — see parsed transactions colour-coded (green=valid, red=error, yellow=duplicate)
+7. **Import** — confirm to insert transactions into the database
 
 ### Supported Broker Templates
 
 Pre-built CSV mapping templates for quick import:
 
-| Broker              | Region            |
-| ------------------- | ----------------- |
-| CommSec             | Australia         |
-| SelfWealth          | Australia         |
-| Stake               | AU/US             |
-| CMC Markets         | Australia         |
-| CMC Invest          | Australia         |
-| Bell Direct         | Australia         |
-| nabtrade            | Australia         |
-| FIIG Securities     | Australia (Bonds) |
-| Interactive Brokers | Global            |
-| Schwab              | US                |
-| Vanguard            | AU/US             |
+| Broker              | Region            | Status |
+| ------------------- | ----------------- | ------ |
+| CommSec             | Australia         | ✅ |
+| SelfWealth          | Australia         | ✅ |
+| Stake               | AU/US             | ✅ |
+| CMC Markets         | Australia         | ✅ |
+| CMC Invest          | Australia         | ✅ |
+| Bell Direct         | Australia         | ✅ |
+| nabtrade            | Australia         | ✅ |
+| FIIG Securities     | Australia (Bonds) | ✅ |
+| Interactive Brokers | Global            | ✅ |
+| Schwab              | US                | ⏳ |
+| Vanguard            | AU/US             | ⏳ |
 
 Custom templates can be created for any broker and saved for reuse.
 
@@ -100,32 +131,35 @@ InvestaLens tracks investments across all major asset classes.
 
 ### Asset Types at a Glance
 
-| Asset Type                                    | Auto-Pricing | How to Add                         |
-| --------------------------------------------- | ------------ | ---------------------------------- |
-| Listed shares (ASX, NYSE, LSE, 60+ exchanges) | ✅           | Search by ticker                   |
-| ETFs and managed funds                        | ✅           | Search by ticker                   |
-| Bonds (listed)                                | ✅           | Search by ticker                   |
-| Bonds (unlisted/OTC)                          | Manual       | Custom Investment (Fixed Interest) |
-| Cryptocurrencies                              | ✅           | Search by name                     |
-| Foreign currencies                            | ✅           | Search by currency code            |
-| Term deposits                                 | Manual       | Custom Investment (Fixed Interest) |
-| Investment property                           | Manual       | Custom Investment                  |
-| Superannuation (accumulation)                 | Manual       | Custom Investment                  |
-| Precious metals                               | Manual       | Custom Investment                  |
+| Asset Type                                    | Auto-Pricing | How to Add                         | Status |
+| --------------------------------------------- | ------------ | ---------------------------------- | ------ |
+| Listed shares (ASX, NYSE, LSE, 60+ exchanges) | ✅           | Search by ticker                   | ✅ |
+| ETFs and managed funds                        | ✅           | Search by ticker                   | ✅ |
+| Bonds (listed)                                | ✅           | Search by ticker                   | ✅ |
+| Bonds (unlisted/OTC)                          | Manual       | Custom Investment (Fixed Interest) | ✅ |
+| Cryptocurrencies                              | ✅           | Search by name                     | ✅ |
+| Foreign currencies                            | ✅           | Search by currency code            | ✅ |
+| Term deposits                                 | Manual       | Custom Investment (Fixed Interest) | ✅ |
+| Investment property                           | Manual       | Custom Investment                  | ✅ |
+| Superannuation (accumulation)                 | Manual       | Custom Investment                  | ✅ |
+| Precious metals                               | Manual       | Custom Investment                  | ✅ |
 
 ### Bond Portfolio Features
 
-InvestaLens provides dedicated bond analytics:
+InvestaLens provides dedicated bond analytics (navigate to `/portfolio/[id]/bonds`):
 
-- Yield to maturity, modified duration, and credit quality breakdown
-- Maturity ladder and coupon calendar
-- Income forecasting and accrued interest tracking
-- Maturity alerts (30/60/90 days before expiry)
-- Import from FIIG Securities, ASX-listed bonds, and XTBs
+- Yield to maturity calculation ✅
+- Modified duration ✅
+- Maturity ladder (sorted by days to maturity) ✅
+- Coupon schedule generation ✅
+- Maturity alerts (30/60/90 days before expiry) ✅
+- Import from FIIG Securities ✅
+- Credit quality breakdown ✅
+- Income forecasting and accrued interest tracking ✅
 
 ### Net Worth & Liabilities
 
-Track your complete financial picture — mortgages, loans, and credit cards alongside your investments to see true net worth over time.
+Track your complete financial picture — mortgages, loans, and credit cards alongside your investments to see true net worth over time. *(⏳ To be Implemented — R4)*
 
 > **Full guide:** [Asset Support](docs/ASSETS.md)
 
@@ -137,19 +171,19 @@ Organise, share, and manage multiple portfolios.
 
 ### Organisation Tools
 
-| Feature               | Purpose                                                                                               |
-| --------------------- | ----------------------------------------------------------------------------------------------------- |
-| **Custom Groups**     | Group holdings by your own categories (e.g. "Growth", "Defensive", "Income") — applies to all reports |
-| **Labels**            | Tag holdings for filtered reporting (e.g. "Advisor A picks", "Tax loss candidates")                   |
-| **Consolidated View** | Aggregate view across all portfolios                                                                  |
+| Feature               | Purpose                                                                                               | Status |
+| --------------------- | ----------------------------------------------------------------------------------------------------- | ------ |
+| **Custom Groups**     | Group holdings by your own categories (e.g. "Growth", "Defensive", "Income") — applies to all reports | ✅ `/settings/groups` |
+| **Labels**            | Tag holdings for filtered reporting (e.g. "Advisor A picks", "Tax loss candidates")                   | ✅ `/settings/labels` |
+| **Consolidated View** | Aggregate view across all portfolios                                                                  | ✅ `/portfolio/consolidated` |
 
 ### Sharing & Collaboration
 
-Share portfolio access with advisers, accountants, or family:
+Share portfolio access with advisers, accountants, or family (manage at `/settings/sharing`):
 
-- **Read Only** — View all data
-- **Read and Write** — Add/modify holdings and trades
-- **Admin** — Full access except account-level changes
+- **Read Only** — View all data ✅
+- **Read and Write** — Add/modify holdings and trades ✅
+- **Admin** — Full access except account-level changes ✅
 
 ### Key Settings
 
@@ -174,25 +208,27 @@ Comprehensive reporting suite covering performance, allocation, risk, and compli
 
 ### Performance Reports
 
-| Report                    | Purpose                                                        |
-| ------------------------- | -------------------------------------------------------------- |
-| **Performance Report**    | Returns over any period, grouped and filtered by your criteria |
-| **Contribution Analysis** | Which holdings drove (or dragged) portfolio performance        |
-| **Multi-Period Report**   | Compare performance across up to 5 time periods                |
-| **Sold Securities**       | Realised gains/losses on closed positions                      |
-| **Future Income**         | Projected dividends and interest (up to 36 months)             |
-| **Calendar**              | Month-by-month dividend schedule                               |
+| Report                    | Purpose                                                        | Status |
+| ------------------------- | -------------------------------------------------------------- | ------ |
+| **Performance Report**    | Returns over any period, grouped and filtered by your criteria | ✅ `/reports/performance` |
+| **Contribution Analysis** | Which holdings drove (or dragged) portfolio performance        | ✅ `/reports/contribution` |
+| **Multi-Period Report**   | Compare performance across up to 5 time periods                | ✅ Server action (stub UI) |
+| **Sold Securities**       | Realised gains/losses on closed positions                      | ✅ `/reports/sold-securities` |
+| **Future Income**         | Projected dividends and interest (up to 36 months)             | ✅ `/reports/future-income` |
+| **Calendar**              | Month-by-month dividend schedule                               | ✅ Server action (stub UI) |
 
 ### Asset Allocation Reports
 
-| Report                       | Purpose                                                               |
-| ---------------------------- | --------------------------------------------------------------------- |
-| **Diversity Report**         | Portfolio weightings by sector, country, asset type, or custom group  |
-| **Exposure Report**          | Look-through ETF holdings to see true underlying exposure and overlap |
-| **Drawdown Risk**            | Maximum drawdown and RoMaD for each holding                           |
-| **Multi-Currency Valuation** | Portfolio valued in any of 67+ currencies at any date                 |
+| Report                       | Purpose                                                               | Status |
+| ---------------------------- | --------------------------------------------------------------------- | ------ |
+| **Diversity Report**         | Portfolio weightings by sector, country, asset type, or custom group  | ✅ `/reports/diversity` |
+| **Exposure Report**          | Look-through ETF holdings to see true underlying exposure and overlap | ⏳ R2 |
+| **Drawdown Risk**            | Maximum drawdown and RoMaD for each holding                           | ✅ Server action (stub UI) |
+| **Multi-Currency Valuation** | Portfolio valued in any of 67+ currencies at any date                 | ⏳ R3 |
 
 ### Risk Analysis (X-ray)
+
+*(⏳ To be Implemented — R2)*
 
 Automated portfolio health check scanning for:
 
@@ -214,21 +250,23 @@ Australian-focused tax reporting with full CGT calculation, AMIT support, and ta
 
 ### Available Tax Reports
 
-| Report                     | Purpose                                                                  |
-| -------------------------- | ------------------------------------------------------------------------ |
-| **Taxable Income Report**  | All dividend/distribution income mapped to ATO form codes                |
-| **CGT Report**             | Realised capital gains with discount, losses, and parcel-level breakdown |
-| **Unrealised CGT Report**  | Hypothetical tax liability if positions were sold today                  |
-| **Historical Cost Report** | Opening/closing cost base for accounting purposes                        |
+| Report                     | Purpose                                                                  | Status |
+| -------------------------- | ------------------------------------------------------------------------ | ------ |
+| **Taxable Income Report**  | All dividend/distribution income mapped to ATO form codes                | ✅ `/tax/taxable-income` |
+| **CGT Report**             | Realised capital gains with discount, losses, and parcel-level breakdown | ✅ `/tax/cgt` |
+| **Unrealised CGT Report**  | Hypothetical tax liability if positions were sold today                  | ✅ `/tax/unrealised` |
+| **Historical Cost Report** | Opening/closing cost base for accounting purposes                        | ✅ Server action (stub UI) |
 
 ### Key Features
 
-- **Sale allocation methods** — FIFO, LIFO, Minimise Capital Gain, Maximise Capital Gain, Minimise CGT (considers discount eligibility)
-- **Lock-in** — Preserve CGT allocation for completed financial years
-- **AMIT support** — Enter Annual Tax Statement components for ETFs and trusts
-- **Stapled securities** — Handles dual trust/company distributions
-- **Foreign exchange** — Automatic AUD conversion with manual override option
-- **Tax planning** — Tax loss selling identification, parcel comparison, Division 296 (SMSF)
+- **Sale allocation methods** — FIFO, LIFO, Minimise Capital Gain, Maximise Capital Gain, Minimise CGT (considers discount eligibility) ✅
+- **CGT parcel matcher** — Compare all 5 methods to find optimal allocation ✅
+- **CGT discount** — 50% individual/trust, 33⅓% SMSF, 0% company ✅
+- **Lock-in** — Preserve CGT allocation for completed financial years *(⏳ To be Implemented)*
+- **AMIT support** — Enter Annual Tax Statement components for ETFs and trusts *(Schema ready, ⏳ full processing To be Implemented)*
+- **Stapled securities** — Handles dual trust/company distributions *(⏳ To be Implemented)*
+- **Foreign exchange** — Automatic AUD conversion with manual override option *(⏳ R3)*
+- **Tax planning** — Tax loss selling identification, parcel comparison, Division 296 (SMSF) *(⏳ To be Implemented)*
 
 ### Tax Planning Strategies
 
@@ -249,20 +287,27 @@ InvestaLens handles most corporate events automatically — and guides you throu
 
 ### Automation Summary
 
-| Automated                     | Manual (requires your decision) |
-| ----------------------------- | ------------------------------- |
-| Share splits & consolidations | Mergers & acquisitions          |
-| Bonus shares                  | Demergers (spin-offs)           |
-| Special dividends             | Renounceable rights             |
-| Return of capital (ASX/NZX)   | IPOs                            |
-| Name/ticker changes (ASX/NZX) | Share purchase plans            |
+| Automated (✅ Implemented)           | Manual — requires your decision (✅ Implemented) |
+| ------------------------------------ | ------------------------------------------------ |
+| Share splits & consolidations        | Mergers (MERGER_IN/OUT server action)            |
+| Bonus shares                         | Rights issues (via corporate actions page)       |
+| Return of capital                    | |
 
-### What You Need to Do
+| To be Implemented                    | |
+| ------------------------------------ | |
+| Demergers (spin-offs)                | ⏳ |
+| IPO recording                        | ⏳ |
+| Automated corporate action detection | ⏳ |
+| Name/ticker change tracking          | ⏳ |
 
-- **Check notifications** — InvestaLens emails you and shows alerts for corporate events
-- **Record mergers** — Use the "Merge this Holding" feature when an acquisition completes
-- **Record demergers** — Follow the company's demerger booklet for cost base allocation
-- **Decide on rights** — Take up, sell on market, or let lapse
+### How to Record Corporate Actions
+
+1. Navigate to a holding detail page
+2. Click the holding code to open it
+3. Access **Corporate Actions** page
+4. Select action type: Stock Split, Bonus Issue, Return of Capital, or Rights Issue
+5. Enter the date and relevant values (ratio, quantity, price)
+6. Click "Record Action"
 
 > **Full guide:** [Corporate Actions](docs/ACTIONS.md)
 
@@ -274,19 +319,19 @@ Tools for research, monitoring, and financial planning beyond your existing port
 
 ### Research
 
-| Tool                 | Purpose                                                                           |
-| -------------------- | --------------------------------------------------------------------------------- |
-| **Share Checker**    | Hypothetical $10,000 investment in any security — see what it would have returned |
-| **Watchlist**        | Monitor potential investments with price alerts and research notes                |
-| **Market Sentiment** | Fear & Greed Index, VIX, Put/Call Ratio, Market Breadth, Yield Curve              |
+| Tool                 | Purpose                                                                           | Status |
+| -------------------- | --------------------------------------------------------------------------------- | ------ |
+| **Watchlist**        | Monitor potential investments with price alerts and research notes                | ✅ `/tools/watchlist` |
+| **Share Checker**    | Hypothetical $10,000 investment in any security — see what it would have returned | ⏳ R2 |
+| **Market Sentiment** | Fear & Greed Index, VIX, Put/Call Ratio, Market Breadth, Yield Curve              | ⏳ R2 |
 
 ### Financial Planning
 
-| Tool                | Purpose                                                                         |
-| ------------------- | ------------------------------------------------------------------------------- |
-| **FIRE Calculator** | Model your path to financial independence — years to FIRE, sensitivity analysis |
-| **Emergency Fund**  | Track savings target (3–6 months expenses) alongside investments                |
-| **Net Worth**       | Total assets minus liabilities over time                                        |
+| Tool                | Purpose                                                                         | Status |
+| ------------------- | ------------------------------------------------------------------------------- | ------ |
+| **FIRE Calculator** | Model your path to financial independence — years to FIRE, sensitivity analysis | ⏳ R2 |
+| **Emergency Fund**  | Track savings target (3–6 months expenses) alongside investments                | ⏳ R4 |
+| **Net Worth**       | Total assets minus liabilities over time                                        | ⏳ R4 |
 
 The FIRE Calculator integrates with your actual portfolio — pre-fills current value, uses your real historical return, and factors in dividend income and tax settings.
 
@@ -296,7 +341,9 @@ The FIRE Calculator integrates with your actual portfolio — pre-fills current 
 
 ## 9. Advanced Analytics
 
-Quantitative tools for portfolio construction, optimisation, and forward-looking analysis.
+*(⏳ All features in this section are To be Implemented — R2)*
+
+Quantitative tools for portfolio construction, optimisation, and forward-looking analysis. The Python analytics backend (`api/analytics/`) is scaffolded and the `/analytics` page exists as a placeholder.
 
 ### Portfolio Backtesting
 
@@ -365,21 +412,21 @@ Signal-based dynamic strategies (momentum, mean-reversion, trend-following, vola
 
 ## 10. Data Export & Backup
 
-You always own your data. Export everything at any time.
+You always own your data. Export everything at any time via `/settings/export`.
 
 ### Export Options
 
-| Format             | Contents                                                         |
-| ------------------ | ---------------------------------------------------------------- |
-| CSV (Trades)       | All transactions — re-importable into InvestaLens or other tools |
-| CSV (Holdings)     | Current positions with cost base and market value                |
-| CSV (Dividends)    | All dividend and distribution records                            |
-| JSON (Full Backup) | Complete portfolio data including settings                       |
-| PDF (Reports)      | Any report as formatted PDF                                      |
+| Format             | Contents                                                         | Status |
+| ------------------ | ---------------------------------------------------------------- | ------ |
+| CSV (Trades)       | All transactions — re-importable into InvestaLens or other tools | ✅ |
+| CSV (Holdings)     | Current positions with cost base and market value                | ✅ |
+| CSV (Dividends)    | All dividend and distribution records                            | ✅ |
+| JSON (Full Backup) | Complete portfolio data including settings                       | ✅ |
+| PDF (Reports)      | Any report as formatted PDF                                      | ⏳ R4 |
 
 ### Automated Backups
 
-Schedule daily, weekly, or monthly exports (JSON or CSV) delivered via email or cloud storage.
+Schedule daily, weekly, or monthly exports (JSON or CSV) delivered via email or cloud storage. *(⏳ To be Implemented — R4)*
 
 > **Full guide:** [Data Import & Export](docs/DATA_IMPORT.md#data-export)
 
@@ -387,19 +434,37 @@ Schedule daily, weekly, or monthly exports (JSON or CSV) delivered via email or 
 
 ## 11. API Access
 
-Programmatic access to all portfolio data via a RESTful API.
+Programmatic access to portfolio data via a RESTful API.
 
-### Capabilities
+### Implemented Capabilities
 
-- Read portfolios, holdings, transactions, and reports
-- Create/update transactions and holdings
-- Trigger imports and exports
-- Subscribe to webhooks for real-time notifications (trade executed, dividend paid, price alert triggered)
-- Rate limited to 100 requests/minute with burst allowance
+- ✅ List/create portfolios (`GET/POST /api/v1/portfolios`)
+- ✅ Get/update/delete portfolio (`GET/PATCH/DELETE /api/v1/portfolios/[id]`)
+- ✅ Search instruments (`GET /api/v1/market/search?q=...`)
+- ✅ Bearer token authentication with scope checking (read/write/admin)
+- ✅ Rate limited to 100 requests/minute per token
+- ✅ JSON response format with error codes
+
+### To be Implemented
+
+- ⏳ Holdings endpoints (GET/POST/DELETE)
+- ⏳ Transactions endpoints (GET/POST/PATCH/DELETE)
+- ⏳ Reports endpoints
+- ⏳ Import/Export endpoints
+- ⏳ Watchlist endpoints
+- ⏳ Market quote endpoint
+- ⏳ Webhooks for real-time notifications (R4)
+- ⏳ Token management UI
+- ⏳ SDKs
 
 ### Authentication
 
-Bearer token with configurable scopes (read, write, admin) and optional expiry.
+Bearer token with configurable scopes (read, write, admin) and optional expiry. Tokens are managed via `/settings/api-tokens`.
+
+```bash
+curl http://localhost:3000/api/v1/portfolios \
+  -H "Authorization: Bearer your-api-token-here"
+```
 
 > **Full guide:** [API Reference](docs/API.md)
 

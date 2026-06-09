@@ -1,6 +1,8 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
+import Link from "next/link";
+import { Users, Tag, FolderTree, Download, Key } from "lucide-react";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -46,6 +48,49 @@ export default async function SettingsPage() {
             </p>
           </div>
         </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Link
+          href="/settings/groups"
+          className="rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent"
+        >
+          <FolderTree className="h-5 w-5 text-primary" />
+          <h3 className="mt-2 font-medium">Custom Groups</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Organise instruments into groups</p>
+        </Link>
+        <Link
+          href="/settings/labels"
+          className="rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent"
+        >
+          <Tag className="h-5 w-5 text-primary" />
+          <h3 className="mt-2 font-medium">Labels</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Tag and filter holdings</p>
+        </Link>
+        <Link
+          href="/settings/sharing"
+          className="rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent"
+        >
+          <Users className="h-5 w-5 text-primary" />
+          <h3 className="mt-2 font-medium">Sharing</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Share portfolios with others</p>
+        </Link>
+        <Link
+          href="/settings/export"
+          className="rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent"
+        >
+          <Download className="h-5 w-5 text-primary" />
+          <h3 className="mt-2 font-medium">Export</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Download your data</p>
+        </Link>
+        <Link
+          href="/settings/api-tokens"
+          className="rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent"
+        >
+          <Key className="h-5 w-5 text-primary" />
+          <h3 className="mt-2 font-medium">API Tokens</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Manage API access</p>
+        </Link>
       </div>
     </div>
   );
