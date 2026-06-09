@@ -12,8 +12,8 @@ A fully functional portfolio tracker for Australian investors, deployable free o
 - **CSV import** — Full field mapping, validation, deduplication, broker templates (CommSec, SelfWealth, Stake, CMC Markets, CMC Invest, Bell Direct, nabtrade, FIIG)
 - **Market data** — ASX daily prices via Yahoo Finance, price caching
 - **Performance calculation** — Money-weighted returns, annualised returns
-- **Reports** — Performance, Contribution Analysis, Multi-Period, Sold Securities, Future Income, Calendar, Diversity, Exposure, Drawdown Risk, Multi-Currency Valuation, Historical Cost, All Trades
-- **Tax** — Taxable Income Report, CGT Report (with discount, parcel tracking, sale allocation methods), Unrealised CGT, AMIT support, stapled securities
+- **Reports** — Performance, Contribution Analysis, Multi-Period, Sold Securities, Future Income, Calendar, Diversity, Drawdown Risk, Historical Cost, All Trades
+- **Tax** — Taxable Income Report, CGT Report (with discount, parcel tracking, sale allocation methods), Unrealised CGT, AMIT schema support (full AMIT processing deferred to post-MVP)
 - **Corporate actions** — Automated (splits, consolidations, bonus, return of capital) + manual recording (mergers, demergers, IPOs, rights)
 - **Bonds/Fixed income** — Bond tracking, coupon calendar, maturity alerts, FIIG import
 - **Cash accounts** — Cash tracking alongside investments

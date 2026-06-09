@@ -1,5 +1,10 @@
 # R1-P1d: Organisation, Bonds, API & Export
 
+## Status
+
+- Completed: 2026-06-09
+- Completion note: Custom groups/labels/sharing actions, corporate actions (split, bonus, ROC, merger, rights), cash accounts, bond analytics (YTM, duration, coupons, maturity ladder), watchlist, DRP, REST API with auth/rate-limiting, CSV/JSON export, dashboard landing page, all UI pages created. Lint clean.
+
 ## Objective
 
 Implement portfolio organisation features (custom groups, labels, sharing, consolidated view), bond/fixed income tracking, the public REST API, data export, watchlist, and the main dashboard.
