@@ -1,0 +1,30 @@
+# Build outputs
+.next/
+out/
+build/
+dist/
+generated/
+
+# Dependencies
+node_modules/
+.venv/
+
+# Agent skills (third-party)
+.agents/
+
+# Lock files
+pnpm-lock.yaml
+uv.lock
+
+# Prisma migrations (auto-generated SQL)
+prisma/migrations/
+
+# Git
+.git/
+
+# IDE
+.vscode/
+
+# Misc
+*.min.js
+*.min.css

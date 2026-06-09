@@ -1,17 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { exportTrades, exportHoldings, exportDividends, exportFullBackup } from "@/lib/export/csv-export";
 import { Download } from "lucide-react";
 
 export default function ExportPage() {
-  const [loading, setLoading] = useState("");
 
   async function handleExport(type: string) {
-    setLoading(type);
-    // Note: In a real implementation, these would be triggered via API routes
-    // that return file downloads. For now, this shows the UI structure.
-    setLoading("");
     alert(`Export ${type} — requires a portfolio ID. Use the API endpoint or implement portfolio selector.`);
   }
 

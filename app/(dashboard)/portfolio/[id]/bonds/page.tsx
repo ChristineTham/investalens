@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { calculateYTM, getMaturityLadder } from "@/lib/calculations/bond-analytics";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { getMaturityLadder } from "@/lib/calculations/bond-analytics";
+import { formatDate } from "@/lib/utils";
 import { redirect } from "next/navigation";
 
 export default async function BondsPage({
