@@ -4,11 +4,11 @@ VNet integration, ingress configuration, custom domains, and TLS for Container A
 
 ## Ingress Modes
 
-| Mode | Visibility | Use Case |
-|------|-----------|----------|
-| External | Internet-accessible | Public APIs, web apps |
-| Internal | Not internet-accessible; reachable within the environment and VNet (if VNet-injected) | Microservices, back-end APIs |
-| Disabled | No HTTP ingress | Background workers, queue processors |
+| Mode     | Visibility                                                                            | Use Case                             |
+| -------- | ------------------------------------------------------------------------------------- | ------------------------------------ |
+| External | Internet-accessible                                                                   | Public APIs, web apps                |
+| Internal | Not internet-accessible; reachable within the environment and VNet (if VNet-injected) | Microservices, back-end APIs         |
+| Disabled | No HTTP ingress                                                                       | Background workers, queue processors |
 
 ### Bicep — External Ingress
 
@@ -42,11 +42,11 @@ Container Apps run inside an environment that can be injected into a VNet subnet
 
 ### Subnet Requirements
 
-| Requirement | Workload Profiles (default) | Consumption-only (legacy) |
-|------------|---------------------------|--------------------------|
-| Minimum subnet size | `/27` (32 addresses) | `/23` (512 addresses) |
-| Delegation | `Microsoft.App/environments` | `Microsoft.App/environments` |
-| Dedicated | Subnet must be exclusive to the Container Apps environment | Same |
+| Requirement         | Workload Profiles (default)                                | Consumption-only (legacy)    |
+| ------------------- | ---------------------------------------------------------- | ---------------------------- |
+| Minimum subnet size | `/27` (32 addresses)                                       | `/23` (512 addresses)        |
+| Delegation          | `Microsoft.App/environments`                               | `Microsoft.App/environments` |
+| Dedicated           | Subnet must be exclusive to the Container Apps environment | Same                         |
 
 ### Bicep — VNet-Integrated Environment
 
@@ -100,11 +100,11 @@ az containerapp hostname bind -n $APP -g $RG \
 
 ### DNS Configuration
 
-| Record Type | Name | Value |
-|------------|------|-------|
-| CNAME | `app.contoso.com` | `<app-name>.<region>.azurecontainerapps.io` |
-| TXT (verification) | `asuid.app.contoso.com` | `<verification-id>` |
-| A (apex domain) | `contoso.com` | Environment static IP |
+| Record Type        | Name                    | Value                                       |
+| ------------------ | ----------------------- | ------------------------------------------- |
+| CNAME              | `app.contoso.com`       | `<app-name>.<region>.azurecontainerapps.io` |
+| TXT (verification) | `asuid.app.contoso.com` | `<verification-id>`                         |
+| A (apex domain)    | `contoso.com`           | Environment static IP                       |
 
 > 💡 **Tip:** Use `az containerapp show -n $APP -g $RG --query properties.configuration.ingress.fqdn` to get the target FQDN for DNS records.
 
@@ -147,11 +147,11 @@ configuration: {
 
 ## Network Topology Summary
 
-| Topology | Environment `internal` | Ingress `external` | Access |
-|----------|----------------------|-------------------|--------|
-| Public app | `false` | `true` | Internet + VNet |
-| Internal microservice | `false` | `false` | Same environment; VNet if environment is VNet-injected |
-| Fully private (VNet-wide) | `true` | `true` | VNet only (no public IP); accessible from anywhere in the VNet |
-| Fully private (env-only) | `true` | `false` | VNet only (no public IP); accessible only within the Container Apps environment |
+| Topology                  | Environment `internal` | Ingress `external` | Access                                                                          |
+| ------------------------- | ---------------------- | ------------------ | ------------------------------------------------------------------------------- |
+| Public app                | `false`                | `true`             | Internet + VNet                                                                 |
+| Internal microservice     | `false`                | `false`            | Same environment; VNet if environment is VNet-injected                          |
+| Fully private (VNet-wide) | `true`                 | `true`             | VNet only (no public IP); accessible from anywhere in the VNet                  |
+| Fully private (env-only)  | `true`                 | `false`            | VNet only (no public IP); accessible only within the Container Apps environment |
 
 > ⚠️ **Warning:** An internal environment has no public IP. You need VPN, ExpressRoute, or a jump box to reach apps in an internal environment.

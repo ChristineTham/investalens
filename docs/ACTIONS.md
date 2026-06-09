@@ -26,25 +26,25 @@ InvestaLens automatically handles most corporate actions — splits, consolidati
 
 ## Automation Summary
 
-| Corporate Action | Automated? | Markets | Notes |
-|-----------------|------------|---------|-------|
-| Consolidations | ✅ Yes | All | Fully automated |
-| Share Splits | ✅ Yes | All | Fully automated |
-| Special Dividend | ✅ Yes | All | Fully automated |
-| Return of Capital | ✅ Yes (ASX & NZX) / ❌ No (other markets) | ASX & NZX only | Manual for other markets |
-| Bonus Shares | ✅ Yes | All | Fully automated |
-| Name Change | ✅ Yes (ASX & NZX) / ❌ No (other markets) | ASX & NZX only | Manual for other markets |
-| Renounceable Rights | ❌ No | — | Requires personal financial decision |
-| IPO | ❌ No | — | Record manually |
-| Share Purchase Plan (SPP) | ❌ No | — | Record as buy trade |
-| Mergers & Acquisitions | ❌ No | — | Use Merge feature |
-| Demerger (Spin-off) | ❌ No | — | Record manually |
-| Delisted Company | ❌ No | — | Record manually |
-| Share Buyback | ❌ No | — | Record as sell trade |
-| Broker Transfer | ❌ No | — | Record manually |
-| Share Transfer | ❌ No | — | Record manually |
-| Warrants | ❌ No | — | Record manually |
-| Stock Options | ❌ No | — | Record manually |
+| Corporate Action          | Automated?                                 | Markets        | Notes                                |
+| ------------------------- | ------------------------------------------ | -------------- | ------------------------------------ |
+| Consolidations            | ✅ Yes                                     | All            | Fully automated                      |
+| Share Splits              | ✅ Yes                                     | All            | Fully automated                      |
+| Special Dividend          | ✅ Yes                                     | All            | Fully automated                      |
+| Return of Capital         | ✅ Yes (ASX & NZX) / ❌ No (other markets) | ASX & NZX only | Manual for other markets             |
+| Bonus Shares              | ✅ Yes                                     | All            | Fully automated                      |
+| Name Change               | ✅ Yes (ASX & NZX) / ❌ No (other markets) | ASX & NZX only | Manual for other markets             |
+| Renounceable Rights       | ❌ No                                      | —              | Requires personal financial decision |
+| IPO                       | ❌ No                                      | —              | Record manually                      |
+| Share Purchase Plan (SPP) | ❌ No                                      | —              | Record as buy trade                  |
+| Mergers & Acquisitions    | ❌ No                                      | —              | Use Merge feature                    |
+| Demerger (Spin-off)       | ❌ No                                      | —              | Record manually                      |
+| Delisted Company          | ❌ No                                      | —              | Record manually                      |
+| Share Buyback             | ❌ No                                      | —              | Record as sell trade                 |
+| Broker Transfer           | ❌ No                                      | —              | Record manually                      |
+| Share Transfer            | ❌ No                                      | —              | Record manually                      |
+| Warrants                  | ❌ No                                      | —              | Record manually                      |
+| Stock Options             | ❌ No                                      | —              | Record manually                      |
 
 ---
 
@@ -110,12 +110,12 @@ InvestaLens will do the rest.
 
 ### How It Works
 
-| Action | What Happens |
-|--------|-------------|
-| Cost base | Transferred from the cancelled holding to the new holding |
-| Performance | Market value at merge date is captured for both the cancelled and new holdings, ensuring no performance is "lost" |
-| Existing holding in acquirer | Additional shares from the merger are simply added to your existing holding |
-| Sell the new shares | CGT calculation traces back through the merge chain to find original purchase history |
+| Action                       | What Happens                                                                                                      |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Cost base                    | Transferred from the cancelled holding to the new holding                                                         |
+| Performance                  | Market value at merge date is captured for both the cancelled and new holdings, ensuring no performance is "lost" |
+| Existing holding in acquirer | Additional shares from the merger are simply added to your existing holding                                       |
+| Sell the new shares          | CGT calculation traces back through the merge chain to find original purchase history                             |
 
 ### Merge Chain Tracking
 
@@ -166,10 +166,12 @@ It may take up to a week (5 business days) for data providers to supply informat
 ### How to Record IPO Shares
 
 **Option 1: Wait a few days**
+
 - Wait for the security to appear in InvestaLens (usually within a week)
 - All daily prices will be available going back to the first day of trading
 
 **Option 2: Create a Custom Investment**
+
 - Create a Custom Investment immediately
 - Later, merge it to the listed security once it becomes available
 
@@ -232,6 +234,7 @@ Record as a **sell trade**. The company will advise the breakdown between capita
 ### Delisted Company
 
 If a company is delisted (e.g. due to administration):
+
 - Record a sell trade at $0 (or the final price received) to close the position
 - This will create a capital loss in your CGT Report
 
@@ -257,11 +260,11 @@ Many corporate actions (splits, consolidations, some rights issues) involve a de
 
 ### What Happens During Deferred Settlement
 
-| Effect | Details |
-|--------|---------|
-| Temporary code | The holding trades under a new code (original + "DA", e.g. AHZ → AHZDA) |
-| Price updates pause | No price updates under the main share code during this period |
-| Settlement deferred | T+3 settlement is deferred until the exchange-decided end date |
+| Effect                | Details                                                                      |
+| --------------------- | ---------------------------------------------------------------------------- |
+| Temporary code        | The holding trades under a new code (original + "DA", e.g. AHZ → AHZDA)      |
+| Price updates pause   | No price updates under the main share code during this period                |
+| Settlement deferred   | T+3 settlement is deferred until the exchange-decided end date               |
 | Reverts automatically | Once the period ends, the holding reverts to its main code and prices resume |
 
 ### Tips
@@ -275,10 +278,10 @@ Many corporate actions (splits, consolidations, some rights issues) involve a de
 
 ## Related Documentation
 
-| Document | Description |
-|----------|-------------|
-| [TAX.md](TAX.md) | CGT implications of corporate actions and cost base adjustments |
-| [ACCOUNT.md](ACCOUNT.md) | Portfolio settings, share transfers between portfolios |
-| [ASSETS.md](ASSETS.md) | Supported asset types and custom investments |
-| [TOOLS.md](TOOLS.md) | Reports for tracking corporate action impacts |
-| [GETTING-STARTED.md](GETTING-STARTED.md) | Adding and recording investments |
+| Document                                 | Description                                                     |
+| ---------------------------------------- | --------------------------------------------------------------- |
+| [TAX.md](TAX.md)                         | CGT implications of corporate actions and cost base adjustments |
+| [ACCOUNT.md](ACCOUNT.md)                 | Portfolio settings, share transfers between portfolios          |
+| [ASSETS.md](ASSETS.md)                   | Supported asset types and custom investments                    |
+| [TOOLS.md](TOOLS.md)                     | Reports for tracking corporate action impacts                   |
+| [GETTING-STARTED.md](GETTING-STARTED.md) | Adding and recording investments                                |

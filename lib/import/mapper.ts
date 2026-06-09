@@ -1,8 +1,4 @@
-import type {
-  ImportConfig,
-  ParsedTransaction,
-  RawCsvRow,
-} from "./types";
+import type { ImportConfig, ParsedTransaction, RawCsvRow } from "./types";
 import { transactionTypes } from "@/lib/validators/transaction";
 
 interface MappingResult {
@@ -62,7 +58,8 @@ export function mapRows(
       rawType,
       config.transactionTypeMap
     );
-    if (!transactionType) rowErrors.push(`Unknown transaction type: "${rawType}"`);
+    if (!transactionType)
+      rowErrors.push(`Unknown transaction type: "${rawType}"`);
 
     const brokerage =
       parseNumber(
@@ -101,7 +98,10 @@ export function mapRows(
   return { transactions, errors };
 }
 
-function getField(row: RawCsvRow, fieldName: string | null | undefined): string {
+function getField(
+  row: RawCsvRow,
+  fieldName: string | null | undefined
+): string {
   if (!fieldName) return "";
   return row[fieldName] || "";
 }
@@ -117,7 +117,7 @@ function parseDate(value: string, format: string): Date | null {
     return isNaN(d.getTime()) ? null : d;
   }
 
-  const separators = cleaned.match(/[/\-.]/)
+  const separators = cleaned.match(/[/\-.]/);
   const sep = separators ? separators[0] : "/";
   const parts = cleaned.split(sep);
 
@@ -149,10 +149,7 @@ function parseDate(value: string, format: string): Date | null {
   return date;
 }
 
-function parseNumber(
-  value: string,
-  decimalSeparator: string
-): number | null {
+function parseNumber(value: string, decimalSeparator: string): number | null {
   if (!value) return null;
 
   let cleaned = value.replace(/[$ ,]/g, "");

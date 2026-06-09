@@ -25,7 +25,7 @@
 // FILE 2: lib/db/client.ts
 // =============================================================================
 
-import { createClient } from '@neondatabase/neon-js';
+import { createClient } from "@neondatabase/neon-js";
 
 // Import generated types if available
 // import type { Database } from "./database.types";
@@ -62,7 +62,7 @@ export const dbClient = createClient({
  */
 async function getPostsWithAuthors() {
   const { data, error } = await dbClient
-    .from('posts')
+    .from("posts")
     .select(
       `
       id,
@@ -76,11 +76,11 @@ async function getPostsWithAuthors() {
       )
     `
     )
-    .order('created_at', { ascending: false })
+    .order("created_at", { ascending: false })
     .limit(10);
 
   if (error) {
-    console.error('Error fetching posts:', error.message);
+    console.error("Error fetching posts:", error.message);
     return [];
   }
 
@@ -92,7 +92,7 @@ async function getPostsWithAuthors() {
  */
 async function createPost(authorId: string, title: string, content: string) {
   const { data, error } = await dbClient
-    .from('posts')
+    .from("posts")
     .insert({
       author_id: authorId,
       title,
@@ -116,9 +116,9 @@ async function updatePost(
   updates: { title?: string; content?: string }
 ) {
   const { data, error } = await dbClient
-    .from('posts')
+    .from("posts")
     .update(updates)
-    .eq('id', postId)
+    .eq("id", postId)
     .select()
     .single();
 
@@ -133,7 +133,7 @@ async function updatePost(
  * Example: Delete a post
  */
 async function deletePost(postId: number) {
-  const { error } = await dbClient.from('posts').delete().eq('id', postId);
+  const { error } = await dbClient.from("posts").delete().eq("id", postId);
 
   if (error) {
     throw new Error(`Failed to delete post: ${error.message}`);
@@ -154,11 +154,11 @@ async function searchPosts(
   const to = from + pageSize - 1;
 
   const { data, error, count } = await dbClient
-    .from('posts')
-    .select('*', { count: 'exact' })
-    .ilike('title', `%${query}%`)
+    .from("posts")
+    .select("*", { count: "exact" })
+    .ilike("title", `%${query}%`)
     .range(from, to)
-    .order('created_at', { ascending: false });
+    .order("created_at", { ascending: false });
 
   if (error) {
     throw new Error(`Search failed: ${error.message}`);

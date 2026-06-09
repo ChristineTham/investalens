@@ -16,8 +16,9 @@ This guide helps you diagnose and fix common issues with app registrations and a
 ### Redirect URI Mismatch
 
 **Error message:**
+
 ```
-AADSTS50011: The redirect URI 'http://localhost:3000' specified in the request 
+AADSTS50011: The redirect URI 'http://localhost:3000' specified in the request
 does not match the redirect URIs configured for the application.
 ```
 
@@ -26,6 +27,7 @@ does not match the redirect URIs configured for the application.
 **Solutions:**
 
 1. **Check exact match** (case-sensitive, trailing slash matters):
+
    ```
    Registered: https://myapp.com/callback
    Request:    https://myapp.com/callback/  ❌ (trailing slash)
@@ -34,6 +36,7 @@ does not match the redirect URIs configured for the application.
    ```
 
 2. **Add URI to app registration:**
+
    ```bash
    # Portal: Authentication → Add redirect URI
    # CLI:
@@ -49,12 +52,14 @@ does not match the redirect URIs configured for the application.
 ### Invalid Client Secret
 
 **Error message:**
+
 ```
-AADSTS7000215: Invalid client secret provided. 
+AADSTS7000215: Invalid client secret provided.
 Ensure the secret being sent in the request is the client secret value, not the client secret ID.
 ```
 
 **Causes:**
+
 - Client secret expired
 - Wrong secret value (copied secret ID instead of value)
 - Secret doesn't match app registration
@@ -74,11 +79,13 @@ Ensure the secret being sent in the request is the client secret value, not the 
 ### User Consent Required
 
 **Error message:**
+
 ```
 AADSTS65001: The user or administrator has not consented to use the application
 ```
 
 **Causes:**
+
 - Application permissions require admin consent
 - User hasn't consented to delegated permissions
 - Consent was revoked
@@ -86,6 +93,7 @@ AADSTS65001: The user or administrator has not consented to use the application
 **Solutions:**
 
 1. **Grant admin consent (if admin):**
+
    ```bash
    az ad app permission admin-consent --id $APP_ID
    ```
@@ -101,6 +109,7 @@ AADSTS65001: The user or administrator has not consented to use the application
 ### Grant Declined
 
 **Error message:**
+
 ```
 AADSTS70000: The request was denied because one or more permissions have been declined
 ```
@@ -124,11 +133,13 @@ AADSTS70000: The request was denied because one or more permissions have been de
 ### Application Not Found
 
 **Error message:**
+
 ```
 AADSTS700016: Application with identifier '{app-id}' was not found in the directory
 ```
 
 **Causes:**
+
 - Wrong application ID
 - Wrong tenant ID
 - Service principal not created
@@ -137,6 +148,7 @@ AADSTS700016: Application with identifier '{app-id}' was not found in the direct
 **Solutions:**
 
 1. **Verify application ID:**
+
    ```bash
    az ad app list --display-name "MyApp" --query "[].{Name:displayName, AppId:appId}"
    ```
@@ -149,11 +161,13 @@ AADSTS700016: Application with identifier '{app-id}' was not found in the direct
 ### Application Doesn't have a Service Principal
 
 **Error message:**
+
 ```
 The app is trying to access a service 'your_app_id'(your_app_name) that your organization 'your_tenant_id' lacks a service principal for
 ```
 
 **Causes:**
+
 - Your tenant is not configured to automatically provision the service principal for app registrations in it.
 
 **Solutions:**
@@ -166,6 +180,7 @@ The app is trying to access a service 'your_app_id'(your_app_name) that your org
 ### Missing Required Field
 
 **Error message:**
+
 ```
 AADSTS90014: The required field 'client_id' is missing from the request
 ```
@@ -183,6 +198,7 @@ Unless the the access token is encrypted, you can decode and view its claims sec
 **Tool:** https://jwt.ms
 
 **How to use:**
+
 1. Copy your access token
 2. Paste into jwt.ms
 3. Review claims:
@@ -200,6 +216,7 @@ Unless the the access token is encrypted, you can decode and view its claims sec
 **Use for:** Inspecting HTTP requests/responses
 
 **What to check:**
+
 - Authorization header format: `Bearer {token}`
 - Token is being sent
 - Response status codes and error messages
@@ -209,6 +226,7 @@ Unless the the access token is encrypted, you can decode and view its claims sec
 **Access:** Azure Portal → Microsoft Entra ID → Sign-in logs
 
 **What to check:**
+
 - Failed sign-in attempts
 - Error codes and messages
 - User consent status
@@ -216,23 +234,23 @@ Unless the the access token is encrypted, you can decode and view its claims sec
 
 ## Common Error Codes Reference
 
-| Error Code | Meaning | Common Cause |
-|------------|---------|--------------|
-| AADSTS50011 | Redirect URI mismatch | URI not registered or doesn't match |
-| AADSTS50020 | Invalid tenant | Wrong tenant in authority URL |
-| AADSTS50034 | User not found | User doesn't exist in tenant |
-| AADSTS50053 | Account locked | Too many failed attempts |
-| AADSTS50055 | Password expired | User needs to reset password |
-| AADSTS50057 | Account disabled | User account disabled |
-| AADSTS50058 | Silent sign-in failed | Interactive auth required |
-| AADSTS50059 | Tenant not found | Invalid tenant ID |
-| AADSTS65001 | Consent required | User/admin hasn't consented |
-| AADSTS70000 | Grant declined | User denied consent |
-| AADSTS70001 | App disabled | App registration disabled |
-| AADSTS700016 | App not found | Invalid app ID or wrong tenant |
-| AADSTS7000215 | Invalid client secret | Wrong/expired secret |
-| AADSTS90014 | Missing field | Required parameter not sent |
-| AADSTS90072 | Consent needed | Admin consent required |
+| Error Code    | Meaning               | Common Cause                        |
+| ------------- | --------------------- | ----------------------------------- |
+| AADSTS50011   | Redirect URI mismatch | URI not registered or doesn't match |
+| AADSTS50020   | Invalid tenant        | Wrong tenant in authority URL       |
+| AADSTS50034   | User not found        | User doesn't exist in tenant        |
+| AADSTS50053   | Account locked        | Too many failed attempts            |
+| AADSTS50055   | Password expired      | User needs to reset password        |
+| AADSTS50057   | Account disabled      | User account disabled               |
+| AADSTS50058   | Silent sign-in failed | Interactive auth required           |
+| AADSTS50059   | Tenant not found      | Invalid tenant ID                   |
+| AADSTS65001   | Consent required      | User/admin hasn't consented         |
+| AADSTS70000   | Grant declined        | User denied consent                 |
+| AADSTS70001   | App disabled          | App registration disabled           |
+| AADSTS700016  | App not found         | Invalid app ID or wrong tenant      |
+| AADSTS7000215 | Invalid client secret | Wrong/expired secret                |
+| AADSTS90014   | Missing field         | Required parameter not sent         |
+| AADSTS90072   | Consent needed        | Admin consent required              |
 
 ## Best Practices for Troubleshooting
 

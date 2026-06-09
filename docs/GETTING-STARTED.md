@@ -56,29 +56,30 @@ See [DATA_IMPORT.md](DATA_IMPORT.md) for the full list of supported fields and m
 #### Requirements
 
 For your spreadsheet to successfully import:
+
 - The first row must contain a header for each column
 - The spreadsheet must contain at minimum the 5 compulsory data fields (column names don't need to match — you'll map them during import)
 
 #### Compulsory Fields
 
-| Field | Description | Format | Example |
-|-------|-------------|--------|---------|
-| Trade Date | The date of the trade | Any date format (configured during import) | 2005-05-22 |
-| Instrument Code | The instrument code (stock ticker, fund name, etc) | code | TLS |
-| Quantity | The quantity of shares bought or sold | Integer (positive value) | 1000 |
-| Price in Dollars | The price per share in the currency of the market | Decimal (up to 6dp) | 12.123456 |
-| Transaction Type | Whether the trade was a buy or sell | BUY, SELL | BUY |
+| Field            | Description                                        | Format                                     | Example    |
+| ---------------- | -------------------------------------------------- | ------------------------------------------ | ---------- |
+| Trade Date       | The date of the trade                              | Any date format (configured during import) | 2005-05-22 |
+| Instrument Code  | The instrument code (stock ticker, fund name, etc) | code                                       | TLS        |
+| Quantity         | The quantity of shares bought or sold              | Integer (positive value)                   | 1000       |
+| Price in Dollars | The price per share in the currency of the market  | Decimal (up to 6dp)                        | 12.123456  |
+| Transaction Type | Whether the trade was a buy or sell                | BUY, SELL                                  | BUY        |
 
 #### Optional Fields
 
-| Field | Description | Format | Example | Notes |
-|-------|-------------|--------|---------|-------|
-| Combined Code | Instrument Code and Market Code separated by a period | InstrumentCode.MarketCode | TLS.ASX | Can be used instead of separate Instrument Code and Market Code columns |
-| Market Code | The market code | ASX, NZX, LSE, NYSE, NASDAQ | ASX | |
-| Exchange Rate | Exchange rate applied to share price | Decimal (up to 6dp) | 1.123456 | Defaults to closing rate on trade date |
-| Brokerage | Brokerage fee paid per trade | Decimal (up to 2dp) | 39.95 | Defaults to zero |
-| Brokerage Currency | Currency the brokerage was paid in | ISO 4217 format | AUD | Defaults to market currency |
-| Comments | Comments stored with the transaction | text | Recommended by advisor | |
+| Field              | Description                                           | Format                      | Example                | Notes                                                                   |
+| ------------------ | ----------------------------------------------------- | --------------------------- | ---------------------- | ----------------------------------------------------------------------- |
+| Combined Code      | Instrument Code and Market Code separated by a period | InstrumentCode.MarketCode   | TLS.ASX                | Can be used instead of separate Instrument Code and Market Code columns |
+| Market Code        | The market code                                       | ASX, NZX, LSE, NYSE, NASDAQ | ASX                    |                                                                         |
+| Exchange Rate      | Exchange rate applied to share price                  | Decimal (up to 6dp)         | 1.123456               | Defaults to closing rate on trade date                                  |
+| Brokerage          | Brokerage fee paid per trade                          | Decimal (up to 2dp)         | 39.95                  | Defaults to zero                                                        |
+| Brokerage Currency | Currency the brokerage was paid in                    | ISO 4217 format             | AUD                    | Defaults to market currency                                             |
+| Comments           | Comments stored with the transaction                  | text                        | Recommended by advisor |                                                                         |
 
 #### Step-by-Step Import Guide
 
@@ -172,6 +173,7 @@ InvestaLens picks up market buy and sell transactions from your broker, but if y
 Automatic DRP is available for select ASX and NZX listed holdings where the company offers a Dividend Reinvestment Plan and InvestaLens has the DRP data available.
 
 To enable automatic DRP:
+
 1. Navigate to the individual holding page
 2. Click the **Edit Holding** tab
 3. Enable **Automatically reinvest dividends**
@@ -209,11 +211,13 @@ Labels can be anything you like, and holdings can have more than one label assig
 ### Creating and Applying Labels
 
 Labels can be created and applied from:
+
 - The **Settings** tab
 - The **Performance Report** (via "Filter by Label" > "Manage")
 - An **Individual Holding Page** (via "Manage Labels")
 
 To create a label:
+
 1. Navigate to one of the above locations
 2. Type in the label name
 3. Select the holdings to apply the label to
@@ -239,6 +243,7 @@ Once your portfolio is populated:
 InvestaLens uses a money-weighted return methodology, meaning investment performance takes account of the size and timing of cash flows. This gives you a true picture of your actual investment experience, including the impact of when you added or withdrew funds.
 
 Performance is calculated including:
+
 - Capital gains and losses
 - Dividend and distribution income
 - Currency fluctuations (for foreign holdings)
@@ -248,11 +253,11 @@ Performance is calculated including:
 
 ## Related Documentation
 
-| Document | Description |
-|----------|-------------|
+| Document                         | Description                                                       |
+| -------------------------------- | ----------------------------------------------------------------- |
 | [DATA_IMPORT.md](DATA_IMPORT.md) | Full import architecture, CSV field mapping, and broker templates |
-| [TOOLS.md](TOOLS.md) | All performance, allocation, and tax reports |
-| [ACCOUNT.md](ACCOUNT.md) | Portfolio settings, sharing, custom groups, and labels |
-| [ASSETS.md](ASSETS.md) | Supported asset types and stock exchanges |
-| [TAX.md](TAX.md) | Australian tax reporting (CGT, taxable income, AMIT) |
-| [ACTIONS.md](ACTIONS.md) | Corporate actions (splits, mergers, demergers, rights issues) |
+| [TOOLS.md](TOOLS.md)             | All performance, allocation, and tax reports                      |
+| [ACCOUNT.md](ACCOUNT.md)         | Portfolio settings, sharing, custom groups, and labels            |
+| [ASSETS.md](ASSETS.md)           | Supported asset types and stock exchanges                         |
+| [TAX.md](TAX.md)                 | Australian tax reporting (CGT, taxable income, AMIT)              |
+| [ACTIONS.md](ACTIONS.md)         | Corporate actions (splits, mergers, demergers, rights issues)     |

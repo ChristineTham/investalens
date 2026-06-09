@@ -43,13 +43,13 @@ def get_parent_token(tenant_id: str, blueprint_app_id: str,
 
 The parent token carries:
 
-| Claim | Value |
-|-------|-------|
-| `aud` | `api://AzureADTokenExchange` |
-| `iss` | `https://login.microsoftonline.com/{tenant}/v2.0` |
-| `sub` | Blueprint SP object ID |
-| `appid` | Blueprint appId |
-| `idtyp` | `app` |
+| Claim   | Value                                             |
+| ------- | ------------------------------------------------- |
+| `aud`   | `api://AzureADTokenExchange`                      |
+| `iss`   | `https://login.microsoftonline.com/{tenant}/v2.0` |
+| `sub`   | Blueprint SP object ID                            |
+| `appid` | Blueprint appId                                   |
+| `idtyp` | `app`                                             |
 
 This token cannot call Graph directly — it's an intermediate used as `client_assertion` in step 2.
 

@@ -6,8 +6,8 @@ Health probes enable automated failover and recovery. Without them, load balance
 
 This file covers **global / platform-level** probe checks (Azure Front Door, Traffic Manager, Application Insights connectivity). For service-specific health-probe checks, configuration commands, and IaC patches, see:
 
-| Service | Reference |
-|---|---|
+| Service         | Reference                                                              |
+| --------------- | ---------------------------------------------------------------------- |
 | Azure Functions | [services/functions/reliability.md](services/functions/reliability.md) |
 
 > Azure App Service and Azure Container Apps per-service references are planned but not yet shipped in this skill version.
@@ -24,6 +24,7 @@ az afd origin-group list \
 ```
 
 **Interpretation:**
+
 - `probePath` empty / null → ❌ No active health probing → no automatic failover
 - `probePath = /api/health` (or similar) → ✅ Probe configured
 
@@ -52,6 +53,7 @@ az webapp config appsettings list \
 ```
 
 For Function Apps:
+
 ```bash
 az functionapp config appsettings list \
   --name <app-name> \
@@ -72,6 +74,7 @@ These apply across all services:
 ## Reporting (for the Multi-Region row)
 
 For the `Multi-region failover` row of the assessment table:
+
 - ✅ — Front Door (or Traffic Manager) exists AND has a non-empty `probePath` / `monitorConfig.path`
 - ⚠️ Partial — global load balancer exists but has no health probe configured (manual failover only)
 - ❌ — no global load balancer

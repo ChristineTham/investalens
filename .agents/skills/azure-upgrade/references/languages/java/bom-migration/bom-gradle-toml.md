@@ -11,6 +11,7 @@ Use `TARGET_AZURE_SDK_BOM_VERSION` resolved in the workflow. Do not keep an exis
 ## Step 1 — Add or upgrade the BOM
 
 In `gradle/libs.versions.toml`:
+
 ```toml
 [versions]
 azureSdkBom = "{bom_version}"
@@ -20,11 +21,13 @@ azure-sdk-bom = { group = "com.azure", name = "azure-sdk-bom", version.ref = "az
 ```
 
 In `build.gradle` (Groovy DSL):
+
 ```groovy
 implementation enforcedPlatform(libs.azure.sdk.bom)
 ```
 
 In `build.gradle.kts` (Kotlin DSL):
+
 ```kotlin
 implementation(enforcedPlatform(libs.azure.sdk.bom))
 ```
@@ -69,6 +72,7 @@ Update `build.gradle` and `[bundles]` to use the new aliases.
 ## TOML patterns to recognise
 
 Libraries may use any of these forms — handle all of them:
+
 ```toml
 lib = { group = "g", name = "a", version.ref = "v" }
 lib = { module = "g:a", version.ref = "v" }

@@ -8,20 +8,20 @@ metadata:
     - "https://nextjs.org/docs/app/building-your-application/authentication"
   sitemap: "https://authjs.dev/sitemap.xml"
   pathPatterns:
-    - 'middleware.ts'
-    - 'middleware.js'
-    - 'src/middleware.ts'
-    - 'src/middleware.js'
-    - 'clerk.config.*'
-    - 'app/sign-in/**'
-    - 'app/sign-up/**'
-    - 'src/app/sign-in/**'
-    - 'src/app/sign-up/**'
-    - 'app/(auth)/**'
-    - 'src/app/(auth)/**'
-    - 'auth.config.*'
-    - 'auth.ts'
-    - 'auth.js'
+    - "middleware.ts"
+    - "middleware.js"
+    - "src/middleware.ts"
+    - "src/middleware.js"
+    - "clerk.config.*"
+    - "app/sign-in/**"
+    - "app/sign-up/**"
+    - "src/app/sign-in/**"
+    - "src/app/sign-up/**"
+    - "app/(auth)/**"
+    - "src/app/(auth)/**"
+    - "auth.config.*"
+    - "auth.ts"
+    - "auth.js"
   bashPatterns:
     - '\bnpm\s+(install|i|add)\s+[^\n]*@clerk/nextjs\b'
     - '\bpnpm\s+(install|i|add)\s+[^\n]*@clerk/nextjs\b'
@@ -36,11 +36,10 @@ metadata:
     - '\bbun\s+(install|i|add)\s+[^\n]*@auth0/nextjs-auth0\b'
     - '\byarn\s+add\s+[^\n]*@auth0/nextjs-auth0\b'
 validate:
-  -
-    pattern: 'VERCEL_CLIENT_(ID|SECRET)|vercel\.com/oauth/(authorize|access_token|token)'
-    message: 'Hand-rolled Vercel OAuth detected. Use the Sign in with Vercel OIDC provider instead of manual token exchange.'
+  - pattern: 'VERCEL_CLIENT_(ID|SECRET)|vercel\.com/oauth/(authorize|access_token|token)'
+    message: "Hand-rolled Vercel OAuth detected. Use the Sign in with Vercel OIDC provider instead of manual token exchange."
     severity: recommended
-    skipIfFileContains: 'signInWithVercel|@vercel/auth'
+    skipIfFileContains: "signInWithVercel|@vercel/auth"
 retrieval:
   aliases:
     - authentication
@@ -66,27 +65,22 @@ retrieval:
     - protect this route with auth
     - set up NextAuth
 chainTo:
-  -
-    pattern: 'export\s+(default\s+)?function\s+middleware'
+  - pattern: 'export\s+(default\s+)?function\s+middleware'
     targetSkill: routing-middleware
-    message: 'Auth logic in middleware.ts — loading Routing Middleware guidance for proxy.ts migration in Next.js 16.'
-  -
-    pattern: 'from\s+[''\"](jsonwebtoken)[''"]|require\s*\(\s*[''\"](jsonwebtoken)[''"]|jwt\.sign\s*\('
+    message: "Auth logic in middleware.ts — loading Routing Middleware guidance for proxy.ts migration in Next.js 16."
+  - pattern: 'from\s+[''\"](jsonwebtoken)[''"]|require\s*\(\s*[''\"](jsonwebtoken)[''"]|jwt\.sign\s*\('
     targetSkill: auth
-    message: 'Manual JWT handling with jsonwebtoken detected — use Clerk or Auth.js for managed auth with built-in JWT session handling, CSRF protection, and token rotation.'
-  -
-    pattern: 'from\s+[''\"](next-auth)[''"]|NextAuthOptions|authOptions\s*:'
+    message: "Manual JWT handling with jsonwebtoken detected — use Clerk or Auth.js for managed auth with built-in JWT session handling, CSRF protection, and token rotation."
+  - pattern: 'from\s+[''\"](next-auth)[''"]|NextAuthOptions|authOptions\s*:'
     targetSkill: auth
-    message: 'Legacy next-auth (v4) pattern detected — loading auth guidance for Auth.js v5 migration with the new universal auth() helper.'
-  -
-    pattern: "from\\s+['\"]@clerk/nextjs['\"]"
+    message: "Legacy next-auth (v4) pattern detected — loading auth guidance for Auth.js v5 migration with the new universal auth() helper."
+  - pattern: "from\\s+['\"]@clerk/nextjs['\"]"
     targetSkill: auth
-    message: 'Clerk import detected — loading Auth guidance for Clerk v7 patterns, middleware setup, organization handling, and Vercel Marketplace integration.'
-    skipIfFileContains: 'clerkMiddleware|ClerkProvider'
-  -
-    pattern: "bcrypt|argon2"
+    message: "Clerk import detected — loading Auth guidance for Clerk v7 patterns, middleware setup, organization handling, and Vercel Marketplace integration."
+    skipIfFileContains: "clerkMiddleware|ClerkProvider"
+  - pattern: "bcrypt|argon2"
     targetSkill: auth
-    message: 'Manual password hashing detected (bcrypt/argon2) — use Clerk or Auth0 for managed authentication with built-in password hashing, rate limiting, and breach detection.'
+    message: "Manual password hashing detected (bcrypt/argon2) — use Clerk or Auth0 for managed authentication with built-in password hashing, rate limiting, and breach detection."
     skipIfFileContains: "@clerk|@auth0"
 ---
 
@@ -106,6 +100,7 @@ vercel integration add clerk
 ```
 
 Auto-provisioned environment variables:
+
 - `CLERK_SECRET_KEY` — server-side API key
 - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` — client-side publishable key
 
@@ -370,13 +365,13 @@ export default async function Page() {
 
 ## Decision Matrix
 
-| Need | Recommended | Why |
-|------|------------|-----|
-| Fastest setup on Vercel | Clerk | Native Marketplace, auto-provisioned env vars |
-| Passwordless / social login flows | Descope | Visual flow builder, Marketplace native |
-| Enterprise SSO / SAML / multi-tenant | Auth0 | Deep enterprise identity support |
-| Pre-built UI components | Clerk | Drop-in `<SignIn />`, `<UserButton />` |
-| Vercel unified billing | Clerk or Descope | Both are native Marketplace integrations |
+| Need                                 | Recommended      | Why                                           |
+| ------------------------------------ | ---------------- | --------------------------------------------- |
+| Fastest setup on Vercel              | Clerk            | Native Marketplace, auto-provisioned env vars |
+| Passwordless / social login flows    | Descope          | Visual flow builder, Marketplace native       |
+| Enterprise SSO / SAML / multi-tenant | Auth0            | Deep enterprise identity support              |
+| Pre-built UI components              | Clerk            | Drop-in `<SignIn />`, `<UserButton />`        |
+| Vercel unified billing               | Clerk or Descope | Both are native Marketplace integrations      |
 
 ## Clerk Core 3 Breaking Changes (March 2026)
 

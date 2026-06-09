@@ -140,7 +140,9 @@ export async function importTransactions(
       where: { id: importJob.id },
       data: {
         status: "failed",
-        errors: [{ message: error instanceof Error ? error.message : "Unknown error" }],
+        errors: [
+          { message: error instanceof Error ? error.message : "Unknown error" },
+        ],
       },
     });
     throw error;

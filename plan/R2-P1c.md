@@ -12,6 +12,7 @@ Implement Monte Carlo simulation (bootstrap, parametric, copula-based), advanced
 ## Recommended Skills
 
 Invoke these skills for best-practice guidance during this phase:
+
 - **vercel-react-best-practices** — Fan chart and histogram component performance
 - **runtime-cache** — Cache MC simulation results, copula fitting
 
@@ -36,13 +37,13 @@ class handler(BaseHTTPRequestHandler):
         data = parse_body(self)
         returns = json_to_returns_df(data)
         config = data.get("config", {})
-        
+
         method = config.get("method", "bootstrap")
         n_simulations = min(config.get("nSimulations", 1000), 10000)
         horizon_days = config.get("horizonDays", 252)
         weights = np.array(config.get("weights", [1.0 / len(returns.columns)] * len(returns.columns)))
         initial_value = config.get("initialValue", 100000)
-        
+
         if method == "bootstrap":
             # Resample historical returns with replacement
             simulated_paths = []
@@ -51,7 +52,7 @@ class handler(BaseHTTPRequestHandler):
                 sim_returns = returns.iloc[sampled_indices].values @ weights
                 path = initial_value * np.cumprod(1 + sim_returns)
                 simulated_paths.append(path.tolist())
-                
+
         elif method == "parametric":
             # Assume multivariate normal
             mu = returns.mean().values
@@ -62,7 +63,7 @@ class handler(BaseHTTPRequestHandler):
                 sim_returns = sim_asset_returns @ weights
                 path = initial_value * np.cumprod(1 + sim_returns)
                 simulated_paths.append(path.tolist())
-                
+
         elif method == "copula":
             # Fit copula to capture tail dependencies
             from skfolio.distribution import CopulaDistribution, StudentTCopula
@@ -74,11 +75,11 @@ class handler(BaseHTTPRequestHandler):
                 sim_returns = sim_asset_returns @ weights
                 path = initial_value * np.cumprod(1 + sim_returns)
                 simulated_paths.append(path.tolist())
-        
+
         # Calculate statistics
         final_values = [path[-1] for path in simulated_paths]
         percentiles = [5, 10, 25, 50, 75, 90, 95]
-        
+
         result = {
             "paths": simulated_paths[:100],  # Send first 100 for visualisation
             "statistics": {
@@ -106,7 +107,7 @@ class handler(BaseHTTPRequestHandler):
                 "counts": np.histogram(final_values, bins=50)[0].tolist(),
             },
         }
-        
+
         success_response(self, result)
 ```
 
@@ -117,6 +118,7 @@ class handler(BaseHTTPRequestHandler):
 **File: `api/python/estimate_returns.py`**
 
 Expose all skfolio return estimators:
+
 ```python
 from skfolio.expected_returns import (
     EmpiricalMu,
@@ -143,6 +145,7 @@ Accept `method` parameter and return estimated expected returns per asset.
 **File: `api/python/estimate_covariance.py`**
 
 Expose all skfolio covariance estimators:
+
 ```python
 from skfolio.covariance import (
     EmpiricalCovariance,
@@ -180,6 +183,7 @@ Return covariance matrix as 2D array + correlation heatmap data.
 **File: `api/python/fit_distribution.py`**
 
 Fit univariate distributions to asset returns:
+
 ```python
 from scipy import stats
 import numpy as np
@@ -195,7 +199,7 @@ class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         data = parse_body(self)
         returns = np.array(data["returns"])
-        
+
         results = {}
         for name, dist in DISTRIBUTIONS.items():
             params = dist.fit(returns)
@@ -207,16 +211,17 @@ class handler(BaseHTTPRequestHandler):
                 "aic": float(-2 * np.sum(dist.logpdf(returns, *params)) + 2 * len(params)),
                 "bic": float(-2 * np.sum(dist.logpdf(returns, *params)) + len(params) * np.log(len(returns))),
             }
-        
+
         # Best fit by AIC
         best = min(results, key=lambda k: results[k]["aic"])
-        
+
         success_response(self, {"distributions": results, "best": best})
 ```
 
 **File: `api/python/fit_copula.py`**
 
 Fit copula models to joint returns:
+
 ```python
 # Copula types from skfolio:
 # 1. Gaussian Copula
@@ -236,6 +241,7 @@ Return copula parameters, tail dependence coefficients, and goodness-of-fit.
 **File: `api/python/prior_models.py`**
 
 Implement skfolio prior estimators:
+
 ```python
 from skfolio.prior import (
     EmpiricalPrior,
@@ -260,6 +266,7 @@ from skfolio.prior import (
 **File: `app/(dashboard)/analytics/monte-carlo/page.tsx`**
 
 Monte Carlo simulation page:
+
 - Method selector (Bootstrap, Parametric, Copula-based)
 - Parameters:
   - Number of simulations (100–10,000)
@@ -289,6 +296,7 @@ Histogram with overlaid density curve for final values distribution.
 **File: `app/(dashboard)/analytics/estimation/page.tsx`**
 
 Estimation methods comparison page:
+
 - Select return estimator (5 methods)
 - Select covariance estimator (11 methods)
 - Show estimated returns as bar chart

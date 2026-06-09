@@ -12,6 +12,7 @@ Implement portfolio optimisation using skfolio: Mean-Variance, Risk Parity, HRP,
 ## Recommended Skills
 
 Invoke these skills for best-practice guidance during this phase:
+
 - **vercel-react-best-practices** — Interactive chart performance (D3 + Recharts)
 - **vercel-composition-patterns** — Composable constraint panel UI
 - **runtime-cache** — Cache efficient frontier results (expensive computation)
@@ -41,17 +42,17 @@ class handler(BaseHTTPRequestHandler):
             data = parse_body(self)
             returns = json_to_returns_df(data)
             config = data.get("config", {})
-            
+
             # Build objective
             objective = config.get("objective", "max_sharpe")
             risk_measure = config.get("riskMeasure", "variance")
-            
+
             obj_map = {
                 "max_sharpe": ObjectiveFunction.MAXIMIZE_RATIO,
                 "min_risk": ObjectiveFunction.MINIMIZE_RISK,
                 "max_return": ObjectiveFunction.MAXIMIZE_RETURN,
             }
-            
+
             risk_map = {
                 "variance": RiskMeasure.VARIANCE,
                 "cvar": RiskMeasure.CVAR,
@@ -59,12 +60,12 @@ class handler(BaseHTTPRequestHandler):
                 "semi_variance": RiskMeasure.SEMI_VARIANCE,
                 "cdar": RiskMeasure.CDAR,
             }
-            
+
             # Constraints
             min_weight = config.get("minWeight", 0.0)
             max_weight = config.get("maxWeight", 1.0)
             budget = config.get("budget", 1.0)
-            
+
             model = MeanRisk(
                 objective_function=obj_map[objective],
                 risk_measure=risk_map[risk_measure],
@@ -72,10 +73,10 @@ class handler(BaseHTTPRequestHandler):
                 max_weights=max_weight,
                 budget=budget,
             )
-            
+
             model.fit(returns)
             portfolio = model.predict(returns)
-            
+
             result = {
                 "weights": dict(zip(returns.columns.tolist(), model.weights_.tolist())),
                 "expectedReturn": float(portfolio.mean()),
@@ -87,7 +88,7 @@ class handler(BaseHTTPRequestHandler):
                     "sortinoRatio": float(portfolio.sortino_ratio()),
                 },
             }
-            
+
             success_response(self, result)
         except Exception as e:
             error_response(self, 500, str(e))
@@ -100,6 +101,7 @@ class handler(BaseHTTPRequestHandler):
 **File: `api/python/optimize_hrp.py`**
 
 Hierarchical Risk Parity:
+
 ```python
 from skfolio.optimization import HierarchicalRiskParity
 # Fit HRP model, return weights and dendrogram data
@@ -108,6 +110,7 @@ from skfolio.optimization import HierarchicalRiskParity
 **File: `api/python/optimize_risk_parity.py`**
 
 Risk Budgeting / Risk Parity:
+
 ```python
 from skfolio.optimization import RiskBudgeting
 # Accept risk budgets per asset, return weights
@@ -116,6 +119,7 @@ from skfolio.optimization import RiskBudgeting
 **File: `api/python/optimize_cvar.py`**
 
 CVaR optimisation (minimise tail risk):
+
 ```python
 from skfolio.optimization import MeanRisk
 # Use RiskMeasure.CVAR, return weights
@@ -128,6 +132,7 @@ from skfolio.optimization import MeanRisk
 **File: `api/python/efficient_frontier.py`**
 
 Calculate the efficient frontier curve:
+
 ```python
 from skfolio.optimization import MeanRisk
 from skfolio.population import Population
@@ -138,10 +143,10 @@ class handler(BaseHTTPRequestHandler):
         data = parse_body(self)
         returns = json_to_returns_df(data)
         config = data.get("config", {})
-        
+
         n_points = config.get("nPoints", 50)
         risk_measure = config.get("riskMeasure", "variance")
-        
+
         # Generate frontier points
         frontier_points = []
         target_returns = np.linspace(
@@ -149,7 +154,7 @@ class handler(BaseHTTPRequestHandler):
             returns.mean().max(),
             n_points
         )
-        
+
         for target in target_returns:
             model = MeanRisk(
                 objective_function=ObjectiveFunction.MINIMIZE_RISK,
@@ -169,7 +174,7 @@ class handler(BaseHTTPRequestHandler):
                 })
             except:
                 continue
-        
+
         # Individual assets
         assets = []
         for col in returns.columns:
@@ -178,7 +183,7 @@ class handler(BaseHTTPRequestHandler):
                 "return": float(returns[col].mean() * 252),
                 "risk": float(returns[col].std() * np.sqrt(252)),
             })
-        
+
         result = {
             "frontier": frontier_points,
             "assets": assets,
@@ -205,12 +210,12 @@ class handler(BaseHTTPRequestHandler):
         returns = json_to_returns_df(data)
         views = data.get("views", [])
         config = data.get("config", {})
-        
+
         # Parse views into P (pick matrix) and Q (expected returns)
         n_assets = len(returns.columns)
         P = np.zeros((len(views), n_assets))
         Q = np.zeros(len(views))
-        
+
         for i, view in enumerate(views):
             if view["type"] == "absolute":
                 # "Asset X will return 10%"
@@ -224,31 +229,31 @@ class handler(BaseHTTPRequestHandler):
                 P[i, long_idx] = 1.0
                 P[i, short_idx] = -1.0
                 Q[i] = view["value"]
-        
+
         tau = config.get("tau", 0.05)
         risk_aversion = config.get("riskAversion", 2.5)
-        
+
         prior = BlackLitterman(
             views=Q,
             picking_matrix=P,
             tau=tau,
             risk_aversion=risk_aversion,
         )
-        
+
         model = MeanRisk(
             objective_function=ObjectiveFunction.MAXIMIZE_RATIO,
             prior_estimator=prior,
         )
-        
+
         model.fit(returns)
-        
+
         result = {
             "weights": dict(zip(returns.columns.tolist(), model.weights_.tolist())),
             "posteriorReturns": dict(zip(returns.columns.tolist(), prior.expected_returns_.tolist())),
             "priorReturns": dict(zip(returns.columns.tolist(), EmpiricalPrior().fit(returns).expected_returns_.tolist())),
             "viewsImpact": [],  # How each view shifted weights
         }
-        
+
         success_response(self, result)
 ```
 
@@ -259,6 +264,7 @@ class handler(BaseHTTPRequestHandler):
 **File: `app/(dashboard)/analytics/optimize/page.tsx`**
 
 Optimisation page:
+
 - Portfolio selector
 - Strategy tabs: Mean-Variance | HRP | Risk Parity | Black-Litterman
 - Constraint panel:
@@ -278,6 +284,7 @@ Optimisation page:
 **File: `app/(dashboard)/analytics/frontier/page.tsx`**
 
 Efficient Frontier page:
+
 - Interactive scatter plot (risk on X, return on Y)
 - Frontier curve with hover showing weights at each point
 - Individual assets plotted as dots
@@ -288,6 +295,7 @@ Efficient Frontier page:
 **File: `app/(dashboard)/analytics/black-litterman/page.tsx`**
 
 Black-Litterman page:
+
 - Views editor:
   - Add view button
   - For each view: type (absolute/relative), asset(s), expected value, confidence
@@ -306,6 +314,7 @@ Black-Litterman page:
 **File: `components/charts/efficient-frontier.tsx`**
 
 Interactive scatter + line chart:
+
 - D3.js for the frontier curve
 - Recharts for individual asset dots
 - Tooltip on hover showing weights

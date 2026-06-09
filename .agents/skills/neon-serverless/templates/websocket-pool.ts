@@ -7,7 +7,7 @@
  * Usage: Best for Next.js API routes, Express servers, and long-lived applications
  */
 
-import { Pool, PoolClient } from '@neondatabase/serverless';
+import { Pool, PoolClient } from "@neondatabase/serverless";
 
 // Create a global pool instance (reused across requests)
 const pool = new Pool({
@@ -18,8 +18,8 @@ const pool = new Pool({
 });
 
 // Optional: Log pool events
-pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
+pool.on("error", (err) => {
+  console.error("Unexpected error on idle client", err);
 });
 
 /**
@@ -41,7 +41,7 @@ async function withConnection<T>(
  */
 export async function getUserById(userId: string) {
   return withConnection(async (client) => {
-    const result = await client.query('SELECT * FROM users WHERE id = $1', [
+    const result = await client.query("SELECT * FROM users WHERE id = $1", [
       userId,
     ]);
     return result.rows[0] || null;
@@ -53,7 +53,9 @@ export async function getUserById(userId: string) {
  */
 export async function getAllUsers() {
   return withConnection(async (client) => {
-    const result = await client.query('SELECT * FROM users ORDER BY created_at DESC');
+    const result = await client.query(
+      "SELECT * FROM users ORDER BY created_at DESC"
+    );
     return result.rows;
   });
 }
@@ -76,16 +78,11 @@ export async function createUser(email: string, name: string) {
 /**
  * Example: Update data
  */
-export async function updateUser(
-  userId: string,
-  updates: Record<string, any>
-) {
+export async function updateUser(userId: string, updates: Record<string, any>) {
   return withConnection(async (client) => {
     const keys = Object.keys(updates);
     const values = Object.values(updates);
-    const setClauses = keys
-      .map((key, i) => `${key} = $${i + 1}`)
-      .join(', ');
+    const setClauses = keys.map((key, i) => `${key} = $${i + 1}`).join(", ");
 
     const result = await client.query(
       `UPDATE users SET ${setClauses}, updated_at = NOW()
@@ -102,7 +99,7 @@ export async function updateUser(
  */
 export async function deleteUser(userId: string) {
   return withConnection(async (client) => {
-    const result = await client.query('DELETE FROM users WHERE id = $1', [
+    const result = await client.query("DELETE FROM users WHERE id = $1", [
       userId,
     ]);
     return result.rowCount > 0;
@@ -122,29 +119,29 @@ export async function createUserWithProfileTx(
 
   try {
     // Start transaction
-    await client.query('BEGIN');
+    await client.query("BEGIN");
 
     // Step 1: Create user
     const userResult = await client.query(
-      'INSERT INTO users (email, name) VALUES ($1, $2) RETURNING id',
+      "INSERT INTO users (email, name) VALUES ($1, $2) RETURNING id",
       [email, name]
     );
     const userId = userResult.rows[0].id;
 
     // Step 2: Create profile
     const profileResult = await client.query(
-      'INSERT INTO profiles (user_id, bio) VALUES ($1, $2) RETURNING *',
+      "INSERT INTO profiles (user_id, bio) VALUES ($1, $2) RETURNING *",
       [userId, bio]
     );
 
     // Commit transaction
-    await client.query('COMMIT');
+    await client.query("COMMIT");
 
     return { userId, profile: profileResult.rows[0] };
   } catch (error) {
     // Rollback on error
-    await client.query('ROLLBACK');
-    console.error('Transaction failed:', error);
+    await client.query("ROLLBACK");
+    console.error("Transaction failed:", error);
     throw error;
   } finally {
     client.release();
@@ -213,7 +210,7 @@ export async function createMultipleUsers(
   const client = await pool.connect();
 
   try {
-    await client.query('BEGIN');
+    await client.query("BEGIN");
 
     const results = [];
     for (const user of users) {
@@ -226,10 +223,10 @@ export async function createMultipleUsers(
       results.push(result.rows[0]);
     }
 
-    await client.query('COMMIT');
+    await client.query("COMMIT");
     return results;
   } catch (error) {
-    await client.query('ROLLBACK');
+    await client.query("ROLLBACK");
     throw error;
   } finally {
     client.release();
@@ -241,5 +238,5 @@ export async function createMultipleUsers(
  */
 export async function closePool() {
   await pool.end();
-  console.log('Connection pool closed');
+  console.log("Connection pool closed");
 }

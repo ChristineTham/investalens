@@ -14,6 +14,7 @@ Expand InvestaLens from ASX-only to support 60+ global exchanges, multi-currency
 ## Scope
 
 ### In Scope (R3)
+
 - Multi-market instrument support (60+ exchanges)
 - FX rate fetching and storage (Open Exchange Rates API)
 - Multi-currency portfolio valuation
@@ -27,6 +28,7 @@ Expand InvestaLens from ASX-only to support 60+ global exchanges, multi-currency
 - ASX-listed international ETFs (VGS, VGAD, IVV, etc.) with currency exposure
 
 ### Out of Scope (R4)
+
 - Full international tax filing (only AU reporting perspective)
 - Broker API connections
 - Real-time streaming prices
@@ -35,11 +37,11 @@ Expand InvestaLens from ASX-only to support 60+ global exchanges, multi-currency
 
 ## Subphase Breakdown
 
-| Phase | Focus | Files |
-|-------|-------|-------|
-| R3-P1a | Multi-market infrastructure & FX | `plan/R3-P1a.md` |
+| Phase  | Focus                                          | Files            |
+| ------ | ---------------------------------------------- | ---------------- |
+| R3-P1a | Multi-market infrastructure & FX               | `plan/R3-P1a.md` |
 | R3-P1b | International brokers, tax & corporate actions | `plan/R3-P1b.md` |
-| R3-P2 | Validation in Codespaces | `plan/R3-P2.md` |
+| R3-P2  | Validation in Codespaces                       | `plan/R3-P2.md`  |
 
 ---
 

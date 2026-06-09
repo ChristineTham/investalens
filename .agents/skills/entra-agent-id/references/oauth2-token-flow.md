@@ -4,10 +4,10 @@ Source: [Agent ID Setup Instructions](https://learn.microsoft.com/en-us/entra/ag
 
 Agent Identities authenticate at runtime using credentials configured on the **Blueprint** (not on the Agent Identity — Agent Identities cannot hold credentials).
 
-| Option | Use case | Credential type |
-|--------|----------|-----------------|
+| Option                     | Use case                  | Credential type                            |
+| -------------------------- | ------------------------- | ------------------------------------------ |
 | **Managed Identity + WIF** | Production (Azure-hosted) | Federated Identity Credential on Blueprint |
-| **Client secret** | Local dev / testing | Password credential on Blueprint |
+| **Client secret**          | Local dev / testing       | Password credential on Blueprint           |
 
 Both options feed the two-step `fmi_path` exchange in [runtime-token-exchange.md](runtime-token-exchange.md).
 

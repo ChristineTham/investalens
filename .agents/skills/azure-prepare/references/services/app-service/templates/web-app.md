@@ -4,12 +4,12 @@ Template for server-side rendered web applications on Azure App Service. Use for
 
 ## Templates by Pattern
 
-| Pattern | AZD Template | Framework |
-|---------|-------------|-----------|
-| React + C# API | `azd init -t todo-csharp` | React SPA + ASP.NET Core API |
-| React + Node.js API | `azd init -t todo-nodejs-mongo` | React SPA + Express API |
-| React + Python API | `azd init -t todo-python-mongo` | React SPA + FastAPI |
-| React + Java API | `azd init -t todo-java-mongo` | React SPA + Spring Boot |
+| Pattern             | AZD Template                    | Framework                    |
+| ------------------- | ------------------------------- | ---------------------------- |
+| React + C# API      | `azd init -t todo-csharp`       | React SPA + ASP.NET Core API |
+| React + Node.js API | `azd init -t todo-nodejs-mongo` | React SPA + Express API      |
+| React + Python API  | `azd init -t todo-python-mongo` | React SPA + FastAPI          |
+| React + Java API    | `azd init -t todo-java-mongo`   | React SPA + Spring Boot      |
 
 **Browse all:** [Awesome AZD](https://azure.github.io/awesome-azd/?tags=appservice)
 
@@ -90,11 +90,12 @@ app.Run();
 ```javascript
 // next.config.js
 module.exports = {
-  output: 'standalone',  // Required for App Service deployment
+  output: "standalone", // Required for App Service deployment
 };
 ```
 
 Startup command in App Service:
+
 ```bash
 node server.js
 ```
@@ -111,16 +112,16 @@ CSRF_TRUSTED_ORIGINS = ['https://*.azurewebsites.net']
 ### Express + React (served from build)
 
 ```javascript
-const express = require('express');
-const path = require('path');
+const express = require("express");
+const path = require("path");
 const app = express();
 
 app.use(express.json());
-app.use('/api', apiRouter);
-app.use(express.static(path.join(__dirname, '../web/build')));
-app.get('/health', (req, res) => res.json({ status: 'healthy' }));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../web/build/index.html'));
+app.use("/api", apiRouter);
+app.use(express.static(path.join(__dirname, "../web/build")));
+app.get("/health", (req, res) => res.json({ status: "healthy" }));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../web/build/index.html"));
 });
 
 app.listen(process.env.PORT || 3000);
@@ -149,13 +150,13 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
 
 ## Startup Commands by Runtime
 
-| Runtime | Startup Command | Notes |
-|---------|----------------|-------|
-| ASP.NET Core | (auto-detected) | No command needed |
-| Node.js | `node server.js` or `npm start` | Set via `appCommandLine` |
-| Python (Django) | `gunicorn myapp.wsgi` | Use gunicorn for production |
-| Python (FastAPI) | `uvicorn main:app --host 0.0.0.0` | Use uvicorn for ASGI |
-| Next.js SSR | `node server.js` | Use `output: 'standalone'` |
+| Runtime          | Startup Command                   | Notes                       |
+| ---------------- | --------------------------------- | --------------------------- |
+| ASP.NET Core     | (auto-detected)                   | No command needed           |
+| Node.js          | `node server.js` or `npm start`   | Set via `appCommandLine`    |
+| Python (Django)  | `gunicorn myapp.wsgi`             | Use gunicorn for production |
+| Python (FastAPI) | `uvicorn main:app --host 0.0.0.0` | Use uvicorn for ASGI        |
+| Next.js SSR      | `node server.js`                  | Use `output: 'standalone'`  |
 
 ## Deployment
 
@@ -167,6 +168,7 @@ azd up --no-prompt
 ```
 
 **PowerShell:**
+
 ```powershell
 $ENV_NAME = "$(Split-Path -Leaf (Get-Location) | ForEach-Object { $_.ToLower() -replace '[ _]','-' })-dev"
 azd init -t <template> -e $ENV_NAME --no-prompt

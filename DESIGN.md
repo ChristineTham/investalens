@@ -251,7 +251,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 **Status badge:**
 
 ```tsx
-<span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-rosely-teal/20 text-rosely-teal">
+<span className="inline-flex items-center rounded-full bg-rosely-teal/20 px-2.5 py-0.5 text-xs font-medium text-rosely-teal">
   Active
 </span>
 ```

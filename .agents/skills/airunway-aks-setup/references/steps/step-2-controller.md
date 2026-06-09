@@ -28,6 +28,7 @@ kubectl rollout status deployment/airunway-controller-manager -n airunway-system
 ```
 
 **Error handling:**
+
 - `CrashLoopBackOff` → `kubectl logs -n airunway-system -l control-plane=controller-manager --previous`
 - Rollout timeout → `kubectl describe deployment airunway-controller-manager -n airunway-system`
 - `No rule to make target` → Navigate to repo root and retry

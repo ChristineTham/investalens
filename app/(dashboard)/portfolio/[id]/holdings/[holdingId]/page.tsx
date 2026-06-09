@@ -113,10 +113,16 @@ export default async function HoldingDetailPage({
                       {Number(tx.quantity).toLocaleString()}
                     </td>
                     <td className="px-4 py-3 text-right text-sm">
-                      {formatCurrency(Number(tx.price), holding.instrument.currency)}
+                      {formatCurrency(
+                        Number(tx.price),
+                        holding.instrument.currency
+                      )}
                     </td>
                     <td className="px-4 py-3 text-right text-sm text-muted-foreground">
-                      {formatCurrency(Number(tx.brokerage), holding.instrument.currency)}
+                      {formatCurrency(
+                        Number(tx.brokerage),
+                        holding.instrument.currency
+                      )}
                     </td>
                   </tr>
                 ))}

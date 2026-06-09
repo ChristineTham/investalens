@@ -22,5 +22,6 @@ You are expected to carry the migration to completion — either fully succeed o
 - **If a build fails after migration, debug and fix it.** Do not stop at "build failed." Investigate the errors, fix them, and rebuild. Repeat until the build passes or you have exhausted all reasonable approaches.
 
 **The only acceptable stopping conditions are:**
+
 1. The migration is fully complete and the build passes.
 2. You have attempted everything and an unrecoverable error prevents further progress (e.g., a fundamental API incompatibility with no workaround). In this case, clearly state the blocker.

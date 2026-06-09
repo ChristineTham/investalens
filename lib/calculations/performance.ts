@@ -104,10 +104,7 @@ export function calculateHoldingPerformance(
 
   const days =
     (dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24);
-  const annualisedReturn = annualiseReturn(
-    totalReturnPercent / 100,
-    days
-  );
+  const annualisedReturn = annualiseReturn(totalReturnPercent / 100, days);
 
   return {
     holdingId: "",

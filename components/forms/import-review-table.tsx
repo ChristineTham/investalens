@@ -5,7 +5,11 @@ import { formatDate } from "@/lib/utils";
 
 interface ImportReviewTableProps {
   transactions: ParsedTransaction[];
-  errors: Array<{ row: number; data: Record<string, string>; errors: string[] }>;
+  errors: Array<{
+    row: number;
+    data: Record<string, string>;
+    errors: string[];
+  }>;
   duplicates: Array<{ row: number; existingId: string }>;
 }
 
@@ -72,9 +76,7 @@ export function ImportReviewTable({
                 <td className="px-3 py-2 text-right">
                   {tx.quantity.toLocaleString()}
                 </td>
-                <td className="px-3 py-2 text-right">
-                  ${tx.price.toFixed(4)}
-                </td>
+                <td className="px-3 py-2 text-right">${tx.price.toFixed(4)}</td>
               </tr>
             );
           })}

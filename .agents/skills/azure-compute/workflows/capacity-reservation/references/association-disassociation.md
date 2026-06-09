@@ -93,11 +93,11 @@ Deleting the resource automatically removes the association. Some latency may oc
 
 ### VMSS Upgrade Policy Behavior
 
-| Policy        | Behavior                                                               |
-|---------------|------------------------------------------------------------------------|
-| **Automatic** | Instances update automatically — no further action needed              |
-| **Rolling**   | Instances update in batches with an optional pause between them        |
-| **Manual**    | You must run `az vmss update-instances --instance-ids "*"` per update  |
+| Policy        | Behavior                                                              |
+| ------------- | --------------------------------------------------------------------- |
+| **Automatic** | Instances update automatically — no further action needed             |
+| **Rolling**   | Instances update in batches with an optional pause between them       |
+| **Manual**    | You must run `az vmss update-instances --instance-ids "*"` per update |
 
 ## Learn More
 

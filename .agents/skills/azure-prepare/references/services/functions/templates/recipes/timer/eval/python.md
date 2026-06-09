@@ -2,13 +2,13 @@
 
 ## MCP Template Validation
 
-| Criteria | Expected | Status |
-|----------|----------|--------|
-| Template discovery | `functions_template_get(language: "python")` returns list | ✅ PASS |
-| Filter by resource | `resource == "timer"` finds matches | ✅ PASS |
-| Template scaffolded | `timer-trigger-python-azd` | ✅ PASS |
-| Has trigger code | `@app.timer_trigger` decorator in output | ✅ PASS |
-| Has IaC | `projectFiles[]` includes Bicep | ✅ PASS |
+| Criteria            | Expected                                                  | Status  |
+| ------------------- | --------------------------------------------------------- | ------- |
+| Template discovery  | `functions_template_get(language: "python")` returns list | ✅ PASS |
+| Filter by resource  | `resource == "timer"` finds matches                       | ✅ PASS |
+| Template scaffolded | `timer-trigger-python-azd`                                | ✅ PASS |
+| Has trigger code    | `@app.timer_trigger` decorator in output                  | ✅ PASS |
+| Has IaC             | `projectFiles[]` includes Bicep                           | ✅ PASS |
 
 ## Agent Behavior Validation
 

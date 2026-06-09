@@ -22,7 +22,10 @@ interface DrawdownChartProps {
 export function DrawdownChart({ data }: DrawdownChartProps) {
   return (
     <ResponsiveContainer width="100%" height={250}>
-      <AreaChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+      <AreaChart
+        data={data}
+        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+      >
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
         <XAxis dataKey="date" stroke="var(--muted-foreground)" fontSize={12} />
         <YAxis

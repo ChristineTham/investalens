@@ -5,16 +5,22 @@
 > in the **azure-storage-file-share-ts** plugin skill if installed.
 
 ## Install
+
 npm install @azure/storage-file-share @azure/identity
 
 ## Quick Start
+
 ```typescript
 import { ShareServiceClient } from "@azure/storage-file-share";
 import { DefaultAzureCredential } from "@azure/identity";
-const client = new ShareServiceClient(`https://${accountName}.file.core.windows.net`, new DefaultAzureCredential());
+const client = new ShareServiceClient(
+  `https://${accountName}.file.core.windows.net`,
+  new DefaultAzureCredential()
+);
 ```
 
 ## Best Practices
+
 - Use connection strings for simplicity in development
 - Use DefaultAzureCredential for **local development only** — in production, use ManagedIdentityCredential. See [auth-best-practices.md](../auth-best-practices.md)
 - Set quotas on shares to prevent unexpected storage costs

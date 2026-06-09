@@ -142,8 +142,7 @@ export function allocateSale(
     const gain = proceeds - costBase;
 
     const discountRate = getDiscountRate(taxEntityType, parcel.isLongTerm);
-    const discountedGain =
-      gain > 0 ? gain * (1 - discountRate) : gain;
+    const discountedGain = gain > 0 ? gain * (1 - discountRate) : gain;
 
     results.push({
       parcel,

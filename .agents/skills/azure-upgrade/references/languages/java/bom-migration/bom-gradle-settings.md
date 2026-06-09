@@ -37,6 +37,7 @@ dependencyResolutionManagement {
 ```
 
 The `library()` call can also use the two-arg `module` form (the same syntax applies to Kotlin DSL):
+
 ```groovy
 library("azure", "com.microsoft.azure:azure").versionRef("azureSdk")
 library("azure-inline", "com.microsoft.azure:azure").version("1.41.4")
@@ -77,6 +78,7 @@ If a BOM entry already exists, update the version string.
 Add the platform dependency (if not already present).
 
 Groovy DSL (`build.gradle`):
+
 ```groovy
 dependencies {
     implementation enforcedPlatform(libs.azure.sdk.bom)
@@ -84,6 +86,7 @@ dependencies {
 ```
 
 Kotlin DSL (`build.gradle.kts`):
+
 ```kotlin
 dependencies {
     implementation(enforcedPlatform(libs.azure.sdk.bom))
@@ -97,16 +100,19 @@ For each modern Azure library (`com.azure.*`) managed by the BOM, change its cat
 The snippets below show Groovy DSL (`settings.gradle`); the same code applies to Kotlin DSL (`settings.gradle.kts`).
 
 Before:
+
 ```groovy
 library("azure-identity", "com.azure", "azure-identity").versionRef("azureIdentity")
 ```
 
 After:
+
 ```groovy
 library("azure-identity", "com.azure", "azure-identity").withoutVersion()
 ```
 
 For the two-arg module form (the same syntax applies to Kotlin DSL):
+
 ```groovy
 // Before
 library("azure-identity", "com.azure:azure-identity").versionRef("azureIdentity")
@@ -119,6 +125,7 @@ Then remove any orphaned `version(...)` calls that are no longer referenced.
 ## Step 3 — Replace legacy Azure library entries with modern equivalents
 
 For each legacy `com.microsoft.azure.*` library call:
+
 1. Replace the group and artifact with the modern `com.azure.*` equivalent.
 2. Change `.versionRef(...)` or `.version(...)` to `.withoutVersion()` if the new artifact is managed by the BOM.
 3. Remove orphaned `version(...)` calls.
@@ -127,6 +134,7 @@ For each legacy `com.microsoft.azure.*` library call:
 The snippets below show Groovy DSL (`settings.gradle`); the same code applies to Kotlin DSL (`settings.gradle.kts`).
 
 Before:
+
 ```groovy
 version("azureSdk", "1.41.4")
 version("azureStorage", "8.6.6")
@@ -135,12 +143,14 @@ library("azure-storage", "com.microsoft.azure", "azure-storage").versionRef("azu
 ```
 
 After:
+
 ```groovy
 library("azure-resourcemanager", "com.azure.resourcemanager", "azure-resourcemanager").withoutVersion()
 library("azure-storage-blob", "com.azure", "azure-storage-blob").withoutVersion()
 ```
 
 Then update `build.gradle` (Groovy DSL):
+
 ```groovy
 // Before
 implementation libs.azure
@@ -152,6 +162,7 @@ implementation libs.azure.storage.blob
 ```
 
 Or `build.gradle.kts` (Kotlin DSL):
+
 ```kotlin
 // Before
 implementation(libs.azure)
@@ -167,6 +178,7 @@ implementation(libs.azure.storage.blob)
 If `bundle(...)` calls reference any renamed or removed aliases, update them:
 
 Groovy DSL (`settings.gradle`):
+
 ```groovy
 // Before
 bundle("azureLibs", ["azure", "azure-storage"])
@@ -175,6 +187,7 @@ bundle("azureLibs", ["azure-resourcemanager", "azure-storage-blob", "azure-ident
 ```
 
 Kotlin DSL (`settings.gradle.kts`):
+
 ```kotlin
 // Before
 bundle("azureLibs", listOf("azure", "azure-storage"))
@@ -185,6 +198,7 @@ bundle("azureLibs", listOf("azure-resourcemanager", "azure-storage-blob", "azure
 ## Expected settings.gradle after migration
 
 Groovy DSL (`settings.gradle`):
+
 ```groovy
 dependencyResolutionManagement {
     versionCatalogs {
@@ -199,6 +213,7 @@ dependencyResolutionManagement {
 ```
 
 Kotlin DSL (`settings.gradle.kts`):
+
 ```kotlin
 dependencyResolutionManagement {
     versionCatalogs {

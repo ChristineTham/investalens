@@ -4,11 +4,11 @@
 
 ## Detection
 
-| Indicator | How to Detect |
-|-----------|---------------|
-| `*.AppHost.csproj` | `find . -name "*.AppHost.csproj"` |
-| `Aspire.Hosting` package | `grep -r "Aspire\.Hosting" . --include="*.csproj"` |
-| `Aspire.AppHost.Sdk` | `grep -r "Aspire\.AppHost\.Sdk" . --include="*.csproj"` |
+| Indicator                | How to Detect                                           |
+| ------------------------ | ------------------------------------------------------- |
+| `*.AppHost.csproj`       | `find . -name "*.AppHost.csproj"`                       |
+| `Aspire.Hosting` package | `grep -r "Aspire\.Hosting" . --include="*.csproj"`      |
+| `Aspire.AppHost.Sdk`     | `grep -r "Aspire\.AppHost\.Sdk" . --include="*.csproj"` |
 
 ## Workflow
 
@@ -33,6 +33,7 @@ azd init --from-code -e "$ENV_NAME"
 ```
 
 **Generated azure.yaml:**
+
 ```yaml
 name: aspire-app
 metadata:
@@ -50,13 +51,14 @@ services:
 
 ## Command Flags
 
-| Flag | Required | Purpose |
-|------|----------|---------|
-| `--from-code` | ✅ | Auto-detect AppHost, no prompts |
-| `-e <name>` | ✅ | Environment name (non-interactive) |
-| `--no-prompt` | Optional | Skip all confirmations |
+| Flag          | Required | Purpose                            |
+| ------------- | -------- | ---------------------------------- |
+| `--from-code` | ✅       | Auto-detect AppHost, no prompts    |
+| `-e <name>`   | ✅       | Environment name (non-interactive) |
+| `--no-prompt` | Optional | Skip all confirmations             |
 
 **Why `--from-code` is critical:**
+
 - Without: Prompts "How do you want to initialize?" (needs TTY)
 - With: Auto-detects AppHost, no interaction needed
 - Essential for agents and CI/CD
@@ -70,17 +72,20 @@ services:
 ### Scan for the pattern
 
 **Bash:**
+
 ```bash
 grep -RIn --include="*.cs" -E "AddParameter|WithBuildArg|WithBuildSecret" <path/to/AppHost>
 ```
 
 **PowerShell:**
+
 ```powershell
 Get-ChildItem -Path "<path/to/AppHost>" -Recurse -Filter "*.cs" |
   Select-String -Pattern "AddParameter|WithBuildArg|WithBuildSecret"
 ```
 
 **Problematic pattern:**
+
 ```csharp
 // ❌ azd cannot resolve AddParameter values during Docker builds
 var goVersion = builder.AddParameter("goversion", "1.25.4", publishValueAsDefault: true);
@@ -110,6 +115,7 @@ azd env config set infra.parameters.<name> <value>
 ```
 
 **Example:**
+
 ```bash
 azd env config set infra.parameters.goversion 1.25.4
 ```
@@ -127,6 +133,7 @@ azd env config set infra.parameters.goversion 1.25.4
 **Cause:** Manual azure.yaml without services section
 
 **Fix:**
+
 1. Delete manual azure.yaml
 2. Run `azd init --from-code -e <env-name>`
 3. Verify services section exists
@@ -136,6 +143,7 @@ azd env config set infra.parameters.goversion 1.25.4
 **Cause:** Missing `--from-code` flag
 
 **Fix:** Always use `--from-code` for Aspire:
+
 ```bash
 azd init --from-code -e "$ENV_NAME"
 ```
@@ -145,6 +153,7 @@ azd init --from-code -e "$ENV_NAME"
 **Cause:** The AppHost uses `AddParameter()` as a `WithBuildArg` argument. azd cannot resolve Aspire [external parameters](https://aspire.dev/fundamentals/external-parameters/) during Docker builds, regardless of azd version.
 
 **Example error:**
+
 ```
 ERROR: building service 'ginapp': parameter infra.parameters.goversion not found
 ```
@@ -164,6 +173,7 @@ builder.AddDockerfile("ginapp", "./ginapp")
 ```
 
 **Fix (Option B):** Pre-set the parameter in azd environment config:
+
 ```bash
 azd env config set infra.parameters.goversion 1.25.4
 ```
@@ -171,6 +181,7 @@ azd env config set infra.parameters.goversion 1.25.4
 ### AppHost Not Detected
 
 **Solutions:**
+
 1. Verify: `find . -name "*.AppHost.csproj"`
 2. Build: `dotnet build`
 3. Check package references in .csproj
@@ -193,13 +204,14 @@ azd env config set infra.parameters.goversion 1.25.4
 
 ## Infrastructure Auto-Generation
 
-| Traditional | Aspire |
-|------------|--------|
+| Traditional             | Aspire                |
+| ----------------------- | --------------------- |
 | Manual infra/main.bicep | Auto-gen from AppHost |
-| Define in IaC | Define in C# code |
-| Update IaC per service | Add to AppHost |
+| Define in IaC           | Define in C# code     |
+| Update IaC per service  | Add to AppHost        |
 
 **How it works:**
+
 1. AppHost defines services in C#
 2. `azd provision` analyzes AppHost
 3. Generates Bicep automatically

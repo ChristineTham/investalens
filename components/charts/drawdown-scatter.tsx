@@ -34,7 +34,11 @@ export function DrawdownScatter({ data }: DrawdownScatterProps) {
           unit="%"
           stroke="var(--muted-foreground)"
           fontSize={12}
-          label={{ value: "Max Drawdown (%)", position: "bottom", fontSize: 12 }}
+          label={{
+            value: "Max Drawdown (%)",
+            position: "bottom",
+            fontSize: 12,
+          }}
         />
         <YAxis
           type="number"
@@ -43,7 +47,12 @@ export function DrawdownScatter({ data }: DrawdownScatterProps) {
           unit="%"
           stroke="var(--muted-foreground)"
           fontSize={12}
-          label={{ value: "Return (%)", angle: -90, position: "left", fontSize: 12 }}
+          label={{
+            value: "Return (%)",
+            angle: -90,
+            position: "left",
+            fontSize: 12,
+          }}
         />
         <ZAxis range={[50, 200]} />
         <Tooltip
@@ -57,13 +66,17 @@ export function DrawdownScatter({ data }: DrawdownScatterProps) {
             String(name),
           ]}
         />
-        <ReferenceLine y={0} stroke="var(--muted-foreground)" strokeDasharray="3 3" />
-        <ReferenceLine x={0} stroke="var(--muted-foreground)" strokeDasharray="3 3" />
-        <Scatter
-          name="Holdings"
-          data={data}
-          fill="var(--primary)"
+        <ReferenceLine
+          y={0}
+          stroke="var(--muted-foreground)"
+          strokeDasharray="3 3"
         />
+        <ReferenceLine
+          x={0}
+          stroke="var(--muted-foreground)"
+          strokeDasharray="3 3"
+        />
+        <Scatter name="Holdings" data={data} fill="var(--primary)" />
       </ScatterChart>
     </ResponsiveContainer>
   );

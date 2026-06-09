@@ -23,32 +23,32 @@ Use this contract for Microsoft Foundry agent folders. In azd projects, `.foundr
 
 Resolve deployment and evaluation context by layering sources in this order:
 
-| Value | Preferred source | Fallbacks | Metadata write behavior |
-|-------|------------------|-----------|-------------------------|
-| Agent root | `azure.yaml` service `project` for `host: azure.ai.agent` | `.foundry` discovery, user path | Do not write except to initialize cache |
-| Environment | user/session, then azd env/default | metadata `defaultEnvironment` | Store azd binding only when useful |
-| Project endpoint | `azd env get-values` | metadata, user input | Do not duplicate azd values |
-| Agent name/version | azd `AGENT_<SERVICE>_*` vars | `agent.yaml`, metadata, user input | Do not duplicate azd values |
-| ACR | azd registry vars | metadata, user input | Do not duplicate azd values |
-| Observability | azd App Insights vars | metadata, user input | Do not copy secrets if azd has them |
-| Local eval draft | `eval.yaml` | metadata, user input | Sync to `.foundry` only after remote lookup/registration |
-| Remote suite/cache refs | metadata | Foundry lookups | Persist in `.foundry` |
+| Value                   | Preferred source                                          | Fallbacks                          | Metadata write behavior                                  |
+| ----------------------- | --------------------------------------------------------- | ---------------------------------- | -------------------------------------------------------- |
+| Agent root              | `azure.yaml` service `project` for `host: azure.ai.agent` | `.foundry` discovery, user path    | Do not write except to initialize cache                  |
+| Environment             | user/session, then azd env/default                        | metadata `defaultEnvironment`      | Store azd binding only when useful                       |
+| Project endpoint        | `azd env get-values`                                      | metadata, user input               | Do not duplicate azd values                              |
+| Agent name/version      | azd `AGENT_<SERVICE>_*` vars                              | `agent.yaml`, metadata, user input | Do not duplicate azd values                              |
+| ACR                     | azd registry vars                                         | metadata, user input               | Do not duplicate azd values                              |
+| Observability           | azd App Insights vars                                     | metadata, user input               | Do not copy secrets if azd has them                      |
+| Local eval draft        | `eval.yaml`                                               | metadata, user input               | Sync to `.foundry` only after remote lookup/registration |
+| Remote suite/cache refs | metadata                                                  | Foundry lookups                    | Persist in `.foundry`                                    |
 
 If azd and metadata both provide the same value and differ, stop and ask which source is authoritative. If they match, use the azd value and omit the duplicate on future metadata rewrites.
 
 ## Environment Overlay Model
 
-| Field | Required when | Purpose |
-|-------|---------------|---------|
-| `defaultEnvironment` | Any metadata file exists | Default key inside this overlay file |
-| `environments.<env>.azd.environmentName` | Optional | Binds overlay to an azd environment |
-| `environments.<env>.azd.service` | Optional | Binds overlay to an `azure.yaml` service |
-| `environments.<env>.projectEndpoint` | Required for non-azd/manual workflows | Explicit override when azd cannot resolve it |
-| `environments.<env>.agentName` / `agentVersion` | `agentName` required for non-azd/manual workflows; `agentVersion` optional | Explicit override when azd cannot resolve it |
-| `environments.<env>.azureContainerRegistry` | Required for non-azd/manual hosted-agent Docker/ACR deploy flow | Explicit override when azd cannot resolve it |
-| `environments.<env>.observability.*` | Required only for trace workflows when azd cannot resolve observability | Trace lookup config when azd cannot resolve it |
-| `environments.<env>.evaluationSuites[]` | Required after evaluation setup/sync | Remote suite/dataset/evaluator refs plus local cache paths |
-| `environments.<env>.lastEval` | Optional | Last local result summary and result file path |
+| Field                                           | Required when                                                              | Purpose                                                    |
+| ----------------------------------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `defaultEnvironment`                            | Any metadata file exists                                                   | Default key inside this overlay file                       |
+| `environments.<env>.azd.environmentName`        | Optional                                                                   | Binds overlay to an azd environment                        |
+| `environments.<env>.azd.service`                | Optional                                                                   | Binds overlay to an `azure.yaml` service                   |
+| `environments.<env>.projectEndpoint`            | Required for non-azd/manual workflows                                      | Explicit override when azd cannot resolve it               |
+| `environments.<env>.agentName` / `agentVersion` | `agentName` required for non-azd/manual workflows; `agentVersion` optional | Explicit override when azd cannot resolve it               |
+| `environments.<env>.azureContainerRegistry`     | Required for non-azd/manual hosted-agent Docker/ACR deploy flow            | Explicit override when azd cannot resolve it               |
+| `environments.<env>.observability.*`            | Required only for trace workflows when azd cannot resolve observability    | Trace lookup config when azd cannot resolve it             |
+| `environments.<env>.evaluationSuites[]`         | Required after evaluation setup/sync                                       | Remote suite/dataset/evaluator refs plus local cache paths |
+| `environments.<env>.lastEval`                   | Optional                                                                   | Last local result summary and result file path             |
 
 ## Example azd Overlay
 
@@ -100,15 +100,15 @@ environments:
 
 When `eval.yaml` exists in the selected agent root, treat it as local evaluation intent, not proof of a Foundry suite.
 
-| eval.yaml field | Use |
-|-----------------|-----|
-| `agent.name` | Candidate target agent; verify it matches selected context |
-| `dataset_file` | Local seed dataset candidate |
-| `evaluators[]` | Candidate evaluator names; verify with `evaluator_catalog_get` |
-| `name` | Candidate eval/suite name; verify remotely before storing as `suiteName` |
-| `options.eval_model` | Candidate judge/generation deployment |
-| `options.pass_threshold` | Candidate evaluator threshold/default pass gate |
-| `max_samples`, `trace_days`, `generation_instruction` | Suite setup defaults |
+| eval.yaml field                                       | Use                                                                      |
+| ----------------------------------------------------- | ------------------------------------------------------------------------ |
+| `agent.name`                                          | Candidate target agent; verify it matches selected context               |
+| `dataset_file`                                        | Local seed dataset candidate                                             |
+| `evaluators[]`                                        | Candidate evaluator names; verify with `evaluator_catalog_get`           |
+| `name`                                                | Candidate eval/suite name; verify remotely before storing as `suiteName` |
+| `options.eval_model`                                  | Candidate judge/generation deployment                                    |
+| `options.pass_threshold`                              | Candidate evaluator threshold/default pass gate                          |
+| `max_samples`, `trace_days`, `generation_instruction` | Suite setup defaults                                                     |
 
 Persist eval.yaml-derived suite metadata only after the relevant dataset/evaluator/suite has been registered or found in Foundry. Use `generationSource: eval-yaml` for synced suite entries created from local eval config.
 

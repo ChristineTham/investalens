@@ -7,6 +7,7 @@ Automatically detect quality regressions and anomalies in agent traces using cha
 Use this instead of manual KQL queries when you want **automated anomaly detection** across evaluation dimensions (task adherence, intent resolution, fluency, latency, token usage). The API finds statistical changepoints in score distributions — no manual threshold tuning needed.
 
 **Prerequisites:**
+
 - App Insights connected to the Foundry project (with `gen_ai.evaluation.result` custom events)
 - Evaluation data from portal playground sessions or batch evals (raw traces alone are not enough)
 
@@ -19,13 +20,13 @@ POST https://{region}.api.azureml.ms/notification/v1-beta2/subscriptions/{sub}/r
 The API is region-agnostic — any regional endpoint can serve requests for any project. For lowest latency, use the same region as the Foundry project (e.g., `eastus2`, `westus2`, `westcentralus`). If the project region is unknown, use `eastus2` as the default.
 
 **Query parameters:**
-| Parameter          | Required | Description                                                            |
+| Parameter | Required | Description |
 |--------------------|----------|------------------------------------------------------------------------|
-| `startDateTimeUtc` | Yes      | ISO 8601 start of analysis window                                      |
-| `endDateTimeUtc`   | Yes      | ISO 8601 end of analysis window                                        |
-| `agent`            | Yes      | Agent name (URL-encoded)                                               |
-| `projectId`        | Yes      | ARM resource ID of the Foundry project (URL-encoded — contains slashes)|
-| `top`              | No       | Max insights to return (default 50)                                    |
+| `startDateTimeUtc` | Yes | ISO 8601 start of analysis window |
+| `endDateTimeUtc` | Yes | ISO 8601 end of analysis window |
+| `agent` | Yes | Agent name (URL-encoded) |
+| `projectId` | Yes | ARM resource ID of the Foundry project (URL-encoded — contains slashes)|
+| `top` | No | Max insights to return (default 50) |
 
 **Auth:** `az account get-access-token --resource https://ai.azure.com`
 
@@ -52,25 +53,40 @@ Response is grouped by agent version. Each insight includes `relatedSpans` with 
 
 ```json
 {
-  "agents": [{
-    "agent": "my-agent:1",
-    "insights": [{
-      "id": "anomaly-token-shift-<hash>",
-      "type": "Token",
-      "severity": "Critical",
-      "message": "Token usage increased by 137%",
-      "agentVersion": "1",
-      "metadata": { "meanBefore": 2041, "meanAfter": 4831, "confidence": 0.91 },
-      "relatedSpans": {
-        "totalCount": 13,
-        "spans": [
-          { "responseId": "resp_...", "operationId": "<trace-id>", "evaluationRunId": null }
-        ]
-      }
-    }],
-    "insightCount": 3
-  }],
-  "totalCount": 3, "criticalCount": 1, "warningCount": 1, "improvementCount": 1
+  "agents": [
+    {
+      "agent": "my-agent:1",
+      "insights": [
+        {
+          "id": "anomaly-token-shift-<hash>",
+          "type": "Token",
+          "severity": "Critical",
+          "message": "Token usage increased by 137%",
+          "agentVersion": "1",
+          "metadata": {
+            "meanBefore": 2041,
+            "meanAfter": 4831,
+            "confidence": 0.91
+          },
+          "relatedSpans": {
+            "totalCount": 13,
+            "spans": [
+              {
+                "responseId": "resp_...",
+                "operationId": "<trace-id>",
+                "evaluationRunId": null
+              }
+            ]
+          }
+        }
+      ],
+      "insightCount": 3
+    }
+  ],
+  "totalCount": 3,
+  "criticalCount": 1,
+  "warningCount": 1,
+  "improvementCount": 1
 }
 ```
 
@@ -99,6 +115,7 @@ The API finds **statistical inflection points within the queried time window**. 
 ## Next Steps
 
 After receiving insights with `Warning` or `Critical` severity:
+
 1. Use `relatedSpans.operationId` values to query full trace content from App Insights (see KQL above)
 2. Present the insights summary to the user with severity, type, evaluator name, and shift magnitude
 3. Offer to drill into specific traces for detailed analysis using the [trace analysis skill](../trace.md)

@@ -44,7 +44,7 @@ app.MapGet("/api/items", async (CosmosClient cosmos) =>
 
 ## Files to Modify
 
-| File | Action |
-|------|--------|
+| File         | Action                                    |
+| ------------ | ----------------------------------------- |
 | `Program.cs` | Add CosmosClient registration + endpoints |
-| `*.csproj` | Add Microsoft.Azure.Cosmos NuGet package |
+| `*.csproj`   | Add Microsoft.Azure.Cosmos NuGet package  |

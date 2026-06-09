@@ -39,6 +39,7 @@ az keyvault secret set --vault-name <vault-name> --name swa-deployment-token --v
 ```
 
 **Do NOT do this** (exposes token in deployment history):
+
 ```bicep
 // ❌ INSECURE - token visible in deployment history
 // output deploymentToken string = staticWebApp.listSecrets().properties.apiKey
@@ -59,6 +60,7 @@ azd deploy
 The `azd-service-name` tag on the `azurerm_static_web_app` resource tells azd where to deploy.
 
 **Do NOT do this** (exposes token in Terraform state):
+
 ```hcl
 # ❌ INSECURE - token stored in Terraform state
 # output "deployment_token" {

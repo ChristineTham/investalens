@@ -4,12 +4,12 @@
 
 > ⚠️ **Warning:** `linuxFxVersion` and `reserved: true` are **Linux-only** properties. Setting `linuxFxVersion` on a Windows App Service Plan causes a deployment error: `LinuxFxVersion cannot be set for non-Linux App Service plans`. Omit both for Windows plans.
 
-| Property | Linux | Windows |
-|----------|-------|---------|
-| Plan `reserved` | `true` | omit (defaults to `false`) |
-| Site `kind` | `'app,linux'` | `'app'` |
-| Site `linuxFxVersion` | e.g. `'NODE\|20-lts'` | omit |
-| Site `WEBSITE_NODE_DEFAULT_VERSION` | omit | e.g. `'~20'` |
+| Property                            | Linux                 | Windows                    |
+| ----------------------------------- | --------------------- | -------------------------- |
+| Plan `reserved`                     | `true`                | omit (defaults to `false`) |
+| Site `kind`                         | `'app,linux'`         | `'app'`                    |
+| Site `linuxFxVersion`               | e.g. `'NODE\|20-lts'` | omit                       |
+| Site `WEBSITE_NODE_DEFAULT_VERSION` | omit                  | e.g. `'~20'`               |
 
 > 💡 **Tip:** When both frontend and API use Node.js, prefer a **single Linux App Service Plan** for both. This avoids mixed-platform complexity and keeps all services on one plan.
 

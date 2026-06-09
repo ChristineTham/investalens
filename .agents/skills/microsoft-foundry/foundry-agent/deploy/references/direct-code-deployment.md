@@ -40,20 +40,20 @@ Global direct-code limits:
 
 Scan only the selected agent root.
 
-| Project Type | Detection | Runtime | Entry point |
-|--------------|-----------|---------|-------------|
-| Python | `main.py` plus `requirements.txt` | `python_3_13` or `python_3_14` | `["python", "main.py"]` |
-| C#/.NET | exactly one `*.csproj` or user-selected project file | `dotnet_8`, `dotnet_9`, or `dotnet_10` | `["dotnet", "<AssemblyName>.dll"]` |
+| Project Type | Detection                                            | Runtime                                | Entry point                        |
+| ------------ | ---------------------------------------------------- | -------------------------------------- | ---------------------------------- |
+| Python       | `main.py` plus `requirements.txt`                    | `python_3_13` or `python_3_14`         | `["python", "main.py"]`            |
+| C#/.NET      | exactly one `*.csproj` or user-selected project file | `dotnet_8`, `dotnet_9`, or `dotnet_10` | `["dotnet", "<AssemblyName>.dll"]` |
 
 For Python, prefer a supported runtime explicitly declared in `agent.yaml`/`agent.manifest.yaml` or provided by the user. If none is declared, use `python_3_13`. Do not use `python_3_11` or `python_3_12` for this preview path; if a manifest declares either one, warn and choose `python_3_13` unless the user selects another supported runtime.
 
 For .NET, derive the runtime from the project `TargetFramework`:
 
-| TargetFramework | Runtime |
-|-----------------|---------|
-| `net8.0` | `dotnet_8` |
-| `net9.0` | `dotnet_9` |
-| `net10.0` | `dotnet_10` |
+| TargetFramework | Runtime     |
+| --------------- | ----------- |
+| `net8.0`        | `dotnet_8`  |
+| `net9.0`        | `dotnet_9`  |
+| `net10.0`       | `dotnet_10` |
 
 If the target framework is missing or does not map to a supported runtime, ask instead of guessing.
 
@@ -267,12 +267,12 @@ Use `<project-endpoint>` as the base URL. Append paths directly to that project 
 
 Direct-code deployment uses these REST operations:
 
-| Purpose | Method and endpoint | When to use |
-|---------|---------------------|-------------|
-| Check whether the agent exists | `GET <project-endpoint>/agents/<agent-name>?api-version=2025-11-15-preview` | Run first. `404` means create the agent; `200` means deploy a new version by default |
-| Create a new agent | `POST <project-endpoint>/agents?api-version=2025-11-15-preview` | Use only when the existence check returned `404` |
-| Create a new version for an existing agent | `POST <project-endpoint>/agents/<agent-name>/versions?api-version=2025-11-15-preview` | Default path when the agent already exists |
-| Update an existing agent in place | `POST <project-endpoint>/agents/<agent-name>?api-version=2025-11-15-preview` | Use only when the user explicitly asks for an in-place update |
+| Purpose                                    | Method and endpoint                                                                   | When to use                                                                          |
+| ------------------------------------------ | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Check whether the agent exists             | `GET <project-endpoint>/agents/<agent-name>?api-version=2025-11-15-preview`           | Run first. `404` means create the agent; `200` means deploy a new version by default |
+| Create a new agent                         | `POST <project-endpoint>/agents?api-version=2025-11-15-preview`                       | Use only when the existence check returned `404`                                     |
+| Create a new version for an existing agent | `POST <project-endpoint>/agents/<agent-name>/versions?api-version=2025-11-15-preview` | Default path when the agent already exists                                           |
+| Update an existing agent in place          | `POST <project-endpoint>/agents/<agent-name>?api-version=2025-11-15-preview`          | Use only when the user explicitly asks for an in-place update                        |
 
 If any GET/POST returns `Missing required query parameter: api-version`, the request URL was malformed. Fix the URL construction and retry the same REST call before continuing; do not interpret that response as "agent exists", "agent missing", or a version/build problem.
 
@@ -317,11 +317,11 @@ Update agent and create version are idempotent on zip SHA-256 plus agent definit
 
 Other useful REST operations:
 
-| Purpose | Method and endpoint | Notes |
-|---------|---------------------|-------|
-| List versions | `GET <project-endpoint>/agents/<agent-name>/versions?api-version=2025-11-15-preview` | Use when the write response does not clearly return a version |
+| Purpose       | Method and endpoint                                                                       | Notes                                                                                                                              |
+| ------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| List versions | `GET <project-endpoint>/agents/<agent-name>/versions?api-version=2025-11-15-preview`      | Use when the write response does not clearly return a version                                                                      |
 | Download code | `GET <project-endpoint>/agents/<agent-name>/code:download?api-version=2025-11-15-preview` | Add `agent_version=<n>` when downloading a specific version; compare the `x-ms-code-zip-sha256` response header with the local SHA |
-| Delete agent | `DELETE <project-endpoint>/agents/<agent-name>?api-version=2025-11-15-preview` | Deletes the agent and all versions; pull logs before deletion if needed |
+| Delete agent  | `DELETE <project-endpoint>/agents/<agent-name>?api-version=2025-11-15-preview`            | Deletes the agent and all versions; pull logs before deletion if needed                                                            |
 
 ## Task 7: Poll Version Status
 

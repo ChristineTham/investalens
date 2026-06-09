@@ -3,6 +3,7 @@
 ## Phase 1: Create Container Apps Environment
 
 **Bash:**
+
 ```bash
 #!/bin/bash
 set -euo pipefail
@@ -14,6 +15,7 @@ az containerapp env create --name spring-env --resource-group spring-rg --locati
 ```
 
 **PowerShell:**
+
 ```powershell
 az group create --name spring-rg --location eastus
 az monitor log-analytics workspace create --resource-group spring-rg --workspace-name spring-logs --location eastus
@@ -25,6 +27,7 @@ az containerapp env create --name spring-env --resource-group spring-rg --locati
 ## Phase 2: Configure Logging
 
 **Update application.properties:**
+
 ```properties
 logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} - %msg%n
 ```
@@ -34,6 +37,7 @@ Configure diagnostic settings: Azure Monitor Log Analytics (recommended), Event 
 ## Phase 3: Containerize Application
 
 **Dockerfile:**
+
 ```dockerfile
 FROM mcr.microsoft.com/openjdk/jdk:21-ubuntu
 WORKDIR /app
@@ -43,6 +47,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
 **Build and push (Bash):**
+
 ```bash
 ACR_NAME="${ACR_NAME:-<acr>}"
 az acr create --name "$ACR_NAME" --resource-group spring-rg --sku Basic --location eastus
@@ -52,6 +57,7 @@ docker push "${ACR_NAME}.azurecr.io/spring-app:v1.0"
 ```
 
 **Build and push (PowerShell):**
+
 ```powershell
 $ACR_NAME = if ($env:ACR_NAME) { $env:ACR_NAME } else { "<acr>" }
 az acr create --name "$ACR_NAME" --resource-group spring-rg --sku Basic --location eastus
@@ -63,6 +69,7 @@ docker push "${ACR_NAME}.azurecr.io/spring-app:v1.0"
 ## Phase 4: Configure Storage (if needed)
 
 **Azure Files for persistent storage (Bash):**
+
 ```bash
 STORAGE_ACCOUNT="${STORAGE_ACCOUNT:-<storage-account>}"
 az storage account create --name "$STORAGE_ACCOUNT" --resource-group spring-rg --location eastus --sku Standard_LRS
@@ -74,6 +81,7 @@ az containerapp env storage set --name spring-env --resource-group spring-rg --s
 ```
 
 **Azure Files for persistent storage (PowerShell):**
+
 ```powershell
 $STORAGE_ACCOUNT = if ($env:STORAGE_ACCOUNT) { $env:STORAGE_ACCOUNT } else { "<storage-account>" }
 az storage account create --name "$STORAGE_ACCOUNT" --resource-group spring-rg --location eastus --sku Standard_LRS
@@ -89,6 +97,7 @@ az containerapp env storage set --name spring-env --resource-group spring-rg --s
 > **Security Note:** Avoid passing secrets via `--value` on the command line (leaks via shell history). Use `--file` with a protected temp file or prompt securely instead.
 
 **Bash:**
+
 ```bash
 ACR_NAME="${ACR_NAME:-<acr>}"  # From Phase 3
 KEY_VAULT="${KEY_VAULT:-<keyvault>}"
@@ -109,6 +118,7 @@ az role assignment create --assignee "$PRINCIPAL_ID" --role AcrPull --scope "$AC
 ```
 
 **PowerShell:**
+
 ```powershell
 $ACR_NAME = if ($env:ACR_NAME) { $env:ACR_NAME } else { "<acr>" }  # From Phase 3
 $KEY_VAULT = if ($env:KEY_VAULT) { $env:KEY_VAULT } else { "<keyvault>" }
@@ -140,6 +150,7 @@ az role assignment create --assignee "$PRINCIPAL_ID" --role AcrPull --scope "$AC
 ## Phase 6: Deploy Container App
 
 **Bash:**
+
 ```bash
 ACR_NAME="${ACR_NAME:-<acr>}"          # From Phase 3
 KEY_VAULT="${KEY_VAULT:-<keyvault>}"    # From Phase 5
@@ -154,6 +165,7 @@ az containerapp create --name spring-app --resource-group spring-rg --environmen
 ```
 
 **PowerShell:**
+
 ```powershell
 $ACR_NAME = if ($env:ACR_NAME) { $env:ACR_NAME } else { "<acr>" }          # From Phase 3
 $KEY_VAULT = if ($env:KEY_VAULT) { $env:KEY_VAULT } else { "<keyvault>" }    # From Phase 5
@@ -170,6 +182,7 @@ az containerapp create --name spring-app --resource-group spring-rg --environmen
 **With storage mount:** Export the app configuration, add volumeMounts, and update:
 
 **Bash:**
+
 ```bash
 az containerapp show --name spring-app --resource-group spring-rg -o yaml > app.yaml
 # Edit app.yaml: add volumeMounts under containers[0] and volumes at template level
@@ -177,6 +190,7 @@ az containerapp update --name spring-app --resource-group spring-rg --yaml app.y
 ```
 
 **PowerShell:**
+
 ```powershell
 az containerapp show --name spring-app --resource-group spring-rg -o yaml | Out-File -Encoding utf8 app.yaml
 # Edit app.yaml: add volumeMounts under containers[0] and volumes at template level
@@ -186,6 +200,7 @@ az containerapp update --name spring-app --resource-group spring-rg --yaml app.y
 **Health Probes** (recommended for Spring Boot apps): Export configuration, add probes, and update:
 
 **Bash:**
+
 ```bash
 az containerapp show --name spring-app --resource-group spring-rg -o yaml > app.yaml
 # Edit app.yaml: add probes under containers[0]
@@ -208,6 +223,7 @@ az containerapp update --name spring-app --resource-group spring-rg --yaml app.y
 ```
 
 **PowerShell:**
+
 ```powershell
 az containerapp show --name spring-app --resource-group spring-rg -o yaml | Out-File -Encoding utf8 app.yaml
 # Edit app.yaml: add probes under containers[0]
@@ -232,6 +248,7 @@ az containerapp update --name spring-app --resource-group spring-rg --yaml app.y
 ## Phase 7: Validation
 
 **Bash:**
+
 ```bash
 FQDN=$(az containerapp show --name spring-app --resource-group spring-rg --query properties.configuration.ingress.fqdn -o tsv)
 echo "Application URL: https://${FQDN}"
@@ -240,6 +257,7 @@ az containerapp logs show --name spring-app --resource-group spring-rg --tail 50
 ```
 
 **PowerShell:**
+
 ```powershell
 $FQDN = az containerapp show --name spring-app --resource-group spring-rg --query properties.configuration.ingress.fqdn -o tsv
 Write-Host "Application URL: https://${FQDN}"
@@ -252,6 +270,7 @@ az containerapp logs show --name spring-app --resource-group spring-rg --tail 50
 ### Add Spring Cloud Config Server
 
 **Bash:**
+
 ```bash
 az containerapp env java-component config-server-for-spring create \
   --environment spring-env --resource-group spring-rg --name config-server \
@@ -261,6 +280,7 @@ az containerapp update --name spring-app --resource-group spring-rg --bind confi
 ```
 
 **PowerShell:**
+
 ```powershell
 az containerapp env java-component config-server-for-spring create `
   --environment spring-env --resource-group spring-rg --name config-server `
@@ -272,6 +292,7 @@ az containerapp update --name spring-app --resource-group spring-rg --bind confi
 ### Add Eureka Service Registry
 
 **Bash:**
+
 ```bash
 az containerapp env java-component eureka-server-for-spring create \
   --environment spring-env --resource-group spring-rg --name eureka-server \
@@ -280,6 +301,7 @@ az containerapp update --name spring-app --resource-group spring-rg --bind eurek
 ```
 
 **PowerShell:**
+
 ```powershell
 az containerapp env java-component eureka-server-for-spring create `
   --environment spring-env --resource-group spring-rg --name eureka-server `
@@ -288,6 +310,7 @@ az containerapp update --name spring-app --resource-group spring-rg --bind eurek
 ```
 
 **Add dependency (pom.xml):**
+
 ```xml
 <dependency>
     <groupId>org.springframework.cloud</groupId>
@@ -298,6 +321,7 @@ az containerapp update --name spring-app --resource-group spring-rg --bind eurek
 ### Add Spring Cloud Gateway
 
 **Bash:**
+
 ```bash
 az containerapp create --name spring-gateway --resource-group spring-rg --environment spring-env \
   --image "${ACR_NAME}.azurecr.io/gateway:v1.0" --target-port 8080 --ingress external \
@@ -306,6 +330,7 @@ az containerapp create --name spring-gateway --resource-group spring-rg --enviro
 ```
 
 **PowerShell:**
+
 ```powershell
 az containerapp create --name spring-gateway --resource-group spring-rg --environment spring-env `
   --image "${ACR_NAME}.azurecr.io/gateway:v1.0" --target-port 8080 --ingress external `
@@ -316,6 +341,7 @@ az containerapp create --name spring-gateway --resource-group spring-rg --enviro
 ### Add Spring Boot Admin
 
 **Bash:**
+
 ```bash
 az containerapp env java-component admin-for-spring create \
   --environment spring-env --resource-group spring-rg --name admin-server \
@@ -324,6 +350,7 @@ az containerapp update --name spring-app --resource-group spring-rg --bind admin
 ```
 
 **PowerShell:**
+
 ```powershell
 az containerapp env java-component admin-for-spring create `
   --environment spring-env --resource-group spring-rg --name admin-server `
@@ -333,18 +360,19 @@ az containerapp update --name spring-app --resource-group spring-rg --bind admin
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Image pull fails | Verify ACR role: `az role assignment list --assignee $PRINCIPAL_ID --scope $ACR_ID` |
-| App won't start | Check logs: `az containerapp logs show --name spring-app -g spring-rg --tail 100` |
-| Health check fails | Verify port 8080 matches `server.port` in application.properties |
-| Secrets not accessible | Check Key Vault policy: `az keyvault show --name $KEY_VAULT --query properties.accessPolicies` |
-| Storage mount fails | Verify storage configuration: `az containerapp env storage list --name spring-env -g spring-rg` |
-| High memory usage | Reduce max heap: add `--env-vars JAVA_OPTS="-Xmx2g"` to container app |
+| Issue                  | Solution                                                                                        |
+| ---------------------- | ----------------------------------------------------------------------------------------------- |
+| Image pull fails       | Verify ACR role: `az role assignment list --assignee $PRINCIPAL_ID --scope $ACR_ID`             |
+| App won't start        | Check logs: `az containerapp logs show --name spring-app -g spring-rg --tail 100`               |
+| Health check fails     | Verify port 8080 matches `server.port` in application.properties                                |
+| Secrets not accessible | Check Key Vault policy: `az keyvault show --name $KEY_VAULT --query properties.accessPolicies`  |
+| Storage mount fails    | Verify storage configuration: `az containerapp env storage list --name spring-env -g spring-rg` |
+| High memory usage      | Reduce max heap: add `--env-vars JAVA_OPTS="-Xmx2g"` to container app                           |
 
 ## CI/CD Integration
 
 **GitHub Actions example:**
+
 ```yaml
 - name: Build and push to ACR
   run: |
@@ -355,12 +383,13 @@ az containerapp update --name spring-app --resource-group spring-rg --bind admin
 ```
 
 **Azure Pipelines example:**
+
 ```yaml
 - task: AzureCLI@2
   inputs:
-    azureSubscription: 'AzureConnection'
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
+    azureSubscription: "AzureConnection"
+    scriptType: "bash"
+    scriptLocation: "inlineScript"
     inlineScript: |
       az acr build --registry $(ACR_NAME) --image spring-app:$(Build.BuildId) .
       az containerapp update --name spring-app -g spring-rg --image $(ACR_NAME).azurecr.io/spring-app:$(Build.BuildId)

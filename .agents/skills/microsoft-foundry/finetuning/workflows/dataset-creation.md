@@ -9,11 +9,13 @@ Three paths to training data (these combine well: curate seeds → augment → g
 Write examples by hand, collect from production logs, or adapt existing datasets.
 
 **When to use:**
+
 - You have real-world examples (production logs, support tickets, labeled data)
 - Your task requires domain expertise an LLM can't reliably generate
 - You need a gold-standard evaluation set (always curate manually)
 
 **Tips:**
+
 - Start with 10-20 examples to establish quality standards and format consistency
 - These seed examples also serve as the foundation of your evaluation test set
 - For RFT, you only need prompts + expected answers — no model responses needed
@@ -23,17 +25,20 @@ Write examples by hand, collect from production logs, or adapt existing datasets
 Expand a small curated dataset through **rephrasing** — generating diverse variations while keeping the same expected answer. Especially useful for RFT.
 
 **When to use:**
+
 - Well-defined task with clear correct answers
 - You can write quality examples but need more volume
 - Diversity of phrasing matters more than diversity of scenarios
 
 **Workflow:**
+
 1. Write base examples with correct expected answers
 2. For each, use an LLM to generate rephrasings varying tone, detail, and wording
 3. Each rephrasing gets the same expected answer — only the phrasing changes
 4. Validate the augmented dataset
 
 **Rephrasing prompt:**
+
 ```
 Generate N different phrasings of this request. Each should:
 - Use different wording, tone, or level of detail
@@ -49,7 +54,6 @@ A cheap model (gpt-4.1-mini) works well — no new ground truth needed, just phr
 ## Approach 3: Synthetic Generation
 
 Generate training data from scratch using LLM prompts.
-
 
 1. Define topic/scenario categories for diversity
 2. Generate prompts from an LLM
@@ -73,6 +77,7 @@ Before training, verify:
 ## Dataset Size vs. Quality
 
 From experiments:
+
 - **335 high-quality examples** (carefully curated) → best combined eval score (9.15)
 - **1,576 examples** (broader but noisier) → higher correctness but lower conciseness (8.53)
 

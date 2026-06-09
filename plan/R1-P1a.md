@@ -17,6 +17,7 @@ Build the core database schema, authentication system, portfolio/holding/transac
 ## Recommended Skills
 
 Invoke these skills for best-practice guidance during this phase:
+
 - **nextauth-authentication** — Auth.js v5 setup, session management, OAuth providers
 - **prisma-client-api** — Query patterns (findMany, create, update, delete, $transaction)
 - **prisma-database-setup** — Schema design, relations, indexes
@@ -455,10 +456,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!user || !user.passwordHash) return null;
 
-        const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);
+        const valid = await bcrypt.compare(
+          parsed.data.password,
+          user.passwordHash
+        );
         if (!valid) return null;
 
-        return { id: user.id, name: user.name, email: user.email, image: user.image };
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+        };
       },
     }),
   ],
@@ -511,11 +520,15 @@ export const createPortfolioSchema = z.object({
   taxResidency: z.string().length(2).default("AU"),
   financialYearEnd: z.number().int().min(1).max(12).default(6),
   performanceMethod: z.enum(["simple", "compound"]).default("compound"),
-  taxEntityType: z.enum(["individual", "smsf", "company", "trust"]).default("individual"),
+  taxEntityType: z
+    .enum(["individual", "smsf", "company", "trust"])
+    .default("individual"),
 });
 
 export const updatePortfolioSchema = createPortfolioSchema.partial().extend({
-  saleAllocationMethod: z.enum(["fifo", "lifo", "min_gain", "max_gain", "min_tax"]).optional(),
+  saleAllocationMethod: z
+    .enum(["fifo", "lifo", "min_gain", "max_gain", "min_tax"])
+    .optional(),
 });
 
 export type CreatePortfolioInput = z.infer<typeof createPortfolioSchema>;
@@ -528,9 +541,22 @@ export type UpdatePortfolioInput = z.infer<typeof updatePortfolioSchema>;
 import { z } from "zod";
 
 export const transactionTypes = [
-  "BUY", "SELL", "DIVIDEND", "INTEREST", "COUPON", "MATURITY",
-  "SPLIT", "FEE", "TRANSFER_IN", "TRANSFER_OUT", "RETURN_OF_CAPITAL",
-  "ADJUSTMENT", "MERGER_IN", "MERGER_OUT", "RIGHTS_ISSUE", "BONUS",
+  "BUY",
+  "SELL",
+  "DIVIDEND",
+  "INTEREST",
+  "COUPON",
+  "MATURITY",
+  "SPLIT",
+  "FEE",
+  "TRANSFER_IN",
+  "TRANSFER_OUT",
+  "RETURN_OF_CAPITAL",
+  "ADJUSTMENT",
+  "MERGER_IN",
+  "MERGER_OUT",
+  "RIGHTS_ISSUE",
+  "BONUS",
 ] as const;
 
 export const createTransactionSchema = z.object({
@@ -564,16 +590,44 @@ export const createHoldingSchema = z.object({
   instrumentCode: z.string().min(1).max(20),
   marketCode: z.string().min(1).max(10).default("ASX"),
   instrumentName: z.string().min(1).max(200).optional(),
-  instrumentType: z.enum([
-    "equity", "etf", "lic", "managed_fund", "bond",
-    "fixed_interest", "crypto", "fx", "custom",
-  ]).default("equity"),
+  instrumentType: z
+    .enum([
+      "equity",
+      "etf",
+      "lic",
+      "managed_fund",
+      "bond",
+      "fixed_interest",
+      "crypto",
+      "fx",
+      "custom",
+    ])
+    .default("equity"),
   // Initial transaction (optional — can add later)
-  initialTransaction: createTransactionSchema.omit({ holdingId: true }).optional(),
+  initialTransaction: createTransactionSchema
+    .omit({ holdingId: true })
+    .optional(),
 });
 
 const createTransactionSchema_inner = z.object({
-  transactionType: z.enum(["BUY", "SELL", "DIVIDEND", "INTEREST", "COUPON", "MATURITY", "SPLIT", "FEE", "TRANSFER_IN", "TRANSFER_OUT", "RETURN_OF_CAPITAL", "ADJUSTMENT", "MERGER_IN", "MERGER_OUT", "RIGHTS_ISSUE", "BONUS"]),
+  transactionType: z.enum([
+    "BUY",
+    "SELL",
+    "DIVIDEND",
+    "INTEREST",
+    "COUPON",
+    "MATURITY",
+    "SPLIT",
+    "FEE",
+    "TRANSFER_IN",
+    "TRANSFER_OUT",
+    "RETURN_OF_CAPITAL",
+    "ADJUSTMENT",
+    "MERGER_IN",
+    "MERGER_OUT",
+    "RIGHTS_ISSUE",
+    "BONUS",
+  ]),
   tradeDate: z.coerce.date(),
   quantity: z.number(),
   price: z.number().min(0),
@@ -597,7 +651,10 @@ export type CreateHoldingInput = z.infer<typeof createHoldingSchema>;
 
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { createPortfolioSchema, updatePortfolioSchema } from "@/lib/validators/portfolio";
+import {
+  createPortfolioSchema,
+  updatePortfolioSchema,
+} from "@/lib/validators/portfolio";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -764,12 +821,15 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-export async function addHolding(portfolioId: string, data: {
-  instrumentCode: string;
-  marketCode: string;
-  instrumentName?: string;
-  instrumentType?: string;
-}) {
+export async function addHolding(
+  portfolioId: string,
+  data: {
+    instrumentCode: string;
+    marketCode: string;
+    instrumentName?: string;
+    instrumentType?: string;
+  }
+) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
@@ -781,7 +841,12 @@ export async function addHolding(portfolioId: string, data: {
 
   // Find or create instrument
   let instrument = await db.instrument.findUnique({
-    where: { code_marketCode: { code: data.instrumentCode, marketCode: data.marketCode } },
+    where: {
+      code_marketCode: {
+        code: data.instrumentCode,
+        marketCode: data.marketCode,
+      },
+    },
   });
 
   if (!instrument) {
@@ -871,6 +936,7 @@ Portfolio settings: name, tax entity type, sale allocation method, financial yea
 Create these shadcn/ui components manually (copy the source code — no npx command):
 
 **Files to create in `components/ui/`:**
+
 - `button.tsx`
 - `input.tsx`
 - `label.tsx`
@@ -894,11 +960,12 @@ Each component follows the standard shadcn/ui `new-york` style pattern: uses `@/
 
 > **Important — Base UI imports:**
 > The CLI automatically pulls Base UI component variants when `"base": "base-ui"` is set in `components.json`. Import primitives from `@base-ui-components/react`:
+>
 > ```tsx
 > // Base UI — headless primitives
-> import { Dialog } from "@base-ui-components/react/dialog"
-> import { Menu } from "@base-ui-components/react/menu"
-> import { Select } from "@base-ui-components/react/select"
+> import { Dialog } from "@base-ui-components/react/dialog";
+> import { Menu } from "@base-ui-components/react/menu";
+> import { Select } from "@base-ui-components/react/select";
 >
 > // NOT Radix — we don't use Radix packages
 > // import { Dialog } from "radix-ui"  ← WRONG for this project

@@ -6,6 +6,7 @@
 > Infrastructure for Static Web Apps must be composed using the Azure Prepare skill workflow, not copied directly from this reference.
 >
 > When composing infrastructure:
+>
 > - Start from an approved base template for Static Web Apps defined by your platform or template team.
 > - Use `azurerm_static_web_app` — **NEVER** use Storage Account `static_website` for static web app hosting.
 >
@@ -37,6 +38,7 @@ resource "azurerm_static_web_app" "web" {
 > ⚠️ **Region availability is limited.** Check [region-availability.md](region-availability.md) before selecting a region.
 
 > 💡 **Key Points:**
+>
 > - No Storage Account, Service Plan, or other supporting resources required
 > - Static Web Apps is a fully managed service — storage is built-in
 > - The `azd-service-name` tag is **required** for `azd deploy` to locate the resource

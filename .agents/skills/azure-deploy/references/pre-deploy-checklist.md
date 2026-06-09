@@ -13,6 +13,7 @@ mcp_azure_mcp_subscription_list
 ```
 
 **CLI fallback:**
+
 ```bash
 az account show --query "{name:name, id:id}" -o json
 ```
@@ -22,6 +23,7 @@ az account show --query "{name:name, id:id}" -o json
 **You MUST use `ask_user`** to confirm the subscription. Find the default subscription (marked `isDefault: true`) from Step 1 results and present it as the recommended choice.
 
 ✅ **Correct — show actual name and ID as a choice:**
+
 ```
 ask_user(
   question: "Which Azure subscription would you like to deploy to?",
@@ -33,6 +35,7 @@ ask_user(
 ```
 
 ❌ **Wrong — never use freeform input for subscription:**
+
 ```
 ask_user(
   question: "Which Azure subscription should I deploy to? I'll need the subscription name or ID."
@@ -46,16 +49,19 @@ ask_user(
 > ⛔ **DO NOT** manually create `.azure/` folder with `mkdir` or `New-Item`. Let `azd` create it.
 
 **For new projects (no azure.yaml):**
+
 ```bash
 azd init -e <environment-name> --no-prompt
 ```
 
 **For existing projects (azure.yaml exists):**
+
 ```bash
 azd env new <environment-name> --no-prompt
 ```
 
 Both commands create:
+
 - `.azure/<env-name>/` folder with config files
 - Set the environment as default
 
@@ -75,11 +81,13 @@ mcp_azure_mcp_group_list
 Then check if `rg-<env-name>` exists in the results.
 
 **CLI fallback:**
+
 ```bash
 az group show --name rg-<env-name> --query "{location:location}" -o json 2>&1
 ```
 
 **If RG exists:**
+
 - Use `ask_user` to offer choices:
   1. Use existing RG location (show the location)
   2. Choose a different environment name
@@ -116,6 +124,7 @@ az containerapp env list \
 ```
 
 **PowerShell:**
+
 ```powershell
 az containerapp env list `
   --resource-group rg-<env-name> `
@@ -146,9 +155,11 @@ ask_user(
 **Resolution per choice:**
 
 1. **Use existing environment** — First check if the matching AZD environment exists locally:
+
    ```bash
    azd env list
    ```
+
    - **If the environment exists locally**, select it:
      ```bash
      azd env select <matching-env-name>
@@ -161,6 +172,7 @@ ask_user(
      ```
 
 2. **Choose a different name** — Create a new AZD environment:
+
    ```bash
    azd env new <new-unique-env-name> --no-prompt
    azd env set AZURE_SUBSCRIPTION_ID <subscription-id>
@@ -168,6 +180,7 @@ ask_user(
    ```
 
 3. **Delete and start fresh** — Delete the conflicting environment (requires `ask_user` confirmation per global-rules):
+
    ```bash
    az containerapp env delete \
      --name <environment-name> \
@@ -176,6 +189,7 @@ ask_user(
    ```
 
    **PowerShell:**
+
    ```powershell
    az containerapp env delete `
      --name <environment-name> `
@@ -196,6 +210,7 @@ See [Region Availability](region-availability.md) for service-specific limitatio
 Environment should already be configured during **azure-validate**. Run `azd env get-values` to confirm.
 
 Verify settings:
+
 ```bash
 azd env get-values
 ```
@@ -231,6 +246,7 @@ fi
 ```
 
 **If either check fails:**
+
 1. Fix `main.tfvars.json` syntax: replace `{{ .Env.VAR }}` with `${VAR}` (e.g., `${AZURE_ENV_NAME}`)
 2. For variables not in `main.tfvars.json`, use `TF_VAR_*` environment variables
 3. Re-run `azure-validate` before proceeding
@@ -258,12 +274,12 @@ azd up --no-prompt
 
 ## Common Mistakes to Avoid
 
-| ❌ Wrong | ✅ Correct |
-|----------|-----------|
-| `azd up --location eastus2` | `azd env set AZURE_LOCATION eastus2` then `azd up` |
-| Running `azd up` without environment | `azd env new <name> --no-prompt` first |
-| Assuming location without checking RG | Check `az group show` before choosing |
-| Ignoring tag conflicts in target RG | Check `az resource list --resource-group rg-<env-name>` before deploy |
+| ❌ Wrong                                  | ✅ Correct                                                                            |
+| ----------------------------------------- | ------------------------------------------------------------------------------------- |
+| `azd up --location eastus2`               | `azd env set AZURE_LOCATION eastus2` then `azd up`                                    |
+| Running `azd up` without environment      | `azd env new <name> --no-prompt` first                                                |
+| Assuming location without checking RG     | Check `az group show` before choosing                                                 |
+| Ignoring tag conflicts in target RG       | Check `az resource list --resource-group rg-<env-name>` before deploy                 |
 | Skipping Container Apps environment check | Run `az containerapp env list --resource-group rg-<env-name>` before deploy (Step 5a) |
 
 ---
@@ -277,6 +293,7 @@ azd up --no-prompt
 > The exact phase-1/phase-2 commands depend on whether the infra is **Bicep** (managed by `azd`) or **Terraform** (managed by `terraform`). Pick the matching path below.
 
 This check is **required** when ALL of the following are true:
+
 - The plan includes a Container App service that pulls images from ACR
 - The infra (Bicep or Terraform) assigns an `AcrPull` role for the Container App's managed identity on ACR using the two-phase deployment pattern
 - Phase 1 has just completed and the real application image has not yet been pushed/deployed
@@ -290,6 +307,7 @@ This check is **required** when ALL of the following are true:
 > ⛔ **Do not use `azd up` for this scenario.** `azd up` combines provisioning and deployment and skips the propagation gate.
 
 **Required flow:**
+
 1. Run `azd provision`
 2. Complete the RBAC health check (Steps A–C below)
 3. Run `azd deploy --no-prompt`
@@ -299,9 +317,11 @@ This check is **required** when ALL of the following are true:
 > 💡 **Two-phase Terraform pattern:** `terraform apply` succeeds immediately because the Container App is provisioned with a public placeholder image (not an ACR image) and **no `registry` block**. The `AcrPull` role assignment is a separate `azurerm_role_assignment` resource that depends on the Container App's system-assigned identity, so there is no circular dependency. The post-apply CLI step then builds and pushes the real image with `az acr build`, configures the registry/identity link with `az containerapp registry set --name <app-name> --resource-group rg-<env-name> --server <acr-login-server> --identity system`, and switches the revision to the real image with `az containerapp update --image <acr-login-server>/<image>:<tag>` — but the `AcrPull` role still needs time to propagate before these succeed.
 
 **Required flow:**
+
 1. Run `terraform apply` (provisions ACR, Container App with placeholder image, and `AcrPull` role assignment)
 2. Complete the RBAC health check (Steps A–C below)
 3. Build, push, and switch to the real image:
+
    ```bash
    az acr build --registry <acr-name> --image <image>:<tag> ./src/<service>
    az containerapp registry set \
@@ -316,6 +336,7 @@ This check is **required** when ALL of the following are true:
    ```
 
    **PowerShell:**
+
    ```powershell
    az acr build --registry <acr-name> --image <image>:<tag> ./src/<service>
    az containerapp registry set `
@@ -343,6 +364,7 @@ PRINCIPAL_ID=$(az containerapp identity show \
 ```
 
 **PowerShell:**
+
 ```powershell
 $PrincipalId = az containerapp identity show `
   --name <app-name> `
@@ -360,6 +382,7 @@ ACR_ID=$(az acr show \
 ```
 
 **PowerShell:**
+
 ```powershell
 $AcrId = az acr show `
   --name <acr-name> `
@@ -393,6 +416,7 @@ done
 ```
 
 **PowerShell:**
+
 ```powershell
 for ($attempt = 1; $attempt -le 5; $attempt++) {
     $Role = az role assignment list `
@@ -427,6 +451,7 @@ Only after this check confirms `AcrPull` has propagated should you run **Path A*
 > **⛔ MANDATORY**: If the deploying identity is NOT an interactive user (e.g., service principal in CI/CD), you **MUST** check and patch Bicep templates that hardcode user-type RBAC role assignments. Skipping this causes `PrincipalType` mismatch errors during provisioning, leading to costly retry loops and potential test timeouts.
 
 This check is **required** when ALL of the following are true:
+
 - The deployment uses AZD with Bicep infrastructure
 - The deploying identity is not an interactive user (service principal, managed identity, etc.)
 - The Bicep templates contain `allowUserIdentityPrincipal` set to `true` or role assignments with `principalType: 'User'`
@@ -441,6 +466,7 @@ echo "Auth type: $AUTH_TYPE"
 ```
 
 **PowerShell:**
+
 ```powershell
 $AuthType = az account show --query user.type -o tsv
 Write-Output "Auth type: $AuthType"
@@ -455,6 +481,7 @@ grep -rn "allowUserIdentityPrincipal" infra/ --include='*.bicep'
 ```
 
 **PowerShell:**
+
 ```powershell
 Select-String -Path infra\*.bicep -Pattern 'allowUserIdentityPrincipal' -Recurse
 ```
@@ -484,6 +511,7 @@ allowUserIdentityPrincipal: false
 > **⛔ MANDATORY**: If the plan includes Durable Functions, verify infrastructure uses **Durable Task Scheduler** (DTS), NOT Azure Storage.
 
 Check that `infra/` Bicep files contain:
+
 - `Microsoft.DurableTask/schedulers` resource
 - `Microsoft.DurableTask/schedulers/taskHubs` child resource
 - `Durable Task Data Contributor` RBAC role assignment
@@ -496,12 +524,14 @@ If any are missing, **STOP** and invoke **azure-prepare** to regenerate with the
 ## Non-AZD Deployments
 
 **For Azure CLI / Bicep:**
+
 ```bash
 az account set --subscription <subscription-id-or-name>
 # Pass location as parameter: --location <location>
 ```
 
 **For Terraform:**
+
 ```bash
 az account set --subscription <subscription-id-or-name>
 # Set in terraform.tfvars or -var="location=<location>"

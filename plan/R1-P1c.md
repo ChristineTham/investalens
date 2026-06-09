@@ -17,6 +17,7 @@ Implement portfolio performance calculations, all standard reports, and Australi
 ## Recommended Skills
 
 Invoke these skills for best-practice guidance during this phase:
+
 - **vercel-react-best-practices** — Report component performance, data fetching patterns
 - **vercel-composition-patterns** — Composable report UI (compound components, context)
 - **runtime-cache** — Caching expensive report calculations
@@ -32,21 +33,32 @@ Invoke these skills for best-practice guidance during this phase:
 **File: `lib/calculations/performance.ts`**
 
 Implement money-weighted return (MWR) calculation:
+
 - Calculate total return for a holding over any date range
 - Annualise returns correctly
 - Handle multiple buy parcels at different prices
 - Factor in: capital gains, dividends, currency gains, brokerage
 
 Key functions:
+
 ```typescript
-function calculateHoldingPerformance(transactions: Transaction[], prices: Price[], dateRange: DateRange): HoldingPerformance;
-function calculatePortfolioPerformance(holdings: HoldingWithTransactions[], prices: Map<string, Price[]>, dateRange: DateRange): PortfolioPerformance;
+function calculateHoldingPerformance(
+  transactions: Transaction[],
+  prices: Price[],
+  dateRange: DateRange
+): HoldingPerformance;
+function calculatePortfolioPerformance(
+  holdings: HoldingWithTransactions[],
+  prices: Map<string, Price[]>,
+  dateRange: DateRange
+): PortfolioPerformance;
 function annualiseReturn(totalReturn: number, days: number): number;
 ```
 
 **File: `lib/calculations/position.ts`**
 
 Calculate current position state from transactions:
+
 - Running quantity (sum of buys minus sells, adjusted for splits)
 - Average cost per unit
 - Total cost base (for CGT)
@@ -56,6 +68,7 @@ Calculate current position state from transactions:
 **File: `lib/calculations/parcels.ts`**
 
 Track individual buy parcels for CGT:
+
 - Each BUY creates a parcel: { date, quantity, costBase, remainingQuantity }
 - SELL consumes parcels according to sale allocation method (FIFO, LIFO, etc.)
 - RETURN_OF_CAPITAL reduces parcel cost base
@@ -69,6 +82,7 @@ Track individual buy parcels for CGT:
 **File: `lib/reports/performance-report.ts`**
 
 Generate the Performance Report:
+
 - Date range selection (preset: 1M, 3M, 6M, YTD, 1Y, 3Y, 5Y, Since Inception, Custom)
 - Group by: Market, Sector, Industry, Investment Type, Country, Custom Group, None
 - Filter by labels
@@ -79,6 +93,7 @@ Generate the Performance Report:
 **File: `app/(dashboard)/reports/performance/page.tsx`**
 
 Report UI:
+
 - Date range picker
 - Grouping dropdown
 - Label filter
@@ -128,6 +143,7 @@ Opening/closing cost base for accounting entities.
 ## Task 4: Report Pages (UI)
 
 Create pages under `app/(dashboard)/reports/`:
+
 - `contribution/page.tsx`
 - `multi-period/page.tsx`
 - `sold-securities/page.tsx`
@@ -139,6 +155,7 @@ Create pages under `app/(dashboard)/reports/`:
 - `all-trades/page.tsx`
 
 Each page follows the pattern:
+
 1. Config form at top (date range, grouping, filters)
 2. Server action call to generate report data
 3. Results rendered in table + optional chart (Recharts)
@@ -151,6 +168,7 @@ Each page follows the pattern:
 **File: `lib/reports/tax/taxable-income.ts`**
 
 Calculate taxable income for a financial year:
+
 - Group income: Local Non-Trust, Local Trust, Foreign
 - Columns: Total Income, Net Dividend, Franked, Unfranked, Interest, Tax Deferred, AMIT Decrease/Increase, Foreign Source Income, Franking Credits, TFN Withholding, Foreign Tax
 - Calculate ATO totals and form code mappings (18A, 18H, etc.)
@@ -163,6 +181,7 @@ Calculate taxable income for a financial year:
 **File: `lib/reports/tax/cgt-report.ts`**
 
 Full CGT calculation per ATO rules:
+
 1. Get all SELL transactions in the financial year
 2. Match each sell against buy parcels using the configured sale allocation method
 3. Calculate gain/loss per parcel
@@ -172,6 +191,7 @@ Full CGT calculation per ATO rules:
 7. Calculate net capital gain (18A)
 
 Output includes:
+
 - Breakdown tabs: All Holdings, Short-term Gains, Long-term Gains, Losses, Non-discounted Distributions, Discounted Distributions
 - Parcel-level detail (purchase date, quantity, cost base, proceeds, gain/loss)
 - Sale allocation method comparison ("Optimise" — run all methods, show which minimises tax)
@@ -180,6 +200,7 @@ Output includes:
 **File: `lib/reports/tax/cgt-parcel-matcher.ts`**
 
 Implement all 5 sale allocation methods:
+
 - FIFO: oldest parcels sold first
 - LIFO: newest parcels sold first
 - Minimise Capital Gain: highest cost base first
@@ -193,6 +214,7 @@ Implement all 5 sale allocation methods:
 **File: `lib/reports/tax/unrealised-cgt.ts`**
 
 Hypothetical CGT if all positions sold today:
+
 - Short-term unrealised gains
 - Long-term unrealised gains (with discount)
 - Unrealised losses
@@ -204,6 +226,7 @@ Hypothetical CGT if all positions sold today:
 ## Task 8: Tax UI Pages
 
 **Files under `app/(dashboard)/tax/`:**
+
 - `page.tsx` — Tax summary dashboard (financial year selector, key figures)
 - `taxable-income/page.tsx` — Full taxable income report
 - `cgt/page.tsx` — CGT report with breakdown tabs

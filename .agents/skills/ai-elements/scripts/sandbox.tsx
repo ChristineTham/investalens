@@ -1,6 +1,9 @@
 "use client";
 
-import { CodeBlock, CodeBlockCopyButton } from "@/components/ai-elements/code-block";
+import {
+  CodeBlock,
+  CodeBlockCopyButton,
+} from "@/components/ai-elements/code-block";
 import {
   Sandbox,
   SandboxContent,

@@ -54,6 +54,7 @@ az deployment sub what-if \
 ```
 
 **Expected output:**
+
 ```
 Resource and property changes are indicated with these symbols:
   + Create
@@ -81,13 +82,13 @@ See [Policy Validation Guide](../../policy-validation.md) for instructions on re
 
 ## Checklist
 
-| Check | Command | Pass |
-|-------|---------|------|
-| Bicep compiles | `az bicep build` | ☐ |
-| Template valid | `az deployment validate` | ☐ |
-| What-if passes | `az deployment what-if` | ☐ |
-| Auth valid | `az account show` | ☐ |
-| Policies validated | MCP Policy tool | ☐ |
+| Check              | Command                  | Pass |
+| ------------------ | ------------------------ | ---- |
+| Bicep compiles     | `az bicep build`         | ☐    |
+| Template valid     | `az deployment validate` | ☐    |
+| What-if passes     | `az deployment what-if`  | ☐    |
+| Auth valid         | `az account show`        | ☐    |
+| Policies validated | MCP Policy tool          | ☐    |
 
 ## References
 

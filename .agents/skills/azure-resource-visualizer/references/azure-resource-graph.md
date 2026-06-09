@@ -22,10 +22,10 @@ az graph query -q "<KQL>" --query "data[].{name:name, type:type}" -o table
 
 ## Key Tables
 
-| Table | Contains |
-|-------|----------|
-| `Resources` | All ARM resource instances (name, type, location, properties, tags) |
-| `ResourceContainers` | Subscriptions, resource groups, management groups |
+| Table                | Contains                                                            |
+| -------------------- | ------------------------------------------------------------------- |
+| `Resources`          | All ARM resource instances (name, type, location, properties, tags) |
+| `ResourceContainers` | Subscriptions, resource groups, management groups                   |
 
 ## Resource Discovery Patterns
 

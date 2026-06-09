@@ -9,7 +9,7 @@ A Capacity Reservation Group (CRG) is a logical container for one or more capaci
 ## Constraints
 
 | Constraint                     | Detail                                                                                                     |
-|--------------------------------|------------------------------------------------------------------------------------------------------------|
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------- |
 | **Region-scoped**              | A CRG and all its reservations must be in the same Azure region                                            |
 | **Zone-specific**              | Each reservation targets a specific Availability Zone (or is non-zonal)                                    |
 | **Subscription-scoped**        | A CRG lives in a single subscription but can be shared with other subscriptions via the `sharing` property |
@@ -23,7 +23,7 @@ See [association-disassociation.md](association-disassociation.md) for how to as
 ## Common CLI Commands
 
 | Action                      | Command                                                                                                     |
-|-----------------------------|-------------------------------------------------------------------------------------------------------------|
+| --------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | List CRGs                   | `az capacity reservation group list`                                                                        |
 | Show CRG                    | `az capacity reservation group show -g <rg> -n <crg> --instance-view`                                       |
 | Delete CRG                  | `az capacity reservation group delete -g <rg> -n <crg>`                                                     |

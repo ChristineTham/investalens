@@ -174,14 +174,14 @@ az containerapp logs show --name my-app --resource-group myapp-rg --follow
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Image pull | Verify ACR: `az acr check-health --name $ACR_NAME`; check AcrPull role |
-| Wrong architecture | ACA requires linux/amd64. Check: `docker inspect <image> --format '{{.Architecture}}'`. Rebuild with `--platform linux/amd64` |
-| Port mismatch | Verify `targetPort` matches app port |
-| OOM | Increase memory limit (up to 4 vCPU / 8 GiB max per container) |
-| DNS | Retrieve FQDN: `az containerapp show --name <app> -g <rg> --query properties.configuration.ingress.fqdn -o tsv` |
-| NSG blocking provisioning | If VNet-integrated, ensure NSG does **not** have a custom DenyAllInbound at low priority — it blocks Azure Load Balancer probes and VNet-internal traffic. The default rules (65000-65500) handle deny. Add explicit AllowAzureLoadBalancer rule |
-| SecretRef not found | `--env-vars KEY=secretref:name` requires `--secrets name=value` (or keyvaultref) in the **same** `az containerapp create` command |
-| ARM deployment locks | If a Bicep deployment is stuck with Container Apps InProgress, run `az deployment group cancel -g <rg> -n <deployment>` before attempting CLI updates or deletes |
-| Service-to-service timeout | Kubernetes DNS names (`http://svc:port`) don't work in ACA. Ensure app code reads `ORDER_SERVICE_URL` (or equivalent) env var pointing to the internal FQDN |
+| Issue                      | Solution                                                                                                                                                                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Image pull                 | Verify ACR: `az acr check-health --name $ACR_NAME`; check AcrPull role                                                                                                                                                                           |
+| Wrong architecture         | ACA requires linux/amd64. Check: `docker inspect <image> --format '{{.Architecture}}'`. Rebuild with `--platform linux/amd64`                                                                                                                    |
+| Port mismatch              | Verify `targetPort` matches app port                                                                                                                                                                                                             |
+| OOM                        | Increase memory limit (up to 4 vCPU / 8 GiB max per container)                                                                                                                                                                                   |
+| DNS                        | Retrieve FQDN: `az containerapp show --name <app> -g <rg> --query properties.configuration.ingress.fqdn -o tsv`                                                                                                                                  |
+| NSG blocking provisioning  | If VNet-integrated, ensure NSG does **not** have a custom DenyAllInbound at low priority — it blocks Azure Load Balancer probes and VNet-internal traffic. The default rules (65000-65500) handle deny. Add explicit AllowAzureLoadBalancer rule |
+| SecretRef not found        | `--env-vars KEY=secretref:name` requires `--secrets name=value` (or keyvaultref) in the **same** `az containerapp create` command                                                                                                                |
+| ARM deployment locks       | If a Bicep deployment is stuck with Container Apps InProgress, run `az deployment group cancel -g <rg> -n <deployment>` before attempting CLI updates or deletes                                                                                 |
+| Service-to-service timeout | Kubernetes DNS names (`http://svc:port`) don't work in ACA. Ensure app code reads `ORDER_SERVICE_URL` (or equivalent) env var pointing to the internal FQDN                                                                                      |

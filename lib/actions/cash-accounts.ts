@@ -45,7 +45,9 @@ export async function addCashTransaction(
   });
 
   // Update balance
-  const sign = ["deposit", "interest", "dividend_received"].includes(type) ? 1 : -1;
+  const sign = ["deposit", "interest", "dividend_received"].includes(type)
+    ? 1
+    : -1;
   await db.cashAccount.update({
     where: { id: accountId },
     data: { balance: { increment: amount * sign } },

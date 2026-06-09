@@ -22,15 +22,18 @@ Answer before touching data or models:
 ## Phase 2: Prepare the Dataset
 
 ### Option A: You Have Data
+
 1. Convert to SFT JSONL format (see `references/dataset-formats.md`)
 2. Split: 80% train, 10% validation, 10% held-out test
 3. Remove or fix low-quality examples
 
 ### Option B: Synthetic Data
+
 1. Generate using LLM prompts (see `workflows/dataset-creation.md`)
 2. Convert to SFT JSONL with `scripts/convert_dataset.py`
 
 ### Option C: Hybrid (Seed + Synthetic)
+
 1. Use existing data as seed, generate synthetic variations
 2. Merge, deduplicate, and quality-filter
 
@@ -45,11 +48,11 @@ Answer before touching data or models:
 
 See `references/training-types.md` for the full decision framework.
 
-| Condition | Training Type |
-|-----------|--------------|
-| Have input-output pairs | SFT |
+| Condition                    | Training Type               |
+| ---------------------------- | --------------------------- |
+| Have input-output pairs      | SFT                         |
 | Can write a grading function | RFT (reasoning models only) |
-| Need style alignment | DPO |
+| Need style alignment         | DPO                         |
 
 Most projects start with SFT. Move to RFT/DPO only if SFT isn't sufficient.
 
@@ -58,6 +61,7 @@ Most projects start with SFT. Move to RFT/DPO only if SFT isn't sufficient.
 Use `scripts/submit_training.py` or the API directly. See `references/hyperparameters.md` for starting HP values.
 
 **Foundry CLI** alternative (no Python):
+
 ```bash
 azd ai finetuning jobs submit -f ./fine-tune-job.yaml
 ```
@@ -78,6 +82,7 @@ azd ai finetuning jobs submit -f ./fine-tune-job.yaml
 ## Phase 8: Iterate
 
 Follow `workflows/iterative-training.md`:
+
 - Adjust hyperparameters based on training curves
 - Try different data subsets or augmentations
 - Test different base models
@@ -86,6 +91,7 @@ Follow `workflows/iterative-training.md`:
 ## Phase 9: Ship
 
 When the model convincingly beats baseline:
+
 1. Deploy with production-appropriate capacity
 2. Monitor with Application Insights
 3. Periodically re-evaluate against test set for regression

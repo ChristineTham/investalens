@@ -79,7 +79,7 @@ clsx(
   "base",
   ["array-item"],
   { "object-conditional": true },
-  isActive && "conditional",
+  isActive && "conditional"
 );
 ```
 
@@ -94,7 +94,7 @@ const Component = ({ className, ...props }: ComponentProps) => {
       className={cn(
         "rounded-lg border bg-white shadow-sm",
         isOpen && "bg-blue-500",
-        className,
+        className
       )}
       {...props}
     />
@@ -151,7 +151,7 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  },
+  }
 );
 ```
 
@@ -224,9 +224,9 @@ import { cn } from "@/lib/utils";
 
 <button
   className={cn(
-    "px-4 py-2 rounded-lg",
+    "rounded-lg px-4 py-2",
     variant === "primary" && "bg-blue-500 text-white",
-    className,
+    className
   )}
 />;
 ```
@@ -247,7 +247,7 @@ function Button({ primary, className, ...props }) {
       className={cn(
         "px-4 py-2",
         primary ? "bg-blue-500" : "bg-gray-500",
-        className,
+        className
       )}
       {...props}
     />
@@ -266,7 +266,7 @@ Both `clsx` and `tailwind-merge` are highly optimized, but keep these tips in mi
 ```tsx
 const className = useMemo(
   () => cn(baseStyles, expensiveComputation(props), className),
-  [props, className],
+  [props, className]
 );
 ```
 

@@ -9,7 +9,7 @@ Loaded when troubleshooting MCP tool calls, debugging the fallback chain, or und
 Always call `mcp_azure_mcp_aks` first to discover the current available tool surface. Do not assume a fixed action name — the available actions depend on the MCP server version deployed to the client.
 
 ```javascript
-mcp_azure_mcp_aks({ action: "discover" })
+mcp_azure_mcp_aks({ action: "discover" });
 ```
 
 The response lists available actions and their parameter schemas. Use the returned schema — do not hardcode parameter names.
@@ -21,12 +21,14 @@ The response lists available actions and their parameter schemas. Use the return
 After calling `discover`, use the assessment action name returned in the response. Pass parameters according to the discovered schema — do not hardcode action names or API versions.
 
 Typical parameters include:
+
 - `subscriptionId` — Azure subscription ID
 - `resourceGroupName` — resource group containing the cluster
 - `resourceName` — AKS cluster name
 - `scope` (optional) — filter by namespaces or workload types
 
 Example shape (use actual action name and schema from discover output):
+
 ```javascript
 mcp_azure_mcp_aks({
   action: "<action-from-discover>",
@@ -35,9 +37,9 @@ mcp_azure_mcp_aks({
   resourceName: "<cluster-name>",
   scope: {
     excludeNamespaces: ["kube-system", "gatekeeper-system", "azure-arc"],
-    workloadTypes: ["Deployment", "StatefulSet", "DaemonSet", "CronJob", "Job"]
-  }
-})
+    workloadTypes: ["Deployment", "StatefulSet", "DaemonSet", "CronJob", "Job"],
+  },
+});
 ```
 
 All `scope` parameters are optional. If omitted, the API assesses all workloads excluding `kube-system` and `gatekeeper-system`.
@@ -70,6 +72,7 @@ az role assignment create \
 The API returns three top-level sections:
 
 ### `summary`
+
 ```json
 {
   "summary": {
@@ -84,6 +87,7 @@ The API returns three top-level sections:
 ```
 
 ### `clusterConfiguration`
+
 ```json
 {
   "clusterConfiguration": [
@@ -99,6 +103,7 @@ The API returns three top-level sections:
 ```
 
 ### `workloads[]`
+
 ```json
 {
   "workloads": [
@@ -132,10 +137,10 @@ For clusters with 500+ workloads, the API returns HTTP 202 Accepted with a `Loca
 // Initial call returns: { status: 202, headers: { Location: "...", "Retry-After": "30" } }
 async function pollAssessment(locationUrl, retryAfterSeconds) {
   while (true) {
-    await new Promise(r => setTimeout(r, retryAfterSeconds * 1000));
+    await new Promise((r) => setTimeout(r, retryAfterSeconds * 1000));
     const response = await mcp_azure_mcp_aks({
       action: "pollOperation",
-      locationUrl: locationUrl
+      locationUrl: locationUrl,
     });
     if (response.status === "Succeeded") return response.result;
     if (response.status === "Failed") throw new Error(response.error.message);
@@ -160,6 +165,7 @@ Attempt each step in order. Do not ask the user which is available — just try:
 ```
 
 If `mcp_azure_mcp_aks` is not available, say:
+
 > "The Azure MCP server is not configured. To enable live cluster assessment, install it following [aka.ms/azure-mcp-setup](https://aka.ms/azure-mcp-setup). For now, I can validate your local manifests offline — export them with `kubectl get ... -o yaml` or share your manifest files."
 
 Then proceed to offline manifest validation against `constraint-spec-v1.yaml`.
@@ -189,18 +195,18 @@ kubectl cluster-info
 ```javascript
 // 4. Verify MCP server is reachable (Azure MCP)
 // If this returns available actions, MCP is configured
-mcp_azure_mcp_aks({ action: "discover" })
+mcp_azure_mcp_aks({ action: "discover" });
 ```
 
 ---
 
 ## Common MCP Errors
 
-| Error | Cause | Fix |
-|---|---|---|
-| `tool not found: mcp_azure_mcp_aks` | Azure MCP server not configured | Guide user to install: [aka.ms/azure-mcp-setup](https://aka.ms/azure-mcp-setup), then fall back to offline |
-| `HTTP 401 Unauthorized` | Not logged in | `az login` |
-| `HTTP 403 Forbidden` | Insufficient RBAC permissions | Ensure caller has read access to the cluster via AKS APIs |
-| `HTTP 404 Not Found` | Wrong subscription, RG, or cluster name | Verify with `az aks list -o table` |
-| `HTTP 202` with no Location header | API version mismatch | Ensure the MCP server version supports async polling; retry with the latest server |
-| Timeout after 30s | Cluster too large (500+ workloads) | Implement async polling — see section above |
+| Error                               | Cause                                   | Fix                                                                                                        |
+| ----------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `tool not found: mcp_azure_mcp_aks` | Azure MCP server not configured         | Guide user to install: [aka.ms/azure-mcp-setup](https://aka.ms/azure-mcp-setup), then fall back to offline |
+| `HTTP 401 Unauthorized`             | Not logged in                           | `az login`                                                                                                 |
+| `HTTP 403 Forbidden`                | Insufficient RBAC permissions           | Ensure caller has read access to the cluster via AKS APIs                                                  |
+| `HTTP 404 Not Found`                | Wrong subscription, RG, or cluster name | Verify with `az aks list -o table`                                                                         |
+| `HTTP 202` with no Location header  | API version mismatch                    | Ensure the MCP server version supports async polling; retry with the latest server                         |
+| Timeout after 30s                   | Cluster too large (500+ workloads)      | Implement async polling — see section above                                                                |

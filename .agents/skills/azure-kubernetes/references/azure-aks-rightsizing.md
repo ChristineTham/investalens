@@ -23,17 +23,19 @@ kubectl get deployment metrics-server -n kube-system
 
 Based on the result, follow the appropriate path:
 
-| State | Rightsizing Possible? | Data Source | Accuracy |
-|-------|-----------------------|-------------|----------|
-| Azure Managed Prometheus enabled |  Yes | Prometheus metrics via Azure Monitor | Best — full P95/7-day history |
-| Container Insights (Log Analytics) enabled |  Yes | KQL queries on `Perf` / `KubePodInventory` | Good — 7-day trends |
-| Only Metrics Server (no Azure Monitor) |  Limited | `kubectl top pods` — live data only | Low — no historical trends |
+| State                                      | Rightsizing Possible? | Data Source                                | Accuracy                      |
+| ------------------------------------------ | --------------------- | ------------------------------------------ | ----------------------------- |
+| Azure Managed Prometheus enabled           | Yes                   | Prometheus metrics via Azure Monitor       | Best — full P95/7-day history |
+| Container Insights (Log Analytics) enabled | Yes                   | KQL queries on `Perf` / `KubePodInventory` | Good — 7-day trends           |
+| Only Metrics Server (no Azure Monitor)     | Limited               | `kubectl top pods` — live data only        | Low — no historical trends    |
 
 > If nothing is enabled, Metrics Server is pre-installed on AKS — confirm it is healthy and use it for live rightsizing data:
+>
 > ```bash
 > kubectl get deployment metrics-server -n kube-system
 > kubectl top pods --all-namespaces --sort-by=cpu
 > ```
+>
 > For historical P95 trends (more accurate rightsizing), recommend enabling Azure Managed Prometheus. Warn user this incurs cost and wait for confirmation before proceeding.
 
 ---
@@ -74,17 +76,18 @@ az monitor metrics list \
 
 ## Optimization Rules
 
-| Condition | Recommendation | Risk |
-|-----------|----------------|------|
-| CPU request >5x P95 actual | Reduce to `P95 * 1.2` | Medium |
-| Memory request >3x P95 actual | Reduce to `P95 * 1.2` | Medium |
-| CPU request >2x P95 actual | Recommend rightsizing with 20% buffer | Low |
-| No resource limits set | Add limits to prevent noisy-neighbor waste | Low |
-| No VPA/HPA configured | Suggest enabling Vertical Pod Autoscaler | Low |
+| Condition                     | Recommendation                             | Risk   |
+| ----------------------------- | ------------------------------------------ | ------ |
+| CPU request >5x P95 actual    | Reduce to `P95 * 1.2`                      | Medium |
+| Memory request >3x P95 actual | Reduce to `P95 * 1.2`                      | Medium |
+| CPU request >2x P95 actual    | Recommend rightsizing with 20% buffer      | Low    |
+| No resource limits set        | Add limits to prevent noisy-neighbor waste | Low    |
+| No VPA/HPA configured         | Suggest enabling Vertical Pod Autoscaler   | Low    |
 
 > For VPA setup and configuration, see [azure-aks-vpa.md](./azure-aks-vpa.md).
 
 ## YAML Patch Format
+
 ```yaml
 # Rightsizing patch for <NAMESPACE>/<DEPLOYMENT_NAME>
 # Current: CPU request=<CURRENT>, P95 actual=<ACTUAL>
@@ -98,14 +101,14 @@ spec:
   template:
     spec:
       containers:
-      - name: <CONTAINER_NAME>
-        resources:
-          requests:
-            cpu: "<NEW_CPU>"
-            memory: "<NEW_MEM>"
-          limits:
-            cpu: "<NEW_CPU_LIMIT>"     # e.g. CPU limit = 1.5x CPU request, or preserve existing limit-to-request ratio
-            memory: "<NEW_MEM_LIMIT>"  # e.g. memory limit = 1.25x memory request, or preserve existing limit-to-request ratio
+        - name: <CONTAINER_NAME>
+          resources:
+            requests:
+              cpu: "<NEW_CPU>"
+              memory: "<NEW_MEM>"
+            limits:
+              cpu: "<NEW_CPU_LIMIT>" # e.g. CPU limit = 1.5x CPU request, or preserve existing limit-to-request ratio
+              memory: "<NEW_MEM_LIMIT>" # e.g. memory limit = 1.25x memory request, or preserve existing limit-to-request ratio
 ```
 
 > Risk: Medium-High. Always review patches before applying. Test in non-production first. Get explicit user confirmation before applying to production.

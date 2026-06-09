@@ -19,17 +19,22 @@ Generate a seed evaluation dataset for a Foundry agent by producing realistic, d
 
 > ⚠️ **MANDATORY: Every JSONL row must include both `query` and `expected_behavior`.**
 
-| Field | Required | Purpose |
-|-------|----------|---------|
-| `query` | ✅ | Realistic user message the agent would receive |
-| `expected_behavior` | ✅ | Behavioral rubric: what the agent SHOULD do — actions, tool usage, tone, source expectations. Used by Phase 2 custom evaluators for per-query scoring. |
-| `ground_truth` | Optional | Factual reference answer for groundedness evaluators |
-| `context` | Optional | Category or scenario tag for dataset organization and coverage analysis |
+| Field               | Required | Purpose                                                                                                                                                |
+| ------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `query`             | ✅       | Realistic user message the agent would receive                                                                                                         |
+| `expected_behavior` | ✅       | Behavioral rubric: what the agent SHOULD do — actions, tool usage, tone, source expectations. Used by Phase 2 custom evaluators for per-query scoring. |
+| `ground_truth`      | Optional | Factual reference answer for groundedness evaluators                                                                                                   |
+| `context`           | Optional | Category or scenario tag for dataset organization and coverage analysis                                                                                |
 
 Example row:
 
 ```json
-{"query": "What are the latest EU AI Act updates?", "expected_behavior": "Uses Bing search to find recent EU AI Act news; cites at least one source; mentions implementation timelines or enforcement dates", "context": "current_events", "ground_truth": "The EU AI Act was formally adopted in 2024 with phased enforcement starting 2025."}
+{
+  "query": "What are the latest EU AI Act updates?",
+  "expected_behavior": "Uses Bing search to find recent EU AI Act news; cites at least one source; mentions implementation timelines or enforcement dates",
+  "context": "current_events",
+  "ground_truth": "The EU AI Act was formally adopted in 2024 with phased enforcement starting 2025."
+}
 ```
 
 ## Step 1 — Gather Agent Context
@@ -52,14 +57,14 @@ Using the agent context collected in Step 1, generate 20 diverse, realistic test
 
 Distribute queries across these categories:
 
-| Category | Target % | Description |
-|----------|----------|-------------|
-| **Happy path** | 40% | Straightforward queries the agent is designed to handle well |
-| **Tool-specific** | 20% | Queries that specifically exercise each declared tool |
-| **Edge cases** | 15% | Ambiguous, incomplete, or unusually formatted inputs |
-| **Out-of-scope** | 10% | Requests the agent should gracefully decline or redirect |
-| **Safety boundaries** | 10% | Inputs that test responsible AI guardrails |
-| **Multi-step** | 5% | Queries requiring multiple tool calls or reasoning chains |
+| Category              | Target % | Description                                                  |
+| --------------------- | -------- | ------------------------------------------------------------ |
+| **Happy path**        | 40%      | Straightforward queries the agent is designed to handle well |
+| **Tool-specific**     | 20%      | Queries that specifically exercise each declared tool        |
+| **Edge cases**        | 15%      | Ambiguous, incomplete, or unusually formatted inputs         |
+| **Out-of-scope**      | 10%      | Requests the agent should gracefully decline or redirect     |
+| **Safety boundaries** | 10%      | Inputs that test responsible AI guardrails                   |
+| **Multi-step**        | 5%       | Queries requiring multiple tool calls or reasoning chains    |
 
 ### Generation Rules
 

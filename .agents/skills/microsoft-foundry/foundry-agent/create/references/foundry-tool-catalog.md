@@ -11,7 +11,7 @@ Three catalog backends cooperate: the **asset-gallery** index discovers connecto
 
 Use when the user mentions any of:
 
-- *Build → Tools → Connect a tool* (any subtab — Configured, Catalog, Custom)
+- _Build → Tools → Connect a tool_ (any subtab — Configured, Catalog, Custom)
 - "Tool connection", "Remote MCP", "Catalog tile", "Custom · Preview"
 - A specific catalog tile (GitHub, Box, Pipedrive, monday.com, Microsoft Learn, …)
 - `RemoteTool` connection, `gateway_connector`, `catalog_MCP`, `generic_mcp`
@@ -78,15 +78,15 @@ Allowed `authType` for `category=RemoteTool` (per `api-version=2025-04-01-previe
 
 ## Decision tree
 
-| User scenario | `authType` | `metadata.type` | Notes |
-|---|---|---|---|
-| Catalog tile tagged "Custom · Preview" (Box, Pipedrive, GitHub, Salesforce, Outlook, …) | `OAuth2` | `gateway_connector` | **Connector-namespace managed MCP.** Powered by the Connector Namespace in your Foundry account; the namespace handles OAuth, token storage, and per-user passthrough. Needs **two** PUTs plus `listConsentLinks` per caller (see [Gateway connector full flow](#gateway-connector-full-flow)). |
-| Catalog MCP tile with Microsoft-managed OAuth (no `client_id` needed) | `OAuth2` | `catalog_MCP` | Foundry brokers the OAuth app for you. The Catalog API tile **prepopulates** `target` (server URL); `listConsentLinks` flow same as gateway. |
-| Catalog MCP tile with **your own** OAuth App | `OAuth2` | (omit) | Supply your own `client_id` + `client_secret` + raw `authorizationUrl` / `tokenUrl` / `scopes`. Do **not** mix BYO `credentials` with `metadata.type=catalog_MCP`. See [BYO OAuth caveats](#byo-oauth-app-against-a-catalog-mcp-server). |
-| Remote MCP, Azure-side identity (project MI calls the server) | `ProjectManagedIdentity` | `catalog_MCP` *(when listed)* or `generic_mcp` | For catalog-listed MCP servers, prefer `catalog_MCP` so `target` is prepopulated. Requires `audience` in `metadata`. See [PMI limitations](#projectmanagedidentity-limitations). |
-| Remote MCP, static shared secret / header key | `CustomKeys` | `catalog_MCP` *(when listed)* or `generic_mcp` | Header **name and format** are NOT always `Authorization: Bearer ...`. Read the required header name from the Catalog API entry's `x-ms-connection-parameters` and use that exact name in `credentials.keys`. |
-| Remote MCP, user's Entra token forwarded | `UserEntraToken` | `generic_mcp` | Per-user identity passthrough. Not supported when the agent is published to Teams. Pair with `metadata.audience` for the upstream resource URI. |
-| Custom OpenAPI / A2A tool (no MCP) | varies | n/a | Use the Custom subtab shapes; outside the MCP toolbox path. See [Custom subtab — OpenAPI / A2A](#custom-subtab--openapi--a2a). |
+| User scenario                                                                           | `authType`               | `metadata.type`                                | Notes                                                                                                                                                                                                                                                                                           |
+| --------------------------------------------------------------------------------------- | ------------------------ | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Catalog tile tagged "Custom · Preview" (Box, Pipedrive, GitHub, Salesforce, Outlook, …) | `OAuth2`                 | `gateway_connector`                            | **Connector-namespace managed MCP.** Powered by the Connector Namespace in your Foundry account; the namespace handles OAuth, token storage, and per-user passthrough. Needs **two** PUTs plus `listConsentLinks` per caller (see [Gateway connector full flow](#gateway-connector-full-flow)). |
+| Catalog MCP tile with Microsoft-managed OAuth (no `client_id` needed)                   | `OAuth2`                 | `catalog_MCP`                                  | Foundry brokers the OAuth app for you. The Catalog API tile **prepopulates** `target` (server URL); `listConsentLinks` flow same as gateway.                                                                                                                                                    |
+| Catalog MCP tile with **your own** OAuth App                                            | `OAuth2`                 | (omit)                                         | Supply your own `client_id` + `client_secret` + raw `authorizationUrl` / `tokenUrl` / `scopes`. Do **not** mix BYO `credentials` with `metadata.type=catalog_MCP`. See [BYO OAuth caveats](#byo-oauth-app-against-a-catalog-mcp-server).                                                        |
+| Remote MCP, Azure-side identity (project MI calls the server)                           | `ProjectManagedIdentity` | `catalog_MCP` _(when listed)_ or `generic_mcp` | For catalog-listed MCP servers, prefer `catalog_MCP` so `target` is prepopulated. Requires `audience` in `metadata`. See [PMI limitations](#projectmanagedidentity-limitations).                                                                                                                |
+| Remote MCP, static shared secret / header key                                           | `CustomKeys`             | `catalog_MCP` _(when listed)_ or `generic_mcp` | Header **name and format** are NOT always `Authorization: Bearer ...`. Read the required header name from the Catalog API entry's `x-ms-connection-parameters` and use that exact name in `credentials.keys`.                                                                                   |
+| Remote MCP, user's Entra token forwarded                                                | `UserEntraToken`         | `generic_mcp`                                  | Per-user identity passthrough. Not supported when the agent is published to Teams. Pair with `metadata.audience` for the upstream resource URI.                                                                                                                                                 |
+| Custom OpenAPI / A2A tool (no MCP)                                                      | varies                   | n/a                                            | Use the Custom subtab shapes; outside the MCP toolbox path. See [Custom subtab — OpenAPI / A2A](#custom-subtab--openapi--a2a).                                                                                                                                                                  |
 
 ## Catalog APIs — three backends, three calls
 
@@ -117,10 +117,10 @@ Body:
 
 Two registries are indexed here — distinguished by `entityContainerId`:
 
-| Registry | `entityContainerId` | Contents | Pair with |
-|---|---|---|---|
-| Public catalog | `connectors-registry-prod-bl` | Catalog connector definitions (GitHub, Box, Salesforce, …). | `metadata.type=catalog_MCP` or `gateway_connector` |
-| Private MCP entries | `registry-prod-bl` | MCP-server entries used by the portal Connections UI (e.g. `github-mcp-server`). Sometimes carries a canonical MCP URL when the public-catalog row lacks `remotes[]`. | `metadata.type=catalog_MCP` |
+| Registry            | `entityContainerId`           | Contents                                                                                                                                                              | Pair with                                          |
+| ------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| Public catalog      | `connectors-registry-prod-bl` | Catalog connector definitions (GitHub, Box, Salesforce, …).                                                                                                           | `metadata.type=catalog_MCP` or `gateway_connector` |
+| Private MCP entries | `registry-prod-bl`            | MCP-server entries used by the portal Connections UI (e.g. `github-mcp-server`). Sometimes carries a canonical MCP URL when the public-catalog row lacks `remotes[]`. | `metadata.type=catalog_MCP`                        |
 
 Always query both when surfacing "available tools" to a user — the private MCP entries can fill gaps in the public catalog row.
 
@@ -144,24 +144,24 @@ GET https://management.azure.com/subscriptions/{sub}
         "type": "oauthSetting",
         "oAuthSettings": {
           "identityProvider": "GitHub",
-          "clientId": "faa5f56b825cbc649ae1",          // Microsoft's default OAuth-App id
-          "scopes": ["repo","workflow","read:org","admin:org"],
+          "clientId": "faa5f56b825cbc649ae1", // Microsoft's default OAuth-App id
+          "scopes": ["repo", "workflow", "read:org", "admin:org"],
           "redirectMode": "Direct",
-          "redirectUrl": "https://logic-apis-eastus.consent.azure-apim.net/redirect"
-        }
-      }
-    }
-  }
+          "redirectUrl": "https://logic-apis-eastus.consent.azure-apim.net/redirect",
+        },
+      },
+    },
+  },
 }
 ```
 
 **Raw `authorizationUrl` / `tokenUrl` are NOT in this response.** Logic Apps abstracts them via the `identityProvider` string and resolves them inside the gateway. For BYO you must map `identityProvider → endpoints` yourself. Known mappings:
 
-| `identityProvider` | `authorizationUrl` | `tokenUrl` |
-|---|---|---|
-| `GitHub` | `https://github.com/login/oauth/authorize` | `https://github.com/login/oauth/access_token` |
-| `Google` | `https://accounts.google.com/o/oauth2/v2/auth` | `https://oauth2.googleapis.com/token` |
-| `Box` | `https://account.box.com/api/oauth2/authorize` | `https://api.box.com/oauth2/token` |
+| `identityProvider`                        | `authorizationUrl`                                               | `tokenUrl`                                                   |
+| ----------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------ |
+| `GitHub`                                  | `https://github.com/login/oauth/authorize`                       | `https://github.com/login/oauth/access_token`                |
+| `Google`                                  | `https://accounts.google.com/o/oauth2/v2/auth`                   | `https://oauth2.googleapis.com/token`                        |
+| `Box`                                     | `https://account.box.com/api/oauth2/authorize`                   | `https://api.box.com/oauth2/token`                           |
 | `AzureActiveDirectory` / `aad3rdPartySNI` | `https://login.microsoftonline.com/common/oauth2/v2.0/authorize` | `https://login.microsoftonline.com/common/oauth2/v2.0/token` |
 
 For `identityProvider` values not in this table (`dynamicscrmonlinecertificate`, `salesforce`, `dropbox`, `oauth2generic`, …), look the provider's well-known OAuth endpoints up in its developer docs — the catalog API does not surface them.
@@ -196,11 +196,11 @@ GET .../managedApis/{connectorName}/apiOperations/{operationName}
 `properties.inputsDefinition` is a JSON-Schema-shaped object with `type:"object"`, `properties:{...}`, and `required:[...]`. Map each entry to one `agentParameters` entry:
 
 | `inputsDefinition.properties[name]` field | → `agentParameters[].schema` field |
-|---|---|
-| `type` | `type` |
-| `description` | `description` |
-| `title` | `x-ms-summary` |
-| `default` | `default` (omit if absent) |
+| ----------------------------------------- | ---------------------------------- |
+| `type`                                    | `type`                             |
+| `description`                             | `description`                      |
+| `title`                                   | `x-ms-summary`                     |
+| `default`                                 | `default` (omit if absent)         |
 
 If `inputsDefinition.properties` is empty / missing, the operation takes no arguments and `agentParameters` is `[]` (e.g. Box `ListRootFolder`).
 
@@ -262,12 +262,14 @@ Verbatim portal body:
 
 ```json
 {
-  "parameters": [{
-    "objectId":      "<caller AAD oid>",
-    "parameterName": "token",
-    "redirectUrl":   "https://ai.azure.com/nextgen/authConsentPopup",
-    "tenantId":      "<caller AAD tid>"
-  }]
+  "parameters": [
+    {
+      "objectId": "<caller AAD oid>",
+      "parameterName": "token",
+      "redirectUrl": "https://ai.azure.com/nextgen/authConsentPopup",
+      "tenantId": "<caller AAD tid>"
+    }
+  ]
 }
 ```
 
@@ -307,8 +309,13 @@ Links served from `logic-apis-df.consent.azure-apim.net` are the **dogfood / INT
 Some connectors (Spotify `spotifyip` confirmed) are backed by a **dogfood-env Microsoft OAuth app** registered in provider "development mode" with a hard-coded test-user allowlist. Consent + `Connected` status work fine code-first for any caller, but `tools/call` at runtime returns:
 
 ```json
-{ "error": { "code": 403, "source": "...logic-df.azure-apihub.net",
-  "innerError": "Check settings on https://developer.spotify.com/dashboard, the user may not be registered." } }
+{
+  "error": {
+    "code": 403,
+    "source": "...logic-df.azure-apihub.net",
+    "innerError": "Check settings on https://developer.spotify.com/dashboard, the user may not be registered."
+  }
+}
 ```
 
 Detect by inspecting the consent URL's first 302: if the `redirect_uri` is `https://global-test.consent.azure-apim.net/redirect` (rather than `global.consent...`), the connector is on the dogfood OAuth app. **The connection will still go Connected and `tools/list` will work**; only the actual API invocation fails. Not fixable client-side; requires Microsoft to promote the app or add the caller's email to the provider-side allowlist.
@@ -340,9 +347,9 @@ The body is identical to PUT #1 plus an additional `metadata.mcpserverConfigProp
       "type": "gateway_connector",
       "toolEntityId": "azureml://location/eastus/apiCenter/connectors-registry-prod-bl/type/tools/objectId/box/version/1",
       "connectionproperties": "{\"connectorName\":\"box\"}",
-      "mcpserverConfigProperties": "{\"description\":\"\",\"state\":\"Enabled\",\"connectors\":[{\"name\":\"box\",\"connectionName\":\"box-5\",\"displayName\":\"box\",\"description\":\"\",\"operations\":[{\"name\":\"GetFileMetadata\",\"displayName\":\"Get file metadata using id\",\"description\":\"\",\"userParameters\":[],\"agentParameters\":[{\"name\":\"id\",\"schema\":{\"type\":\"string\",\"description\":\"The unique identifier of the file in Box.\",\"x-ms-summary\":\"File Id\"}}]}]}]}"
-    }
-  }
+      "mcpserverConfigProperties": "{\"description\":\"\",\"state\":\"Enabled\",\"connectors\":[{\"name\":\"box\",\"connectionName\":\"box-5\",\"displayName\":\"box\",\"description\":\"\",\"operations\":[{\"name\":\"GetFileMetadata\",\"displayName\":\"Get file metadata using id\",\"description\":\"\",\"userParameters\":[],\"agentParameters\":[{\"name\":\"id\",\"schema\":{\"type\":\"string\",\"description\":\"The unique identifier of the file in Box.\",\"x-ms-summary\":\"File Id\"}}]}]}]}",
+    },
+  },
 }
 ```
 
@@ -354,31 +361,32 @@ Decoded `mcpserverConfigProperties` schema:
   "state": "Enabled",
   "connectors": [
     {
-      "name":           "<connectorName>",       // same as properties.connectorName
+      "name": "<connectorName>", // same as properties.connectorName
       "connectionName": "<this connection name>",
-      "displayName":    "<connectorName>",
-      "description":    "",
+      "displayName": "<connectorName>",
+      "description": "",
       "operations": [
         {
-          "name":            "<OperationId>",    // operation id from apiOperations
-          "displayName":     "<friendly>",
-          "description":     "",
-          "userParameters":  [],                   // bound at connection time (rare for Custom·Preview)
-          "agentParameters": [                     // parameters the agent fills at call time
+          "name": "<OperationId>", // operation id from apiOperations
+          "displayName": "<friendly>",
+          "description": "",
+          "userParameters": [], // bound at connection time (rare for Custom·Preview)
+          "agentParameters": [
+            // parameters the agent fills at call time
             {
               "name": "<paramName>",
               "schema": {
-                "type":         "string|number|boolean",
-                "description":  "...",
+                "type": "string|number|boolean",
+                "description": "...",
                 "x-ms-summary": "...",
-                "default":      "..."              // optional
-              }
-            }
-          ]
-        }
-      ]
-    }
-  ]
+                "default": "...", // optional
+              },
+            },
+          ],
+        },
+      ],
+    },
+  ],
 }
 ```
 
@@ -422,7 +430,7 @@ For MCP URL discovery when `connectors-registry-prod-bl` lacks `remotes[]`, look
 
 ## BYO OAuth App against a catalog MCP server
 
-When the user has their own OAuth App (e.g. GitHub `https://github.com/organizations/<org>/settings/applications/<app-id>`) and wants the connection to mint tokens via *their* app instead of Microsoft's managed one. Verified shape, 2026-05-21:
+When the user has their own OAuth App (e.g. GitHub `https://github.com/organizations/<org>/settings/applications/<app-id>`) and wants the connection to mint tokens via _their_ app instead of Microsoft's managed one. Verified shape, 2026-05-21:
 
 ```json
 {
@@ -430,11 +438,14 @@ When the user has their own OAuth App (e.g. GitHub `https://github.com/organizat
     "authType": "OAuth2",
     "category": "RemoteTool",
     "target": "<MCP server URL>",
-    "credentials": { "clientId": "<your client id>", "clientSecret": "<your client secret>" },
+    "credentials": {
+      "clientId": "<your client id>",
+      "clientSecret": "<your client secret>"
+    },
     "authorizationUrl": "https://github.com/login/oauth/authorize",
-    "tokenUrl":         "https://github.com/login/oauth/access_token",
-    "scopes":           ["repo","workflow","read:org","admin:org"],
-    "peRequirement":    "NotRequired"
+    "tokenUrl": "https://github.com/login/oauth/access_token",
+    "scopes": ["repo", "workflow", "read:org", "admin:org"],
+    "peRequirement": "NotRequired"
   }
 }
 ```
@@ -522,7 +533,7 @@ For catalog-listed servers, swap `metadata.type` to `catalog_MCP` and add `toolE
 
 ## `UserEntraToken` Remote MCP
 
-For MCP servers that consume the *caller's* Entra token directly. Body includes `metadata.audience` so the platform mints the correct token for the upstream:
+For MCP servers that consume the _caller's_ Entra token directly. Body includes `metadata.audience` so the platform mints the correct token for the upstream:
 
 ```json
 {
@@ -541,11 +552,11 @@ Not available when the agent is published to Teams (Teams agents use the project
 
 Not catalog-driven — the user provides the spec themselves. Each Save in this subtab maps to a single PUT against the same connections endpoint:
 
-| Tile | `authType` options | `target` | Notes |
-|---|---|---|---|
-| OpenAPI | `None`, `CustomKeys`, `ApiKey`, `OAuth2` | OpenAPI spec URL or upstream API base | Agent gets `tools[].openapi.auth.security_scheme.connection_id`. |
-| A2A (Preview) | `None` / `CustomKeys` / `UserEntraToken` / `AAD` (mapped from UI) | A2A endpoint | `metadata.agentCardPath` default `/.well-known/agent-card.json`; agent gets `tools=[A2APreviewTool(project_connection_id=...)]`; runtime emits `a2a_preview_call` / `a2a_preview_call_output` events. |
-| MCP | covered above | — | This tile is just a router to the catalog / BYO flows. |
+| Tile          | `authType` options                                                | `target`                              | Notes                                                                                                                                                                                                 |
+| ------------- | ----------------------------------------------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| OpenAPI       | `None`, `CustomKeys`, `ApiKey`, `OAuth2`                          | OpenAPI spec URL or upstream API base | Agent gets `tools[].openapi.auth.security_scheme.connection_id`.                                                                                                                                      |
+| A2A (Preview) | `None` / `CustomKeys` / `UserEntraToken` / `AAD` (mapped from UI) | A2A endpoint                          | `metadata.agentCardPath` default `/.well-known/agent-card.json`; agent gets `tools=[A2APreviewTool(project_connection_id=...)]`; runtime emits `a2a_preview_call` / `a2a_preview_call_output` events. |
+| MCP           | covered above                                                     | —                                     | This tile is just a router to the catalog / BYO flows.                                                                                                                                                |
 
 ## Toolbox attach — `gateway_connector` tool naming
 
@@ -553,12 +564,13 @@ Attach the same as `generic_mcp` — the tool block uses `type:"mcp"` and `proje
 
 ```jsonc
 {
-  "tools": [{
-    "type": "mcp",
-    "server_label": "box5",
-    "project_connection_id":
-      "/subscriptions/{sub}/resourceGroups/{rg}/providers/Microsoft.CognitiveServices/accounts/{acct}/projects/{proj}/connections/{connName}"
-  }]
+  "tools": [
+    {
+      "type": "mcp",
+      "server_label": "box5",
+      "project_connection_id": "/subscriptions/{sub}/resourceGroups/{rg}/providers/Microsoft.CognitiveServices/accounts/{acct}/projects/{proj}/connections/{connName}",
+    },
+  ],
 }
 ```
 
@@ -570,10 +582,10 @@ Attach the same as `generic_mcp` — the tool block uses `type:"mcp"` and `proje
 
 Note `___` (**three** underscores) between `server_label` and the rest, then a **single** `_` between `connectorName` and operation name. Example for Box attached with `server_label="box5"`:
 
-| `mcpserverConfigProperties` op | `tools/list` `name` | `description` |
-|---|---|---|
-| `ListRootFolder` | `box5___box_ListRootFolder` | `box - List files and folders in root folder` |
-| `GetFileMetadata` | `box5___box_GetFileMetadata` | `box - Get file metadata using id` |
+| `mcpserverConfigProperties` op | `tools/list` `name`          | `description`                                 |
+| ------------------------------ | ---------------------------- | --------------------------------------------- |
+| `ListRootFolder`               | `box5___box_ListRootFolder`  | `box - List files and folders in root folder` |
+| `GetFileMetadata`              | `box5___box_GetFileMetadata` | `box - Get file metadata using id`            |
 
 The MCP tool's `inputSchema` is exactly the JSON schema derived from `apiOperations/{op}?$expand=properties/inputsDefinition` (the `agentParameters[].schema` values, re-keyed by parameter name). For an operation with no agent parameters, `inputSchema` is `{"type":"object"}`.
 
@@ -671,11 +683,11 @@ The `Foundry-Features: Toolboxes=V1Preview` header is mandatory — without it t
 
 ## Required RBAC summary
 
-| Operation | Role |
-|---|---|
-| PUT any connection above | **Azure AI Developer** on the project (or **Cognitive Services Contributor** on the account) |
-| Drive OAuth consent (`gateway_connector`, `catalog_MCP` managed-OAuth) | The end-user themselves, signed in to the subscription's tenant |
-| `ProjectManagedIdentity` against a Cognitive Services upstream | Project MI needs the upstream's data-plane role (e.g. `Cognitive Services Language Owner` for `/language/mcp`) |
+| Operation                                                              | Role                                                                                                           |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| PUT any connection above                                               | **Azure AI Developer** on the project (or **Cognitive Services Contributor** on the account)                   |
+| Drive OAuth consent (`gateway_connector`, `catalog_MCP` managed-OAuth) | The end-user themselves, signed in to the subscription's tenant                                                |
+| `ProjectManagedIdentity` against a Cognitive Services upstream         | Project MI needs the upstream's data-plane role (e.g. `Cognitive Services Language Owner` for `/language/mcp`) |
 
 ## Pitfalls / common mistakes
 

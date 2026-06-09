@@ -2,12 +2,12 @@
 
 ## MCP Template Validation
 
-| Criteria | Expected | Status |
-|----------|----------|--------|
-| Template discovery | `functions_template_get(language: "typescript")` returns list | ✅ PASS |
-| Template scaffolded | `http-trigger-typescript-azd` | ✅ PASS |
-| Has trigger code | `app.http` trigger in output | ✅ PASS |
-| Has IaC | `projectFiles[]` includes Bicep | ✅ PASS |
+| Criteria            | Expected                                                      | Status  |
+| ------------------- | ------------------------------------------------------------- | ------- |
+| Template discovery  | `functions_template_get(language: "typescript")` returns list | ✅ PASS |
+| Template scaffolded | `http-trigger-typescript-azd`                                 | ✅ PASS |
+| Has trigger code    | `app.http` trigger in output                                  | ✅ PASS |
+| Has IaC             | `projectFiles[]` includes Bicep                               | ✅ PASS |
 
 ## Agent Behavior Validation
 

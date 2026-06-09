@@ -2,14 +2,14 @@
 
 ## MCP Template Validation
 
-| Criteria | Expected | Status |
-|----------|----------|--------|
-| Template discovery | `functions_template_get(language: "typescript")` returns list | ✅ PASS |
-| Filter by resource | `resource == "cosmos"` finds matches | ✅ PASS |
-| Template scaffolded | `cosmos-trigger-typescript-azd` | ✅ PASS |
-| Has trigger code | `app.cosmosDB` trigger binding in output | ✅ PASS |
-| Has IaC | `projectFiles[]` includes Bicep | ✅ PASS |
-| Has RBAC | Cosmos DB Data Contributor role | ✅ PASS |
+| Criteria            | Expected                                                      | Status  |
+| ------------------- | ------------------------------------------------------------- | ------- |
+| Template discovery  | `functions_template_get(language: "typescript")` returns list | ✅ PASS |
+| Filter by resource  | `resource == "cosmos"` finds matches                          | ✅ PASS |
+| Template scaffolded | `cosmos-trigger-typescript-azd`                               | ✅ PASS |
+| Has trigger code    | `app.cosmosDB` trigger binding in output                      | ✅ PASS |
+| Has IaC             | `projectFiles[]` includes Bicep                               | ✅ PASS |
+| Has RBAC            | Cosmos DB Data Contributor role                               | ✅ PASS |
 
 ## Agent Behavior Validation
 

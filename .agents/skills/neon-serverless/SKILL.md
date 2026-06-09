@@ -20,8 +20,9 @@ Configures the Neon Serverless Driver for optimal performance in serverless and 
 ## Code Generation Rules
 
 When generating TypeScript/JavaScript code:
+
 - BEFORE generating import statements, check tsconfig.json for path aliases (compilerOptions.paths)
-- If path aliases exist (e.g., "@/*": ["./src/*"]), use them (e.g., import { x } from '@/lib/utils')
+- If path aliases exist (e.g., "@/_": ["./src/_"]), use them (e.g., import { x } from '@/lib/utils')
 - If NO path aliases exist or unsure, ALWAYS use relative imports (e.g., import { x } from '../../../lib/utils')
 - Verify imports match the project's configuration
 - Default to relative imports - they always work regardless of configuration
@@ -29,6 +30,7 @@ When generating TypeScript/JavaScript code:
 ## Reference Documentation
 
 **Primary Resource:** See `[neon-serverless.mdc](https://raw.githubusercontent.com/neondatabase-labs/ai-rules/main/neon-serverless.mdc)` in project root for comprehensive guidelines including:
+
 - Installation and compatibility requirements
 - HTTP vs WebSocket adapter selection
 - Connection pooling strategies
@@ -38,6 +40,7 @@ When generating TypeScript/JavaScript code:
 ## Quick Setup
 
 ### Installation
+
 ```bash
 npm install @neondatabase/serverless
 ```
@@ -45,20 +48,23 @@ npm install @neondatabase/serverless
 ### Connection Patterns
 
 **HTTP Client** (recommended for edge/serverless):
+
 ```typescript
-import { neon } from '@neondatabase/serverless';
+import { neon } from "@neondatabase/serverless";
 const sql = neon(process.env.DATABASE_URL!);
 const rows = await sql`SELECT * FROM users WHERE id = ${userId}`;
 ```
 
 **WebSocket Pool** (for Node.js long-lived connections):
+
 ```typescript
-import { Pool } from '@neondatabase/serverless';
+import { Pool } from "@neondatabase/serverless";
 const pool = new Pool({ connectionString: process.env.DATABASE_URL! });
-const result = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);
+const result = await pool.query("SELECT * FROM users WHERE id = $1", [userId]);
 ```
 
 See `templates/` for complete examples:
+
 - `templates/http-connection.ts` - HTTP client setup
 - `templates/websocket-pool.ts` - WebSocket pool configuration
 

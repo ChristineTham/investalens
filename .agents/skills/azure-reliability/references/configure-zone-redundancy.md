@@ -15,10 +15,10 @@ Zone-redundant compute backed by LRS/GRS storage still suffers downtime in a zon
 
 The `az` CLI commands, plan-upgrade paths, blue/green migration steps, and verification commands all live in the per-service references because the syntax differs per service:
 
-| Service | Reference |
-|---|---|
+| Service                                        | Reference                                                                  |
+| ---------------------------------------------- | -------------------------------------------------------------------------- |
 | Azure App Service (P1v2+, P0v3+, P0v4+, ASEv3) | [services/app-service/reliability.md](services/app-service/reliability.md) |
-| Azure Functions (FC1, EP1–EP3) | [services/functions/reliability.md](services/functions/reliability.md) |
+| Azure Functions (FC1, EP1–EP3)                 | [services/functions/reliability.md](services/functions/reliability.md)     |
 
 ## Verification
 
@@ -35,4 +35,3 @@ Resources
 ```
 
 All patched resources should show `zoneRedundant = true`.
-

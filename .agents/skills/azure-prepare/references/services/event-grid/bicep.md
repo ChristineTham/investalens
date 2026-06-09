@@ -43,7 +43,10 @@ resource eventDomain 'Microsoft.EventGrid/domains@2023-12-15-preview' = {
 ### Node.js
 
 ```javascript
-const { EventGridPublisherClient, AzureKeyCredential } = require("@azure/eventgrid");
+const {
+  EventGridPublisherClient,
+  AzureKeyCredential,
+} = require("@azure/eventgrid");
 
 const client = new EventGridPublisherClient(
   process.env.EVENTGRID_TOPIC_ENDPOINT,
@@ -51,12 +54,14 @@ const client = new EventGridPublisherClient(
   new AzureKeyCredential(process.env.EVENTGRID_TOPIC_KEY)
 );
 
-await client.send([{
-  eventType: "Order.Created",
-  subject: "/orders/12345",
-  dataVersion: "1.0",
-  data: { orderId: "12345" }
-}]);
+await client.send([
+  {
+    eventType: "Order.Created",
+    subject: "/orders/12345",
+    dataVersion: "1.0",
+    data: { orderId: "12345" },
+  },
+]);
 ```
 
 ### Python

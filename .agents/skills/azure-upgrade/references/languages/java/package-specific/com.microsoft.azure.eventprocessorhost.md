@@ -16,6 +16,7 @@
 Replace usage of `InMemoryCheckpointManager` / `InMemoryLeaseManager` with [BlobCheckpointStore](https://github.com/Azure/azure-sdk-for-java/blob/main/sdk/eventhubs/azure-messaging-eventhubs-checkpointstore-blob/src/main/java/com/azure/messaging/eventhubs/checkpointstore/blob/BlobCheckpointStore.java). The modern EventProcessorClient does **not** ship an in-memory checkpoint store, and you must not create one.
 
 Legacy code:
+
 ```java
 InMemoryCheckpointManager checkpointManager = new InMemoryCheckpointManager();
 InMemoryLeaseManager leaseManager = new InMemoryLeaseManager();
@@ -26,6 +27,7 @@ host.registerEventProcessor(MyEventProcessor.class).get();
 ```
 
 Migrated code — replace with `BlobCheckpointStore` backed by Azure Blob Storage:
+
 ```java
 BlobContainerAsyncClient blobContainerClient = new BlobContainerClientBuilder()
     .connectionString(storageConnectionString)
@@ -57,6 +59,7 @@ eventProcessorClient.start();
 ### EventProcessorHost with Azure Storage checkpoint/lease
 
 Legacy code using the built-in storage-backed checkpoint/lease:
+
 ```java
 EventProcessorHost host = EventProcessorHost.EventProcessorHostBuilder
     .newBuilder(hostName, consumerGroupName)
@@ -67,6 +70,7 @@ host.registerEventProcessor(MyEventProcessor.class).get();
 ```
 
 Migrated code:
+
 ```java
 BlobContainerAsyncClient blobContainerClient = new BlobContainerClientBuilder()
     .connectionString(storageConnectionString)
@@ -105,7 +109,7 @@ import com.azure.storage.blob.BlobContainerClientBuilder;
 
 Add these dependencies when migrating from `com.microsoft.azure:azure-eventhubs-eph`:
 
-| Legacy Artifact | Modern Artifact |
-|---|---|
-| `com.microsoft.azure:azure-eventhubs-eph` | `com.azure:azure-messaging-eventhubs` |
-| (included in above) | `com.azure:azure-messaging-eventhubs-checkpointstore-blob` |
+| Legacy Artifact                           | Modern Artifact                                            |
+| ----------------------------------------- | ---------------------------------------------------------- |
+| `com.microsoft.azure:azure-eventhubs-eph` | `com.azure:azure-messaging-eventhubs`                      |
+| (included in above)                       | `com.azure:azure-messaging-eventhubs-checkpointstore-blob` |

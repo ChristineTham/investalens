@@ -7,7 +7,9 @@ export async function fetchMissingPrices(portfolioId: string): Promise<number> {
   // Get all instruments in this portfolio
   const holdings = await db.holding.findMany({
     where: { portfolioId },
-    select: { instrument: { select: { id: true, code: true, marketCode: true } } },
+    select: {
+      instrument: { select: { id: true, code: true, marketCode: true } },
+    },
   });
 
   const instruments = holdings.map((h) => h.instrument);
@@ -68,7 +70,12 @@ export async function fetchHistoricalPrices(
   from: Date,
   to: Date
 ): Promise<number> {
-  const prices = await yahooFinance.getHistoricalPrices(code, marketCode, from, to);
+  const prices = await yahooFinance.getHistoricalPrices(
+    code,
+    marketCode,
+    from,
+    to
+  );
 
   let stored = 0;
   for (const p of prices) {

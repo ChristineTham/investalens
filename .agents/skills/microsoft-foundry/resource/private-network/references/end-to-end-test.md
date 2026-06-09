@@ -8,6 +8,7 @@ Continues from [post-deployment-validation.md](post-deployment-validation.md). S
 
 Use `AskUserQuestion`: **"Steps 1-3 are done. The remaining tests need VNet access. How do you want to proceed?"**
 Options:
+
 - `I have a Bastion VM / jump box`
 - `Set up a point-to-site VPN for me` — read [vpn-dns-setup.md](vpn-dns-setup.md)
 - `I have VPN / ExpressRoute already`
@@ -20,6 +21,7 @@ Options:
 ## 5. End-to-End Test (VPN users only)
 
 Three phases:
+
 1. **Network** — DNS resolution + port 443 reachability
 2. **Agent Lifecycle** — Create agent, thread, run, verify, cleanup
 3. **Isolation Proof** — Repeat with VPN off — expect 403

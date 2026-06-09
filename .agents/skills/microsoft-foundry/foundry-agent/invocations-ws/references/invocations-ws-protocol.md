@@ -4,15 +4,15 @@ The `invocations_ws` protocol is a **duplex WebSocket pass-through**. After the 
 
 ## Input/Output Contract
 
-| Aspect | `responses` | `invocations` | `invocations_ws` |
-|--------|-------------|---------------|------------------|
-| **Transport** | HTTPS request/response | HTTPS request/response | WebSocket (`wss://`) |
-| **Lifetime** | Per request | Per request | Long-lived duplex connection |
-| **Input** | Natural language `inputText` | Raw HTTP request body | Sequence of WS frames in either direction |
-| **Output** | Structured OpenAI JSON | Raw response bytes | Sequence of WS frames in either direction |
-| **Framing** | n/a (single body) | n/a (single body) | Developer-defined: binary (PCM, protobuf), text (JSON), or mixed |
-| **Streaming** | `stream: true` (SSE) | Agent-controlled (SSE-over-HTTP, etc.) | Native — duplex by definition |
-| **History** | Platform via `conversationId` | Agent-managed | Agent-managed; keyed by `agent_session_id` |
+| Aspect        | `responses`                   | `invocations`                          | `invocations_ws`                                                 |
+| ------------- | ----------------------------- | -------------------------------------- | ---------------------------------------------------------------- |
+| **Transport** | HTTPS request/response        | HTTPS request/response                 | WebSocket (`wss://`)                                             |
+| **Lifetime**  | Per request                   | Per request                            | Long-lived duplex connection                                     |
+| **Input**     | Natural language `inputText`  | Raw HTTP request body                  | Sequence of WS frames in either direction                        |
+| **Output**    | Structured OpenAI JSON        | Raw response bytes                     | Sequence of WS frames in either direction                        |
+| **Framing**   | n/a (single body)             | n/a (single body)                      | Developer-defined: binary (PCM, protobuf), text (JSON), or mixed |
+| **Streaming** | `stream: true` (SSE)          | Agent-controlled (SSE-over-HTTP, etc.) | Native — duplex by definition                                    |
+| **History**   | Platform via `conversationId` | Agent-managed                          | Agent-managed; keyed by `agent_session_id`                       |
 
 ## URL and Headers
 
@@ -25,17 +25,17 @@ wss://{account}.services.ai.azure.com
    &foundry_features=HostedAgents=V1Preview
 ```
 
-| Query parameter | Required | Notes |
-|-----------------|----------|-------|
-| `project_name` | ✅ | Foundry project name (the segment after `/api/projects/` in the project endpoint) |
-| `agent_name` | ✅ | Hosted agent name as declared in `agent.yaml` |
-| `agent_session_id` | ❌ | Per-connection identifier — see [Session Management](../../invoke/references/session-management.md). If omitted, the platform (or the container) generates a random id |
-| `foundry_features` | ✅ (preview) | Must be `HostedAgents=V1Preview` while the protocol is in preview. May alternatively be sent as the `Foundry-Features` request header. |
+| Query parameter    | Required     | Notes                                                                                                                                                                  |
+| ------------------ | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `project_name`     | ✅           | Foundry project name (the segment after `/api/projects/` in the project endpoint)                                                                                      |
+| `agent_name`       | ✅           | Hosted agent name as declared in `agent.yaml`                                                                                                                          |
+| `agent_session_id` | ❌           | Per-connection identifier — see [Session Management](../../invoke/references/session-management.md). If omitted, the platform (or the container) generates a random id |
+| `foundry_features` | ✅ (preview) | Must be `HostedAgents=V1Preview` while the protocol is in preview. May alternatively be sent as the `Foundry-Features` request header.                                 |
 
-| Header | Required | Notes |
-|--------|----------|-------|
-| `Authorization: Bearer <token>` | ✅ | Entra token for audience `https://ai.azure.com` (scope `https://ai.azure.com/.default`) — `az account get-access-token --resource https://ai.azure.com`. Validated by APIM and the Agents service; the container does **not** see this header. |
-| `Foundry-Features: HostedAgents=V1Preview` | ✅ (preview) | Required unless the equivalent `foundry_features` query parameter is set. |
+| Header                                     | Required     | Notes                                                                                                                                                                                                                                          |
+| ------------------------------------------ | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Authorization: Bearer <token>`            | ✅           | Entra token for audience `https://ai.azure.com` (scope `https://ai.azure.com/.default`) — `az account get-access-token --resource https://ai.azure.com`. Validated by APIM and the Agents service; the container does **not** see this header. |
+| `Foundry-Features: HostedAgents=V1Preview` | ✅ (preview) | Required unless the equivalent `foundry_features` query parameter is set.                                                                                                                                                                      |
 
 The container receives the upgrade on path `/invocations_ws`. Inside the container, read the session id from the `FOUNDRY_AGENT_SESSION_ID` environment variable (set by `azure-ai-agentserver-invocations`), or fall back to the `agent_session_id` query string.
 
@@ -54,13 +54,13 @@ The platform is a transparent relay:
 
 These are protocols developers build **on top of** the raw WebSocket. The platform does not require, parse, or validate any of them; they are listed for orientation only.
 
-| Pattern | Typical use | Notes |
-|---------|-------------|-------|
-| **Raw binary media frames** | Voice agents (PCM, Opus) | Binary opcode; agree on sample rate, channels, bit depth out-of-band |
-| **Length-prefixed protobuf** | Real-time pipeline frameworks | Each WS frame is one serialized message; control + audio multiplexed |
-| **JSON control + binary media** | Mixed signaling | Text frames carry control (e.g. start/stop, RTVI events), binary frames carry media |
-| **Pure JSON signaling** | Out-of-band media transports (WebRTC offer/answer/ICE, SFU join tokens) | One JSON object per frame; FIFO request/reply if the protocol is purely turn-based |
-| **SSE-style event stream** | One-way server push of events | Text frames; the WS is effectively used as a richer SSE |
+| Pattern                         | Typical use                                                             | Notes                                                                               |
+| ------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| **Raw binary media frames**     | Voice agents (PCM, Opus)                                                | Binary opcode; agree on sample rate, channels, bit depth out-of-band                |
+| **Length-prefixed protobuf**    | Real-time pipeline frameworks                                           | Each WS frame is one serialized message; control + audio multiplexed                |
+| **JSON control + binary media** | Mixed signaling                                                         | Text frames carry control (e.g. start/stop, RTVI events), binary frames carry media |
+| **Pure JSON signaling**         | Out-of-band media transports (WebRTC offer/answer/ICE, SFU join tokens) | One JSON object per frame; FIFO request/reply if the protocol is purely turn-based  |
+| **SSE-style event stream**      | One-way server push of events                                           | Text frames; the WS is effectively used as a richer SSE                             |
 
 ## Discovering the Expected Wire Format
 
@@ -105,11 +105,11 @@ async with websockets.connect(url, additional_headers={"Authorization": f"Bearer
 
 ## Error Handling
 
-| Error | Cause | Resolution |
-|-------|-------|------------|
-| 401 / 403 on upgrade | Missing or expired Entra token | Re-mint with `az account get-access-token --resource https://ai.azure.com` |
-| 404 on upgrade | Wrong `project_name` or `agent_name`, missing preview flag, or unsupported region | Verify with `agent_get`; ensure `foundry_features=HostedAgents=V1Preview` is set; confirm the deployed version uses `protocol: invocations_ws` and that the region is supported per [Hosted Agents region availability](https://learn.microsoft.com/azure/foundry/agents/concepts/hosted-agents#region-availability) |
-| WS closes after accept | Container raised in the handler | Tail logs with `azd ai agent monitor --session-id <agent_session_id> --follow` |
-| Frames silently dropped | Wire-format mismatch (binary vs text, wrong schema) | Confirm both ends agree on framing — the platform performs no transcoding |
-| State lost on reconnect | Different `agent_session_id` used | Reuse the same `agent_session_id` to land on the same logical state inside the container |
-| Browser fails with `1006 abnormal closure` | Browser tried to connect directly with no `Authorization` | Route through a server-side proxy that adds the header |
+| Error                                      | Cause                                                                             | Resolution                                                                                                                                                                                                                                                                                                           |
+| ------------------------------------------ | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 401 / 403 on upgrade                       | Missing or expired Entra token                                                    | Re-mint with `az account get-access-token --resource https://ai.azure.com`                                                                                                                                                                                                                                           |
+| 404 on upgrade                             | Wrong `project_name` or `agent_name`, missing preview flag, or unsupported region | Verify with `agent_get`; ensure `foundry_features=HostedAgents=V1Preview` is set; confirm the deployed version uses `protocol: invocations_ws` and that the region is supported per [Hosted Agents region availability](https://learn.microsoft.com/azure/foundry/agents/concepts/hosted-agents#region-availability) |
+| WS closes after accept                     | Container raised in the handler                                                   | Tail logs with `azd ai agent monitor --session-id <agent_session_id> --follow`                                                                                                                                                                                                                                       |
+| Frames silently dropped                    | Wire-format mismatch (binary vs text, wrong schema)                               | Confirm both ends agree on framing — the platform performs no transcoding                                                                                                                                                                                                                                            |
+| State lost on reconnect                    | Different `agent_session_id` used                                                 | Reuse the same `agent_session_id` to land on the same logical state inside the container                                                                                                                                                                                                                             |
+| Browser fails with `1006 abnormal closure` | Browser tried to connect directly with no `Authorization`                         | Route through a server-side proxy that adds the header                                                                                                                                                                                                                                                               |

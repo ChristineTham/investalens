@@ -12,6 +12,7 @@ find . -name "*.csproj" -exec grep -l "Microsoft.EntityFrameworkCore" {} \;
 ```
 
 **PowerShell:**
+
 ```powershell
 Get-ChildItem -Recurse -Directory -Filter "Migrations" -ErrorAction SilentlyContinue
 Get-ChildItem -Recurse -Filter "*.csproj" | Select-String -List "Microsoft.EntityFrameworkCore" | Select-Object -ExpandProperty Path
@@ -37,6 +38,7 @@ hooks:
 **Copy the pre-built scripts** — Read [scripts/apply-migrations.sh](scripts/apply-migrations.sh) and [scripts/apply-migrations.ps1](scripts/apply-migrations.ps1) and write them verbatim to the project's `scripts/` folder. Adjust `APP_PROJECT_PATH` / `$AppProjectPath` in the script to the location of the `.csproj` directory.
 
 Key behaviours of the scripts:
+
 - Loads `azd env get-values` safely (no `eval`)
 - Installs `dotnet-ef` automatically when not present; no-op when already installed
 - Fails on genuine install errors (network failure, missing SDK)
@@ -57,6 +59,7 @@ az sql db query --server "$SQL_SERVER" --database "$SQL_DATABASE" \
 ```
 
 **PowerShell:**
+
 ```powershell
 dotnet ef migrations script --idempotent --output migrations.sql
 $MigrationsSql = Get-Content migrations.sql -Raw
@@ -112,12 +115,12 @@ Server=tcp:{server}.database.windows.net,1433;Database={database};Authentication
 
 ## Troubleshooting
 
-| Error | Solution |
-|-------|----------|
-| Cannot open database | Check firewall rules: `az sql server firewall-rule list` |
-| Login failed | Grant SQL access per [sql-managed-identity.md](sql-managed-identity.md) |
-| Unable to create DbContext | Add `IDesignTimeDbContextFactory` implementation |
-| Hook fails but deployment continues | Remove `|| true` to make migrations block deployment |
+| Error                               | Solution                                                                |
+| ----------------------------------- | ----------------------------------------------------------------------- | --- | ----------------------------------------- |
+| Cannot open database                | Check firewall rules: `az sql server firewall-rule list`                |
+| Login failed                        | Grant SQL access per [sql-managed-identity.md](sql-managed-identity.md) |
+| Unable to create DbContext          | Add `IDesignTimeDbContextFactory` implementation                        |
+| Hook fails but deployment continues | Remove `                                                                |     | true` to make migrations block deployment |
 
 **DbContext Factory Example:**
 
@@ -125,7 +128,7 @@ Server=tcp:{server}.database.windows.net,1433;Database={database};Authentication
 public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext> {
     public ApplicationDbContext CreateDbContext(string[] args) {
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") 
+        var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
             ?? args.FirstOrDefault() ?? "Server=(localdb)\\mssqllocaldb;Database=MyDb;Trusted_Connection=True;";
         optionsBuilder.UseSqlServer(connectionString);
         return new ApplicationDbContext(optionsBuilder.Options);

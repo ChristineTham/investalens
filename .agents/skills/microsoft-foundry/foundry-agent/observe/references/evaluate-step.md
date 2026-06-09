@@ -23,20 +23,20 @@ A Step 2 evaluation run is complete only when **every** box below is checked. Do
 
 Use **`evaluation_agent_batch_eval_create`** for batch evaluation, even when the selected metadata entry was produced by evaluation-suite generation. Treat the generated suite as the reviewed source of dataset/evaluator metadata, not as the execution API.
 
-| Parameter | Description |
-|-----------|-------------|
-| `projectEndpoint` | Azure AI Project endpoint from the selected metadata file |
-| `agentName` | Agent name for the selected environment |
-| `agentVersion` | Agent version (string, for example `"1"`) |
-| `evaluatorNames` | Array of evaluator names from the selected evaluation suite |
-| `evaluationName` | Include environment and evaluation-suite ID |
-| `runName` | Include environment, suite ID, and agent version |
-| `deploymentName` | Required for LLM-judge evaluators |
-| `inputData` | Array of inline test items, each an object with a `query` string (and optional `expected_behavior`). **Required for agent-target runs unless `generateSyntheticData=true` is set.** The parameter name is `inputData` — not `data`, `inputItems`, or `inputDataItems`. |
-| `generateSyntheticData` | Set `true` to skip `inputData` and let the service generate test queries. Requires `generationModelDeploymentName` and `samplesCount`. The service rejects requests with only `datasetName`/`datasetVersion`; it does not auto-resolve generated suite datasets into input rows. |
-| `generationModelDeploymentName` | Model deployment used to generate synthetic queries when `generateSyntheticData=true`. |
-| `samplesCount` | Number of synthetic queries to generate (15–1000). |
-| `evaluationId` | Existing eval group ID, only when evaluator set and thresholds are unchanged |
+| Parameter                       | Description                                                                                                                                                                                                                                                                      |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `projectEndpoint`               | Azure AI Project endpoint from the selected metadata file                                                                                                                                                                                                                        |
+| `agentName`                     | Agent name for the selected environment                                                                                                                                                                                                                                          |
+| `agentVersion`                  | Agent version (string, for example `"1"`)                                                                                                                                                                                                                                        |
+| `evaluatorNames`                | Array of evaluator names from the selected evaluation suite                                                                                                                                                                                                                      |
+| `evaluationName`                | Include environment and evaluation-suite ID                                                                                                                                                                                                                                      |
+| `runName`                       | Include environment, suite ID, and agent version                                                                                                                                                                                                                                 |
+| `deploymentName`                | Required for LLM-judge evaluators                                                                                                                                                                                                                                                |
+| `inputData`                     | Array of inline test items, each an object with a `query` string (and optional `expected_behavior`). **Required for agent-target runs unless `generateSyntheticData=true` is set.** The parameter name is `inputData` — not `data`, `inputItems`, or `inputDataItems`.           |
+| `generateSyntheticData`         | Set `true` to skip `inputData` and let the service generate test queries. Requires `generationModelDeploymentName` and `samplesCount`. The service rejects requests with only `datasetName`/`datasetVersion`; it does not auto-resolve generated suite datasets into input rows. |
+| `generationModelDeploymentName` | Model deployment used to generate synthetic queries when `generateSyntheticData=true`.                                                                                                                                                                                           |
+| `samplesCount`                  | Number of synthetic queries to generate (15–1000).                                                                                                                                                                                                                               |
+| `evaluationId`                  | Existing eval group ID, only when evaluator set and thresholds are unchanged                                                                                                                                                                                                     |
 
 Before the run, if the selected suite has `suiteName`, call `evaluation_suite_get(projectEndpoint, suiteName, version)` and confirm it references the expected dataset/evaluators. Use the suite to select evaluator names, thresholds, and local review artifacts, then run `evaluation_agent_batch_eval_create`. Run suites tagged `tier=smoke` first unless the user chooses a broader suite tag or a specific suite.
 
@@ -55,11 +55,11 @@ Before setting `deploymentName`, use `model_deployment_get` to list actual proje
 
 ## Parameter Naming Guardrail
 
-| Tool | Correct Group Parameter | Notes |
-|------|-------------------------|-------|
-| `evaluation_agent_batch_eval_create` | `evaluationId` | Agent-target batch eval run grouping |
-| `evaluation_get` | `evalId` | Use with `isRequestForRuns=true` to list runs in one group |
-| `evaluation_comparison_create` | `insightRequest.request.evalId` | Comparison requests take `evalId`, not `evaluationId` |
+| Tool                                 | Correct Group Parameter         | Notes                                                      |
+| ------------------------------------ | ------------------------------- | ---------------------------------------------------------- |
+| `evaluation_agent_batch_eval_create` | `evaluationId`                  | Agent-target batch eval run grouping                       |
+| `evaluation_get`                     | `evalId`                        | Use with `isRequestForRuns=true` to list runs in one group |
+| `evaluation_comparison_create`       | `insightRequest.request.evalId` | Comparison requests take `evalId`, not `evaluationId`      |
 
 `evaluation_get` does **not** accept `evaluationId`; switch to `evalId` after run creation.
 

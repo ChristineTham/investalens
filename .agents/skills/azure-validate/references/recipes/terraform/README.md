@@ -41,6 +41,7 @@ az version
 ```
 
 **If not installed:**
+
 ```
 mcp_azure_mcp_extension_cli_install(cli-type: "az")
 ```
@@ -52,6 +53,7 @@ az account show
 ```
 
 **If not logged in:**
+
 ```bash
 az login
 az account set --subscription <subscription-id>
@@ -71,6 +73,7 @@ terraform fmt -check -recursive
 ```
 
 **Fix if needed:**
+
 ```bash
 terraform fmt -recursive
 ```
@@ -119,11 +122,12 @@ fi
 ```
 
 **If Go-style template variables are found:**
+
 1. **Fix the syntax** in `main.tfvars.json` — replace `{{ .Env.VAR }}` with `${VAR}`:
    ```json
    {
-       "environment_name": "${AZURE_ENV_NAME}",
-       "location": "${AZURE_LOCATION}"
+     "environment_name": "${AZURE_ENV_NAME}",
+     "location": "${AZURE_LOCATION}"
    }
    ```
 2. For additional variables, use **`TF_VAR_*` environment variables**:
@@ -134,6 +138,7 @@ fi
 4. **Re-run** `terraform validate` and `terraform plan` to confirm
 
 **If `.tfvars.json` uses wrong syntax:**
+
 - Replace Go-style `{{ .Env.* }}` with `${VAR}` (azd's envsubst format)
 - Prefer putting static defaults in `variables.tf` `default` values. Using `terraform.tfvars` (HCL) for static defaults is acceptable if your team prefers it; this restriction is specifically about avoiding Go-style template expressions in `.tfvars.json` files.
 

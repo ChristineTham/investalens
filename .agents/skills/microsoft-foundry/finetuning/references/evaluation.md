@@ -12,10 +12,10 @@
 
 Use the **Azure AI Evaluation SDK** (`azure-ai-evaluation`) for all evaluation.
 
-| Layer | Purpose | Grader Type | When |
-|-------|---------|-------------|------|
-| **Task-specific** (primary) | Measure FT improvement | `AzureOpenAIScoreModelGrader`, `AzureOpenAIPythonGrader`, `AzureOpenAIStringCheckGrader` | Every eval |
-| **General quality** (guardrail) | Verify model didn't degrade | `CoherenceEvaluator`, `FluencyEvaluator` | Spot-check only |
+| Layer                           | Purpose                     | Grader Type                                                                              | When            |
+| ------------------------------- | --------------------------- | ---------------------------------------------------------------------------------------- | --------------- |
+| **Task-specific** (primary)     | Measure FT improvement      | `AzureOpenAIScoreModelGrader`, `AzureOpenAIPythonGrader`, `AzureOpenAIStringCheckGrader` | Every eval      |
+| **General quality** (guardrail) | Verify model didn't degrade | `CoherenceEvaluator`, `FluencyEvaluator`                                                 | Spot-check only |
 
 Generic built-in evaluators (Coherence, Fluency, TaskAdherence) are guardrails, not metrics — they often show no difference between base and fine-tuned models even when domain-specific evaluation reveals clear improvement.
 
@@ -141,10 +141,10 @@ for metric, value in result["metrics"].items():
 
 ## Interpreting Results
 
-| Score Type | Range | Meaning |
-|-----------|-------|---------|
-| AI quality (1–5) | 1–2 Poor, 3 Adequate, 4 Good, 5 Excellent | |
-| NLP (0–1) | <0.3 Wrong, 0.3–0.6 Partial, 0.6–0.8 Good, >0.8 Strong | |
+| Score Type       | Range                                                  | Meaning |
+| ---------------- | ------------------------------------------------------ | ------- |
+| AI quality (1–5) | 1–2 Poor, 3 Adequate, 4 Good, 5 Excellent              |         |
+| NLP (0–1)        | <0.3 Wrong, 0.3–0.6 Partial, 0.6–0.8 Good, >0.8 Strong |         |
 
 With 50+ eval examples, a difference of ~0.3 points (on 1–5 scale) is usually meaningful.
 

@@ -2,16 +2,17 @@
 
 ## Supported Plans & Zone Redundancy
 
-| Plan | Zone Redundancy | Min Instances | Health Check |
-|------|----------------|---------------|--------------|
-| Flex Consumption (FC1) | ✅ `zoneRedundant: true` | Auto-managed | ❌ Platform health check not supported |
-| Premium (EP1/EP2/EP3) | ✅ `zoneRedundant: true` + `sku.capacity: 2` | `minimumElasticInstanceCount: 2` per app | ✅ `healthCheckPath` |
-| Consumption (Y1) | ❌ Not supported | N/A | ❌ Not supported |
-| Dedicated (P1v2+) | ✅ (treated as App Service) | `sku.capacity: 2` | ✅ `healthCheckPath` |
+| Plan                   | Zone Redundancy                              | Min Instances                            | Health Check                           |
+| ---------------------- | -------------------------------------------- | ---------------------------------------- | -------------------------------------- |
+| Flex Consumption (FC1) | ✅ `zoneRedundant: true`                     | Auto-managed                             | ❌ Platform health check not supported |
+| Premium (EP1/EP2/EP3)  | ✅ `zoneRedundant: true` + `sku.capacity: 2` | `minimumElasticInstanceCount: 2` per app | ✅ `healthCheckPath`                   |
+| Consumption (Y1)       | ❌ Not supported                             | N/A                                      | ❌ Not supported                       |
+| Dedicated (P1v2+)      | ✅ (treated as App Service)                  | `sku.capacity: 2`                        | ✅ `healthCheckPath`                   |
 
 ## Assessment Queries
 
 ### Zone Redundancy Check
+
 ```bash
 az graph query -q "
 resources
@@ -23,6 +24,7 @@ resources
 ```
 
 ### Function App Instance Count (Premium)
+
 ```bash
 az functionapp show --name <app> --resource-group <rg> \
   --query "{minInstances:siteConfig.minimumElasticInstanceCount}" -o table
@@ -31,6 +33,7 @@ az functionapp show --name <app> --resource-group <rg> \
 ## Configure: Zone Redundancy
 
 ### Flex Consumption (FC1)
+
 ```bash
 # Enable zone redundancy on plan
 az resource update \
@@ -41,6 +44,7 @@ az resource update \
 ```
 
 ### Premium (EP1/EP2/EP3)
+
 ```bash
 # Enable zone redundancy + set min capacity
 az appservice plan update \
@@ -76,18 +80,20 @@ Consumption (Y1) plans do **not** support zone redundancy. The user must upgrade
 Flex Consumption does NOT support platform health check (`healthCheckPath`). Instead, add an HTTP endpoint in code:
 
 ### TypeScript (v4 programming model)
+
 ```typescript
 import { app } from "@azure/functions";
 
-app.http('health', {
-  methods: ['GET'],
-  authLevel: 'anonymous',
-  route: 'health',
-  handler: async () => ({ status: 200, body: 'OK' })
+app.http("health", {
+  methods: ["GET"],
+  authLevel: "anonymous",
+  route: "health",
+  handler: async () => ({ status: 200, body: "OK" }),
 });
 ```
 
 ### Python (v2 programming model)
+
 ```python
 import azure.functions as func
 
@@ -99,6 +105,7 @@ def health(req: func.HttpRequest) -> func.HttpResponse:
 ```
 
 ### C# (isolated worker)
+
 ```csharp
 [Function("Health")]
 public IActionResult Health([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "health")] HttpRequest req)
@@ -108,6 +115,7 @@ public IActionResult Health([HttpTrigger(AuthorizationLevel.Anonymous, "get", Ro
 ```
 
 ### Premium Functions — Platform Health Check
+
 ```bash
 az webapp config set \
   --name <app-name> \
@@ -120,6 +128,7 @@ az webapp config set \
 ## IaC Patching: Bicep
 
 ### App Service Plan (AVM module)
+
 ```bicep
 module appServicePlan 'br/public:avm/res/web/serverfarm:0.5.0' = {
   params: {
@@ -131,6 +140,7 @@ module appServicePlan 'br/public:avm/res/web/serverfarm:0.5.0' = {
 ```
 
 ### Premium Plan — extra settings
+
 ```bicep
 module appServicePlan 'br/public:avm/res/web/serverfarm:0.5.0' = {
   params: {
@@ -186,11 +196,11 @@ resource "azurerm_linux_function_app" "func" {
 
 When the parent skill builds the feature-pivoted assessment table, report each Functions resource on the relevant rows:
 
-| Feature row | What to report |
-|---|---|
-| Zone redundancy — compute | `🟢 ON` if the **plan** has `zoneRedundant: true`. For Premium plans, also requires `sku.capacity ≥ 2` AND each Function App has `minimumElasticInstanceCount ≥ 2`. `🔴 OFF` if the plan tier doesn't support ZR (Consumption Y1) — annotate `(needs plan upgrade to Flex / Premium)`. |
-| Health probes | For Premium / Dedicated: `🟢 ON` if `siteConfig.healthCheckPath` is set, `🔴 OFF` otherwise. For Flex Consumption (FC1) / Consumption (Y1): always annotate `🔴 OFF (code-only fix)` — `healthCheckPath` is not supported on these plans, so an HTTP-triggered `/api/health` function must be added in app code (gated by user consent — see [configure-health-probes.md](../../configure-health-probes.md)). |
-| Multi-region failover | `🟢 ON` if the same Function App is deployed in ≥2 regions behind Front Door / Traffic Manager; otherwise `🔴 OFF`. |
+| Feature row               | What to report                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Zone redundancy — compute | `🟢 ON` if the **plan** has `zoneRedundant: true`. For Premium plans, also requires `sku.capacity ≥ 2` AND each Function App has `minimumElasticInstanceCount ≥ 2`. `🔴 OFF` if the plan tier doesn't support ZR (Consumption Y1) — annotate `(needs plan upgrade to Flex / Premium)`.                                                                                                                        |
+| Health probes             | For Premium / Dedicated: `🟢 ON` if `siteConfig.healthCheckPath` is set, `🔴 OFF` otherwise. For Flex Consumption (FC1) / Consumption (Y1): always annotate `🔴 OFF (code-only fix)` — `healthCheckPath` is not supported on these plans, so an HTTP-triggered `/api/health` function must be added in app code (gated by user consent — see [configure-health-probes.md](../../configure-health-probes.md)). |
+| Multi-region failover     | `🟢 ON` if the same Function App is deployed in ≥2 regions behind Front Door / Traffic Manager; otherwise `🔴 OFF`.                                                                                                                                                                                                                                                                                           |
 
 ## Additional References
 

@@ -4,12 +4,12 @@ Package: `azure-eventhub` | [README](https://github.com/Azure/azure-sdk-for-pyth
 
 ## Common Errors
 
-| Exception | Cause | Fix |
-|-----------|-------|-----|
-| `EventHubError` | Base exception wrapping AMQP errors | Check `message`, `error`, `details` fields |
-| `ConnectionLostError` | Idle connection disconnected | Auto-recovers on next operation; no action needed |
-| `AuthenticationError` | Bad credentials or expired SAS | Regenerate key, check RBAC roles, verify connection string |
-| `OperationTimeoutError` | Network or throttling | Check firewall, try WebSockets (port 443), increase timeout |
+| Exception               | Cause                               | Fix                                                         |
+| ----------------------- | ----------------------------------- | ----------------------------------------------------------- |
+| `EventHubError`         | Base exception wrapping AMQP errors | Check `message`, `error`, `details` fields                  |
+| `ConnectionLostError`   | Idle connection disconnected        | Auto-recovers on next operation; no action needed           |
+| `AuthenticationError`   | Bad credentials or expired SAS      | Regenerate key, check RBAC roles, verify connection string  |
+| `OperationTimeoutError` | Network or throttling               | Check firewall, try WebSockets (port 443), increase timeout |
 
 ## Retry Configuration
 
@@ -36,12 +36,12 @@ client = EventHubProducerClient(
 
 Under heavy load, tune the retry policy on `EventHubConsumerClient` to reduce timeouts:
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `retry_total` | 3 | Max retry attempts per operation |
-| `retry_backoff_factor` | 0.8 | Backoff multiplier between retries (seconds) |
-| `retry_backoff_max` | 120 | Max backoff interval (seconds) |
-| `retry_mode` | `exponential` | `fixed` or `exponential` |
+| Parameter              | Default       | Description                                  |
+| ---------------------- | ------------- | -------------------------------------------- |
+| `retry_total`          | 3             | Max retry attempts per operation             |
+| `retry_backoff_factor` | 0.8           | Backoff multiplier between retries (seconds) |
+| `retry_backoff_max`    | 120           | Max backoff interval (seconds)               |
+| `retry_mode`           | `exponential` | `fixed` or `exponential`                     |
 
 ```python
 from azure.eventhub import EventHubConsumerClient
@@ -98,6 +98,7 @@ Package: `azure-eventhub-checkpointstoreblob` (sync) / `azure-eventhub-checkpoin
 See the [Consumer Client Retry Configuration](#consumer-client-retry-configuration) section above for a full `EventHubConsumerClient` example with `BlobCheckpointStore`.
 
 **Common issues:**
+
 - **Soft delete / blob versioning**: Disable both on the storage account — they cause large delays during load balancing.
 - **HTTP 412/409 from storage**: Normal during partition ownership negotiation; not an error.
 - **Checkpoint frequency**: Checkpoint after processing each batch, not each event, to avoid storage throttling.

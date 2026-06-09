@@ -28,31 +28,31 @@ The Tax Summary is displayed at the top of the Tax tab and pulls key information
 
 ### Taxable Income Summary
 
-| Item | Description |
-|------|-------------|
-| Dividend & interest income | All dividend and interest income received in the period |
-| Capital gains | Net capital gain figure from the CGT Report |
-| Franking credits | Franking credits attached to your dividend income |
-| Total assessable income | Sum of dividend & interest income, capital gains, and franking credits |
+| Item                       | Description                                                            |
+| -------------------------- | ---------------------------------------------------------------------- |
+| Dividend & interest income | All dividend and interest income received in the period                |
+| Capital gains              | Net capital gain figure from the CGT Report                            |
+| Franking credits           | Franking credits attached to your dividend income                      |
+| Total assessable income    | Sum of dividend & interest income, capital gains, and franking credits |
 
 ### Capital Gain Summary
 
-| Item | Description |
-|------|-------------|
-| Total capital gains | Gross capital gains from all sales in the period |
-| Current year losses | Capital losses realised in the current year |
-| CGT discount % | Discount rate applied based on tax entity type |
-| Net capital gain | Final taxable capital gain after applying the CGT discount |
+| Item                | Description                                                |
+| ------------------- | ---------------------------------------------------------- |
+| Total capital gains | Gross capital gains from all sales in the period           |
+| Current year losses | Capital losses realised in the current year                |
+| CGT discount %      | Discount rate applied based on tax entity type             |
+| Net capital gain    | Final taxable capital gain after applying the CGT discount |
 
 ### Tax Details
 
-| Setting | Description |
-|---------|-------------|
-| Tax residency | Country of tax residency set for your portfolio |
-| Portfolio base currency | Currency used to report portfolio values |
-| Tax entity type | Individual, Company, SMSF, or Trust |
-| CGT discount % | Discount rate for long-term capital gains |
-| Sale allocation method | Method used to calculate CGT (e.g. FIFO, Minimise CGT) |
+| Setting                 | Description                                            |
+| ----------------------- | ------------------------------------------------------ |
+| Tax residency           | Country of tax residency set for your portfolio        |
+| Portfolio base currency | Currency used to report portfolio values               |
+| Tax entity type         | Individual, Company, SMSF, or Trust                    |
+| CGT discount %          | Discount rate for long-term capital gains              |
+| Sale allocation method  | Method used to calculate CGT (e.g. FIFO, Minimise CGT) |
 
 ---
 
@@ -60,13 +60,13 @@ The Tax Summary is displayed at the top of the Tax tab and pulls key information
 
 The following reports are accessible from the Tax tab:
 
-| Report | Description |
-|--------|-------------|
-| [Taxable Income Report](#taxable-income-report) | Lists all dividend and interest income required for your tax return |
+| Report                                                          | Description                                                             |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| [Taxable Income Report](#taxable-income-report)                 | Lists all dividend and interest income required for your tax return     |
 | [Capital Gains Tax (CGT) Report](#capital-gains-tax-cgt-report) | Calculates realised capital gains and losses, applying the CGT discount |
-| [Unrealised CGT Report](#unrealised-cgt-report) | Shows potential CGT liability if current holdings were sold today |
-| Historical Cost Report | Original purchase cost for tax and record-keeping purposes |
-| All Trades Report | Complete record of all buy and sell transactions |
+| [Unrealised CGT Report](#unrealised-cgt-report)                 | Shows potential CGT liability if current holdings were sold today       |
+| Historical Cost Report                                          | Original purchase cost for tax and record-keeping purposes              |
+| All Trades Report                                               | Complete record of all buy and sell transactions                        |
 
 ---
 
@@ -84,27 +84,27 @@ Income is grouped into three sections:
 
 ### Column Descriptions
 
-| Column | Description |
-|--------|-------------|
-| Paid Date / Tax Date | Date the payment was credited to you |
-| Total Income | Total income figure for the payment |
-| Net Dividend | Total income less withholding tax — the cash actually received |
-| Franked Amount | Dividend amount with franking credits attached |
-| Unfranked Amount | Australian assessable dividend without franking credits |
-| Interest | Interest income amount |
-| Tax Deferred | Non-assessable amount that adjusts cost base for CGT purposes |
-| AMIT Decrease | Trust distribution where cash exceeds taxable income attributed; decreases cost base |
-| AMIT Increase | Trust distribution where taxable income exceeds cash; increases cost base |
-| Foreign Source Income | Gross non-Australian assessable income (before tax credits) |
-| Discounted Capital Gains | Grossed up and included with capital gains on the CGT Report |
-| CGT Concessions | CGT discount in distributions; non-assessable, does not alter cost base |
-| Non Assessable | Used to reduce reduced cost base; does not affect cost base |
-| TFN Withholding Tax | Australian tax deducted (typically where TFN not provided) |
-| Foreign Income Tax | Foreign tax withheld on overseas income |
-| Franking Credits | Franking credits attached to dividends |
-| Other Net FSI | Non-Australian assessable income after offsetting allowable expenses |
-| LIC Capital Gain | LIC dividend attributable to a capital gain (50% deduction available) |
-| Gross Amount | Total amount before any deductions |
+| Column                   | Description                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------ |
+| Paid Date / Tax Date     | Date the payment was credited to you                                                 |
+| Total Income             | Total income figure for the payment                                                  |
+| Net Dividend             | Total income less withholding tax — the cash actually received                       |
+| Franked Amount           | Dividend amount with franking credits attached                                       |
+| Unfranked Amount         | Australian assessable dividend without franking credits                              |
+| Interest                 | Interest income amount                                                               |
+| Tax Deferred             | Non-assessable amount that adjusts cost base for CGT purposes                        |
+| AMIT Decrease            | Trust distribution where cash exceeds taxable income attributed; decreases cost base |
+| AMIT Increase            | Trust distribution where taxable income exceeds cash; increases cost base            |
+| Foreign Source Income    | Gross non-Australian assessable income (before tax credits)                          |
+| Discounted Capital Gains | Grossed up and included with capital gains on the CGT Report                         |
+| CGT Concessions          | CGT discount in distributions; non-assessable, does not alter cost base              |
+| Non Assessable           | Used to reduce reduced cost base; does not affect cost base                          |
+| TFN Withholding Tax      | Australian tax deducted (typically where TFN not provided)                           |
+| Foreign Income Tax       | Foreign tax withheld on overseas income                                              |
+| Franking Credits         | Franking credits attached to dividends                                               |
+| Other Net FSI            | Non-Australian assessable income after offsetting allowable expenses                 |
+| LIC Capital Gain         | LIC dividend attributable to a capital gain (50% deduction available)                |
+| Gross Amount             | Total amount before any deductions                                                   |
 
 ### Australian Income Totals
 
@@ -143,6 +143,7 @@ Calculates capital gains made on shares as per Australian Tax Office rules. The 
 - **Other method** — For shares held less than 12 months (no discount)
 
 The discount rate is determined by the tax entity type set in portfolio settings:
+
 - Individuals / Trust — 50%
 - Self-Managed Super Fund — 33⅓%
 - Company — 0%
@@ -161,11 +162,11 @@ Shows the allocation method currently assigned to the reporting period (default:
 
 #### Capital Gains or Losses
 
-| Figure | ATO Code | Description |
-|--------|----------|-------------|
-| Total current year capital gains | 18H | Gross capital gain before losses or discounts |
-| Net capital gain | 18A | Final taxable capital gain after all offsets and discounts |
-| Net capital loss carried forward | 18V | Excess losses available to carry forward to future years |
+| Figure                           | ATO Code | Description                                                |
+| -------------------------------- | -------- | ---------------------------------------------------------- |
+| Total current year capital gains | 18H      | Gross capital gain before losses or discounts              |
+| Net capital gain                 | 18A      | Final taxable capital gain after all offsets and discounts |
+| Net capital loss carried forward | 18V      | Excess losses available to carry forward to future years   |
 
 **Net capital gain calculation:**
 
@@ -175,15 +176,15 @@ Shows the allocation method currently assigned to the reporting period (default:
 
 #### Breakdown Tabs
 
-| Tab | Description |
-|-----|-------------|
-| All Holdings | Summary with instrument code, market, sold quantity, gains, losses, distributions |
-| Short-term Gains | Parcels held < 12 months (no CGT discount) |
-| Long-term Gains | Parcels held ≥ 12 months (eligible for CGT discount) |
-| Losses | Parcels sold below cost base + losses carried forward |
-| Non-discounted Distributions | Capital gains from trust/ETF rebalancing (no discount eligible) |
-| Discounted Distributions | Capital gains from trust distributions (discount already applied, need grossing up) |
-| Exemptions | Parcels exempt from CGT (e.g. assets acquired before 20 September 1985) |
+| Tab                          | Description                                                                         |
+| ---------------------------- | ----------------------------------------------------------------------------------- |
+| All Holdings                 | Summary with instrument code, market, sold quantity, gains, losses, distributions   |
+| Short-term Gains             | Parcels held < 12 months (no CGT discount)                                          |
+| Long-term Gains              | Parcels held ≥ 12 months (eligible for CGT discount)                                |
+| Losses                       | Parcels sold below cost base + losses carried forward                               |
+| Non-discounted Distributions | Capital gains from trust/ETF rebalancing (no discount eligible)                     |
+| Discounted Distributions     | Capital gains from trust distributions (discount already applied, need grossing up) |
+| Exemptions                   | Parcels exempt from CGT (e.g. assets acquired before 20 September 1985)             |
 
 ### Locking CGT Positions
 
@@ -199,23 +200,23 @@ Calculates unrealised capital gains in your portfolio and the resulting taxable 
 
 ### Report Sections
 
-| Section | Description |
-|---------|-------------|
-| Short-term Capital Gains (unrealised) | Holdings with gains held < 12 months (taxed in full) |
-| Long-term Capital Gains (unrealised) | Holdings with gains held ≥ 12 months (eligible for CGT discount) |
-| Capital Losses (unrealised) | Holdings currently at a loss (would offset gains if sold) |
-| Summary | Hypothetical net taxable capital gain if entire portfolio were sold |
+| Section                               | Description                                                         |
+| ------------------------------------- | ------------------------------------------------------------------- |
+| Short-term Capital Gains (unrealised) | Holdings with gains held < 12 months (taxed in full)                |
+| Long-term Capital Gains (unrealised)  | Holdings with gains held ≥ 12 months (eligible for CGT discount)    |
+| Capital Losses (unrealised)           | Holdings currently at a loss (would offset gains if sold)           |
+| Summary                               | Hypothetical net taxable capital gain if entire portfolio were sold |
 
 ### Parcel-Level Columns
 
-| Column | Description |
-|--------|-------------|
-| Sale Allocation Method | Method determining which parcel is deemed sold first |
-| Purchase Date | Date the parcel was purchased (determines CGT discount eligibility) |
-| Quantity | Units in the parcel (adjusted for capital returns/reconstructions) |
-| Cost Base | Original purchase price, adjusted for capital returns |
-| Market Value | Value of the parcel on the report date |
-| Gain (or Loss) | Difference between market value and cost base |
+| Column                 | Description                                                         |
+| ---------------------- | ------------------------------------------------------------------- |
+| Sale Allocation Method | Method determining which parcel is deemed sold first                |
+| Purchase Date          | Date the parcel was purchased (determines CGT discount eligibility) |
+| Quantity               | Units in the parcel (adjusted for capital returns/reconstructions)  |
+| Cost Base              | Original purchase price, adjusted for capital returns               |
+| Market Value           | Value of the parcel on the report date                              |
+| Gain (or Loss)         | Difference between market value and cost base                       |
 
 ### Summary Calculation
 
@@ -259,10 +260,10 @@ You do **NOT** have trust income if you hold:
 
 When you hold an ETF, managed fund, or other trust investment, your annual tax statement may include components that adjust the cost base rather than contributing to taxable income for the year.
 
-| Type | Effect | Impact When Selling |
-|------|--------|---------------------|
-| AMIT Cost Base Increase | Fund allocated more income than paid in cash | Increases cost base → smaller capital gain on sale |
-| AMIT Cost Base Decrease / Tax Deferred | Fund distributed more cash than taxable income allocated | Decreases cost base → larger capital gain on sale |
+| Type                                   | Effect                                                   | Impact When Selling                                |
+| -------------------------------------- | -------------------------------------------------------- | -------------------------------------------------- |
+| AMIT Cost Base Increase                | Fund allocated more income than paid in cash             | Increases cost base → smaller capital gain on sale |
+| AMIT Cost Base Decrease / Tax Deferred | Fund distributed more cash than taxable income allocated | Decreases cost base → larger capital gain on sale  |
 
 Cost base adjustments do **not** appear in the CGT Report directly. They change the cost base over time — the impact shows up only when you sell the investment.
 
@@ -382,6 +383,7 @@ Use the report to model the tax impact of different liquidation sequences and pa
 **Situation:** Your Total Super Balance (TSB) across all funds exceeds $3 million.
 
 Division 296 is an additional tax on super earnings:
+
 - $3 million to $10 million: additional 15% tax on earnings
 - Above $10 million: additional 25% tax on earnings
 
@@ -409,10 +411,10 @@ If the sale allocation method is altered after synchronising sell trades to Xero
 
 ## Related Documentation
 
-| Document | Description |
-|----------|-------------|
-| [ACCOUNT.md](ACCOUNT.md) | Portfolio tax settings, tax entity type, and sale allocation method |
-| [TOOLS.md](TOOLS.md) | All reports including Historical Cost Report and All Trades Report |
-| [ACTIONS.md](ACTIONS.md) | Corporate actions affecting cost base (mergers, demergers, returns of capital) |
-| [ASSETS.md](ASSETS.md) | Stapled securities, ETFs, and trust investments |
-| [GETTING-STARTED.md](GETTING-STARTED.md) | Setting up your portfolio with correct tax residency |
+| Document                                 | Description                                                                    |
+| ---------------------------------------- | ------------------------------------------------------------------------------ |
+| [ACCOUNT.md](ACCOUNT.md)                 | Portfolio tax settings, tax entity type, and sale allocation method            |
+| [TOOLS.md](TOOLS.md)                     | All reports including Historical Cost Report and All Trades Report             |
+| [ACTIONS.md](ACTIONS.md)                 | Corporate actions affecting cost base (mergers, demergers, returns of capital) |
+| [ASSETS.md](ASSETS.md)                   | Stapled securities, ETFs, and trust investments                                |
+| [GETTING-STARTED.md](GETTING-STARTED.md) | Setting up your portfolio with correct tax residency                           |

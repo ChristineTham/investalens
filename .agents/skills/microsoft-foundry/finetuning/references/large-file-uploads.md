@@ -15,8 +15,8 @@ file_id = completed.file.id
 
 **Important:** Requires `openai.AzureOpenAI()` client, NOT `openai.OpenAI()` with `/v1/` URL. The project endpoint returns 404 for upload operations.
 
-| File Size | Method |
-|-----------|--------|
-| < 100MB | Standard `files.create()` |
-| 100MB–5GB | Chunked Uploads API |
-| > 5GB | Split dataset |
+| File Size | Method                    |
+| --------- | ------------------------- |
+| < 100MB   | Standard `files.create()` |
+| 100MB–5GB | Chunked Uploads API       |
+| > 5GB     | Split dataset             |

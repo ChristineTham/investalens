@@ -70,11 +70,11 @@ const WebPreviewDemo = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 relative size-full rounded-lg border h-[600px]">
-      <div className="flex flex-col h-full">
-        <div className="flex-1 mb-4">
+    <div className="relative mx-auto size-full h-[600px] max-w-4xl rounded-lg border p-6">
+      <div className="flex h-full flex-col">
+        <div className="mb-4 flex-1">
           {isGenerating ? (
-            <div className="flex flex-col items-center justify-center h-full">
+            <div className="flex h-full flex-col items-center justify-center">
               <Spinner />
               <p className="mt-4 text-muted-foreground">
                 Generating app, this may take a few seconds...
@@ -88,7 +88,7 @@ const WebPreviewDemo = () => {
               <WebPreviewBody src={previewUrl} />
             </WebPreview>
           ) : (
-            <div className="flex items-center justify-center h-full text-muted-foreground">
+            <div className="flex h-full items-center justify-center text-muted-foreground">
               Your generated app will appear here
             </div>
           )}
@@ -96,18 +96,18 @@ const WebPreviewDemo = () => {
 
         <PromptInput
           onSubmit={handleSubmit}
-          className="w-full max-w-2xl mx-auto relative"
+          className="relative mx-auto w-full max-w-2xl"
         >
           <PromptInputTextarea
             value={prompt}
             placeholder="Describe the app you want to build..."
             onChange={(e) => setPrompt(e.currentTarget.value)}
-            className="pr-12 min-h-[60px]"
+            className="min-h-[60px] pr-12"
           />
           <PromptInputSubmit
             status={isGenerating ? "streaming" : "ready"}
             disabled={!prompt.trim()}
-            className="absolute bottom-1 right-1"
+            className="absolute right-1 bottom-1"
           />
         </PromptInput>
       </div>
@@ -160,41 +160,41 @@ export async function POST(req: Request) {
 
 ### `<WebPreview />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `defaultUrl` | `string` | - | The initial URL to load in the preview. |
-| `onUrlChange` | `(url: string) => void` | - | Callback fired when the URL changes. |
-| `...props` | `React.HTMLAttributes<HTMLDivElement>` | - | Any other props are spread to the root div. |
+| Prop          | Type                                   | Default | Description                                 |
+| ------------- | -------------------------------------- | ------- | ------------------------------------------- |
+| `defaultUrl`  | `string`                               | -       | The initial URL to load in the preview.     |
+| `onUrlChange` | `(url: string) => void`                | -       | Callback fired when the URL changes.        |
+| `...props`    | `React.HTMLAttributes<HTMLDivElement>` | -       | Any other props are spread to the root div. |
 
 ### `<WebPreviewNavigation />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `...props` | `React.HTMLAttributes<HTMLDivElement>` | - | Any other props are spread to the navigation container. |
+| Prop       | Type                                   | Default | Description                                             |
+| ---------- | -------------------------------------- | ------- | ------------------------------------------------------- |
+| `...props` | `React.HTMLAttributes<HTMLDivElement>` | -       | Any other props are spread to the navigation container. |
 
 ### `<WebPreviewNavigationButton />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `tooltip` | `string` | - | Tooltip text to display on hover. |
-| `...props` | `React.ComponentProps<typeof Button>` | - | Any other props are spread to the underlying shadcn/ui Button component. |
+| Prop       | Type                                  | Default | Description                                                              |
+| ---------- | ------------------------------------- | ------- | ------------------------------------------------------------------------ |
+| `tooltip`  | `string`                              | -       | Tooltip text to display on hover.                                        |
+| `...props` | `React.ComponentProps<typeof Button>` | -       | Any other props are spread to the underlying shadcn/ui Button component. |
 
 ### `<WebPreviewUrl />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `...props` | `React.ComponentProps<typeof Input>` | - | Any other props are spread to the underlying shadcn/ui Input component. |
+| Prop       | Type                                 | Default | Description                                                             |
+| ---------- | ------------------------------------ | ------- | ----------------------------------------------------------------------- |
+| `...props` | `React.ComponentProps<typeof Input>` | -       | Any other props are spread to the underlying shadcn/ui Input component. |
 
 ### `<WebPreviewBody />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `loading` | `React.ReactNode` | - | Optional loading indicator to display over the preview. |
-| `...props` | `React.IframeHTMLAttributes<HTMLIFrameElement>` | - | Any other props are spread to the underlying iframe. |
+| Prop       | Type                                            | Default | Description                                             |
+| ---------- | ----------------------------------------------- | ------- | ------------------------------------------------------- |
+| `loading`  | `React.ReactNode`                               | -       | Optional loading indicator to display over the preview. |
+| `...props` | `React.IframeHTMLAttributes<HTMLIFrameElement>` | -       | Any other props are spread to the underlying iframe.    |
 
 ### `<WebPreviewConsole />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `logs` | `Array<{ level: ` | - | Console log entries to display in the console panel. |
-| `...props` | `React.HTMLAttributes<HTMLDivElement>` | - | Any other props are spread to the root div. |
+| Prop       | Type                                   | Default | Description                                          |
+| ---------- | -------------------------------------- | ------- | ---------------------------------------------------- |
+| `logs`     | `Array<{ level: `                      | -       | Console log entries to display in the console panel. |
+| `...props` | `React.HTMLAttributes<HTMLDivElement>` | -       | Any other props are spread to the root div.          |

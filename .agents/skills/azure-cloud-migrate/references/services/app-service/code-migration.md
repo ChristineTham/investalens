@@ -33,12 +33,12 @@ Migrate source platform web application code to Azure App Service.
 
 For non-Docker deployments, configure the startup command in App Service:
 
-| Runtime | Default Start | Custom Start |
-|---------|--------------|--------------|
-| Node.js | `npm start` | Set in Configuration → General Settings |
-| Python | `gunicorn app:app` | `gunicorn --bind=0.0.0.0 --timeout 600 app:app` |
-| Java | Auto-detected | `-Dserver.port=80` |
-| .NET | Auto-detected | `dotnet myapp.dll` |
+| Runtime | Default Start      | Custom Start                                    |
+| ------- | ------------------ | ----------------------------------------------- |
+| Node.js | `npm start`        | Set in Configuration → General Settings         |
+| Python  | `gunicorn app:app` | `gunicorn --bind=0.0.0.0 --timeout 600 app:app` |
+| Java    | Auto-detected      | `-Dserver.port=80`                              |
+| .NET    | Auto-detected      | `dotnet myapp.dll`                              |
 
 ### Dockerfile (When Needed)
 
@@ -60,8 +60,9 @@ CMD ["node", "server.js"]
 
 ```javascript
 // Add as FIRST import in entry point
-const appInsights = require('applicationinsights');
-appInsights.setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING)
+const appInsights = require("applicationinsights");
+appInsights
+  .setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING)
   .setAutoCollectRequests(true)
   .setAutoCollectExceptions(true)
   .start();
@@ -69,26 +70,28 @@ appInsights.setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING)
 
 ## Database Migration Patterns
 
-| Source | Azure Target | Connection Pattern |
-|--------|--------------|--------------------|
-| RDS PostgreSQL | Azure Database for PostgreSQL Flexible Server | Managed identity + `@azure/identity` |
-| RDS MySQL | Azure Database for MySQL Flexible Server | Managed identity + `@azure/identity` |
-| RDS SQL Server | Azure SQL Database | Managed identity + `@azure/identity` |
-| Heroku Postgres | Azure Database for PostgreSQL Flexible Server | Managed identity |
-| Cloud SQL | Azure SQL / PostgreSQL Flexible Server | Managed identity |
-| MongoDB Atlas | Azure Cosmos DB for MongoDB | Connection string → managed identity |
+| Source          | Azure Target                                  | Connection Pattern                   |
+| --------------- | --------------------------------------------- | ------------------------------------ |
+| RDS PostgreSQL  | Azure Database for PostgreSQL Flexible Server | Managed identity + `@azure/identity` |
+| RDS MySQL       | Azure Database for MySQL Flexible Server      | Managed identity + `@azure/identity` |
+| RDS SQL Server  | Azure SQL Database                            | Managed identity + `@azure/identity` |
+| Heroku Postgres | Azure Database for PostgreSQL Flexible Server | Managed identity                     |
+| Cloud SQL       | Azure SQL / PostgreSQL Flexible Server        | Managed identity                     |
+| MongoDB Atlas   | Azure Cosmos DB for MongoDB                   | Connection string → managed identity |
 
 ### Managed Identity Database Connection (Node.js)
 
 ```javascript
-const { DefaultAzureCredential } = require('@azure/identity');
-const { Client } = require('pg');
+const { DefaultAzureCredential } = require("@azure/identity");
+const { Client } = require("pg");
 
 async function main() {
   const credential = new DefaultAzureCredential({
-    managedIdentityClientId: process.env.AZURE_CLIENT_ID
+    managedIdentityClientId: process.env.AZURE_CLIENT_ID,
   });
-  const token = await credential.getToken('https://ossrdbms-aad.database.windows.net/.default');
+  const token = await credential.getToken(
+    "https://ossrdbms-aad.database.windows.net/.default"
+  );
 
   const client = new Client({
     host: process.env.PGHOST,
@@ -96,7 +99,7 @@ async function main() {
     user: process.env.PGUSER,
     password: token.token,
     ssl: { rejectUnauthorized: true },
-    port: 5432
+    port: 5432,
   });
   await client.connect();
   // ... use client
@@ -110,18 +113,19 @@ main().catch(console.error);
 ## Static Assets & CDN
 
 If the source app serves static assets, consider:
+
 1. **Azure Blob Storage + CDN** for static files
 2. **Azure Front Door** for global distribution
 3. **App Service built-in static file serving** for simple cases
 
 ## Background Workers
 
-| Source Pattern | Azure Equivalent |
-|---------------|------------------|
-| Heroku Worker dyno | WebJobs (continuous) or separate Container App |
-| Beanstalk Worker tier | WebJobs or Azure Functions |
-| App Engine service (worker) | WebJobs or Azure Functions |
-| Cron jobs | WebJobs (triggered) or Azure Functions Timer trigger |
+| Source Pattern              | Azure Equivalent                                     |
+| --------------------------- | ---------------------------------------------------- |
+| Heroku Worker dyno          | WebJobs (continuous) or separate Container App       |
+| Beanstalk Worker tier       | WebJobs or Azure Functions                           |
+| App Engine service (worker) | WebJobs or Azure Functions                           |
+| Cron jobs                   | WebJobs (triggered) or Azure Functions Timer trigger |
 
 ## Handoff to azure-prepare
 

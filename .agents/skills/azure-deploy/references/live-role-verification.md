@@ -4,12 +4,13 @@ Query Azure to confirm that provisioned RBAC role assignments are correct and su
 
 ## How It Differs from azure-validate's Role Check
 
-| Check | Skill | What It Verifies |
-|-------|-------|-----------------|
-| **Static** | azure-validate | Generated Bicep/Terraform has correct role assignments in code |
-| **Live** | azure-deploy (this) | Provisioned Azure resources actually have the right roles assigned |
+| Check      | Skill               | What It Verifies                                                   |
+| ---------- | ------------------- | ------------------------------------------------------------------ |
+| **Static** | azure-validate      | Generated Bicep/Terraform has correct role assignments in code     |
+| **Live**   | azure-deploy (this) | Provisioned Azure resources actually have the right roles assigned |
 
 Both checks are needed because:
+
 - Bicep may be correct but provisioning could fail silently for roles
 - Manual changes or policy enforcement may alter role assignments
 - Previous deployments may have stale or conflicting roles
@@ -57,22 +58,22 @@ az role assignment list --scope <resourceId> --assignee-object-id <principalId> 
 
 For each identity, verify the assigned roles match what the app needs:
 
-| App Operation | Expected Role | Scope |
-|---------------|---------------|-------|
-| Read/write blobs | Storage Blob Data Contributor | Storage account |
-| Generate user delegation SAS | Storage Blob Delegator | Storage account |
-| Read secrets | Key Vault Secrets User | Key Vault |
-| Send messages | Azure Service Bus Data Sender | Service Bus namespace |
-| Read/write documents | Cosmos DB Built-in Data Contributor | Cosmos DB account |
+| App Operation                | Expected Role                       | Scope                 |
+| ---------------------------- | ----------------------------------- | --------------------- |
+| Read/write blobs             | Storage Blob Data Contributor       | Storage account       |
+| Generate user delegation SAS | Storage Blob Delegator              | Storage account       |
+| Read secrets                 | Key Vault Secrets User              | Key Vault             |
+| Send messages                | Azure Service Bus Data Sender       | Service Bus namespace |
+| Read/write documents         | Cosmos DB Built-in Data Contributor | Cosmos DB account     |
 
 ### 4. Check for Common Issues
 
-| Issue | How to Detect | Fix |
-|-------|---------------|-----|
-| Role assigned at wrong scope | Role on resource group but needed on specific resource | Reassign at resource scope |
-| Generic role instead of data role | `Contributor` assigned but no data-plane access | Replace with data-plane role (e.g., `Storage Blob Data Contributor`) |
-| Missing role entirely | No assignment found for identity on target resource | Add role assignment to Bicep and redeploy |
-| Stale role from previous deployment | Old principal ID with roles, new identity without | Clean up old assignments, add new ones |
+| Issue                               | How to Detect                                          | Fix                                                                  |
+| ----------------------------------- | ------------------------------------------------------ | -------------------------------------------------------------------- |
+| Role assigned at wrong scope        | Role on resource group but needed on specific resource | Reassign at resource scope                                           |
+| Generic role instead of data role   | `Contributor` assigned but no data-plane access        | Replace with data-plane role (e.g., `Storage Blob Data Contributor`) |
+| Missing role entirely               | No assignment found for identity on target resource    | Add role assignment to Bicep and redeploy                            |
+| Stale role from previous deployment | Old principal ID with roles, new identity without      | Clean up old assignments, add new ones                               |
 
 ## Decision Tree
 
@@ -94,6 +95,7 @@ Add live role verification results to the deployment log in `.azure/deployment-p
 
 ```markdown
 ### Live Role Verification
+
 - Command: `az role assignment list --scope <resourceId> --assignee-object-id <principalId>`
 - Results:
   - <identity> → <role> on <resource> ✅

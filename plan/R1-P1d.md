@@ -12,6 +12,7 @@ Implement portfolio organisation features (custom groups, labels, sharing, conso
 ## Recommended Skills
 
 Invoke these skills for best-practice guidance during this phase:
+
 - **next-best-practices** — API route handlers, middleware, error responses
 - **vercel-react-best-practices** — Dashboard RSC patterns, component optimisation
 - **routing-middleware** — Auth middleware for API routes, redirects
@@ -28,6 +29,7 @@ Invoke these skills for best-practice guidance during this phase:
 **File: `lib/actions/groups.ts`**
 
 Server actions:
+
 - `createCustomGroup(name)` — create group with empty categories
 - `addCategory(groupId, name)` — add category to group
 - `assignInstrument(categoryId, instrumentId)` — assign instrument to category
@@ -38,6 +40,7 @@ Server actions:
 **File: `lib/actions/labels.ts`**
 
 Server actions:
+
 - `createLabel(name)` — create label
 - `assignLabel(holdingId, labelId)` — attach label to holding
 - `removeLabel(holdingId, labelId)`
@@ -47,6 +50,7 @@ Server actions:
 **File: `app/(dashboard)/settings/groups/page.tsx`**
 
 Drag-and-drop UI for managing custom groups:
+
 - Create/rename/delete groups
 - Create/rename/delete categories within groups
 - Drag instruments from "Ungrouped" into categories
@@ -67,8 +71,12 @@ Label management: create labels, assign to holdings via checkboxes.
 - `getSharedPortfolios()` — portfolios shared with current user
 
 Middleware check: in all portfolio server actions, verify access via:
+
 ```typescript
-async function verifyPortfolioAccess(portfolioId: string, requiredLevel: "read" | "write" | "admin")
+async function verifyPortfolioAccess(
+  portfolioId: string,
+  requiredLevel: "read" | "write" | "admin"
+);
 ```
 
 **File: `app/(dashboard)/settings/sharing/page.tsx`**
@@ -82,6 +90,7 @@ Share management UI: list shared users, invite new, change access level, remove.
 **File: `app/(dashboard)/portfolio/consolidated/page.tsx`**
 
 Aggregate view across all user portfolios:
+
 - Combined holdings table (deduplicate same instrument across portfolios)
 - Total value, total gain/loss
 - Select which portfolios to include
@@ -94,6 +103,7 @@ Aggregate view across all user portfolios:
 **File: `lib/actions/corporate-actions.ts`**
 
 Handle corporate events:
+
 - `recordSplit(holdingId, ratio, date)` — create SPLIT transaction adjusting quantity
 - `recordConsolidation(holdingId, ratio, date)` — reverse split
 - `recordMerger(sourceHoldingId, targetInstrumentCode, quantity, date)` — MERGER_OUT + MERGER_IN
@@ -128,6 +138,7 @@ Cash account management: list accounts, transaction history, add/edit transactio
 **File: `lib/calculations/bond-analytics.ts`**
 
 Calculate bond portfolio metrics:
+
 - `calculateYTM(faceValue, couponRate, price, yearsToMaturity)` — yield to maturity
 - `calculateModifiedDuration(ytm, couponRate, yearsToMaturity, frequency)`
 - `calculateAccruedInterest(faceValue, couponRate, lastCouponDate, settlementDate, frequency)`
@@ -139,6 +150,7 @@ Calculate bond portfolio metrics:
 **File: `app/(dashboard)/portfolio/[id]/bonds/page.tsx`**
 
 Bond dashboard:
+
 - Summary cards: Portfolio YTM, WAM, Modified Duration
 - Maturity ladder chart (bar chart by year)
 - Coupon calendar (next 12 months)
@@ -163,6 +175,7 @@ Check for bonds maturing within configurable window (30/60/90 days). Flag on das
 **File: `app/(dashboard)/tools/watchlist/page.tsx`**
 
 Watchlist page:
+
 - Table: Symbol, Name, Price, Change %, 1W/1M/YTD/1Y performance, Notes
 - Add button (opens instrument search)
 - Inline note editing
@@ -180,14 +193,22 @@ Token verification middleware. All `/api/v1/` routes require Bearer token.
 **File: `lib/api/middleware.ts`**
 
 ```typescript
-export async function authenticateApiRequest(request: Request): Promise<{ userId: string; scope: string } | null> {
+export async function authenticateApiRequest(
+  request: Request
+): Promise<{ userId: string; scope: string } | null> {
   const authHeader = request.headers.get("authorization");
   if (!authHeader?.startsWith("Bearer ")) return null;
   const token = authHeader.slice(7);
   const hashedToken = await hashToken(token);
-  const apiToken = await db.apiToken.findUnique({ where: { tokenHash: hashedToken } });
-  if (!apiToken || (apiToken.expiresAt && apiToken.expiresAt < new Date())) return null;
-  await db.apiToken.update({ where: { id: apiToken.id }, data: { lastUsed: new Date() } });
+  const apiToken = await db.apiToken.findUnique({
+    where: { tokenHash: hashedToken },
+  });
+  if (!apiToken || (apiToken.expiresAt && apiToken.expiresAt < new Date()))
+    return null;
+  await db.apiToken.update({
+    where: { id: apiToken.id },
+    data: { lastUsed: new Date() },
+  });
   return { userId: apiToken.userId, scope: apiToken.scope };
 }
 ```
@@ -198,22 +219,23 @@ Simple in-memory rate limiter (100 req/min per token). Use Vercel Runtime Cache 
 
 **API Route Files (`app/api/v1/`):**
 
-| Endpoint | File | Methods |
-|----------|------|---------|
-| `/api/v1/portfolios` | `portfolios/route.ts` | GET (list), POST (create) |
-| `/api/v1/portfolios/[id]` | `portfolios/[id]/route.ts` | GET, PATCH, DELETE |
-| `/api/v1/portfolios/[id]/holdings` | `portfolios/[id]/holdings/route.ts` | GET, POST |
-| `/api/v1/portfolios/[id]/holdings/[holdingId]` | `.../[holdingId]/route.ts` | GET, DELETE |
-| `/api/v1/portfolios/[id]/transactions` | `.../transactions/route.ts` | GET, POST |
-| `/api/v1/portfolios/[id]/transactions/[txId]` | `.../[txId]/route.ts` | GET, PATCH, DELETE |
-| `/api/v1/portfolios/[id]/performance` | `.../performance/route.ts` | GET |
-| `/api/v1/portfolios/[id]/diversity` | `.../diversity/route.ts` | GET |
-| `/api/v1/portfolios/[id]/import` | `.../import/route.ts` | POST (CSV upload) |
-| `/api/v1/portfolios/[id]/export` | `.../export/route.ts` | GET (CSV download) |
-| `/api/v1/market/search` | `market/search/route.ts` | GET |
-| `/api/v1/market/quote/[code]` | `market/quote/[code]/route.ts` | GET |
+| Endpoint                                       | File                                | Methods                   |
+| ---------------------------------------------- | ----------------------------------- | ------------------------- |
+| `/api/v1/portfolios`                           | `portfolios/route.ts`               | GET (list), POST (create) |
+| `/api/v1/portfolios/[id]`                      | `portfolios/[id]/route.ts`          | GET, PATCH, DELETE        |
+| `/api/v1/portfolios/[id]/holdings`             | `portfolios/[id]/holdings/route.ts` | GET, POST                 |
+| `/api/v1/portfolios/[id]/holdings/[holdingId]` | `.../[holdingId]/route.ts`          | GET, DELETE               |
+| `/api/v1/portfolios/[id]/transactions`         | `.../transactions/route.ts`         | GET, POST                 |
+| `/api/v1/portfolios/[id]/transactions/[txId]`  | `.../[txId]/route.ts`               | GET, PATCH, DELETE        |
+| `/api/v1/portfolios/[id]/performance`          | `.../performance/route.ts`          | GET                       |
+| `/api/v1/portfolios/[id]/diversity`            | `.../diversity/route.ts`            | GET                       |
+| `/api/v1/portfolios/[id]/import`               | `.../import/route.ts`               | POST (CSV upload)         |
+| `/api/v1/portfolios/[id]/export`               | `.../export/route.ts`               | GET (CSV download)        |
+| `/api/v1/market/search`                        | `market/search/route.ts`            | GET                       |
+| `/api/v1/market/quote/[code]`                  | `market/quote/[code]/route.ts`      | GET                       |
 
 Each route:
+
 1. Authenticate via `authenticateApiRequest`
 2. Check scope (read vs write)
 3. Validate input with Zod
@@ -228,6 +250,7 @@ Each route:
 **File: `lib/export/csv-export.ts`**
 
 Export functions:
+
 - `exportTrades(portfolioId, dateRange)` — All transactions as CSV
 - `exportHoldings(portfolioId)` — Current positions with cost base and market value
 - `exportDividends(portfolioId, dateRange)` — Dividend/distribution records
@@ -244,6 +267,7 @@ Export UI: select format (CSV Trades / CSV Holdings / CSV Dividends / JSON Backu
 **File: `app/(dashboard)/page.tsx`**
 
 Main dashboard showing:
+
 - Total portfolio value (card)
 - Today's change (card, colour-coded)
 - Total gain/loss since inception (card)

@@ -17,6 +17,7 @@ Build the CSV import engine with custom field mapping, broker templates, validat
 ## Recommended Skills
 
 Invoke these skills for best-practice guidance during this phase:
+
 - **next-best-practices** — Server actions, route handlers, file upload patterns
 - **runtime-cache** — Caching price data (Vercel Runtime Cache API)
 - **prisma-client-api** — Batch inserts, upserts, transactions for import pipeline
@@ -30,6 +31,7 @@ Invoke these skills for best-practice guidance during this phase:
 **File: `lib/import/csv-parser.ts`**
 
 Create a CSV parsing utility using `papaparse`:
+
 - Accept a `File` or string content
 - Auto-detect delimiter (comma, semicolon, tab)
 - Return typed rows with headers
@@ -38,9 +40,10 @@ Create a CSV parsing utility using `papaparse`:
 **File: `lib/import/types.ts`**
 
 Define interfaces:
+
 ```typescript
 interface FieldMapping {
-  tradeDate: string | null;       // Column name mapped to trade date
+  tradeDate: string | null; // Column name mapped to trade date
   instrumentCode: string | null;
   quantity: string | null;
   price: string | null;
@@ -50,7 +53,7 @@ interface FieldMapping {
   currency?: string | null;
   exchangeRate?: string | null;
   comments?: string | null;
-  combinedCode?: string | null;   // "TLS.ASX" format
+  combinedCode?: string | null; // "TLS.ASX" format
   couponRate?: string | null;
   maturityDate?: string | null;
   faceValue?: string | null;
@@ -59,8 +62,8 @@ interface FieldMapping {
 
 interface ImportConfig {
   mapping: FieldMapping;
-  dateFormat: string;        // "dd/mm/yyyy" | "mm/dd/yyyy" | "yyyy-mm-dd" etc.
-  decimalSeparator: string;  // "." | ","
+  dateFormat: string; // "dd/mm/yyyy" | "mm/dd/yyyy" | "yyyy-mm-dd" etc.
+  decimalSeparator: string; // "." | ","
   transactionTypeMap?: Record<string, string>; // Map broker-specific types to ours
 }
 
@@ -84,7 +87,11 @@ interface ParsedTransaction {
 
 interface ImportResult {
   imported: ParsedTransaction[];
-  rejected: Array<{ row: number; data: Record<string, string>; errors: string[] }>;
+  rejected: Array<{
+    row: number;
+    data: Record<string, string>;
+    errors: string[];
+  }>;
   duplicates: Array<{ row: number; existingId: string }>;
 }
 ```
@@ -96,6 +103,7 @@ interface ImportResult {
 **File: `lib/import/mapper.ts`**
 
 Implement the mapping logic:
+
 - Take raw CSV rows + FieldMapping config
 - Parse dates according to configured format
 - Parse numbers handling decimal separators
@@ -104,6 +112,7 @@ Implement the mapping logic:
 - Return `ParsedTransaction[]` with validation errors per row
 
 **Validation rules:**
+
 - Trade date must be a valid date, not in the future
 - Quantity must be numeric and non-zero
 - Price must be numeric and >= 0
@@ -117,6 +126,7 @@ Implement the mapping logic:
 **File: `lib/import/dedup.ts`**
 
 Detect potential duplicate transactions:
+
 - Match on: instrumentCode + tradeDate + quantity + price + transactionType
 - Allow user to skip or force-import flagged duplicates
 - Return dedup matches with existing transaction IDs
@@ -132,19 +142,43 @@ Pre-built mapping configurations for Australian brokers:
 ```typescript
 export const brokerTemplates: Record<string, ImportConfig> = {
   commsec: {
-    mapping: { tradeDate: "Date", instrumentCode: "Code", quantity: "Quantity", price: "Price", transactionType: "Type", brokerage: "Brokerage", marketCode: null },
+    mapping: {
+      tradeDate: "Date",
+      instrumentCode: "Code",
+      quantity: "Quantity",
+      price: "Price",
+      transactionType: "Type",
+      brokerage: "Brokerage",
+      marketCode: null,
+    },
     dateFormat: "dd/mm/yyyy",
     decimalSeparator: ".",
-    transactionTypeMap: { "B": "BUY", "S": "SELL" },
+    transactionTypeMap: { B: "BUY", S: "SELL" },
   },
-  selfwealth: { /* ... */ },
-  stake: { /* ... */ },
-  cmc_markets: { /* ... */ },
-  cmc_invest: { /* ... */ },
-  bell_direct: { /* ... */ },
-  nabtrade: { /* ... */ },
-  fiig: { /* ... */ },
-  interactive_brokers: { /* ... */ },
+  selfwealth: {
+    /* ... */
+  },
+  stake: {
+    /* ... */
+  },
+  cmc_markets: {
+    /* ... */
+  },
+  cmc_invest: {
+    /* ... */
+  },
+  bell_direct: {
+    /* ... */
+  },
+  nabtrade: {
+    /* ... */
+  },
+  fiig: {
+    /* ... */
+  },
+  interactive_brokers: {
+    /* ... */
+  },
 };
 ```
 
@@ -177,6 +211,7 @@ Server action that orchestrates the full import:
 **File: `app/(dashboard)/portfolio/[id]/import/page.tsx`**
 
 Multi-step import wizard:
+
 1. **Upload** — File dropzone (react-dropzone), select import type (Individual trades / Opening balances)
 2. **Configure** — Select date format, decimal separator, optionally pick a broker template
 3. **Map** — Show column headers from CSV, let user map each to an InvestaLens field. Show preview of first 5 rows.
@@ -202,8 +237,16 @@ Define the provider interface:
 ```typescript
 interface MarketDataProvider {
   getQuote(code: string, market: string): Promise<Quote | null>;
-  getHistoricalPrices(code: string, market: string, from: Date, to: Date): Promise<PricePoint[]>;
-  searchInstruments(query: string, market?: string): Promise<InstrumentSearchResult[]>;
+  getHistoricalPrices(
+    code: string,
+    market: string,
+    from: Date,
+    to: Date
+  ): Promise<PricePoint[]>;
+  searchInstruments(
+    query: string,
+    market?: string
+  ): Promise<InstrumentSearchResult[]>;
 }
 
 interface Quote {
@@ -228,6 +271,7 @@ interface PricePoint {
 **File: `lib/providers/yahoo-finance.ts`**
 
 Implement Yahoo Finance provider:
+
 - Use Yahoo Finance API v8 endpoints (public, no key required)
 - `GET https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?interval=1d&range=...`
 - For ASX stocks, append `.AX` to the ticker (e.g. "CBA.AX")
@@ -237,6 +281,7 @@ Implement Yahoo Finance provider:
 **File: `lib/providers/instrument-search.ts`**
 
 Search endpoint:
+
 - `GET https://query2.finance.yahoo.com/v1/finance/search?q={query}`
 - Filter results by exchange if market specified
 - Return code, name, exchange, type
@@ -255,16 +300,16 @@ Search endpoint:
 **File: `app/api/cron/prices/route.ts`**
 
 Vercel cron endpoint (configured in vercel.json) to fetch daily prices for all active instruments:
+
 - Run at market close (6 PM AEST for ASX)
 - Only fetch instruments with active holdings
 - Rate limit to avoid Yahoo Finance blocks
 
 Add to `vercel.json`:
+
 ```json
 {
-  "crons": [
-    { "path": "/api/cron/prices", "schedule": "0 8 * * 1-5" }
-  ]
+  "crons": [{ "path": "/api/cron/prices", "schedule": "0 8 * * 1-5" }]
 }
 ```
 
@@ -275,6 +320,7 @@ Add to `vercel.json`:
 **File: `components/forms/instrument-search.tsx`**
 
 Autocomplete search component:
+
 - Debounced input (300ms)
 - Shows dropdown with matching instruments (code, name, exchange)
 - On select, passes instrument data to parent

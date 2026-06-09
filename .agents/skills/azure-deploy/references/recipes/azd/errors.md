@@ -4,22 +4,22 @@
 
 These errors occur **during** `azd up` execution:
 
-| Error | Cause | Resolution |
-|-------|-------|------------|
-| `unknown flag: --location` | `azd up` doesn't accept `--location` | Use `azd env set AZURE_LOCATION <region>` before `azd up` |
-| Provision failed | Bicep template errors | Check detailed error in output |
-| Deploy failed | Build or Docker errors | Check build logs |
-| Package failed | Missing Dockerfile or deps | Verify Dockerfile exists and dependencies |
-| Quota exceeded | Subscription limits | Request increase or change region |
+| Error                                                                                                   | Cause                                                                                                               | Resolution                                                                                                                                                                                                                     |
+| ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `unknown flag: --location`                                                                              | `azd up` doesn't accept `--location`                                                                                | Use `azd env set AZURE_LOCATION <region>` before `azd up`                                                                                                                                                                      |
+| Provision failed                                                                                        | Bicep template errors                                                                                               | Check detailed error in output                                                                                                                                                                                                 |
+| Deploy failed                                                                                           | Build or Docker errors                                                                                              | Check build logs                                                                                                                                                                                                               |
+| Package failed                                                                                          | Missing Dockerfile or deps                                                                                          | Verify Dockerfile exists and dependencies                                                                                                                                                                                      |
+| Quota exceeded                                                                                          | Subscription limits                                                                                                 | Request increase or change region                                                                                                                                                                                              |
 | `PrincipalId '...' has type 'ServicePrincipal', which is different from specified PrincipalType 'User'` | Base template RBAC assigns roles with `principalType: 'User'` but deploying identity is a service principal (CI/CD) | Set `allowUserIdentityPrincipal: false` in the `storageEndpointConfig` variable in `infra/main.bicep`. Do NOT try clearing `AZURE_PRINCIPAL_ID` — azd repopulates it. See [Principal Type Mismatch](#principal-type-mismatch). |
-| `ImagePullBackOff` or `azd up` hangs during provision for Container Apps | Container App references an image that doesn't exist in ACR yet | See [Container Apps Bootstrap Problem](#container-apps-bootstrap-problem) |
-| `unauthorized: authentication required` on `docker push` to ACR | ACR auth token expired or scoped incorrectly | See [ACR Authentication Failures](#acr-authentication-failures) |
-| `could not determine container registry endpoint` | Missing `AZURE_CONTAINER_REGISTRY_ENDPOINT` | See [Missing Container Registry Variables](#missing-container-registry-variables) |
-| `map has no entry for key "AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID"` | Missing managed identity env vars | See [Missing Container Registry Variables](#missing-container-registry-variables) |
-| `map has no entry for key "MANAGED_IDENTITY_CLIENT_ID"` | Missing managed identity client ID | See [Missing Container Registry Variables](#missing-container-registry-variables) |
-| `Operation expired` / revision creation timeout (900s) | RBAC propagation delay — Container App's managed identity doesn't have `AcrPull` on ACR yet | See [Container App Revision Timeout](#container-app-revision-timeout) |
-| `found '2' resources tagged with 'azd-service-name: <name>'` | Previous deployment left duplicate-tagged resources in same RG | **Preferred**: Create fresh env with `azd env new <new-name> --no-prompt`, set subscription/location, redeploy. **Alternative**: Delete conflicting resources (requires `ask_user`). |
-| Literal `{{ .Env.* }}` in Terraform errors | azd does not interpolate template variables in `.tfvars.json` | See [Unresolved Terraform Template Variables](#unresolved-terraform-template-variables) |
+| `ImagePullBackOff` or `azd up` hangs during provision for Container Apps                                | Container App references an image that doesn't exist in ACR yet                                                     | See [Container Apps Bootstrap Problem](#container-apps-bootstrap-problem)                                                                                                                                                      |
+| `unauthorized: authentication required` on `docker push` to ACR                                         | ACR auth token expired or scoped incorrectly                                                                        | See [ACR Authentication Failures](#acr-authentication-failures)                                                                                                                                                                |
+| `could not determine container registry endpoint`                                                       | Missing `AZURE_CONTAINER_REGISTRY_ENDPOINT`                                                                         | See [Missing Container Registry Variables](#missing-container-registry-variables)                                                                                                                                              |
+| `map has no entry for key "AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID"`                               | Missing managed identity env vars                                                                                   | See [Missing Container Registry Variables](#missing-container-registry-variables)                                                                                                                                              |
+| `map has no entry for key "MANAGED_IDENTITY_CLIENT_ID"`                                                 | Missing managed identity client ID                                                                                  | See [Missing Container Registry Variables](#missing-container-registry-variables)                                                                                                                                              |
+| `Operation expired` / revision creation timeout (900s)                                                  | RBAC propagation delay — Container App's managed identity doesn't have `AcrPull` on ACR yet                         | See [Container App Revision Timeout](#container-app-revision-timeout)                                                                                                                                                          |
+| `found '2' resources tagged with 'azd-service-name: <name>'`                                            | Previous deployment left duplicate-tagged resources in same RG                                                      | **Preferred**: Create fresh env with `azd env new <new-name> --no-prompt`, set subscription/location, redeploy. **Alternative**: Delete conflicting resources (requires `ask_user`).                                           |
+| Literal `{{ .Env.* }}` in Terraform errors                                                              | azd does not interpolate template variables in `.tfvars.json`                                                       | See [Unresolved Terraform Template Variables](#unresolved-terraform-template-variables)                                                                                                                                        |
 
 > ℹ️ **Pre-flight validation**: Run `azure-validate` before deployment to catch configuration errors early. See [Pre-Deploy Checklist](../../pre-deploy-checklist.md).
 
@@ -28,6 +28,7 @@ These errors occur **during** `azd up` execution:
 **Symptom:** `azd up` provisions infrastructure successfully but the Container App revision creation times out after ~900 seconds. The Container App enters a `Failed` provisioning state with no active revision. The `azd` output shows `Operation expired` or `The operation did not complete within the permitted time`.
 
 **Cause:** Azure RBAC propagation delay. When `azd up` runs both `azd provision` and `azd deploy` in a single step:
+
 1. Bicep creates the Container App with a system-assigned managed identity and a public placeholder image
 2. Bicep creates an `AcrPull` role assignment for that identity on ACR in a separate module using the two-phase deployment pattern
 3. `azd deploy` immediately pushes the real image and creates a new Container App revision
@@ -37,12 +38,14 @@ These errors occur **during** `azd up` execution:
 **Solution:**
 
 1. **Verify the Container App state:**
+
 ```bash
 az containerapp show --name <app-name> --resource-group <resource-group> \
   --query "{provisioningState:properties.provisioningState, latestRevision:properties.latestRevisionName}" -o json
 ```
 
 2. **Confirm the AcrPull role exists (it may have propagated by now):**
+
 ```bash
 PRINCIPAL_ID=$(az containerapp identity show --name <app-name> --resource-group <resource-group> --query principalId -o tsv)
 az role assignment list --scope $(az acr show --name <acr-name> --resource-group <resource-group> --query id -o tsv) \
@@ -50,6 +53,7 @@ az role assignment list --scope $(az acr show --name <acr-name> --resource-group
 ```
 
 **PowerShell:**
+
 ```powershell
 $PrincipalId = az containerapp identity show --name <app-name> --resource-group <resource-group> --query principalId -o tsv
 $AcrScope = az acr show --name <acr-name> --resource-group <resource-group> --query id -o tsv
@@ -57,6 +61,7 @@ az role assignment list --scope $AcrScope --assignee-object-id $PrincipalId --qu
 ```
 
 3. **If AcrPull is missing, assign it:**
+
 ```bash
 az role assignment create \
   --assignee-object-id "$PRINCIPAL_ID" \
@@ -66,6 +71,7 @@ az role assignment create \
 ```
 
 **PowerShell:**
+
 ```powershell
 $AcrScope = az acr show --name <acr-name> --resource-group <resource-group> --query id -o tsv
 az role assignment create `
@@ -76,6 +82,7 @@ az role assignment create `
 ```
 
 4. **Wait for propagation, then redeploy:**
+
 ```bash
 azd env set AZURE_CONTAINER_REGISTRY_ENDPOINT $(az acr show --name <acr-name> --resource-group <resource-group> --query loginServer -o tsv)
 
@@ -96,6 +103,7 @@ done
 ```
 
 **PowerShell:**
+
 ```powershell
 azd env set AZURE_CONTAINER_REGISTRY_ENDPOINT (az acr show --name <acr-name> --resource-group <resource-group> --query loginServer -o tsv)
 
@@ -157,6 +165,7 @@ docker push <acr-name>.azurecr.io/<image>:<tag>
 ```
 
 **PowerShell (Method 2):**
+
 ```powershell
 $AcrUser = az acr credential show --name <acr-name> --query username -o tsv
 $AcrPass = az acr credential show --name <acr-name> --query "passwords[0].value" -o tsv
@@ -209,6 +218,7 @@ azd env set MANAGED_IDENTITY_CLIENT_ID $(az identity list --resource-group <reso
 ```
 
 **PowerShell:**
+
 ```powershell
 # Set container registry endpoint
 azd env set AZURE_CONTAINER_REGISTRY_ENDPOINT (az acr list --resource-group <resource-group-name> --query "[0].loginServer" -o tsv)
@@ -221,6 +231,7 @@ azd env set MANAGED_IDENTITY_CLIENT_ID (az identity list --resource-group <resou
 ```
 
 After setting these variables, retry the deployment:
+
 ```bash
 azd deploy --no-prompt
 ```
@@ -243,15 +254,17 @@ Or Terraform silently uses the literal string, causing resource naming failures,
 **Solution:**
 
 1. **Fix the syntax** in `infra/main.tfvars.json` — replace Go-style `{{ .Env.* }}` with `${VAR}`:
+
    ```json
    {
-       "environment_name": "${AZURE_ENV_NAME}",
-       "location": "${AZURE_LOCATION}",
-       "subscription_id": "${AZURE_SUBSCRIPTION_ID}"
+     "environment_name": "${AZURE_ENV_NAME}",
+     "location": "${AZURE_LOCATION}",
+     "subscription_id": "${AZURE_SUBSCRIPTION_ID}"
    }
    ```
 
 2. **Or use `TF_VAR_*` environment variables** if you don't have `main.tfvars.json`:
+
    ```bash
    azd env set TF_VAR_environment_name "$(azd env get-value AZURE_ENV_NAME)"
    azd env set TF_VAR_location "$(azd env get-value AZURE_LOCATION)"
@@ -259,6 +272,7 @@ Or Terraform silently uses the literal string, causing resource naming failures,
    ```
 
 3. **Ensure `variables.tf`** declares all required variables:
+
    ```hcl
    variable "environment_name" { type = string }
    variable "location" { type = string }
@@ -274,6 +288,7 @@ Or Terraform silently uses the literal string, causing resource naming failures,
 ## Retry
 
 After fixing the issue:
+
 ```bash
 azd up --no-prompt
 ```

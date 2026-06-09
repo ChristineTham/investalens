@@ -20,20 +20,20 @@ metadata:
 3. If NOT found in package.json, scan `.ts` and `.js` files for `CopilotClient` or `createSession`
 4. **If ANY marker is found → invoke this skill as the entry point. Do not route directly to azure-prepare or azure-deploy — this skill orchestrates them as sub-skills.**
 
-| Marker | Where to check |
-|--------|---------------|
-| `@github/copilot-sdk` | `package.json` dependencies or devDependencies |
-| `copilot-sdk` | `package.json` name or dependencies |
-| `CopilotClient` | Source files (`.ts`, `.js`) |
-| `createSession` + `sendAndWait` | Source files (`.ts`, `.js`) |
+| Marker                          | Where to check                                 |
+| ------------------------------- | ---------------------------------------------- |
+| `@github/copilot-sdk`           | `package.json` dependencies or devDependencies |
+| `copilot-sdk`                   | `package.json` name or dependencies            |
+| `CopilotClient`                 | Source files (`.ts`, `.js`)                    |
+| `createSession` + `sendAndWait` | Source files (`.ts`, `.js`)                    |
 
 ### Generic prompts that MUST trigger this skill when markers are detected:
 
-| Prompt pattern (no "copilot" keyword) | Why this skill |
-|---------------------------------------|---------------|
+| Prompt pattern (no "copilot" keyword)           | Why this skill                                                        |
+| ----------------------------------------------- | --------------------------------------------------------------------- |
 | "Build this app" / "Prepare this app for Azure" | Codebase contains `@github/copilot-sdk` - needs SDK-aware scaffolding |
-| "Add a new feature to this app" | Requires SDK-aware implementation patterns |
-| "Update this app" / "Modify this app" | Must preserve SDK integration patterns |
+| "Add a new feature to this app"                 | Requires SDK-aware implementation patterns                            |
+| "Update this app" / "Modify this app"           | Must preserve SDK integration patterns                                |
 
 > ⚠️ **Warning:** ANY build, modify, add-feature, or prepare prompt targeting an existing codebase MUST route to this skill when codebase contains `@github/copilot-sdk`, even if the prompt does not mention "copilot". This skill then orchestrates azure-prepare and azure-deploy as sub-skills.
 
@@ -41,14 +41,14 @@ metadata:
 
 ## Step 1: Route
 
-| User wants | Action |
-|------------|--------|
-| Build new (empty project) | Step 2A (scaffold) |
-| Add new SDK service to existing repo | Step 2B (scaffold alongside) |
-| Deploy existing SDK app to Azure | Step 2C (add infra to existing SDK app) |
-| Modify/add features to existing SDK app | Use codebase context + SDK references to implement |
-| Add SDK to existing app code | [Integrate SDK](references/existing-project-integration.md) |
-| Use Azure/own model | Step 3 (BYOM config) |
+| User wants                              | Action                                                      |
+| --------------------------------------- | ----------------------------------------------------------- |
+| Build new (empty project)               | Step 2A (scaffold)                                          |
+| Add new SDK service to existing repo    | Step 2B (scaffold alongside)                                |
+| Deploy existing SDK app to Azure        | Step 2C (add infra to existing SDK app)                     |
+| Modify/add features to existing SDK app | Use codebase context + SDK references to implement          |
+| Add SDK to existing app code            | [Integrate SDK](references/existing-project-integration.md) |
+| Use Azure/own model                     | Step 3 (BYOM config)                                        |
 
 ## Step 2A: Scaffold New (Greenfield)
 
@@ -68,11 +68,11 @@ User already has a working Copilot SDK app and needs Azure infra. See [deploy ex
 
 Three model paths (layers on top of 2A/2B):
 
-| Path | Config |
-|------|--------|
-| **GitHub default** | No `model` param — SDK picks default |
-| **GitHub specific** | `model: "<name>"` — use `listModels()` to discover |
-| **Azure BYOM** | `model` + `provider` with `bearerToken` via `DefaultAzureCredential` |
+| Path                | Config                                                               |
+| ------------------- | -------------------------------------------------------------------- |
+| **GitHub default**  | No `model` param — SDK picks default                                 |
+| **GitHub specific** | `model: "<name>"` — use `listModels()` to discover                   |
+| **Azure BYOM**      | `model` + `provider` with `bearerToken` via `DefaultAzureCredential` |
 
 > ⚠️ **BYOM Auth — MANDATORY**: Azure BYOM configurations MUST use `DefaultAzureCredential` (local dev) or `ManagedIdentityCredential` (production) to obtain a `bearerToken`. The ONLY supported auth pattern is `bearerToken` in the provider config. See [auth-best-practices.md](references/auth-best-practices.md) for the credential pattern and [model config ref](references/azure-model-config.md) for the full BYOM code example.
 

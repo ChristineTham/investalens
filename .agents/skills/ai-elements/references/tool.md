@@ -71,8 +71,8 @@ const Example = () => {
   ) as WeatherToolUIPart | undefined;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 relative size-full rounded-lg border h-[600px]">
-      <div className="flex flex-col h-full">
+    <div className="relative mx-auto size-full h-[600px] max-w-4xl rounded-lg border p-6">
+      <div className="flex h-full flex-col">
         <div className="space-y-4">
           <Button onClick={handleWeatherClick} disabled={status !== "ready"}>
             Get Weather for San Francisco
@@ -215,41 +215,41 @@ See `scripts/tool-output-error.tsx` for this example.
 
 ### `<Tool />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `...props` | `React.ComponentProps<typeof Collapsible>` | - | Any other props are spread to the root Collapsible component. |
+| Prop       | Type                                       | Default | Description                                                   |
+| ---------- | ------------------------------------------ | ------- | ------------------------------------------------------------- |
+| `...props` | `React.ComponentProps<typeof Collapsible>` | -       | Any other props are spread to the root Collapsible component. |
 
 ### `<ToolHeader />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `title` | `string` | - | Custom title to display instead of the derived tool name. |
-| `type` | `ToolUIPart[` | Required | The type/name of the tool. |
-| `state` | `ToolUIPart[` | Required | The current state of the tool (input-streaming, input-available, output-available, or output-error). |
-| `toolName` | `string` | - | Required when type is  |
-| `className` | `string` | - | Additional CSS classes to apply to the header. |
-| `...props` | `React.ComponentProps<typeof CollapsibleTrigger>` | - | Any other props are spread to the CollapsibleTrigger. |
+| Prop        | Type                                              | Default  | Description                                                                                          |
+| ----------- | ------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------- |
+| `title`     | `string`                                          | -        | Custom title to display instead of the derived tool name.                                            |
+| `type`      | `ToolUIPart[`                                     | Required | The type/name of the tool.                                                                           |
+| `state`     | `ToolUIPart[`                                     | Required | The current state of the tool (input-streaming, input-available, output-available, or output-error). |
+| `toolName`  | `string`                                          | -        | Required when type is                                                                                |
+| `className` | `string`                                          | -        | Additional CSS classes to apply to the header.                                                       |
+| `...props`  | `React.ComponentProps<typeof CollapsibleTrigger>` | -        | Any other props are spread to the CollapsibleTrigger.                                                |
 
 ### `<ToolContent />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `...props` | `React.ComponentProps<typeof CollapsibleContent>` | - | Any other props are spread to the CollapsibleContent. |
+| Prop       | Type                                              | Default | Description                                           |
+| ---------- | ------------------------------------------------- | ------- | ----------------------------------------------------- |
+| `...props` | `React.ComponentProps<typeof CollapsibleContent>` | -       | Any other props are spread to the CollapsibleContent. |
 
 ### `<ToolInput />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `input` | `ToolUIPart[` | - | The input parameters passed to the tool, displayed as formatted JSON. |
-| `...props` | `React.ComponentProps<` | - | Any other props are spread to the underlying div. |
+| Prop       | Type                    | Default | Description                                                           |
+| ---------- | ----------------------- | ------- | --------------------------------------------------------------------- |
+| `input`    | `ToolUIPart[`           | -       | The input parameters passed to the tool, displayed as formatted JSON. |
+| `...props` | `React.ComponentProps<` | -       | Any other props are spread to the underlying div.                     |
 
 ### `<ToolOutput />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `output` | `React.ReactNode` | - | The output/result of the tool execution. |
-| `errorText` | `ToolUIPart[` | - | An error message if the tool execution failed. |
-| `...props` | `React.ComponentProps<` | - | Any other props are spread to the underlying div. |
+| Prop        | Type                    | Default | Description                                       |
+| ----------- | ----------------------- | ------- | ------------------------------------------------- |
+| `output`    | `React.ReactNode`       | -       | The output/result of the tool execution.          |
+| `errorText` | `ToolUIPart[`           | -       | An error message if the tool execution failed.    |
+| `...props`  | `React.ComponentProps<` | -       | Any other props are spread to the underlying div. |
 
 ## Type Exports
 

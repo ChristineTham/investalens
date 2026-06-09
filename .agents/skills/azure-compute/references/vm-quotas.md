@@ -8,10 +8,10 @@ Check Azure VM/VMSS quota availability before recommending or deploying. Ensures
 
 VM quotas are tracked at **two levels** under `Microsoft.Compute`:
 
-| Quota Level | Resource Name | What It Limits |
-|---|---|---|
-| **Total Regional** | `cores` | All vCPUs across all families in a region |
-| **Per-Family** | e.g., `standardDSv3Family` | vCPUs for a specific VM family |
+| Quota Level        | Resource Name              | What It Limits                            |
+| ------------------ | -------------------------- | ----------------------------------------- |
+| **Total Regional** | `cores`                    | All vCPUs across all families in a region |
+| **Per-Family**     | e.g., `standardDSv3Family` | vCPUs for a specific VM family            |
 
 > ⚠️ **Both levels must have capacity.** A deployment fails if either is exceeded.
 
@@ -41,12 +41,12 @@ az vm list-usage --location <region> --query "[?contains(name.value,'<quotaName>
 
 Prerequisite: `az extension add --name quota`
 
-| Step | Command | Purpose |
-|---|---|---|
+| Step              | Command                                                                                                 | Purpose                                    |
+| ----------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
 | 1. Discover names | `az quota list --scope /subscriptions/<sub-id>/providers/Microsoft.Compute/locations/<region> -o table` | Find quota resource name for the VM family |
-| 2. Check usage | `az quota usage show --resource-name <name> --scope ...` | Current vCPU consumption |
-| 3. Check limit | `az quota show --resource-name <name> --scope ...` | Maximum allowed vCPUs |
-| 4. Check regional | Repeat steps 2–3 with `--resource-name cores` | Total regional vCPU cap |
+| 2. Check usage    | `az quota usage show --resource-name <name> --scope ...`                                                | Current vCPU consumption                   |
+| 3. Check limit    | `az quota show --resource-name <name> --scope ...`                                                      | Maximum allowed vCPUs                      |
+| 4. Check regional | Repeat steps 2–3 with `--resource-name cores`                                                           | Total regional vCPU cap                    |
 
 ### Calculate Capacity
 
@@ -62,29 +62,29 @@ vCPUs Needed = vCPUs per VM × Instance Count
 
 ## Handling Insufficient Quota
 
-| Option | Action |
-|---|---|
-| **Request increase** | `az quota update --resource-name <name> --scope ... --limit-object value=<new-limit> --resource-type dedicated`. Most increases auto-approve within minutes. |
-| **Try different region** | Run the quota check workflow against alternative regions to find available capacity |
-| **Switch VM family** | Recommend an alternative family with quota (e.g., D-series full → Dads v5 AMD variant) |
+| Option                   | Action                                                                                                                                                       |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Request increase**     | `az quota update --resource-name <name> --scope ... --limit-object value=<new-limit> --resource-type dedicated`. Most increases auto-approve within minutes. |
+| **Try different region** | Run the quota check workflow against alternative regions to find available capacity                                                                          |
+| **Switch VM family**     | Recommend an alternative family with quota (e.g., D-series full → Dads v5 AMD variant)                                                                       |
 
 ## VMSS Considerations
 
 For scale sets, validate against **autoscale maximum**: `vCPUs per VM × Max Instance Count`.
 
-| Autoscale Setting | vCPUs to Validate |
-|---|---|
-| Fixed count (5 instances) | vCPUs × 5 |
-| Autoscale min=2, max=10 | vCPUs × 10 |
+| Autoscale Setting         | vCPUs to Validate |
+| ------------------------- | ----------------- |
+| Fixed count (5 instances) | vCPUs × 5         |
+| Autoscale min=2, max=10   | vCPUs × 10        |
 
 ## Error Reference
 
-| Error | Cause | Action |
-|---|---|---|
-| `QuotaExceeded` | Family vCPU limit reached | Request increase or change family/region |
-| `OperationNotAllowed` | Subscription lacks capacity | Request quota increase |
-| `cores` limit hit | Regional vCPUs exhausted | Request regional increase |
-| CLI commands fail entirely | Auth/extension issue | Use MCP fallback (see below) |
+| Error                      | Cause                       | Action                                   |
+| -------------------------- | --------------------------- | ---------------------------------------- |
+| `QuotaExceeded`            | Family vCPU limit reached   | Request increase or change family/region |
+| `OperationNotAllowed`      | Subscription lacks capacity | Request quota increase                   |
+| `cores` limit hit          | Regional vCPUs exhausted    | Request regional increase                |
+| CLI commands fail entirely | Auth/extension issue        | Use MCP fallback (see below)             |
 
 ## Related Resources
 

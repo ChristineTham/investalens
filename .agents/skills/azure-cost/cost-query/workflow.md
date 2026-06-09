@@ -8,17 +8,18 @@ Identify the Azure scope for the cost query from the Scope Reference table in th
 
 ## Step 2: Choose Report Type
 
-| Type | Description |
-|------|-------------|
-| `ActualCost` | Actual billed costs including purchases |
+| Type            | Description                                               |
+| --------------- | --------------------------------------------------------- |
+| `ActualCost`    | Actual billed costs including purchases                   |
 | `AmortizedCost` | Reservation/savings plan costs spread across usage period |
-| `Usage` | Usage-based cost data |
+| `Usage`         | Usage-based cost data                                     |
 
 ## Step 3: Set Timeframe
 
 Use a preset timeframe (e.g., `MonthToDate`, `TheLastMonth`, `TheLastYear`) or `Custom` with a `timePeriod` object.
 
 > ⚠️ **Warning:** Key time period guardrails:
+>
 > - **Daily granularity**: max **31 days**
 > - **Monthly/None granularity**: max **12 months**
 > - `Custom` timeframe **requires** a `timePeriod` object with `from` and `to` dates
@@ -47,6 +48,7 @@ Use `az rest` to call the Cost Management Query API.
 **Create cost query file:**
 
 Create `temp/cost-query.json` with:
+
 ```json
 {
   "type": "ActualCost",
@@ -70,6 +72,7 @@ Create `temp/cost-query.json` with:
 ```
 
 **Execute cost query:**
+
 ```powershell
 # Create temp folder
 New-Item -ItemType Directory -Path "temp" -Force
@@ -91,16 +94,16 @@ See [error-handling.md](./error-handling.md) for the full error reference.
 
 ## Key Guardrails
 
-| Rule | Constraint |
-|------|-----------|
-| Daily granularity max range | 31 days |
-| Monthly/None granularity max range | 12 months |
-| Absolute API max range | 37 months |
-| Max GroupBy dimensions | 2 |
-| ResourceId grouping scope | Subscription and resource group only — not supported at billing account, management group, or higher scopes |
-| Max rows per page | 5,000 |
-| Custom timeframe | Requires `timePeriod` with `from`/`to` |
-| Filter and/or | Must have at least 2 expressions |
+| Rule                               | Constraint                                                                                                  |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Daily granularity max range        | 31 days                                                                                                     |
+| Monthly/None granularity max range | 12 months                                                                                                   |
+| Absolute API max range             | 37 months                                                                                                   |
+| Max GroupBy dimensions             | 2                                                                                                           |
+| ResourceId grouping scope          | Subscription and resource group only — not supported at billing account, management group, or higher scopes |
+| Max rows per page                  | 5,000                                                                                                       |
+| Custom timeframe                   | Requires `timePeriod` with `from`/`to`                                                                      |
+| Filter and/or                      | Must have at least 2 expressions                                                                            |
 
 ## Examples
 
@@ -129,13 +132,13 @@ For more examples including daily trends, tag-based filtering, and multi-dimensi
 
 ## Error Handling
 
-| HTTP Status | Error | Remediation |
-|-------------|-------|-------------|
-| 400 | Invalid request body | Check schema, date ranges, and dimension compatibility. |
-| 401 | Unauthorized | Verify authentication (`az login`). |
-| 403 | Forbidden | Ensure Cost Management Reader role on scope. |
-| 404 | Scope not found | Verify scope URL and resource IDs. |
-| 429 | Too many requests | Check all `x-ms-ratelimit-microsoft.costmanagement-*-retry-after` headers (`qpu`, `entity`, `tenant`). Wait for the **longest** value. **Max 3 retries.** |
-| 503 | Service unavailable | Check [Azure Status](https://status.azure.com). |
+| HTTP Status | Error                | Remediation                                                                                                                                               |
+| ----------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 400         | Invalid request body | Check schema, date ranges, and dimension compatibility.                                                                                                   |
+| 401         | Unauthorized         | Verify authentication (`az login`).                                                                                                                       |
+| 403         | Forbidden            | Ensure Cost Management Reader role on scope.                                                                                                              |
+| 404         | Scope not found      | Verify scope URL and resource IDs.                                                                                                                        |
+| 429         | Too many requests    | Check all `x-ms-ratelimit-microsoft.costmanagement-*-retry-after` headers (`qpu`, `entity`, `tenant`). Wait for the **longest** value. **Max 3 retries.** |
+| 503         | Service unavailable  | Check [Azure Status](https://status.azure.com).                                                                                                           |
 
 See [error-handling.md](./error-handling.md) for detailed error handling including rate limit headers and retry strategies.

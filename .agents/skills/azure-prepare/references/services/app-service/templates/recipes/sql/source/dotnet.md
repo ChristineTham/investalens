@@ -103,11 +103,11 @@ dotnet ef database update --project src/api
 
 ## Files to Add
 
-| File | Action |
-|------|--------|
-| `Data/AppDbContext.cs` | Create — DbContext + entity models |
-| `Program.cs` | Modify — add DbContext registration + endpoints |
-| `appsettings.json` | Modify — add ConnectionStrings section |
+| File                   | Action                                          |
+| ---------------------- | ----------------------------------------------- |
+| `Data/AppDbContext.cs` | Create — DbContext + entity models              |
+| `Program.cs`           | Modify — add DbContext registration + endpoints |
+| `appsettings.json`     | Modify — add ConnectionStrings section          |
 
 ## Common Patterns
 

@@ -22,12 +22,12 @@ az graph query -q "<KQL>" --query "data[].{name:name, type:type}" -o table
 
 ## Key Tables
 
-| Table | Contains |
-|-------|----------|
-| `Resources` | All ARM resources (name, type, location, properties, tags) |
-| `HealthResources` | Resource health availability status |
-| `ServiceHealthResources` | Azure service health events and incidents |
-| `ResourceContainers` | Subscriptions, resource groups, management groups |
+| Table                    | Contains                                                   |
+| ------------------------ | ---------------------------------------------------------- |
+| `Resources`              | All ARM resources (name, type, location, properties, tags) |
+| `HealthResources`        | Resource health availability status                        |
+| `ServiceHealthResources` | Azure service health events and incidents                  |
+| `ResourceContainers`     | Subscriptions, resource groups, management groups          |
 
 ## Diagnostics Query Patterns
 

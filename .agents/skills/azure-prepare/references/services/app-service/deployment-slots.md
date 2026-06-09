@@ -17,26 +17,27 @@ resource stagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = {
 
 ## Slot Requirements — App Service
 
-| SKU Tier | Slots Supported |
-|----------|-----------------|
-| Free/Shared | 0 |
-| Basic | 0 |
-| Standard | 5 |
-| Premium | 20 |
+| SKU Tier    | Slots Supported |
+| ----------- | --------------- |
+| Free/Shared | 0               |
+| Basic       | 0               |
+| Standard    | 5               |
+| Premium     | 20              |
 
 ## Slot Requirements — Azure Functions
 
 > ⚠️ Slot support for Azure Functions varies by OS and hosting plan.
 
-| Hosting Plan | OS | Slots Supported |
-|---|---|---|
-| Flex Consumption (FC1) | Linux | ❌ 0 |
-| Consumption (Y1) | **Windows** | ✅ 1 staging slot |
-| Consumption (Y1) | Linux | ❌ 0 |
-| Elastic Premium (EP1-EP3) | Windows or Linux | ✅ 20 slots |
-| Dedicated (Standard+) | Windows or Linux | ✅ 5–20 slots |
+| Hosting Plan              | OS               | Slots Supported   |
+| ------------------------- | ---------------- | ----------------- |
+| Flex Consumption (FC1)    | Linux            | ❌ 0              |
+| Consumption (Y1)          | **Windows**      | ✅ 1 staging slot |
+| Consumption (Y1)          | Linux            | ❌ 0              |
+| Elastic Premium (EP1-EP3) | Windows or Linux | ✅ 20 slots       |
+| Dedicated (Standard+)     | Windows or Linux | ✅ 5–20 slots     |
 
 > 💡 **For Azure Functions requiring deployment slots:**
+>
 > - **Windows Consumption (Y1) supports 1 staging slot** — this is a supported platform capability.
 >   If you need it, use it. See the Bicep example below.
 > - Recommendation for new projects: prefer **Elastic Premium (EP1+)** (no cold starts, VNet integration)

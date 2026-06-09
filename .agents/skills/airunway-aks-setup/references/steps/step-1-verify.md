@@ -44,10 +44,12 @@ kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.a
 > If neither approach shows GPUs but you know the nodes have GPU hardware, the NVIDIA device plugin may not be installed yet. Guide the user to install it before proceeding.
 
 **Report to user:**
+
 - Cluster context name
 - Total node count and GPU node count
 - Per GPU type: model, count, VRAM per card, total cluster VRAM
 
 **Decision logic:**
+
 - No kubeconfig context → **STOP**. Tell user to configure `kubeconfig` (e.g., `az aks get-credentials`) and retry.
 - No GPU nodes detected → Note "CPU-only cluster" and proceed; CPU-only inference is available via KAITO + llama.cpp.

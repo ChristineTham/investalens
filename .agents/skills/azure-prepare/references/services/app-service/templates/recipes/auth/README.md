@@ -8,11 +8,11 @@ This recipe configures authentication for App Service apps using either Easy Aut
 
 ## Integration Type
 
-| Aspect | Value |
-|--------|-------|
-| **Provider** | Microsoft Entra ID (Azure AD) |
-| **Method** | Easy Auth (built-in) or MSAL SDK |
-| **Protocols** | OpenID Connect, OAuth 2.0 |
+| Aspect               | Value                                      |
+| -------------------- | ------------------------------------------ |
+| **Provider**         | Microsoft Entra ID (Azure AD)              |
+| **Method**           | Easy Auth (built-in) or MSAL SDK           |
+| **Protocols**        | OpenID Connect, OAuth 2.0                  |
 | **Token validation** | Automatic (Easy Auth) or middleware (MSAL) |
 
 ## Option A: Easy Auth (Recommended for most apps)
@@ -76,17 +76,17 @@ resource appRegistration 'Microsoft.Graph/applications@v1.0' = {
 
 Use when you need custom token validation, API-only auth, or multi-tenant support.
 
-| Language | Source File |
-|----------|-------------|
+| Language          | Source File                          |
+| ----------------- | ------------------------------------ |
 | C# (ASP.NET Core) | [source/dotnet.md](source/dotnet.md) |
-| Python (FastAPI) | [source/python.md](source/python.md) |
+| Python (FastAPI)  | [source/python.md](source/python.md) |
 | Node.js (Express) | [source/nodejs.md](source/nodejs.md) |
 
 ## App Settings
 
-| Setting | Value | Purpose |
-|---------|-------|---------|
-| `AZURE_TENANT_ID` | Entra tenant ID | Identity provider |
+| Setting           | Value                      | Purpose              |
+| ----------------- | -------------------------- | -------------------- |
+| `AZURE_TENANT_ID` | Entra tenant ID            | Identity provider    |
 | `AZURE_CLIENT_ID` | App registration client ID | Application identity |
 
 ## References

@@ -183,7 +183,6 @@ const Example = () => {
 
     setStatus("submitted");
 
-     
     console.log("Submitting message:", message);
 
     setTimeout(() => {

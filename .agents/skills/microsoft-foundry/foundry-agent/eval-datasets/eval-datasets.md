@@ -12,30 +12,30 @@ USE FOR: create dataset from traces, harvest traces into dataset, build test dat
 
 ## Quick Reference
 
-| Property | Value |
-|----------|-------|
-| MCP server | `azure` |
+| Property              | Value                                                                                                                                                                                                                                                                               |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| MCP server            | `azure`                                                                                                                                                                                                                                                                             |
 | Key Foundry MCP tools | `data_generation_job_create`, `data_generation_job_get`, `evaluation_dataset_create`, `evaluation_dataset_get`, `evaluation_dataset_versions_get`, `evaluation_suite_create`, `evaluation_suite_get`, `evaluation_get`, `evaluation_comparison_create`, `evaluation_comparison_get` |
-| Storage tools | `project_connection_list` (discover `AzureStorageAccount` connection), `project_connection_create` (add storage connection) |
-| Azure services | Application Insights (via `monitor_resource_log_query`), Azure Blob Storage (dataset sync) |
-| Prerequisites | Agent deployed, effective context resolved from azd or metadata overlay, App Insights connected |
-| Local cache | `.foundry/datasets/`, `.foundry/results/`, `.foundry/evaluators/` |
+| Storage tools         | `project_connection_list` (discover `AzureStorageAccount` connection), `project_connection_create` (add storage connection)                                                                                                                                                         |
+| Azure services        | Application Insights (via `monitor_resource_log_query`), Azure Blob Storage (dataset sync)                                                                                                                                                                                          |
+| Prerequisites         | Agent deployed, effective context resolved from azd or metadata overlay, App Insights connected                                                                                                                                                                                     |
+| Local cache           | `.foundry/datasets/`, `.foundry/results/`, `.foundry/evaluators/`                                                                                                                                                                                                                   |
 
 ## Entry Points
 
-| User Intent | Start At |
-|-------------|----------|
-| "Create dataset from production traces" / "Harvest traces" | [Trace-to-Dataset Pipeline](references/trace-to-dataset.md) |
-| "Version my dataset" / "Tag dataset" / "Pin dataset version" | [Dataset Versioning](references/dataset-versioning.md) |
-| "Organize my datasets" / "Dataset splits" / "Filter datasets" | [Dataset Organization](references/dataset-organization.md) |
-| "Review trace candidates" / "Curate test cases" | [Dataset Curation](references/dataset-curation.md) |
-| "Show eval metrics over time" / "Evaluation trending" | [Eval Trending](references/eval-trending.md) |
-| "Did my agent regress?" / "Regression detection" | [Eval Regression](references/eval-regression.md) |
-| "Compare datasets" / "Experiment comparison" / "A/B test" | [Dataset Comparison](references/dataset-comparison.md) |
-| "Sync dataset to Foundry" / "Refresh local dataset cache" | [Trace-to-Dataset Pipeline -> Step 5](references/trace-to-dataset.md#step-5--sync-local-cache-with-foundry-optional) |
-| "Trace my evaluation lineage" / "Audit eval history" | [Eval Lineage](references/eval-lineage.md) |
-| "Generate eval dataset" / "Create seed dataset" / "Generate test cases for my agent" | [Generate Seed Dataset](references/generate-seed-dataset.md) |
-| "Regenerate dataset" / "Refresh synthetic data" / "Generate from traces without full suite" | [Generated Data Refresh](../observe/references/evaluation-suite-generation.md#regenerate-one-artifact) |
+| User Intent                                                                                 | Start At                                                                                                             |
+| ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| "Create dataset from production traces" / "Harvest traces"                                  | [Trace-to-Dataset Pipeline](references/trace-to-dataset.md)                                                          |
+| "Version my dataset" / "Tag dataset" / "Pin dataset version"                                | [Dataset Versioning](references/dataset-versioning.md)                                                               |
+| "Organize my datasets" / "Dataset splits" / "Filter datasets"                               | [Dataset Organization](references/dataset-organization.md)                                                           |
+| "Review trace candidates" / "Curate test cases"                                             | [Dataset Curation](references/dataset-curation.md)                                                                   |
+| "Show eval metrics over time" / "Evaluation trending"                                       | [Eval Trending](references/eval-trending.md)                                                                         |
+| "Did my agent regress?" / "Regression detection"                                            | [Eval Regression](references/eval-regression.md)                                                                     |
+| "Compare datasets" / "Experiment comparison" / "A/B test"                                   | [Dataset Comparison](references/dataset-comparison.md)                                                               |
+| "Sync dataset to Foundry" / "Refresh local dataset cache"                                   | [Trace-to-Dataset Pipeline -> Step 5](references/trace-to-dataset.md#step-5--sync-local-cache-with-foundry-optional) |
+| "Trace my evaluation lineage" / "Audit eval history"                                        | [Eval Lineage](references/eval-lineage.md)                                                                           |
+| "Generate eval dataset" / "Create seed dataset" / "Generate test cases for my agent"        | [Generate Seed Dataset](references/generate-seed-dataset.md)                                                         |
+| "Regenerate dataset" / "Refresh synthetic data" / "Generate from traces without full suite" | [Generated Data Refresh](../observe/references/evaluation-suite-generation.md#regenerate-one-artifact)               |
 
 ## Before Starting — Detect Current State
 
@@ -79,12 +79,12 @@ Each cycle makes the test suite harder and more representative. Production failu
 
 ## Dataset Naming and Metadata Conventions
 
-| Dataset type | Foundry dataset name | Foundry dataset version | Typical local file | Metadata stage |
-|--------------|----------------------|-------------------------|--------------------|----------------|
-| Seed dataset | `<agent-name>-eval-seed` | `v1` | `.foundry/datasets/<agent-name>-eval-seed-v1.jsonl` | `seed` |
-| Trace-harvested dataset | `<agent-name>-traces` | `v<N>` | `.foundry/datasets/<agent-name>-traces-v<N>.jsonl` | `traces` |
-| Curated/refined dataset | `<agent-name>-curated` | `v<N>` | `.foundry/datasets/<agent-name>-curated-v<N>.jsonl` | `curated` |
-| Production-ready dataset | `<agent-name>-prod` | `v<N>` | `.foundry/datasets/<agent-name>-prod-v<N>.jsonl` | `prod` |
+| Dataset type             | Foundry dataset name     | Foundry dataset version | Typical local file                                  | Metadata stage |
+| ------------------------ | ------------------------ | ----------------------- | --------------------------------------------------- | -------------- |
+| Seed dataset             | `<agent-name>-eval-seed` | `v1`                    | `.foundry/datasets/<agent-name>-eval-seed-v1.jsonl` | `seed`         |
+| Trace-harvested dataset  | `<agent-name>-traces`    | `v<N>`                  | `.foundry/datasets/<agent-name>-traces-v<N>.jsonl`  | `traces`       |
+| Curated/refined dataset  | `<agent-name>-curated`   | `v<N>`                  | `.foundry/datasets/<agent-name>-curated-v<N>.jsonl` | `curated`      |
+| Production-ready dataset | `<agent-name>-prod`      | `v<N>`                  | `.foundry/datasets/<agent-name>-prod-v<N>.jsonl`    | `prod`         |
 
 Here `<agent-name>` means the effective selected Foundry agent name from azd or metadata. If that deployed agent name already includes the environment (for example, `support-agent-dev`), do **not** append the environment key a second time.
 
@@ -105,11 +105,11 @@ When a dataset belongs to a generated suite, keep the selected environment's sui
 
 ## Related Skills
 
-| User Intent | Skill |
-|-------------|-------|
-| "Run an evaluation" / "Optimize my agent" | [observe skill](../observe/observe.md) |
-| "Search traces" / "Analyze failures" / "Latency analysis" | [trace skill](../trace/trace.md) |
+| User Intent                                                          | Skill                                                                      |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| "Run an evaluation" / "Optimize my agent"                            | [observe skill](../observe/observe.md)                                     |
+| "Search traces" / "Analyze failures" / "Latency analysis"            | [trace skill](../trace/trace.md)                                           |
 | "Find eval scores for a response ID" / "Link eval results to traces" | [trace skill -> Eval Correlation](../trace/references/eval-correlation.md) |
-| "Deploy my agent" | [deploy skill](../deploy/deploy.md) |
-| "Debug container issues" | [troubleshoot skill](../troubleshoot/troubleshoot.md) |
-| "Review metadata schema" | [Agent Metadata Contract](../../references/agent-metadata-contract.md) |
+| "Deploy my agent"                                                    | [deploy skill](../deploy/deploy.md)                                        |
+| "Debug container issues"                                             | [troubleshoot skill](../troubleshoot/troubleshoot.md)                      |
+| "Review metadata schema"                                             | [Agent Metadata Contract](../../references/agent-metadata-contract.md)     |

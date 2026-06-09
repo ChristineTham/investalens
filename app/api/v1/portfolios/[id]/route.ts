@@ -1,4 +1,9 @@
-import { authenticateApiRequest, hasScope, jsonError, jsonSuccess } from "@/lib/api/middleware";
+import {
+  authenticateApiRequest,
+  hasScope,
+  jsonError,
+  jsonSuccess,
+} from "@/lib/api/middleware";
 import { db } from "@/lib/db";
 
 export async function GET(
@@ -6,8 +11,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await authenticateApiRequest(request);
-  if (!auth) return jsonError("unauthorized", "Invalid or missing API token", 401);
-  if (!hasScope(auth.scope, "read")) return jsonError("forbidden", "Insufficient scope", 403);
+  if (!auth)
+    return jsonError("unauthorized", "Invalid or missing API token", 401);
+  if (!hasScope(auth.scope, "read"))
+    return jsonError("forbidden", "Insufficient scope", 403);
 
   const { id } = await params;
 
@@ -25,8 +32,10 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await authenticateApiRequest(request);
-  if (!auth) return jsonError("unauthorized", "Invalid or missing API token", 401);
-  if (!hasScope(auth.scope, "write")) return jsonError("forbidden", "Insufficient scope", 403);
+  if (!auth)
+    return jsonError("unauthorized", "Invalid or missing API token", 401);
+  if (!hasScope(auth.scope, "write"))
+    return jsonError("forbidden", "Insufficient scope", 403);
 
   const { id } = await params;
   const body = await request.json();
@@ -36,7 +45,8 @@ export async function PATCH(
     data: body,
   });
 
-  if (updated.count === 0) return jsonError("not_found", "Portfolio not found", 404);
+  if (updated.count === 0)
+    return jsonError("not_found", "Portfolio not found", 404);
   return jsonSuccess({ updated: true });
 }
 
@@ -45,8 +55,10 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await authenticateApiRequest(request);
-  if (!auth) return jsonError("unauthorized", "Invalid or missing API token", 401);
-  if (!hasScope(auth.scope, "admin")) return jsonError("forbidden", "Insufficient scope", 403);
+  if (!auth)
+    return jsonError("unauthorized", "Invalid or missing API token", 401);
+  if (!hasScope(auth.scope, "admin"))
+    return jsonError("forbidden", "Insufficient scope", 403);
 
   const { id } = await params;
 
@@ -54,6 +66,7 @@ export async function DELETE(
     where: { id, userId: auth.userId },
   });
 
-  if (deleted.count === 0) return jsonError("not_found", "Portfolio not found", 404);
+  if (deleted.count === 0)
+    return jsonError("not_found", "Portfolio not found", 404);
   return jsonSuccess({ deleted: true });
 }

@@ -10,20 +10,20 @@ DO NOT USE FOR: non-Python agents, prompt agents, running standalone batch evalu
 
 ## Quick Reference
 
-| Property | Value |
-| -------- | ----- |
-| Phase | Scaffold, optimize, apply locally, deploy |
-| Supported language | Python |
-| Required runtime | azd project with hosted agent |
-| Required package | `azure-ai-agentserver-optimization` |
-| Required import | `from azure.ai.agentserver.optimization import load_config` |
-| Required baseline | `.agent_configs/baseline/` beside `agent.yaml` |
-| Supported targets | instruction, model, skill folder, function tool definitions |
-| azd setup | [azd Setup](references/azd-setup.md) |
-| Detailed scaffold steps | [Scaffold Workflow](references/scaffold.md) |
-| Python/file patterns | [Python Patterns](references/python-patterns.md) |
-| Eval config | [eval.yaml Guidance](references/eval-yaml.md) |
-| Optimize flow | [Optimize Workflow](references/optimize-workflow.md) |
+| Property                | Value                                                       |
+| ----------------------- | ----------------------------------------------------------- |
+| Phase                   | Scaffold, optimize, apply locally, deploy                   |
+| Supported language      | Python                                                      |
+| Required runtime        | azd project with hosted agent                               |
+| Required package        | `azure-ai-agentserver-optimization`                         |
+| Required import         | `from azure.ai.agentserver.optimization import load_config` |
+| Required baseline       | `.agent_configs/baseline/` beside `agent.yaml`              |
+| Supported targets       | instruction, model, skill folder, function tool definitions |
+| azd setup               | [azd Setup](references/azd-setup.md)                        |
+| Detailed scaffold steps | [Scaffold Workflow](references/scaffold.md)                 |
+| Python/file patterns    | [Python Patterns](references/python-patterns.md)            |
+| Eval config             | [eval.yaml Guidance](references/eval-yaml.md)               |
+| Optimize flow           | [Optimize Workflow](references/optimize-workflow.md)        |
 
 ## High-Level Lifecycle
 

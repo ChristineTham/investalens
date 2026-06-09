@@ -13,15 +13,15 @@ Create and manage OAuth 2.0-capable identities for AI agents using Microsoft Gra
 
 ## Quick Reference
 
-| Property | Value |
-|----------|-------|
-| Service | Microsoft Entra Agent ID |
-| API | Microsoft Graph (`https://graph.microsoft.com/v1.0`) |
-| Required role | Agent Identity Developer, Agent Identity Administrator, or Application Administrator |
-| Object model | Blueprint (application) → BlueprintPrincipal (SP) → Agent Identity (SP) |
-| Runtime exchange | Two-step `fmi_path` exchange (autonomous and OBO) |
-| .NET helper | `Microsoft.Identity.Web.AgentIdentities` |
-| Polyglot helper | Microsoft Entra SDK for AgentID (sidecar container) |
+| Property         | Value                                                                                |
+| ---------------- | ------------------------------------------------------------------------------------ |
+| Service          | Microsoft Entra Agent ID                                                             |
+| API              | Microsoft Graph (`https://graph.microsoft.com/v1.0`)                                 |
+| Required role    | Agent Identity Developer, Agent Identity Administrator, or Application Administrator |
+| Object model     | Blueprint (application) → BlueprintPrincipal (SP) → Agent Identity (SP)              |
+| Runtime exchange | Two-step `fmi_path` exchange (autonomous and OBO)                                    |
+| .NET helper      | `Microsoft.Identity.Web.AgentIdentities`                                             |
+| Polyglot helper  | Microsoft Entra SDK for AgentID (sidecar container)                                  |
 
 ## When to Use This Skill
 
@@ -36,8 +36,8 @@ Create and manage OAuth 2.0-capable identities for AI agents using Microsoft Gra
 
 ## MCP Tools
 
-| Tool | Use |
-|------|-----|
+| Tool                          | Use                                                                                        |
+| ----------------------------- | ------------------------------------------------------------------------------------------ |
 | `mcp_azure_mcp_documentation` | Search Microsoft Learn for current Agent ID setup, Graph API shapes, and SDK configuration |
 
 There is no dedicated Agent Identity MCP server today. This skill guides direct Microsoft Graph API calls (PowerShell or Python `requests`). Use `mcp_azure_mcp_documentation` to verify request bodies and endpoints against current docs before running.
@@ -45,6 +45,7 @@ There is no dedicated Agent Identity MCP server today. This skill guides direct 
 ## Before You Start
 
 Use the `mcp_azure_mcp_documentation` tool to search Microsoft Learn for current Agent ID documentation:
+
 - "Microsoft Entra Agent ID setup instructions"
 - "Microsoft Entra SDK for AgentID"
 
@@ -60,12 +61,12 @@ Agent Identity Blueprint (application)         ← one per agent type/project
         └── Agent Identity (SP): agent-3
 ```
 
-| Concept | Description |
-|---------|-------------|
-| **Blueprint** | Application object that defines a type/class of agent. Holds credentials (secret, certificate, federated identity). |
-| **BlueprintPrincipal** | Service principal for the Blueprint in the tenant. Not auto-created. |
-| **Agent Identity** | Service-principal-only identity for a single agent instance. Cannot hold its own credentials. |
-| **Sponsor** | A User (or Group, for Agent Identity) who is responsible for the identity. Required on creation. |
+| Concept                | Description                                                                                                         |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Blueprint**          | Application object that defines a type/class of agent. Holds credentials (secret, certificate, federated identity). |
+| **BlueprintPrincipal** | Service principal for the Blueprint in the tenant. Not auto-created.                                                |
+| **Agent Identity**     | Service-principal-only identity for a single agent instance. Cannot hold its own credentials.                       |
+| **Sponsor**            | A User (or Group, for Agent Identity) who is responsible for the identity. Required on creation.                    |
 
 ## Prerequisites
 
@@ -196,11 +197,11 @@ agent_sp_id = agent["id"]
 
 Agents authenticate at runtime using credentials configured on the **Blueprint** (not on the Agent Identity — Agent Identities can't hold credentials).
 
-| Option | Use case | Credential on Blueprint |
-|--------|----------|------------------------|
-| **Managed Identity + WIF** | Production (Azure-hosted) | Federated Identity Credential |
-| **Client secret** | Local dev / testing | Password credential |
-| **Microsoft Entra SDK for AgentID** | Polyglot / 3P agents | Sidecar container acquires tokens over HTTP |
+| Option                              | Use case                  | Credential on Blueprint                     |
+| ----------------------------------- | ------------------------- | ------------------------------------------- |
+| **Managed Identity + WIF**          | Production (Azure-hosted) | Federated Identity Credential               |
+| **Client secret**                   | Local dev / testing       | Password credential                         |
+| **Microsoft Entra SDK for AgentID** | Polyglot / 3P agents      | Sidecar container acquires tokens over HTTP |
 
 For the two-step `fmi_path` exchange (parent token → per-Agent-Identity Graph token) that gives each agent instance a distinct `sub` claim and audit trail, see [references/runtime-token-exchange.md](references/runtime-token-exchange.md).
 
@@ -271,32 +272,32 @@ See [references/runtime-token-exchange.md](references/runtime-token-exchange.md)
 
 ## API Reference
 
-| Operation | Method | Endpoint |
-|-----------|--------|----------|
-| Create Blueprint | `POST` | `/applications/microsoft.graph.agentIdentityBlueprint` |
-| Create BlueprintPrincipal | `POST` | `/servicePrincipals/microsoft.graph.agentIdentityBlueprintPrincipal` |
-| Create Agent Identity | `POST` | `/servicePrincipals/microsoft.graph.agentIdentity` |
-| Add FIC to Blueprint | `POST` | `/applications/{id}/microsoft.graph.agentIdentityBlueprint/federatedIdentityCredentials` |
-| List Agent Identities | `GET` | `/servicePrincipals/microsoft.graph.agentIdentity` |
-| Grant app permission | `POST` | `/servicePrincipals/{id}/appRoleAssignments` |
-| Grant delegated permission | `POST` | `/oauth2PermissionGrants` |
-| Delete Agent Identity | `DELETE` | `/servicePrincipals/{id}` |
-| Delete Blueprint | `DELETE` | `/applications/{id}` |
+| Operation                  | Method   | Endpoint                                                                                 |
+| -------------------------- | -------- | ---------------------------------------------------------------------------------------- |
+| Create Blueprint           | `POST`   | `/applications/microsoft.graph.agentIdentityBlueprint`                                   |
+| Create BlueprintPrincipal  | `POST`   | `/servicePrincipals/microsoft.graph.agentIdentityBlueprintPrincipal`                     |
+| Create Agent Identity      | `POST`   | `/servicePrincipals/microsoft.graph.agentIdentity`                                       |
+| Add FIC to Blueprint       | `POST`   | `/applications/{id}/microsoft.graph.agentIdentityBlueprint/federatedIdentityCredentials` |
+| List Agent Identities      | `GET`    | `/servicePrincipals/microsoft.graph.agentIdentity`                                       |
+| Grant app permission       | `POST`   | `/servicePrincipals/{id}/appRoleAssignments`                                             |
+| Grant delegated permission | `POST`   | `/oauth2PermissionGrants`                                                                |
+| Delete Agent Identity      | `DELETE` | `/servicePrincipals/{id}`                                                                |
+| Delete Blueprint           | `DELETE` | `/applications/{id}`                                                                     |
 
 Base URL: `https://graph.microsoft.com/v1.0`.
 
 ## Required Graph Permissions
 
-| Permission | Purpose |
-|-----------|---------|
-| `AgentIdentityBlueprint.Create` | Create Blueprints |
-| `AgentIdentityBlueprint.ReadWrite.All` | Read/update Blueprints |
-| `AgentIdentityBlueprintPrincipal.Create` | Create BlueprintPrincipals |
-| `AgentIdentity.Create.All` | Create Agent Identities |
-| `AgentIdentity.ReadWrite.All` | Read/update Agent Identities |
-| `Application.ReadWrite.All` | Blueprint CRUD on application objects |
-| `AppRoleAssignment.ReadWrite.All` | Grant application permissions |
-| `DelegatedPermissionGrant.ReadWrite.All` | Grant delegated permissions |
+| Permission                               | Purpose                               |
+| ---------------------------------------- | ------------------------------------- |
+| `AgentIdentityBlueprint.Create`          | Create Blueprints                     |
+| `AgentIdentityBlueprint.ReadWrite.All`   | Read/update Blueprints                |
+| `AgentIdentityBlueprintPrincipal.Create` | Create BlueprintPrincipals            |
+| `AgentIdentity.Create.All`               | Create Agent Identities               |
+| `AgentIdentity.ReadWrite.All`            | Read/update Agent Identities          |
+| `Application.ReadWrite.All`              | Blueprint CRUD on application objects |
+| `AppRoleAssignment.ReadWrite.All`        | Grant application permissions         |
+| `DelegatedPermissionGrant.ReadWrite.All` | Grant delegated permissions           |
 
 Grant admin consent (required for application permissions):
 
@@ -324,33 +325,33 @@ After admin consent, tokens may not include new claims for 30–120 seconds — 
 
 ## Troubleshooting
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `AADSTS82001` | Used RFC 8693 token-exchange grant | Use `client_credentials` with `fmi_path` |
-| `AADSTS700211` | Step 1 parent token targeted wrong tenant | Target Agent Identity's home tenant |
-| `AADSTS50013` | OBO user token targets Graph, not Blueprint | Use `api://{blueprint_app_id}/access_as_user` |
-| `AADSTS65001` | Missing grant or used individual scopes | Use `/.default` and verify `oauth2PermissionGrants` |
-| `403 Authorization_RequestDenied` | No grant on this Agent Identity | Add via `appRoleAssignments` or `oauth2PermissionGrants` |
-| `PropertyNotCompatibleWithAgentIdentity` | Tried to add credential to Agent Identity SP | Put credentials on the Blueprint |
-| `Agent Blueprint Principal does not exist` | BlueprintPrincipal not created | Step 2 of the Core Workflow |
-| `AADSTS650051` on admin consent | SP already exists from partial consent | Grant directly via `appRoleAssignments` |
+| Error                                      | Cause                                        | Fix                                                      |
+| ------------------------------------------ | -------------------------------------------- | -------------------------------------------------------- |
+| `AADSTS82001`                              | Used RFC 8693 token-exchange grant           | Use `client_credentials` with `fmi_path`                 |
+| `AADSTS700211`                             | Step 1 parent token targeted wrong tenant    | Target Agent Identity's home tenant                      |
+| `AADSTS50013`                              | OBO user token targets Graph, not Blueprint  | Use `api://{blueprint_app_id}/access_as_user`            |
+| `AADSTS65001`                              | Missing grant or used individual scopes      | Use `/.default` and verify `oauth2PermissionGrants`      |
+| `403 Authorization_RequestDenied`          | No grant on this Agent Identity              | Add via `appRoleAssignments` or `oauth2PermissionGrants` |
+| `PropertyNotCompatibleWithAgentIdentity`   | Tried to add credential to Agent Identity SP | Put credentials on the Blueprint                         |
+| `Agent Blueprint Principal does not exist` | BlueprintPrincipal not created               | Step 2 of the Core Workflow                              |
+| `AADSTS650051` on admin consent            | SP already exists from partial consent       | Grant directly via `appRoleAssignments`                  |
 
 ## References
 
-| File | Contents |
-|------|----------|
-| [references/runtime-token-exchange.md](references/runtime-token-exchange.md) | Two-step `fmi_path` exchange: autonomous + OBO, cross-tenant |
-| [references/oauth2-token-flow.md](references/oauth2-token-flow.md) | MI + WIF (production) and client secret (local dev) |
-| [references/obo-blueprint-setup.md](references/obo-blueprint-setup.md) | Configuring the Blueprint as an OAuth2 API for OBO |
-| [references/sdk-sidecar.md](references/sdk-sidecar.md) | Microsoft Entra SDK for AgentID — architecture, configuration, endpoints |
+| File                                                                         | Contents                                                                                      |
+| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| [references/runtime-token-exchange.md](references/runtime-token-exchange.md) | Two-step `fmi_path` exchange: autonomous + OBO, cross-tenant                                  |
+| [references/oauth2-token-flow.md](references/oauth2-token-flow.md)           | MI + WIF (production) and client secret (local dev)                                           |
+| [references/obo-blueprint-setup.md](references/obo-blueprint-setup.md)       | Configuring the Blueprint as an OAuth2 API for OBO                                            |
+| [references/sdk-sidecar.md](references/sdk-sidecar.md)                       | Microsoft Entra SDK for AgentID — architecture, configuration, endpoints                      |
 | [references/sdk-sidecar-deployment.md](references/sdk-sidecar-deployment.md) | SDK code patterns (Python/TypeScript), Docker/Kubernetes manifests, security, troubleshooting |
-| [references/known-limitations.md](references/known-limitations.md) | Documented gaps organized by category |
+| [references/known-limitations.md](references/known-limitations.md)           | Documented gaps organized by category                                                         |
 
 ### External Links
 
-| Resource | URL |
-|----------|-----|
-| Agent ID Setup Guide | https://learn.microsoft.com/en-us/entra/agent-id/identity-platform/agent-id-setup-instructions |
-| AI-Guided Setup | https://learn.microsoft.com/en-us/entra/agent-id/identity-platform/agent-id-ai-guided-setup |
-| Microsoft Entra SDK for AgentID | https://learn.microsoft.com/en-us/entra/msidweb/agent-id-sdk/overview |
+| Resource                                      | URL                                                                                                                                |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Agent ID Setup Guide                          | https://learn.microsoft.com/en-us/entra/agent-id/identity-platform/agent-id-setup-instructions                                     |
+| AI-Guided Setup                               | https://learn.microsoft.com/en-us/entra/agent-id/identity-platform/agent-id-ai-guided-setup                                        |
+| Microsoft Entra SDK for AgentID               | https://learn.microsoft.com/en-us/entra/msidweb/agent-id-sdk/overview                                                              |
 | Microsoft.Identity.Web.AgentIdentities (.NET) | https://github.com/AzureAD/microsoft-identity-web/blob/master/src/Microsoft.Identity.Web.AgentIdentities/README.AgentIdentities.md |

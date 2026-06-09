@@ -9,20 +9,20 @@ allowed-tools: Read, Write, Bash, AskUserQuestion, microsoft_docs_search, micros
 
 ## Quick Reference
 
-| Property | Value |
-|----------|-------|
-| **Best for** | Foundry with VNet isolation, private endpoints, subnet delegation, APIM + Foundry, VPN/Bastion access |
-| **Tools** | Azure CLI |
+| Property      | Value                                                                                                                                                            |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Best for**  | Foundry with VNet isolation, private endpoints, subnet delegation, APIM + Foundry, VPN/Bastion access                                                            |
+| **Tools**     | Azure CLI                                                                                                                                                        |
 | **MCP Tools** | `AskUserQuestion` - ask user questions; `microsoft_docs_search` - verify facts before presenting; `microsoft_docs_fetch` - fetch full Learn pages for validation |
-| **Workflow** | Ground in Learn → Gather → Plan → Scaffold → Validate → Deploy → Test |
+| **Workflow**  | Ground in Learn → Gather → Plan → Scaffold → Validate → Deploy → Test                                                                                            |
 
 ### Key Documentation
 
-| Topic | URL |
-|-------|-----|
-| Network isolation | https://learn.microsoft.com/azure/ai-foundry/how-to/configure-private-link |
-| Agent Service VNet | https://learn.microsoft.com/azure/ai-services/agents/how-to/virtual-networks |
-| Managed VNet | https://learn.microsoft.com/azure/ai-foundry/how-to/configure-managed-network |
+| Topic               | URL                                                                                                 |
+| ------------------- | --------------------------------------------------------------------------------------------------- |
+| Network isolation   | https://learn.microsoft.com/azure/ai-foundry/how-to/configure-private-link                          |
+| Agent Service VNet  | https://learn.microsoft.com/azure/ai-services/agents/how-to/virtual-networks                        |
+| Managed VNet        | https://learn.microsoft.com/azure/ai-foundry/how-to/configure-managed-network                       |
 | Feature limitations | https://learn.microsoft.com/azure/foundry/how-to/configure-private-link#foundry-feature-limitations |
 
 ## When to Use
@@ -33,12 +33,14 @@ allowed-tools: Read, Write, Bash, AskUserQuestion, microsoft_docs_search, micros
 - User needs APIM integration with private Foundry agents
 
 **Do NOT use for:**
+
 - Public Foundry setup without VNet → use [project/create](../../project/create/create-foundry-project.md)
 - Bare Foundry resource without networking → use [resource/create](../create/create-foundry-resource.md)
 
 ---
 
 ## Step 0 — Ground in Microsoft Learn
+
 Use `microsoft_docs_fetch` to get docs from Key Documentation sources.
 Use `microsoft_docs_search` to verify any technical fact before presenting it to the user. If Learn contradicts a reference file, **Learn wins**. Cite the URL. If Learn doesn't cover it, say so — do not invent facts, limits, flags, or compatibility claims.
 
@@ -51,6 +53,7 @@ Use `microsoft_docs_search` to verify any technical fact before presenting it to
 ## Step 1 — Gather Requirements
 
 Read [references/intake.md](references/intake.md). One pass, three tiers:
+
 - **Tier 1 (Core):** Subscription, VNet model, agents, region, RG, VNet — determine approach at the end
 - **Tier 2 (Architecture):** DNS, topology, NSG, on-prem, identity, BYO resources
 - **Tier 3 (Enterprise):** Model, client access, auth, policies, monitoring

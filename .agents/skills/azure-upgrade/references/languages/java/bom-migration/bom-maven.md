@@ -17,11 +17,13 @@ python3 ./references/languages/java/scripts/upgrade_bom.py <project_dir>
 ```
 
 Options:
+
 - `--mvn <cmd>` — override the Maven command (default: auto-detects `mvnw` or `mvn`).
 
 If the script fails after starting, treat that as an automation failure only: keep the resolved `TARGET_AZURE_SDK_BOM_VERSION`, manually apply the fallback steps below, and continue validation.
 
 Under the hood (OpenRewrite recipes):
+
 - **Add BOM**: `AddManagedDependency` ([docs](https://docs.openrewrite.org/recipes/maven/addmanageddependency))
 - **Upgrade BOM**: `UpgradeDependencyVersion` ([docs](https://docs.openrewrite.org/recipes/maven/upgradedependencyversion))
 - **Remove redundant versions**: `RemoveRedundantDependencyVersions` ([docs](https://docs.openrewrite.org/recipes/maven/removeredundantdependencyversions))
@@ -88,6 +90,7 @@ For every `<dependency>` whose `<groupId>` starts with `com.azure` (e.g. `com.az
 - Leave `<groupId>`, `<artifactId>`, `<scope>`, `<classifier>`, `<exclusions>`, etc. unchanged.
 
 Before:
+
 ```xml
 <dependency>
     <groupId>com.azure</groupId>
@@ -97,6 +100,7 @@ Before:
 ```
 
 After:
+
 ```xml
 <dependency>
     <groupId>com.azure</groupId>
@@ -109,6 +113,7 @@ Do **not** strip versions from artifacts not managed by the BOM (verify each one
 ### Step 3 — Verify
 
 Run `mvn -q -DskipTests dependency:tree` (the same command works in both **bash** and **PowerShell**) and confirm:
+
 - `com.azure:azure-sdk-bom:pom:{bom_version}:import` appears in the managed dependencies and `{bom_version}` equals `TARGET_AZURE_SDK_BOM_VERSION`.
 - All BOM-managed Azure artifacts resolve to versions from `{bom_version}`.
 

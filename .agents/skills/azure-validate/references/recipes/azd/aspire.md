@@ -8,9 +8,9 @@ Validation steps specific to .NET Aspire projects deployed via AZD.
 
 A project is Aspire-based if any of these are true:
 
-| Indicator | Check |
-|-----------|-------|
-| AppHost project | `find . -name "*.AppHost.csproj"` |
+| Indicator              | Check                                             |
+| ---------------------- | ------------------------------------------------- |
+| AppHost project        | `find . -name "*.AppHost.csproj"`                 |
 | Aspire.Hosting package | `grep -r "Aspire.Hosting" . --include="*.csproj"` |
 
 **If none found → skip this file entirely.**
@@ -53,6 +53,7 @@ azd env set MANAGED_IDENTITY_CLIENT_ID $(az identity list --resource-group "$RG_
 ```
 
 **PowerShell:**
+
 ```powershell
 # Get resource group name
 $rgName = (azd env get-values | Select-String 'AZURE_RESOURCE_GROUP').Line.Split('=')[1].Trim('"')

@@ -104,9 +104,7 @@ export async function generateUnrealisedCgtReport(
     }
 
     const discountedGain =
-      unrealisedGain > 0
-        ? unrealisedGain * (1 - discountRate)
-        : unrealisedGain;
+      unrealisedGain > 0 ? unrealisedGain * (1 - discountRate) : unrealisedGain;
 
     items.push({
       instrumentCode: holding.instrument.code,

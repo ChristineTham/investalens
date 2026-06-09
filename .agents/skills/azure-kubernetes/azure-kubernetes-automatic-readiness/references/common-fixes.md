@@ -8,6 +8,7 @@ Maps to constraint IDs in `constraint-spec-v1.yaml`.
 ## `safeguard-container-resource-requests` — Add resource requests/limits
 
 **Before:**
+
 ```yaml
 containers:
   - name: web
@@ -15,6 +16,7 @@ containers:
 ```
 
 **After:**
+
 ```yaml
 containers:
   - name: web
@@ -35,6 +37,7 @@ containers:
 ## `safeguard-container-capabilities` — Drop all capabilities
 
 **Before:**
+
 ```yaml
 securityContext:
   capabilities:
@@ -42,6 +45,7 @@ securityContext:
 ```
 
 **After:**
+
 ```yaml
 securityContext:
   capabilities:
@@ -55,6 +59,7 @@ securityContext:
 ## `safeguard-allowed-seccomp-profiles` — Add seccomp profile
 
 **Before:**
+
 ```yaml
 spec:
   containers:
@@ -62,6 +67,7 @@ spec:
 ```
 
 **After:**
+
 ```yaml
 spec:
   securityContext:
@@ -76,6 +82,7 @@ spec:
 ## `safeguard-allowed-seccomp-profiles` — Remove 'Unconfined' seccomp profile
 
 **Before:**
+
 ```yaml
 spec:
   securityContext:
@@ -86,6 +93,7 @@ spec:
 ```
 
 **After:**
+
 ```yaml
 spec:
   containers:
@@ -97,12 +105,14 @@ spec:
 ## `safeguard-enforce-apparmor` — Add AppArmor annotation
 
 **Before:**
+
 ```yaml
 metadata:
   name: my-deployment
 ```
 
 **After:**
+
 ```yaml
 metadata:
   name: my-deployment
@@ -114,30 +124,33 @@ metadata:
 
 ---
 
-## `safeguard-images-no-latest` — Pin image tag *(LLM-reasoned — ask user)*
+## `safeguard-images-no-latest` — Pin image tag _(LLM-reasoned — ask user)_
 
 **Before:**
+
 ```yaml
 image: myapp:latest
 ```
 
 **After:**
+
 ```yaml
-image: myapp:v1.2.3   # ← version confirmed with user
+image: myapp:v1.2.3 # ← version confirmed with user
 ```
 
 > ⚠️ **Warning:** Do not guess the version. Ask the user: _"What specific version tag or SHA digest should I pin this image to?"_ If from a public registry, suggest checking Docker Hub or the registry for the latest stable tag.
 
 ---
 
-## `safeguard-probes-configured` — Add probes *(best-practice recommendation — warning-only, not blocked at admission)*
+## `safeguard-probes-configured` — Add probes _(best-practice recommendation — warning-only, not blocked at admission)_
 
 **HTTP app (most common):**
+
 ```yaml
 readinessProbe:
   httpGet:
-    path: /healthz        # ← ask user for their health endpoint
-    port: 8080            # ← ask user for port
+    path: /healthz # ← ask user for their health endpoint
+    port: 8080 # ← ask user for port
   initialDelaySeconds: 5
   periodSeconds: 10
   failureThreshold: 3
@@ -151,10 +164,11 @@ livenessProbe:
 ```
 
 **TCP-only app (databases, Redis, etc.):**
+
 ```yaml
 readinessProbe:
   tcpSocket:
-    port: 6379           # ← service port
+    port: 6379 # ← service port
   initialDelaySeconds: 5
   periodSeconds: 10
 livenessProbe:
@@ -165,6 +179,7 @@ livenessProbe:
 ```
 
 **gRPC app:**
+
 ```yaml
 readinessProbe:
   grpc:
@@ -178,41 +193,43 @@ readinessProbe:
 ## `safeguard-host-probes` — Remove host field in probes and lifecycle hooks
 
 **Before:**
+
 ```yaml
 spec:
   containers:
-  - name: my-container
-    image: nginx:v1.2.3
-    livenessProbe:
-      httpGet:
-        host: "my-host"
-        path: /healthz
-        port: 8080
-      initialDelaySeconds: 15
-      periodSeconds: 20
-      failureThreshold: 3
+    - name: my-container
+      image: nginx:v1.2.3
+      livenessProbe:
+        httpGet:
+          host: "my-host"
+          path: /healthz
+          port: 8080
+        initialDelaySeconds: 15
+        periodSeconds: 20
+        failureThreshold: 3
 ```
 
 **After:**
 Remove the `host` field
 Example:
+
 ```yaml
 spec:
   containers:
-  - name: my-container
-    image: nginx:v1.2.3
-    livenessProbe:
-      httpGet:
-        path: /healthz
-        port: 8080
-      initialDelaySeconds: 15
-      periodSeconds: 20
-      failureThreshold: 3
+    - name: my-container
+      image: nginx:v1.2.3
+      livenessProbe:
+        httpGet:
+          path: /healthz
+          port: 8080
+        initialDelaySeconds: 15
+        periodSeconds: 20
+        failureThreshold: 3
 ```
 
 ---
 
-## `safeguard-pod-enforce-antiaffinity` — Add topology spread *(LLM-reasoned — ask user for label)*
+## `safeguard-pod-enforce-antiaffinity` — Add topology spread _(LLM-reasoned — ask user for label)_
 
 Ask user: _"What label key/value identifies your workload's pods?"_
 
@@ -226,7 +243,7 @@ spec:
           whenUnsatisfiable: DoNotSchedule
           labelSelector:
             matchLabels:
-              app: <app-label>     # ← from user
+              app: <app-label> # ← from user
       containers:
         - name: web
 ```
@@ -236,6 +253,7 @@ spec:
 ## `safeguard-csi-driver-storage-class` — Migrate in-tree to CSI
 
 **Before (Azure Disk in-tree):**
+
 ```yaml
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -249,6 +267,7 @@ volumeBindingMode: Immediate
 ```
 
 **After (Azure Disk CSI):**
+
 ```yaml
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -258,11 +277,11 @@ provisioner: disk.csi.azure.com
 parameters:
   skuName: Premium_LRS
 reclaimPolicy: Delete
-volumeBindingMode: WaitForFirstConsumer   # ← preferred for zonal disks
+volumeBindingMode: WaitForFirstConsumer # ← preferred for zonal disks
 ```
 
-| In-tree provisioner | CSI replacement |
-|---|---|
+| In-tree provisioner        | CSI replacement      |
+| -------------------------- | -------------------- |
 | `kubernetes.io/azure-disk` | `disk.csi.azure.com` |
 | `kubernetes.io/azure-file` | `file.csi.azure.com` |
 
@@ -286,12 +305,14 @@ spec:
 ## PodDisruptionBudget — Fix blocking `maxUnavailable: 0`
 
 **Before:**
+
 ```yaml
 spec:
   maxUnavailable: 0
 ```
 
 **After:**
+
 ```yaml
 spec:
   maxUnavailable: 1
@@ -301,19 +322,20 @@ spec:
 
 ---
 
-## `safeguard-no-host-path-volumes` — Replace hostPath *(incompatible — suggest alternatives)*
+## `safeguard-no-host-path-volumes` — Replace hostPath _(incompatible — suggest alternatives)_
 
-| hostPath use case | Recommended replacement |
-|---|---|
-| Log collection (`/var/log`) | Azure Monitor Container Insights (auto-enabled on AKS Automatic) |
+| hostPath use case                                 | Recommended replacement                                                                |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Log collection (`/var/log`)                       | Azure Monitor Container Insights (auto-enabled on AKS Automatic)                       |
 | Container runtime socket (`/var/run/docker.sock`) | Use the AKS Automatic node observability features — direct socket access not supported |
-| Shared config files | `configMap` volume |
-| Secrets / credentials | Kubernetes `secret` volume or Azure Key Vault CSI Driver |
-| Ephemeral scratch space | `emptyDir` volume |
-| Persistent app data | Azure Disk CSI via PVC (`disk.csi.azure.com`) |
-| Shared file storage across pods | Azure Files CSI via PVC (`file.csi.azure.com`) |
+| Shared config files                               | `configMap` volume                                                                     |
+| Secrets / credentials                             | Kubernetes `secret` volume or Azure Key Vault CSI Driver                               |
+| Ephemeral scratch space                           | `emptyDir` volume                                                                      |
+| Persistent app data                               | Azure Disk CSI via PVC (`disk.csi.azure.com`)                                          |
+| Shared file storage across pods                   | Azure Files CSI via PVC (`file.csi.azure.com`)                                         |
 
 **emptyDir example:**
+
 ```yaml
 volumes:
   - name: scratch
@@ -321,6 +343,7 @@ volumes:
 ```
 
 **Azure Files CSI PVC example:**
+
 ```yaml
 apiVersion: v1
 kind: PersistentVolumeClaim

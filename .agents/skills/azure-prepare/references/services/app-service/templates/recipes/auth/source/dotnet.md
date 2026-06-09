@@ -48,8 +48,8 @@ app.MapGet("/api/me", [Authorize] (HttpContext ctx) =>
 
 ## Files to Modify
 
-| File | Action |
-|------|--------|
-| `Program.cs` | Add authentication middleware + protected endpoints |
-| `appsettings.json` | Add AzureAd configuration section |
-| `*.csproj` | Add Microsoft.Identity.Web NuGet package |
+| File               | Action                                              |
+| ------------------ | --------------------------------------------------- |
+| `Program.cs`       | Add authentication middleware + protected endpoints |
+| `appsettings.json` | Add AzureAd configuration section                   |
+| `*.csproj`         | Add Microsoft.Identity.Web NuGet package            |

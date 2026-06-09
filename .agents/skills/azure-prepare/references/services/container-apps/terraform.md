@@ -3,6 +3,7 @@
 > **⚠️ Container Registry Naming:** ACR names must be alphanumeric only (5-50 characters). Use Terraform's `replace()` function when constructing the value passed to `azurecaf_name`, or otherwise strip hyphens manually.
 
 > **⚠️ Two-Phase Deployment (Mandatory):** To avoid the chicken-and-egg problem where Terraform tries to create a Container App referencing an ACR image that doesn't exist yet:
+>
 > - **Phase 1 (`terraform apply`):** Deploy ACR and Container App with a **public placeholder image** and **no `registry` block**.
 > - **Phase 2 (post-apply CLI):** Build/push the app image to ACR, configure the registry/identity link, then update the Container App image.
 >
@@ -108,6 +109,7 @@ az containerapp update \
 ```
 
 **PowerShell:**
+
 ```powershell
 $AcrName = terraform output -raw acr_name
 $AcrServer = terraform output -raw acr_login_server

@@ -4,7 +4,7 @@ After confirming the final agent version through the observe loop, present two c
 
 ## Option 1 — CI/CD Pipeline Evaluations (Pre-Deploy Gate)
 
-*"Would you like to add automated evaluations to your CI/CD pipeline so every deployment is evaluated before going live?"*
+_"Would you like to add automated evaluations to your CI/CD pipeline so every deployment is evaluated before going live?"_
 
 CI/CD evals run batch evaluations as part of your deployment pipeline, catching regressions **before** they reach production.
 
@@ -22,7 +22,7 @@ Use repository secrets for the selected environment's project endpoint and Azure
 
 ## Option 2 — Continuous Production Monitoring (Post-Deploy)
 
-*"Would you like to set up continuous evaluations to monitor your agent's quality in production?"*
+_"Would you like to set up continuous evaluations to monitor your agent's quality in production?"_
 
 Continuous evaluation uses Foundry-native MCP tools to automatically assess agent responses on an ongoing basis — no additional CI/CD pipeline setup is needed for this option. This catches regressions that emerge **after** deployment from changing data, user patterns, or upstream service drift.
 

@@ -77,7 +77,7 @@ const CheckpointDemo = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 relative size-full rounded-lg border h-[600px]">
+    <div className="relative mx-auto size-full h-[600px] max-w-4xl rounded-lg border p-6">
       <Conversation>
         <ConversationContent>
           {messages.map((message, index) => {
@@ -160,24 +160,24 @@ const restoreAndBranch = (messageIndex: number) => {
 
 ### `<Checkpoint />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `children` | `React.ReactNode` | - | The checkpoint icon and trigger components. Automatically includes a Separator at the end. |
-| `...props` | `React.HTMLAttributes<HTMLDivElement>` | - | Any other props are spread to the root div. |
+| Prop       | Type                                   | Default | Description                                                                                |
+| ---------- | -------------------------------------- | ------- | ------------------------------------------------------------------------------------------ |
+| `children` | `React.ReactNode`                      | -       | The checkpoint icon and trigger components. Automatically includes a Separator at the end. |
+| `...props` | `React.HTMLAttributes<HTMLDivElement>` | -       | Any other props are spread to the root div.                                                |
 
 ### `<CheckpointIcon />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `children` | `React.ReactNode` | - | Custom icon content. If not provided, defaults to a BookmarkIcon from lucide-react. |
-| `...props` | `LucideProps` | - | Any other props are spread to the BookmarkIcon component. |
+| Prop       | Type              | Default | Description                                                                         |
+| ---------- | ----------------- | ------- | ----------------------------------------------------------------------------------- |
+| `children` | `React.ReactNode` | -       | Custom icon content. If not provided, defaults to a BookmarkIcon from lucide-react. |
+| `...props` | `LucideProps`     | -       | Any other props are spread to the BookmarkIcon component.                           |
 
 ### `<CheckpointTrigger />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `children` | `React.ReactNode` | - | The text or content to display in the trigger button. |
-| `tooltip` | `string` | - | Optional tooltip text shown on hover. |
-| `variant` | `string` | - | The button variant style. |
-| `size` | `string` | - | The button size. |
-| `...props` | `React.ComponentProps<typeof Button>` | - | Any other props are spread to the underlying shadcn/ui Button component. |
+| Prop       | Type                                  | Default | Description                                                              |
+| ---------- | ------------------------------------- | ------- | ------------------------------------------------------------------------ |
+| `children` | `React.ReactNode`                     | -       | The text or content to display in the trigger button.                    |
+| `tooltip`  | `string`                              | -       | Optional tooltip text shown on hover.                                    |
+| `variant`  | `string`                              | -       | The button variant style.                                                |
+| `size`     | `string`                              | -       | The button size.                                                         |
+| `...props` | `React.ComponentProps<typeof Button>` | -       | Any other props are spread to the underlying shadcn/ui Button component. |

@@ -22,6 +22,7 @@ Generate a migration assessment report before any code changes.
 ## Code Preview
 
 During assessment, show a **sneak peek** of key configuration changes:
+
 - Startup command / Dockerfile adjustments
 - App Settings mapping
 - Database connection string migration (to managed identity)
@@ -31,6 +32,7 @@ This helps the user understand the migration scope before committing.
 ## Architecture Diagrams
 
 Generate two diagrams:
+
 1. **Current State** — Source platform architecture with services and integrations
 2. **Target State** — Azure architecture showing equivalent App Service structure
 
@@ -45,49 +47,49 @@ The report MUST be saved as `migration-assessment-report.md` inside the output d
 
 ## 1. Executive Summary
 
-| Property | Value |
-|----------|-------|
-| **Application Name** | <name> |
-| **Application Type** | Web App / API / Worker |
-| **Source Platform** | <Heroku / Elastic Beanstalk / App Engine> |
-| **Source Runtime** | <runtime and version> |
-| **Target Platform** | Azure App Service |
-| **Target Runtime** | <runtime and version> |
-| **Migration Readiness** | <High / Medium / Low> |
-| **Estimated Effort** | <Low / Medium / High> |
-| **Assessment Date** | <date> |
+| Property                | Value                                     |
+| ----------------------- | ----------------------------------------- |
+| **Application Name**    | <name>                                    |
+| **Application Type**    | Web App / API / Worker                    |
+| **Source Platform**     | <Heroku / Elastic Beanstalk / App Engine> |
+| **Source Runtime**      | <runtime and version>                     |
+| **Target Platform**     | Azure App Service                         |
+| **Target Runtime**      | <runtime and version>                     |
+| **Migration Readiness** | <High / Medium / Low>                     |
+| **Estimated Effort**    | <Low / Medium / High>                     |
+| **Assessment Date**     | <date>                                    |
 
 ## 2. Application Inventory
 
-| # | Component | Runtime | Type | Instances | Description |
-|---|-----------|---------|------|-----------|-------------|
-| 1 | | | Web / Worker / Cron | | |
+| #   | Component | Runtime | Type                | Instances | Description |
+| --- | --------- | ------- | ------------------- | --------- | ----------- |
+| 1   |           |         | Web / Worker / Cron |           |             |
 
 ## 3. Service Mapping
 
 | Source Service | Azure Equivalent | Migration Complexity | Notes |
-|----------------|------------------|----------------------|-------|
-| | | | |
+| -------------- | ---------------- | -------------------- | ----- |
+|                |                  |                      |       |
 
 ## 4. Compute & Scaling Mapping
 
-| # | Source Config | Value | Azure Equivalent | Azure Value | Notes |
-|---|-------------|-------|------------------|-------------|-------|
-| 1 | Instance type | | App Service Plan SKU | | |
-| 2 | Auto-scaling | | App Service Autoscale | | |
-| 3 | Health check | | Health Check feature | | |
+| #   | Source Config | Value | Azure Equivalent      | Azure Value | Notes |
+| --- | ------------- | ----- | --------------------- | ----------- | ----- |
+| 1   | Instance type |       | App Service Plan SKU  |             |       |
+| 2   | Auto-scaling  |       | App Service Autoscale |             |       |
+| 3   | Health check  |       | Health Check feature  |             |       |
 
 ## 5. Dependencies Analysis
 
-| # | Package/Library | Version | Platform-Specific? | Azure Equivalent | Compatible? | Notes |
-|---|----------------|---------|---------------------|------------------|-------------|-------|
-| 1 | | | | | | |
+| #   | Package/Library | Version | Platform-Specific? | Azure Equivalent | Compatible? | Notes |
+| --- | --------------- | ------- | ------------------ | ---------------- | ----------- | ----- |
+| 1   |                 |         |                    |                  |             |       |
 
 ## 6. Environment Variables & Configuration
 
-| # | Source Variable | Purpose | Azure Equivalent | Auth Method | Notes |
-|---|---------------|---------|------------------|-------------|-------|
-| 1 | | | App Setting / Key Vault | Managed Identity / App Setting | |
+| #   | Source Variable | Purpose | Azure Equivalent        | Auth Method                    | Notes |
+| --- | --------------- | ------- | ----------------------- | ------------------------------ | ----- |
+| 1   |                 |         | App Setting / Key Vault | Managed Identity / App Setting |       |
 
 ## 7. Architecture Diagrams
 
@@ -102,32 +104,32 @@ The report MUST be saved as `migration-assessment-report.md` inside the output d
 ## 8. Data Services Mapping
 
 | Source Database/Storage | Azure Equivalent | Migration Path | Notes |
-|------------------------|------------------|----------------|-------|
-| | | | |
+| ----------------------- | ---------------- | -------------- | ----- |
+|                         |                  |                |       |
 
 ## 9. Networking & Security Mapping
 
-| Source Feature | Azure Equivalent | Notes |
-|---------------|------------------|-------|
-| Custom domain | App Service Custom Domain | |
-| SSL/TLS | App Service Managed Certificate / BYO cert | |
-| VPN/VPC | VNet Integration | |
+| Source Feature | Azure Equivalent                           | Notes |
+| -------------- | ------------------------------------------ | ----- |
+| Custom domain  | App Service Custom Domain                  |       |
+| SSL/TLS        | App Service Managed Certificate / BYO cert |       |
+| VPN/VPC        | VNet Integration                           |       |
 
 ## 10. Monitoring & Observability Mapping
 
-| Source Service | Azure Equivalent | Migration Notes |
-|---------------|------------------|-----------------|
-| | Application Insights | |
-| | Azure Monitor Metrics | |
-| | Azure Monitor Alerts | |
+| Source Service | Azure Equivalent      | Migration Notes |
+| -------------- | --------------------- | --------------- |
+|                | Application Insights  |                 |
+|                | Azure Monitor Metrics |                 |
+|                | Azure Monitor Alerts  |                 |
 
 ## 11. CI/CD & Deployment Mapping
 
-| Source Tool | Azure Equivalent | Notes |
-|------------|------------------|-------|
-| | GitHub Actions / Azure DevOps | |
-| | Bicep / ARM Templates | |
-| | Deployment Slots | |
+| Source Tool | Azure Equivalent              | Notes |
+| ----------- | ----------------------------- | ----- |
+|             | GitHub Actions / Azure DevOps |       |
+|             | Bicep / ARM Templates         |       |
+|             | Deployment Slots              |       |
 
 ## 12. Recommendations
 

@@ -46,9 +46,9 @@ A fully functional portfolio tracker for Australian investors, deployable free o
 
 ## P1 Subphase Breakdown
 
-| Subphase | Focus | Estimated Files |
-|----------|-------|-----------------|
-| P1a | Database schema, auth, portfolio/transaction CRUD, UI shell | ~40 files |
-| P1b | CSV import engine, market data fetching, price caching | ~25 files |
-| P1c | Performance calculations, all reports, tax reporting | ~35 files |
-| P1d | Corporate actions, bonds, groups/labels, API, export, watchlist | ~30 files |
+| Subphase | Focus                                                           | Estimated Files |
+| -------- | --------------------------------------------------------------- | --------------- |
+| P1a      | Database schema, auth, portfolio/transaction CRUD, UI shell     | ~40 files       |
+| P1b      | CSV import engine, market data fetching, price caching          | ~25 files       |
+| P1c      | Performance calculations, all reports, tax reporting            | ~35 files       |
+| P1d      | Corporate actions, bonds, groups/labels, API, export, watchlist | ~30 files       |

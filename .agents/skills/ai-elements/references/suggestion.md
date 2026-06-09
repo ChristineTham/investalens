@@ -53,8 +53,8 @@ const SuggestionDemo = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 relative size-full rounded-lg border h-[600px]">
-      <div className="flex flex-col h-full">
+    <div className="relative mx-auto size-full h-[600px] max-w-4xl rounded-lg border p-6">
+      <div className="flex h-full flex-col">
         <div className="flex flex-col gap-4">
           <Suggestions>
             {suggestions.map((suggestion) => (
@@ -67,7 +67,7 @@ const SuggestionDemo = () => {
           </Suggestions>
           <PromptInput
             onSubmit={handleSubmit}
-            className="mt-4 w-full max-w-2xl mx-auto relative"
+            className="relative mx-auto mt-4 w-full max-w-2xl"
           >
             <PromptInputTextarea
               value={input}
@@ -78,7 +78,7 @@ const SuggestionDemo = () => {
             <PromptInputSubmit
               status={status === "streaming" ? "streaming" : "ready"}
               disabled={!input.trim()}
-              className="absolute bottom-1 right-1"
+              className="absolute right-1 bottom-1"
             />
           </PromptInput>
         </div>
@@ -111,14 +111,14 @@ See `scripts/suggestion-input.tsx` for this example.
 
 ### `<Suggestions />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `...props` | `React.ComponentProps<typeof ScrollArea>` | - | Any other props are spread to the underlying ScrollArea component. |
+| Prop       | Type                                      | Default | Description                                                        |
+| ---------- | ----------------------------------------- | ------- | ------------------------------------------------------------------ |
+| `...props` | `React.ComponentProps<typeof ScrollArea>` | -       | Any other props are spread to the underlying ScrollArea component. |
 
 ### `<Suggestion />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `suggestion` | `string` | Required | The suggestion string to display and emit on click. |
-| `onClick` | `(suggestion: string) => void` | - | Callback fired when the suggestion is clicked. |
-| `...props` | `Omit<React.ComponentProps<typeof Button>, ` | - | Any other props are spread to the underlying shadcn/ui Button component. |
+| Prop         | Type                                         | Default  | Description                                                              |
+| ------------ | -------------------------------------------- | -------- | ------------------------------------------------------------------------ |
+| `suggestion` | `string`                                     | Required | The suggestion string to display and emit on click.                      |
+| `onClick`    | `(suggestion: string) => void`               | -        | Callback fired when the suggestion is clicked.                           |
+| `...props`   | `Omit<React.ComponentProps<typeof Button>, ` | -        | Any other props are spread to the underlying shadcn/ui Button component. |

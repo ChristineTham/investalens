@@ -16,13 +16,13 @@ User can reach the VM but authentication fails.
 
 ## Linux (SSH) — Symptoms → Solutions
 
-| Symptom                                                     | Solution                                                                      | Documentation                                                                                                                                    |
-| ----------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| "Permission denied (publickey)"                             | Wrong key, wrong user, or key not in authorized_keys — reset key via CLI      | [Detailed SSH troubleshooting](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/linux/detailed-troubleshoot-ssh-connection) |
-| "Permission denied (password)"                              | Wrong password or password auth disabled in sshd_config                        | [Detailed SSH troubleshooting](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/linux/detailed-troubleshoot-ssh-connection) |
-| Account locked after failed attempts                        | Unlock via Run Command: `passwd -u <user>` or `pam_tally2 --reset --user <user>` | [Troubleshoot SSH connection](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/linux/troubleshoot-ssh-connection)           |
-| "Permission denied" with Entra ID (AAD) SSH login           | Missing role: Virtual Machine Administrator Login or Virtual Machine User Login | [Troubleshoot SSH connection](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/linux/troubleshoot-ssh-connection)           |
-| sudo password prompt fails / user not in sudoers            | Fix via Run Command or Serial Console                                          | [Troubleshoot SSH connection](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/linux/troubleshoot-ssh-connection)           |
+| Symptom                                           | Solution                                                                         | Documentation                                                                                                                                    |
+| ------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| "Permission denied (publickey)"                   | Wrong key, wrong user, or key not in authorized_keys — reset key via CLI         | [Detailed SSH troubleshooting](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/linux/detailed-troubleshoot-ssh-connection) |
+| "Permission denied (password)"                    | Wrong password or password auth disabled in sshd_config                          | [Detailed SSH troubleshooting](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/linux/detailed-troubleshoot-ssh-connection) |
+| Account locked after failed attempts              | Unlock via Run Command: `passwd -u <user>` or `pam_tally2 --reset --user <user>` | [Troubleshoot SSH connection](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/linux/troubleshoot-ssh-connection)           |
+| "Permission denied" with Entra ID (AAD) SSH login | Missing role: Virtual Machine Administrator Login or Virtual Machine User Login  | [Troubleshoot SSH connection](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/linux/troubleshoot-ssh-connection)           |
+| sudo password prompt fails / user not in sudoers  | Fix via Run Command or Serial Console                                            | [Troubleshoot SSH connection](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/linux/troubleshoot-ssh-connection)           |
 
 ## Quick Commands — Windows
 

@@ -24,15 +24,15 @@ az account set --subscription "<name-or-id>"
 
 Scan the user's message before asking:
 
-| User Says | Inferred |
-|-----------|----------|
-| "my existing VNet" / "my VNet" | BYO VNet |
-| "managed virtual network" | Managed VNet |
-| "user-assigned identity" / "UAI" | User-assigned identity |
-| "APIM" / "API Management" | Needs APIM |
-| "MCP servers on the VNet" | Needs MCP subnet |
-| "I have a Bicep/Terraform template" | Extend existing IaC |
-| "add Foundry to my existing infra" | Extend existing IaC |
+| User Says                           | Inferred               |
+| ----------------------------------- | ---------------------- |
+| "my existing VNet" / "my VNet"      | BYO VNet               |
+| "managed virtual network"           | Managed VNet           |
+| "user-assigned identity" / "UAI"    | User-assigned identity |
+| "APIM" / "API Management"           | Needs APIM             |
+| "MCP servers on the VNet"           | Needs MCP subnet       |
+| "I have a Bicep/Terraform template" | Extend existing IaC    |
+| "add Foundry to my existing infra"  | Extend existing IaC    |
 
 ### 1.2 Architecture Questions
 
@@ -79,7 +79,7 @@ Confirm the approach with the user before continuing to Tier 2.
 
 ## Tier 2 — Architecture
 
-*Skip questions already answered or not applicable.*
+_Skip questions already answered or not applicable._
 
 ### BYO VNet only
 
@@ -131,11 +131,11 @@ Confirm the approach with the user before continuing to Tier 2.
 
 **Model:** Name, vendor, version. Verify version format:
 
-| Vendor | Format | Example |
-|--------|--------|---------|
-| OpenAI | Date | `2025-04-14` |
-| Mistral AI | Integer | `1` |
-| Meta | Integer | `9` |
+| Vendor     | Format  | Example      |
+| ---------- | ------- | ------------ |
+| OpenAI     | Date    | `2025-04-14` |
+| Mistral AI | Integer | `1`          |
+| Meta       | Integer | `9`          |
 
 **Client type:** SDK, web app, Teams bot, other service?
 
@@ -159,19 +159,20 @@ After collecting all requirements, validate the user's configuration against cur
 
 ### Reference Pages
 
-| Topic | URL |
-|-------|-----|
-| Network isolation overview | https://learn.microsoft.com/azure/ai-foundry/how-to/configure-private-link |
-| Agent Service private networking | https://learn.microsoft.com/azure/ai-services/agents/how-to/virtual-networks |
-| Managed VNet configuration | https://learn.microsoft.com/azure/ai-foundry/how-to/configure-managed-network |
-| Agent Service FAQ — VNet | https://learn.microsoft.com/azure/foundry/agents/faq#virtual-networking |
-| Supported regions & availability | https://learn.microsoft.com/azure/ai-foundry/reference/region-support |
-| NSP | https://learn.microsoft.com/en-us/azure/networking/network-security-perimeter |
-| Feature Limitations | https://learn.microsoft.com/en-us/azure/foundry/how-to/configure-private-link#foundry-feature-limitations |
+| Topic                            | URL                                                                                                       |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Network isolation overview       | https://learn.microsoft.com/azure/ai-foundry/how-to/configure-private-link                                |
+| Agent Service private networking | https://learn.microsoft.com/azure/ai-services/agents/how-to/virtual-networks                              |
+| Managed VNet configuration       | https://learn.microsoft.com/azure/ai-foundry/how-to/configure-managed-network                             |
+| Agent Service FAQ — VNet         | https://learn.microsoft.com/azure/foundry/agents/faq#virtual-networking                                   |
+| Supported regions & availability | https://learn.microsoft.com/azure/ai-foundry/reference/region-support                                     |
+| NSP                              | https://learn.microsoft.com/en-us/azure/networking/network-security-perimeter                             |
+| Feature Limitations              | https://learn.microsoft.com/en-us/azure/foundry/how-to/configure-private-link#foundry-feature-limitations |
 
 > These URLs may change. If a fetch returns 404, use `microsoft_docs_search` to find the current page.
 
 If a conflict is found, present:
+
 1. The constraint and its source URL
 2. Which requirement it affects
 3. Options to resolve

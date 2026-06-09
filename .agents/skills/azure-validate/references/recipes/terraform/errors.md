@@ -1,12 +1,12 @@
 # Terraform Validation Errors
 
-| Error | Fix |
-|-------|-----|
-| `Backend init failed` | Check storage account access |
-| `Provider version conflict` | Update required_providers |
-| `State lock failed` | Wait or force unlock |
-| `Validation failed` | Check terraform validate output |
-| `Error: Cycle:` | See [Cycle Errors](#cycle-errors) below |
+| Error                       | Fix                                     |
+| --------------------------- | --------------------------------------- |
+| `Backend init failed`       | Check storage account access            |
+| `Provider version conflict` | Update required_providers               |
+| `State lock failed`         | Wait or force unlock                    |
+| `Validation failed`         | Check terraform validate output         |
+| `Error: Cycle:`             | See [Cycle Errors](#cycle-errors) below |
 
 ## Cycle Errors
 

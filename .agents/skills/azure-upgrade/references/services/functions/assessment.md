@@ -32,74 +32,76 @@ The report MUST be saved as `upgrade-assessment-report.md` in the workspace root
 
 ## 1. Executive Summary
 
-| Property | Value |
-|----------|-------|
-| **App Name** | <app-name> |
-| **Resource Group** | <resource-group> |
-| **Current Plan** | <current-plan (e.g., Consumption / Y1 Dynamic)> |
-| **Target Plan** | <target-plan (e.g., Flex Consumption / FC1)> |
-| **Region** | <region> |
-| **Runtime** | <runtime and version> |
-| **OS** | <Linux / Windows> |
-| **Upgrade Readiness** | <Ready / Needs Attention / Blocked> |
-| **Assessment Date** | <date> |
+| Property              | Value                                           |
+| --------------------- | ----------------------------------------------- |
+| **App Name**          | <app-name>                                      |
+| **Resource Group**    | <resource-group>                                |
+| **Current Plan**      | <current-plan (e.g., Consumption / Y1 Dynamic)> |
+| **Target Plan**       | <target-plan (e.g., Flex Consumption / FC1)>    |
+| **Region**            | <region>                                        |
+| **Runtime**           | <runtime and version>                           |
+| **OS**                | <Linux / Windows>                               |
+| **Upgrade Readiness** | <Ready / Needs Attention / Blocked>             |
+| **Assessment Date**   | <date>                                          |
 
 ## 2. Compatibility Checks
 
-| Check | Status | Details |
-|-------|--------|---------|
-| Region supported | ✅ / ❌ | |
-| Language stack supported | ✅ / ❌ | |
-| Stack version supported | ✅ / ❌ | |
-| No deployment slots | ✅ / ⚠️ | |
-| No TLS/SSL certificates | ✅ / ⚠️ | |
-| Blob triggers use EventGrid | ✅ / ⚠️ / N/A | |
-| .NET isolated (not in-process) | ✅ / ❌ / N/A | |
+| Check                          | Status        | Details |
+| ------------------------------ | ------------- | ------- |
+| Region supported               | ✅ / ❌       |         |
+| Language stack supported       | ✅ / ❌       |         |
+| Stack version supported        | ✅ / ❌       |         |
+| No deployment slots            | ✅ / ⚠️       |         |
+| No TLS/SSL certificates        | ✅ / ⚠️       |         |
+| Blob triggers use EventGrid    | ✅ / ⚠️ / N/A |         |
+| .NET isolated (not in-process) | ✅ / ❌ / N/A |         |
 
 ## 3. App Settings Inventory
 
-| Setting | Value | Migrate? | Notes |
-|---------|-------|----------|-------|
-| | | Yes / No / Convert | |
+| Setting | Value | Migrate?           | Notes |
+| ------- | ----- | ------------------ | ----- |
+|         |       | Yes / No / Convert |       |
 
 ## 4. Managed Identities
 
-| Type | Principal ID | Roles | Action |
-|------|-------------|-------|--------|
-| System-assigned | | | Recreate in new app |
-| User-assigned | | | Reassign to new app |
+| Type            | Principal ID | Roles | Action              |
+| --------------- | ------------ | ----- | ------------------- |
+| System-assigned |              |       | Recreate in new app |
+| User-assigned   |              |       | Reassign to new app |
 
 ## 5. Application Configurations
 
-| Configuration | Current Value | Migrate? | Notes |
-|---------------|---------------|----------|-------|
-| CORS settings | | | |
-| Custom domains | | | |
-| HTTP version | | | |
-| HTTPS only | | | |
-| TLS version | | | |
-| Client certificates | | | |
-| Access restrictions | | | |
-| Built-in auth | | | |
+| Configuration       | Current Value | Migrate? | Notes |
+| ------------------- | ------------- | -------- | ----- |
+| CORS settings       |               |          |       |
+| Custom domains      |               |          |       |
+| HTTP version        |               |          |       |
+| HTTPS only          |               |          |       |
+| TLS version         |               |          |       |
+| Client certificates |               |          |       |
+| Access restrictions |               |          |       |
+| Built-in auth       |               |          |       |
 
 ## 6. Trigger & Binding Analysis
 
-| Function | Trigger Type | Source | Migration Risk | Mitigation |
-|----------|-------------|--------|----------------|------------|
-| | | | Low / Medium / High | |
+| Function | Trigger Type | Source | Migration Risk      | Mitigation |
+| -------- | ------------ | ------ | ------------------- | ---------- |
+|          |              |        | Low / Medium / High |            |
 
 ## 7. Dependent Services
 
-| Service | Dependency Type | Migration Risk | Mitigation Strategy |
-|---------|----------------|----------------|---------------------|
-| | Upstream / Downstream | | |
+| Service | Dependency Type       | Migration Risk | Mitigation Strategy |
+| ------- | --------------------- | -------------- | ------------------- |
+|         | Upstream / Downstream |                |                     |
 
 ## 8. Blockers & Warnings
 
 ### Blockers (must fix before upgrade)
+
 - [ ] <any blocking issues>
 
 ### Warnings (should address but not blocking)
+
 - [ ] <any non-blocking concerns>
 
 ## 9. Recommendations

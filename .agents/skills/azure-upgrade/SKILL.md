@@ -14,14 +14,14 @@ metadata:
 
 ## Triggers
 
-| User Intent | Example Prompts |
-|-------------|-----------------|
-| Upgrade Azure Functions plan | "Upgrade my function app from Consumption to Flex Consumption" |
-| Change hosting tier | "Move my function app to a better plan" |
-| Assess upgrade readiness | "Is my function app ready for Flex Consumption?" |
-| Automate plan migration | "Automate the steps to upgrade my Functions plan" |
-| Modernize legacy Azure Java SDK | "Migrate legacy Azure SDKs for Java", "Upgrade legacy Azure Java SDK", "Migrate my Java project from com.microsoft.azure to com.azure" |
-| Migrate Azure Cache for Redis (ACR/OSS) to Azure Managed Redis (AMR) | "Migrate my Redis cache to AMR", "ACR to AMR", "OSS to AMR", "Upgrade my Premium P2 cache to Managed Redis", "Pick an AMR SKU", "Convert my Redis IaC template to AMR" |
+| User Intent                                                                  | Example Prompts                                                                                                                                                                |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Upgrade Azure Functions plan                                                 | "Upgrade my function app from Consumption to Flex Consumption"                                                                                                                 |
+| Change hosting tier                                                          | "Move my function app to a better plan"                                                                                                                                        |
+| Assess upgrade readiness                                                     | "Is my function app ready for Flex Consumption?"                                                                                                                               |
+| Automate plan migration                                                      | "Automate the steps to upgrade my Functions plan"                                                                                                                              |
+| Modernize legacy Azure Java SDK                                              | "Migrate legacy Azure SDKs for Java", "Upgrade legacy Azure Java SDK", "Migrate my Java project from com.microsoft.azure to com.azure"                                         |
+| Migrate Azure Cache for Redis (ACR/OSS) to Azure Managed Redis (AMR)         | "Migrate my Redis cache to AMR", "ACR to AMR", "OSS to AMR", "Upgrade my Premium P2 cache to Managed Redis", "Pick an AMR SKU", "Convert my Redis IaC template to AMR"         |
 | Migrate Azure Cache for Redis Enterprise (ACRE) to Azure Managed Redis (AMR) | "Migrate my Enterprise_E10 cache to AMR", "ACRE to AMR", "Update my ACRE IaC template for AMR", "Migrate EnterpriseFlash to AMR", "Migrate my geo-replicated Enterprise Redis" |
 
 ## Rules
@@ -37,12 +37,12 @@ metadata:
 
 ## Upgrade Scenarios
 
-| Source | Target | Reference |
-|--------|--------|-----------|
-| Azure Functions Consumption Plan | Azure Functions Flex Consumption Plan | [consumption-to-flex.md](references/services/functions/consumption-to-flex.md) |
-| Legacy Azure Java SDK (`com.microsoft.azure.*`) | Modern Azure Java SDK (`com.azure.*`) | [languages/java/README.md](references/languages/java/README.md) |
-| Azure Cache for Redis (ACR/OSS) Basic/Standard/Premium | Azure Managed Redis (AMR) | [services/redis/redis-to-amr.md](references/services/redis/redis-to-amr.md) |
-| Azure Cache for Redis Enterprise (ACRE) / Enterprise Flash | Azure Managed Redis (AMR) | [services/redis/redis-to-amr.md](references/services/redis/redis-to-amr.md) |
+| Source                                                     | Target                                | Reference                                                                      |
+| ---------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------ |
+| Azure Functions Consumption Plan                           | Azure Functions Flex Consumption Plan | [consumption-to-flex.md](references/services/functions/consumption-to-flex.md) |
+| Legacy Azure Java SDK (`com.microsoft.azure.*`)            | Modern Azure Java SDK (`com.azure.*`) | [languages/java/README.md](references/languages/java/README.md)                |
+| Azure Cache for Redis (ACR/OSS) Basic/Standard/Premium     | Azure Managed Redis (AMR)             | [services/redis/redis-to-amr.md](references/services/redis/redis-to-amr.md)    |
+| Azure Cache for Redis Enterprise (ACRE) / Enterprise Flash | Azure Managed Redis (AMR)             | [services/redis/redis-to-amr.md](references/services/redis/redis-to-amr.md)    |
 
 > SDK upgrade scenarios (e.g. Java legacy → modern) run a **source-code modernization flow** that is distinct from Azure service/plan/SKU upgrades: follow the scenario reference, **not** the Steps below.
 
@@ -50,12 +50,12 @@ metadata:
 
 ## MCP Tools
 
-| Tool | Purpose |
-|------|---------|
-| `mcp_azure_mcp_get_azure_bestpractices` | Get Azure best practices for the target service |
-| `mcp_azure_mcp_documentation` | Look up Azure documentation for upgrade scenarios |
-| `mcp_azure_mcp_appservice` | Query App Service and Functions plan details |
-| `mcp_azure_mcp_applicationinsights` | Verify monitoring configuration |
+| Tool                                    | Purpose                                           |
+| --------------------------------------- | ------------------------------------------------- |
+| `mcp_azure_mcp_get_azure_bestpractices` | Get Azure best practices for the target service   |
+| `mcp_azure_mcp_documentation`           | Look up Azure documentation for upgrade scenarios |
+| `mcp_azure_mcp_appservice`              | Query App Service and Functions plan details      |
+| `mcp_azure_mcp_applicationinsights`     | Verify monitoring configuration                   |
 
 ## Steps
 
@@ -87,5 +87,6 @@ Track progress in `upgrade-status.md` inside the workspace root.
 ## Next
 
 After upgrade is validated, hand off to:
+
 - `azure-validate` — for thorough post-upgrade validation
 - `azure-deploy` — if the user wants to set up CI/CD for the new app

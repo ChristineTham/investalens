@@ -65,13 +65,13 @@ Keep `target_attributes` omitted so azd can auto-detect optimizable attributes.
 
 ## Source mapping
 
-| Source | eval.yaml field |
-|--------|-----------------|
-| effective azd context | `agent.name`, `agent.version`, `agent.kind` |
-| baseline config | `agent.model`, `agent.config` |
-| selected local dataset JSONL | `dataset_file` |
-| selected remote/local dataset | `dataset_reference` |
-| selected validation dataset | `validation_reference` |
-| selected Foundry/local evaluators | `evaluators[]` |
-| selected judge/eval deployment | `options.eval_model` |
+| Source                                    | eval.yaml field                                                   |
+| ----------------------------------------- | ----------------------------------------------------------------- |
+| effective azd context                     | `agent.name`, `agent.version`, `agent.kind`                       |
+| baseline config                           | `agent.model`, `agent.config`                                     |
+| selected local dataset JSONL              | `dataset_file`                                                    |
+| selected remote/local dataset             | `dataset_reference`                                               |
+| selected validation dataset               | `validation_reference`                                            |
+| selected Foundry/local evaluators         | `evaluators[]`                                                    |
+| selected judge/eval deployment            | `options.eval_model`                                              |
 | selected allowlisted optimizer deployment | `options.optimization_model`, `options.optimization_config.model` |

@@ -55,7 +55,7 @@ app.MapGet("/api/cached", async (IDistributedCache cache) =>
 
 ## Files to Modify
 
-| File | Action |
-|------|--------|
+| File         | Action                       |
+| ------------ | ---------------------------- |
 | `Program.cs` | Add Redis cache registration |
-| `*.csproj` | Add NuGet packages |
+| `*.csproj`   | Add NuGet packages           |

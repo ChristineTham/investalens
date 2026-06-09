@@ -4,33 +4,33 @@
 
 ### Kubernetes → Container Apps Resource Mapping
 
-| Kubernetes Concept | Container Apps Equivalent | Supported | Notes |
-|-------------------|--------------------------|-----------|-------|
-| Deployment | Container App | ✅ Yes | One-to-one mapping for stateless workloads |
-| Service (ClusterIP) | Internal ingress | ✅ Yes | Set `ingress.external: false` |
-| Service (LoadBalancer) | External ingress | ✅ Yes | Set `ingress.external: true` |
-| Ingress | Built-in ingress with custom domain | ✅ Yes | Supports TLS, traffic splitting |
-| ConfigMap | Environment variables | ✅ Yes | Inline or from secrets |
-| Secret | Secrets (Key Vault refs preferred) | ✅ Yes | Use managed identity for Key Vault |
-| CronJob | Container Apps Job (scheduled) | ✅ Yes | Cron expression syntax |
-| Job | Container Apps Job (manual/event) | ✅ Yes | One-time or event-triggered |
-| HPA | Built-in scaling rules | ✅ Yes | HTTP, TCP, KEDA-compatible scalers |
-| PersistentVolumeClaim | Azure Files mount | ⚠️ Limited | EmptyDir and Azure Files only; no block storage |
-| DaemonSet | N/A | ❌ No | Consider sidecar containers or external agents |
-| StatefulSet | N/A | ❌ No | Use external state (Cosmos DB, Redis, SQL) |
-| Custom CRDs / Operators | N/A | ❌ No | Evaluate if Dapr components can replace |
-| NetworkPolicy | VNet NSG rules | ⚠️ Limited | Configure at Environment subnet level |
+| Kubernetes Concept      | Container Apps Equivalent           | Supported  | Notes                                           |
+| ----------------------- | ----------------------------------- | ---------- | ----------------------------------------------- |
+| Deployment              | Container App                       | ✅ Yes     | One-to-one mapping for stateless workloads      |
+| Service (ClusterIP)     | Internal ingress                    | ✅ Yes     | Set `ingress.external: false`                   |
+| Service (LoadBalancer)  | External ingress                    | ✅ Yes     | Set `ingress.external: true`                    |
+| Ingress                 | Built-in ingress with custom domain | ✅ Yes     | Supports TLS, traffic splitting                 |
+| ConfigMap               | Environment variables               | ✅ Yes     | Inline or from secrets                          |
+| Secret                  | Secrets (Key Vault refs preferred)  | ✅ Yes     | Use managed identity for Key Vault              |
+| CronJob                 | Container Apps Job (scheduled)      | ✅ Yes     | Cron expression syntax                          |
+| Job                     | Container Apps Job (manual/event)   | ✅ Yes     | One-time or event-triggered                     |
+| HPA                     | Built-in scaling rules              | ✅ Yes     | HTTP, TCP, KEDA-compatible scalers              |
+| PersistentVolumeClaim   | Azure Files mount                   | ⚠️ Limited | EmptyDir and Azure Files only; no block storage |
+| DaemonSet               | N/A                                 | ❌ No      | Consider sidecar containers or external agents  |
+| StatefulSet             | N/A                                 | ❌ No      | Use external state (Cosmos DB, Redis, SQL)      |
+| Custom CRDs / Operators | N/A                                 | ❌ No      | Evaluate if Dapr components can replace         |
+| NetworkPolicy           | VNet NSG rules                      | ⚠️ Limited | Configure at Environment subnet level           |
 
 ### Resource Limits
 
-| Resource | Kubernetes (typical) | Container Apps Maximum | Migration Impact |
-|----------|---------------------|----------------------|------------------|
-| CPU per container | Up to 64+ vCPU | 4 vCPU | Split large containers |
-| Memory per container | Up to 256+ GiB | 8 GiB | Redesign memory-intensive workloads |
-| Replicas per app | 1000+ | 300 per revision | Validate scale requirements |
-| Request timeout | Configurable (hours+) | 240 seconds default | Redesign long-running requests |
-| Startup probe timeout | Configurable | 240 seconds | Optimize startup time |
-| Containers per pod/app | 10+ | Up to 10 sidecars | Init + sidecar containers supported |
+| Resource               | Kubernetes (typical)  | Container Apps Maximum | Migration Impact                    |
+| ---------------------- | --------------------- | ---------------------- | ----------------------------------- |
+| CPU per container      | Up to 64+ vCPU        | 4 vCPU                 | Split large containers              |
+| Memory per container   | Up to 256+ GiB        | 8 GiB                  | Redesign memory-intensive workloads |
+| Replicas per app       | 1000+                 | 300 per revision       | Validate scale requirements         |
+| Request timeout        | Configurable (hours+) | 240 seconds default    | Redesign long-running requests      |
+| Startup probe timeout  | Configurable          | 240 seconds            | Optimize startup time               |
+| Containers per pod/app | 10+                   | Up to 10 sidecars      | Init + sidecar containers supported |
 
 ## Unsupported Patterns
 
@@ -108,6 +108,7 @@
 ## Complexity Assessment Guidelines
 
 ### Low Complexity
+
 - Stateless Deployments with ClusterIP or LoadBalancer Services
 - Simple environment variables (no complex ConfigMaps)
 - No persistent storage or external state already in use
@@ -115,6 +116,7 @@
 - No service mesh dependencies
 
 ### Medium Complexity
+
 - Multiple Deployments with inter-service communication
 - ConfigMaps and Secrets requiring Key Vault migration
 - HPA with custom metrics (need KEDA scaler mapping)
@@ -122,6 +124,7 @@
 - Ingress with TLS and custom domains
 
 ### High Complexity
+
 - StatefulSets requiring state migration to external services
 - Service mesh (Istio/Linkerd) requiring Dapr migration
 - Custom CRDs or Operators (need redesign)

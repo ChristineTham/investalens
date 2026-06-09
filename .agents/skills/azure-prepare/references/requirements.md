@@ -6,35 +6,35 @@ Collect project requirements through conversation before making architecture dec
 
 ### 1. Classification
 
-| Type | Description | Implications |
-|------|-------------|--------------|
-| POC | Proof of concept | Minimal infra, cost-optimized |
-| Development | Internal tooling | Balanced, team-focused |
-| Production | Customer-facing | Full reliability, monitoring |
+| Type        | Description      | Implications                  |
+| ----------- | ---------------- | ----------------------------- |
+| POC         | Proof of concept | Minimal infra, cost-optimized |
+| Development | Internal tooling | Balanced, team-focused        |
+| Production  | Customer-facing  | Full reliability, monitoring  |
 
 ### 2. Scale
 
-| Scale | Users | Considerations |
-|-------|-------|----------------|
-| Small | <1K | Single region, basic SKUs |
-| Medium | 1K-100K | Auto-scaling, multi-zone |
-| Large | 100K+ | Multi-region, premium SKUs |
+| Scale  | Users   | Considerations             |
+| ------ | ------- | -------------------------- |
+| Small  | <1K     | Single region, basic SKUs  |
+| Medium | 1K-100K | Auto-scaling, multi-zone   |
+| Large  | 100K+   | Multi-region, premium SKUs |
 
 ### 3. Budget
 
-| Profile | Focus |
-|---------|-------|
-| Cost-Optimized | Minimize spend, lower SKUs |
-| Balanced | Value for money, standard SKUs |
-| Performance | Maximum capability, premium SKUs |
+| Profile        | Focus                            |
+| -------------- | -------------------------------- |
+| Cost-Optimized | Minimize spend, lower SKUs       |
+| Balanced       | Value for money, standard SKUs   |
+| Performance    | Maximum capability, premium SKUs |
 
 ### 4. Compliance
 
-| Requirement | Impact |
-|-------------|--------|
-| Data residency | Region constraints |
-| Industry regulations | Security controls |
-| Internal policies | Approval workflows |
+| Requirement          | Impact             |
+| -------------------- | ------------------ |
+| Data residency       | Region constraints |
+| Industry regulations | Security controls  |
+| Internal policies    | Approval workflows |
 
 ### 5. Subscription Policies
 
@@ -44,14 +44,14 @@ After the user confirms a subscription, query Azure Policy assignments to discov
 mcp_azure_mcp_policy(command: "policy_assignment_list", subscription: "<subscriptionId>")
 ```
 
-| Policy Constraint | Impact |
-|-------------------|--------|
-| Blocked resource types or SKUs | Exclude from architecture |
-| Required tags | Add to all Bicep/Terraform resources |
-| Allowed regions | Restrict location choices |
+| Policy Constraint                                | Impact                                |
+| ------------------------------------------------ | ------------------------------------- |
+| Blocked resource types or SKUs                   | Exclude from architecture             |
+| Required tags                                    | Add to all Bicep/Terraform resources  |
+| Allowed regions                                  | Restrict location choices             |
 | Network restrictions (e.g., no public endpoints) | Adjust networking and access patterns |
-| Storage policies (e.g., deny shared key access) | Use policy-compliant auth |
-| Naming conventions | Apply to resource naming |
+| Storage policies (e.g., deny shared key access)  | Use policy-compliant auth             |
+| Naming conventions                               | Apply to resource naming              |
 
 > ⚠️ **Warning:** Skipping this step can cause deployment failures when Azure Policy denies resource creation. Checking policies here prevents wasted work in architecture and generation phases.
 

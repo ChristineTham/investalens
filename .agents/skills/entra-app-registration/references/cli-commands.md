@@ -20,11 +20,13 @@ az account set --subscription "Your Subscription Name"
 ### Create App Registration
 
 **Basic app registration:**
+
 ```bash
 az ad app create --display-name "MyApplication"
 ```
 
 **Web application with redirect URI:**
+
 ```bash
 az ad app create \
   --display-name "MyWebApp" \
@@ -33,6 +35,7 @@ az ad app create \
 ```
 
 **Single Page Application (SPA):**
+
 ```bash
 az ad app create \
   --display-name "MySpaApp" \
@@ -41,6 +44,7 @@ az ad app create \
 ```
 
 **Public client (Desktop/Mobile app):**
+
 ```bash
 az ad app create \
   --display-name "MyDesktopApp" \
@@ -49,6 +53,7 @@ az ad app create \
 ```
 
 **Multi-tenant application:**
+
 ```bash
 az ad app create \
   --display-name "MyMultiTenantApp" \
@@ -58,12 +63,12 @@ az ad app create \
 
 ### Sign-in Audience Options
 
-| Value | Description |
-|-------|-------------|
-| `AzureADMyOrg` | Single tenant (default) |
-| `AzureADMultipleOrgs` | Multi-tenant (any Azure AD) |
+| Value                                | Description                                |
+| ------------------------------------ | ------------------------------------------ |
+| `AzureADMyOrg`                       | Single tenant (default)                    |
+| `AzureADMultipleOrgs`                | Multi-tenant (any Azure AD)                |
 | `AzureADandPersonalMicrosoftAccount` | Multi-tenant + personal Microsoft accounts |
-| `PersonalMicrosoftAccount` | Personal Microsoft accounts only |
+| `PersonalMicrosoftAccount`           | Personal Microsoft accounts only           |
 
 ## List and Query Apps
 
@@ -112,18 +117,21 @@ echo "Object ID: $OBJECT_ID"
 ### Add redirect URIs
 
 **Web app:**
+
 ```bash
 az ad app update --id $APP_ID \
   --web-redirect-uris "https://myapp.com/callback" "https://myapp.com/auth"
 ```
 
 **SPA:**
+
 ```bash
 az ad app update --id $APP_ID \
   --spa-redirect-uris "http://localhost:3000" "http://localhost:5000"
 ```
 
 **Public client:**
+
 ```bash
 az ad app update --id $APP_ID \
   --public-client-redirect-uris "http://localhost" "myapp://auth"
@@ -145,6 +153,7 @@ az ad app credential reset --id $APP_ID --end-date "2025-12-31"
 ```
 
 **Save the output:**
+
 ```json
 {
   "appId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
@@ -185,6 +194,7 @@ az ad app credential reset --id $APP_ID --cert "@path/to/cert.pem"
 ### Add API permissions
 
 **Microsoft Graph User.Read:**
+
 ```bash
 GRAPH_RESOURCE_ID="00000003-0000-0000-c000-000000000000"  # Microsoft Graph
 USER_READ_ID="e1fe6dd8-ba31-4d61-89e7-88639da4683d"      # User.Read permission
@@ -195,6 +205,7 @@ az ad app permission add --id $APP_ID \
 ```
 
 **Microsoft Graph Mail.Read (delegated):**
+
 ```bash
 MAIL_READ_ID="570282fd-fa5c-430d-a7fd-fc8dc98a9dca"      # Mail.Read permission
 
@@ -204,6 +215,7 @@ az ad app permission add --id $APP_ID \
 ```
 
 **Microsoft Graph User.Read.All (application):**
+
 ```bash
 USER_READ_ALL_ID="df021288-bdef-4463-88db-98f22de89214"  # User.Read.All application permission
 
@@ -218,14 +230,14 @@ az ad app permission add --id $APP_ID \
 
 **Microsoft Graph (00000003-0000-0000-c000-000000000000):**
 
-| Permission | ID | Type |
-|------------|-----|------|
-| User.Read | e1fe6dd8-ba31-4d61-89e7-88639da4683d | Delegated |
-| User.ReadWrite | b4e74841-8e56-480b-be8b-910348b18b4c | Delegated |
-| Mail.Read | 570282fd-fa5c-430d-a7fd-fc8dc98a9dca | Delegated |
-| Mail.Send | e383f46e-2787-4529-855e-0e479a3ffac0 | Delegated |
-| Calendars.Read | 465a38f9-76ea-45b9-9f34-9e8b0d4b0b42 | Delegated |
-| User.Read.All | df021288-bdef-4463-88db-98f22de89214 | Application |
+| Permission         | ID                                   | Type        |
+| ------------------ | ------------------------------------ | ----------- |
+| User.Read          | e1fe6dd8-ba31-4d61-89e7-88639da4683d | Delegated   |
+| User.ReadWrite     | b4e74841-8e56-480b-be8b-910348b18b4c | Delegated   |
+| Mail.Read          | 570282fd-fa5c-430d-a7fd-fc8dc98a9dca | Delegated   |
+| Mail.Send          | e383f46e-2787-4529-855e-0e479a3ffac0 | Delegated   |
+| Calendars.Read     | 465a38f9-76ea-45b9-9f34-9e8b0d4b0b42 | Delegated   |
+| User.Read.All      | df021288-bdef-4463-88db-98f22de89214 | Application |
 | Directory.Read.All | 7ab1d382-f21e-4acd-a863-ba3e13f7da61 | Application |
 
 ### Grant admin consent

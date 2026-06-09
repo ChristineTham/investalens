@@ -84,9 +84,9 @@ const TaskDemo = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 relative size-full rounded-lg border h-[600px]">
-      <div className="flex flex-col h-full">
-        <div className="flex gap-2 mb-6 flex-wrap">
+    <div className="relative mx-auto size-full h-[600px] max-w-4xl rounded-lg border p-6">
+      <div className="flex h-full flex-col">
+        <div className="mb-6 flex flex-wrap gap-2">
           <Button
             onClick={() => handleSubmit("React component development")}
             disabled={isLoading}
@@ -96,7 +96,7 @@ const TaskDemo = () => {
           </Button>
         </div>
 
-        <div className="flex-1 overflow-auto space-y-4">
+        <div className="flex-1 space-y-4 overflow-auto">
           {isLoading && !object && (
             <div className="text-muted-foreground">Generating tasks...</div>
           )}
@@ -191,32 +191,32 @@ export async function POST(req: Request) {
 
 ### `<Task />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `defaultOpen` | `boolean` | `true` | Whether the task is open by default. |
-| `...props` | `React.ComponentProps<typeof Collapsible>` | - | Any other props are spread to the root Collapsible component. |
+| Prop          | Type                                       | Default | Description                                                   |
+| ------------- | ------------------------------------------ | ------- | ------------------------------------------------------------- |
+| `defaultOpen` | `boolean`                                  | `true`  | Whether the task is open by default.                          |
+| `...props`    | `React.ComponentProps<typeof Collapsible>` | -       | Any other props are spread to the root Collapsible component. |
 
 ### `<TaskTrigger />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `title` | `string` | Required | The title of the task that will be displayed in the trigger. |
-| `...props` | `React.ComponentProps<typeof CollapsibleTrigger>` | - | Any other props are spread to the CollapsibleTrigger component. |
+| Prop       | Type                                              | Default  | Description                                                     |
+| ---------- | ------------------------------------------------- | -------- | --------------------------------------------------------------- |
+| `title`    | `string`                                          | Required | The title of the task that will be displayed in the trigger.    |
+| `...props` | `React.ComponentProps<typeof CollapsibleTrigger>` | -        | Any other props are spread to the CollapsibleTrigger component. |
 
 ### `<TaskContent />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `...props` | `React.ComponentProps<typeof CollapsibleContent>` | - | Any other props are spread to the CollapsibleContent component. |
+| Prop       | Type                                              | Default | Description                                                     |
+| ---------- | ------------------------------------------------- | ------- | --------------------------------------------------------------- |
+| `...props` | `React.ComponentProps<typeof CollapsibleContent>` | -       | Any other props are spread to the CollapsibleContent component. |
 
 ### `<TaskItem />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `...props` | `React.ComponentProps<` | - | Any other props are spread to the underlying div. |
+| Prop       | Type                    | Default | Description                                       |
+| ---------- | ----------------------- | ------- | ------------------------------------------------- |
+| `...props` | `React.ComponentProps<` | -       | Any other props are spread to the underlying div. |
 
 ### `<TaskItemFile />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `...props` | `React.ComponentProps<` | - | Any other props are spread to the underlying div. |
+| Prop       | Type                    | Default | Description                                       |
+| ---------- | ----------------------- | ------- | ------------------------------------------------- |
+| `...props` | `React.ComponentProps<` | -       | Any other props are spread to the underlying div. |

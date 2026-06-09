@@ -64,16 +64,16 @@ async def me(user=Depends(validate_token)):
 
 ## App Settings Required
 
-| Setting | Value |
-|---------|-------|
-| `AZURE_TENANT_ID` | Entra tenant ID |
-| `AZURE_CLIENT_ID` | App registration client ID |
+| Setting            | Value                                                                            |
+| ------------------ | -------------------------------------------------------------------------------- |
+| `AZURE_TENANT_ID`  | Entra tenant ID                                                                  |
+| `AZURE_CLIENT_ID`  | App registration client ID                                                       |
 | `AZURE_APP_ID_URI` | Application ID URI (e.g., `api://<client-id>`) — optional, defaults to CLIENT_ID |
 
 ## Files to Modify
 
-| File | Action |
-|------|--------|
-| `auth.py` | Create — JWT validation middleware |
-| `main.py` | Modify — add protected endpoints |
-| `requirements.txt` | Modify — add PyJWT, cryptography |
+| File               | Action                             |
+| ------------------ | ---------------------------------- |
+| `auth.py`          | Create — JWT validation middleware |
+| `main.py`          | Modify — add protected endpoints   |
+| `requirements.txt` | Modify — add PyJWT, cryptography   |

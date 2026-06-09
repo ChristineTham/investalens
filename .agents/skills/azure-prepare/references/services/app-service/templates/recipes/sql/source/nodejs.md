@@ -58,7 +58,9 @@ app.post("/api/todos", async (req, res) => {
   const body = req.body || {};
   const title = typeof body.title === "string" ? body.title.trim() : "";
   if (!title) {
-    return res.status(400).json({ error: "title is required and must be a non-empty string" });
+    return res
+      .status(400)
+      .json({ error: "title is required and must be a non-empty string" });
   }
   const isComplete = body.isComplete === undefined ? false : body.isComplete;
   if (typeof isComplete !== "boolean") {
@@ -82,6 +84,7 @@ app.get("/api/todos/:id", async (req, res) => {
 **Azure (managed identity):**
 
 Set as app setting in Bicep — the format Prisma uses for SQL Server:
+
 ```
 sqlserver://<server>.database.windows.net:1433;database=<db>;authentication=ActiveDirectoryMsi;clientId=<mi-client-id>
 ```
@@ -108,12 +111,12 @@ npx prisma migrate deploy --schema src/prisma/schema.prisma
 
 ## Files to Add
 
-| File | Action |
-|------|--------|
-| `prisma/schema.prisma` | Create — data model definitions |
-| `src/db.js` | Create — Prisma client instance |
-| `src/index.js` | Modify — add CRUD endpoints |
-| `package.json` | Modify — add prisma, @prisma/client |
+| File                   | Action                              |
+| ---------------------- | ----------------------------------- |
+| `prisma/schema.prisma` | Create — data model definitions     |
+| `src/db.js`            | Create — Prisma client instance     |
+| `src/index.js`         | Modify — add CRUD endpoints         |
+| `package.json`         | Modify — add prisma, @prisma/client |
 
 ## Common Patterns
 

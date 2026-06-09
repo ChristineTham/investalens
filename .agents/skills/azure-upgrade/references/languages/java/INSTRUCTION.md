@@ -61,6 +61,7 @@ Use these package-specific references:
 ## Validation
 
 **Make sure**
+
 - Migrated project pass compilation.
 - All tests pass. Don't silently skip tests.
 - The plan's `Guidelines` section records the freshly resolved latest stable BOM target exactly as `TARGET_AZURE_SDK_BOM_VERSION = <resolved-version>`; this value must not remain a placeholder, must not be copied from the original project, and must match the current Azure SDK for Java BOM source of truth at validation time.
@@ -99,6 +100,7 @@ Use these package-specific references:
   ```
 
   Pay special attention to files outside the root Maven/Gradle reactor— e.g. `.ci/**/pom.xml`, `ci/**`, `buildSrc/`, sample sub-modules, archetype resources — these are frequently missed because `mvn dependency:tree` on the root project never visits them.
+
 - If azure-sdk-bom is used, ensure the BOM version exactly matches the resolved latest stable version recorded in the plan's `Guidelines` section as `TARGET_AZURE_SDK_BOM_VERSION` and there are **NO** explicit version dependencies for Azure libraries that are in azure-sdk-bom.
   E.g. Instead of `implementation 'com.azure.resourcemanager:azure-resourcemanager:2.60.0'`, we should use `implementation 'com.azure.resourcemanager:azure-resourcemanager'`.
   For Azure libraries in azure-sdk-bom, check https://raw.githubusercontent.com/Azure/azure-sdk-for-java/main/sdk/boms/azure-sdk-bom/pom.xml.

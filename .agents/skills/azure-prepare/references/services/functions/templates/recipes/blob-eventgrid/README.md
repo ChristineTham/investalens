@@ -9,10 +9,10 @@ Discover templates via MCP or CDN manifest where `resource == "blob"` and `langu
 
 ## Why Event Grid?
 
-| Aspect | Polling Trigger | Event Grid Source |
-|--------|-----------------|-------------------|
-| **Latency** | 10s-60s | Sub-second |
-| **Scale** | Limited | High-scale |
+| Aspect      | Polling Trigger | Event Grid Source |
+| ----------- | --------------- | ----------------- |
+| **Latency** | 10s-60s         | Sub-second        |
+| **Scale**   | Limited         | High-scale        |
 
 ## Troubleshooting
 
@@ -34,7 +34,7 @@ See [Blob Storage trigger connections](https://learn.microsoft.com/en-us/azure/a
 
 ## Eval
 
-| Path | Description |
-|------|-------------|
-| [eval/summary.md](eval/summary.md) | Evaluation summary |
-| [eval/python.md](eval/python.md) | Python evaluation results |
+| Path                               | Description               |
+| ---------------------------------- | ------------------------- |
+| [eval/summary.md](eval/summary.md) | Evaluation summary        |
+| [eval/python.md](eval/python.md)   | Python evaluation results |

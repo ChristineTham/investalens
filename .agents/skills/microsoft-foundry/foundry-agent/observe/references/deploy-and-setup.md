@@ -10,12 +10,12 @@ After deployment, immediately prepare a Foundry evaluation suite and local refer
 
 Use [Common Project Context Resolution](../../../SKILL.md#agent-common-project-context-resolution) to compute effective context. In azd projects, prefer `azd env get-values` for deployment context and use the selected `.foundry/agent-metadata*.yaml` file only as an overlay/cache. Use `agent_get`, local `agent.yaml`, and matching `eval.yaml` as needed to resolve:
 
-| Value | Source |
-|-------|--------|
-| `projectEndpoint` | azd env, then metadata override |
-| `agentName` / `agentVersion` | azd agent vars, then metadata/`agent_get` |
-| `suiteName` | verified `eval.yaml` name or `<agent-name>-smoke` unless user provided one |
-| generation deployment | `model_deployment_get`; choose a chat-completions deployment |
+| Value                        | Source                                                                     |
+| ---------------------------- | -------------------------------------------------------------------------- |
+| `projectEndpoint`            | azd env, then metadata override                                            |
+| `agentName` / `agentVersion` | azd agent vars, then metadata/`agent_get`                                  |
+| `suiteName`                  | verified `eval.yaml` name or `<agent-name>-smoke` unless user provided one |
+| generation deployment        | `model_deployment_get`; choose a chat-completions deployment               |
 
 `suiteName` must start with a letter (`A-Z` or `a-z`). If a derived name starts with a number, prefix it with an alphabetic label such as `suite-`.
 
@@ -83,6 +83,6 @@ If suite generation fails, is unavailable, or returns incomplete artifacts, expl
 
 ### 7. Prompt User
 
-Ask: *"Your agent is deployed and the selected environment has evaluation-suite metadata plus local dataset/evaluator references. Would you like to run an evaluation to identify optimization opportunities?"*
+Ask: _"Your agent is deployed and the selected environment has evaluation-suite metadata plus local dataset/evaluator references. Would you like to run an evaluation to identify optimization opportunities?"_
 
 If yes -> proceed to [Step 2: Evaluate](evaluate-step.md). If no -> stop.

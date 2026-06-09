@@ -14,13 +14,13 @@ Hosted agent sessions provide a persistent filesystem rooted at `$HOME` (`/home/
 
 Use `session_file_upload` to write a file into the session:
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `projectEndpoint` | ✅ | AI Foundry project endpoint |
-| `agentName` | ✅ | Name of the hosted agent |
-| `sessionId` | ✅ | Active session ID |
-| `filePath` | ✅ | Destination path (e.g., `/data/input.csv`) |
-| `contentBase64` | ✅ | File content as a base64-encoded string |
+| Parameter         | Required | Description                                |
+| ----------------- | -------- | ------------------------------------------ |
+| `projectEndpoint` | ✅       | AI Foundry project endpoint                |
+| `agentName`       | ✅       | Name of the hosted agent                   |
+| `sessionId`       | ✅       | Active session ID                          |
+| `filePath`        | ✅       | Destination path (e.g., `/data/input.csv`) |
+| `contentBase64`   | ✅       | File content as a base64-encoded string    |
 
 > 💡 **Tip:** For text files, encode the content to base64 before passing it. For binary files (images, PDFs), read the raw bytes and base64-encode them.
 
@@ -28,12 +28,12 @@ Use `session_file_upload` to write a file into the session:
 
 Use `session_file_download` to retrieve a file from the session:
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `projectEndpoint` | ✅ | AI Foundry project endpoint |
-| `agentName` | ✅ | Name of the hosted agent |
-| `sessionId` | ✅ | Active session ID |
-| `filePath` | ✅ | Path to the file to download (e.g., `/data/output.csv`) |
+| Parameter         | Required | Description                                             |
+| ----------------- | -------- | ------------------------------------------------------- |
+| `projectEndpoint` | ✅       | AI Foundry project endpoint                             |
+| `agentName`       | ✅       | Name of the hosted agent                                |
+| `sessionId`       | ✅       | Active session ID                                       |
+| `filePath`        | ✅       | Path to the file to download (e.g., `/data/output.csv`) |
 
 Returns: File content as a base64-encoded string.
 
@@ -41,12 +41,12 @@ Returns: File content as a base64-encoded string.
 
 Use `session_file_list` to browse the session filesystem:
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `projectEndpoint` | ✅ | AI Foundry project endpoint |
-| `agentName` | ✅ | Name of the hosted agent |
-| `sessionId` | ✅ | Active session ID |
-| `path` | ❌ | Directory path to list (defaults to root `/`) |
+| Parameter         | Required | Description                                   |
+| ----------------- | -------- | --------------------------------------------- |
+| `projectEndpoint` | ✅       | AI Foundry project endpoint                   |
+| `agentName`       | ✅       | Name of the hosted agent                      |
+| `sessionId`       | ✅       | Active session ID                             |
+| `path`            | ❌       | Directory path to list (defaults to root `/`) |
 
 Returns: List of files and directories with metadata.
 
@@ -54,13 +54,13 @@ Returns: List of files and directories with metadata.
 
 Use `session_file_delete` to remove a file or directory:
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `projectEndpoint` | ✅ | AI Foundry project endpoint |
-| `agentName` | ✅ | Name of the hosted agent |
-| `sessionId` | ✅ | Active session ID |
-| `filePath` | ✅ | Path to delete |
-| `recursive` | ❌ | Set `true` to recursively delete a directory and its contents (default `false`) |
+| Parameter         | Required | Description                                                                     |
+| ----------------- | -------- | ------------------------------------------------------------------------------- |
+| `projectEndpoint` | ✅       | AI Foundry project endpoint                                                     |
+| `agentName`       | ✅       | Name of the hosted agent                                                        |
+| `sessionId`       | ✅       | Active session ID                                                               |
+| `filePath`        | ✅       | Path to delete                                                                  |
+| `recursive`       | ❌       | Set `true` to recursively delete a directory and its contents (default `false`) |
 
 > ⚠️ **Warning:** Non-recursive delete on a non-empty directory will fail. Use `recursive: true` for directories with contents.
 
@@ -68,12 +68,12 @@ Use `session_file_delete` to remove a file or directory:
 
 Use `session_file_stat` to inspect a file or directory:
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `projectEndpoint` | ✅ | AI Foundry project endpoint |
-| `agentName` | ✅ | Name of the hosted agent |
-| `sessionId` | ✅ | Active session ID |
-| `filePath` | ✅ | Path to inspect |
+| Parameter         | Required | Description                 |
+| ----------------- | -------- | --------------------------- |
+| `projectEndpoint` | ✅       | AI Foundry project endpoint |
+| `agentName`       | ✅       | Name of the hosted agent    |
+| `sessionId`       | ✅       | Active session ID           |
+| `filePath`        | ✅       | Path to inspect             |
 
 Returns: File name, size, whether it is a directory, and last modified time.
 
@@ -81,14 +81,14 @@ Returns: File name, size, whether it is a directory, and last modified time.
 
 Use `session_file_mkdir` to create directories:
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `projectEndpoint` | ✅ | AI Foundry project endpoint |
-| `agentName` | ✅ | Name of the hosted agent |
-| `sessionId` | ✅ | Active session ID |
-| `path` | ✅ | Directory path to create (e.g., `/data/results`) |
-| `createParents` | ❌ | Create parent directories if needed (default `true`) |
-| `mode` | ❌ | Unix permission mode (e.g., `755`). Uses system default if omitted |
+| Parameter         | Required | Description                                                        |
+| ----------------- | -------- | ------------------------------------------------------------------ |
+| `projectEndpoint` | ✅       | AI Foundry project endpoint                                        |
+| `agentName`       | ✅       | Name of the hosted agent                                           |
+| `sessionId`       | ✅       | Active session ID                                                  |
+| `path`            | ✅       | Directory path to create (e.g., `/data/results`)                   |
+| `createParents`   | ❌       | Create parent directories if needed (default `true`)               |
+| `mode`            | ❌       | Unix permission mode (e.g., `755`). Uses system default if omitted |
 
 ## Common Patterns
 
@@ -119,9 +119,9 @@ Use `session_file_mkdir` to create directories:
 
 ## Error Handling
 
-| Error | Cause | Resolution |
-|-------|-------|------------|
-| Session not active | Session expired or not yet running | Use `session_get` to check status; create a new session if expired |
-| File not found | Invalid path or file does not exist | Use `session_file_list` to verify the path |
-| Directory not empty | Non-recursive delete on a directory with contents | Use `recursive: true` |
-| Storage limit exceeded | `$HOME` exceeds 10 GiB | Delete unnecessary files with `session_file_delete` |
+| Error                  | Cause                                             | Resolution                                                         |
+| ---------------------- | ------------------------------------------------- | ------------------------------------------------------------------ |
+| Session not active     | Session expired or not yet running                | Use `session_get` to check status; create a new session if expired |
+| File not found         | Invalid path or file does not exist               | Use `session_file_list` to verify the path                         |
+| Directory not empty    | Non-recursive delete on a directory with contents | Use `recursive: true`                                              |
+| Storage limit exceeded | `$HOME` exceeds 10 GiB                            | Delete unnecessary files with `session_file_delete`                |

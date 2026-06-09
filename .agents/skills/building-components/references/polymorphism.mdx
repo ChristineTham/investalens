@@ -475,7 +475,7 @@ Warn when inappropriate elements are used:
 function Button({ as: Element = "button", ...props }) {
   if (__DEV__ && Element === "div" && !props.role) {
     console.warn(
-      'Button: When using as="div", provide role="button" for accessibility',
+      'Button: When using as="div", provide role="button" for accessibility'
     );
   }
 

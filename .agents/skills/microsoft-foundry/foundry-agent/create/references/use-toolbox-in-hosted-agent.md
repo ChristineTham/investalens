@@ -8,7 +8,7 @@ Hosted agents access Foundry-managed tools through a **Toolbox MCP endpoint**. U
 >
 > 📘 For the full list of supported tool types and their per-type fields, see [agent-tools.md](agent-tools.md) and the per-tool `tool-*.md` files.
 
-> 💡 **This skill is scoped to *consuming* an existing toolbox from agent code** — endpoint resolution, env-var contract, payload shape gathered before agent runtime, verification, and tracing. **Toolbox and connection CRUD belongs in [Foundry Toolkit (VS Code)](https://code.visualstudio.com/docs/intelligentapps/tool-catalog) or the [Foundry Portal](https://ai.azure.com/)** — those surfaces give you tool browsing, metadata, connection wizards, and validation. Use the imperative `azd ai` CLI only for *operational* tasks (retarget the default version, smoke-test an endpoint).
+> 💡 **This skill is scoped to _consuming_ an existing toolbox from agent code** — endpoint resolution, env-var contract, payload shape gathered before agent runtime, verification, and tracing. **Toolbox and connection CRUD belongs in [Foundry Toolkit (VS Code)](https://code.visualstudio.com/docs/intelligentapps/tool-catalog) or the [Foundry Portal](https://ai.azure.com/)** — those surfaces give you tool browsing, metadata, connection wizards, and validation. Use the imperative `azd ai` CLI only for _operational_ tasks (retarget the default version, smoke-test an endpoint).
 
 ## ✨ Recommendation: enable Tool Search
 
@@ -23,18 +23,18 @@ Full configuration recipe in [tool-tool-search.md](tool-tool-search.md) and the 
 
 ## Quick Reference
 
-| Property | Value |
-|----------|-------|
-| **Toolbox Docs** | https://learn.microsoft.com/azure/foundry/agents/how-to/tools/toolbox |
-| **Tool Catalog Docs** | https://learn.microsoft.com/azure/foundry/agents/concepts/tool-catalog |
-| **Tool Search Docs** | https://learn.microsoft.com/azure/foundry/agents/how-to/tools/tool-search |
-| **Foundry Toolkit (VS Code) — set up tools/toolboxes** | https://code.visualstudio.com/docs/intelligentapps/tool-catalog |
-| **Foundry Portal** | https://ai.azure.com/ |
-| **Default Sample (Python, Agent Framework + toolbox)** | https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents/agent-framework/responses/04-foundry-toolbox |
-| **Python Hosted Agent — `responses` (BYO)** | https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents/bring-your-own/responses |
-| **Python Hosted Agent — `invocations` (BYO)** | https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents/bring-your-own/invocations |
-| **C# (.NET) Hosted Agent + toolbox** | https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/csharp/hosted-agents/agent-framework/foundry-toolbox-server-side |
-| **Supported Toolbox Scenarios (sample-side reference)** | https://github.com/microsoft-foundry/foundry-samples/blob/main/samples/python/hosted-agents/SUPPORTED_TOOLBOX_SCENARIOS.md |
+| Property                                                | Value                                                                                                                                    |
+| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **Toolbox Docs**                                        | https://learn.microsoft.com/azure/foundry/agents/how-to/tools/toolbox                                                                    |
+| **Tool Catalog Docs**                                   | https://learn.microsoft.com/azure/foundry/agents/concepts/tool-catalog                                                                   |
+| **Tool Search Docs**                                    | https://learn.microsoft.com/azure/foundry/agents/how-to/tools/tool-search                                                                |
+| **Foundry Toolkit (VS Code) — set up tools/toolboxes**  | https://code.visualstudio.com/docs/intelligentapps/tool-catalog                                                                          |
+| **Foundry Portal**                                      | https://ai.azure.com/                                                                                                                    |
+| **Default Sample (Python, Agent Framework + toolbox)**  | https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents/agent-framework/responses/04-foundry-toolbox |
+| **Python Hosted Agent — `responses` (BYO)**             | https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents/bring-your-own/responses                     |
+| **Python Hosted Agent — `invocations` (BYO)**           | https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents/bring-your-own/invocations                   |
+| **C# (.NET) Hosted Agent + toolbox**                    | https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/csharp/hosted-agents/agent-framework/foundry-toolbox-server-side  |
+| **Supported Toolbox Scenarios (sample-side reference)** | https://github.com/microsoft-foundry/foundry-samples/blob/main/samples/python/hosted-agents/SUPPORTED_TOOLBOX_SCENARIOS.md               |
 
 ## Resolve Toolbox Endpoint
 
@@ -56,18 +56,18 @@ Once the user supplies the toolbox name/endpoint — either an existing one or a
 
 The full set is documented in [agent-tools.md](agent-tools.md) and — authoritatively — in the public [Toolbox docs (Configure tools)](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/toolbox#configure-tools). At time of writing the supported `type` values are:
 
-| `type` | Tool | Connection required? | Detail |
-|---|---|---|---|
-| `mcp` | Remote MCP server (third-party via catalog, BYO OAuth, or generic) | Optional (none / static key / project MI / OAuth) | [tool-mcp.md](tool-mcp.md) |
-| `web_search` | Web search (basic Bing; optional `web_search.custom_search_configuration` for Bing Custom Search to scope grounding to specific domains) | No (basic); Yes for Custom Search | [tool-web-search.md](tool-web-search.md) |
-| `azure_ai_search` | Azure AI Search index | Yes (Search service connection) | [tool-azure-ai-search.md](tool-azure-ai-search.md) |
-| `code_interpreter` | Sandboxed Python execution | No | [tool-code-interpreter.md](tool-code-interpreter.md) |
-| `file_search` | Vector-store-backed retrieval over uploaded files | No (vector store is part of the toolbox) | [tool-file-search.md](tool-file-search.md) |
-| `openapi` | REST API exposed via an OpenAPI 3.x spec | Conditional (`connection` requires `project_connection_id`; `managed_identity` does not — uses project MI + `audience`) | [tool-openapi.md](tool-openapi.md) |
-| `a2a_preview` | Call another Foundry agent as a tool | Optional | [tool-a2a.md](tool-a2a.md) |
-| `work_iq_preview` | Microsoft 365 work context (mail / meetings / files / chats) via Work IQ | Yes (Work IQ `RemoteA2A` OAuth connection; BYO Entra app; M365 Copilot license per user) | [tool-work-iq.md](tool-work-iq.md) |
-| `fabric_iq_preview` | Microsoft Fabric data (Ontology / Fabric data agent / Power BI semantic model) | Yes (Fabric IQ OAuth connection; tenant admin consent) | [tool-fabric-iq.md](tool-fabric-iq.md) |
-| `toolbox_search_preview` | **Tool Search** — a directive (not a tool) that swaps `tools/list` for `tool_search` + `call_tool` meta-tools | No | [tool-tool-search.md](tool-tool-search.md) |
+| `type`                   | Tool                                                                                                                                     | Connection required?                                                                                                    | Detail                                               |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `mcp`                    | Remote MCP server (third-party via catalog, BYO OAuth, or generic)                                                                       | Optional (none / static key / project MI / OAuth)                                                                       | [tool-mcp.md](tool-mcp.md)                           |
+| `web_search`             | Web search (basic Bing; optional `web_search.custom_search_configuration` for Bing Custom Search to scope grounding to specific domains) | No (basic); Yes for Custom Search                                                                                       | [tool-web-search.md](tool-web-search.md)             |
+| `azure_ai_search`        | Azure AI Search index                                                                                                                    | Yes (Search service connection)                                                                                         | [tool-azure-ai-search.md](tool-azure-ai-search.md)   |
+| `code_interpreter`       | Sandboxed Python execution                                                                                                               | No                                                                                                                      | [tool-code-interpreter.md](tool-code-interpreter.md) |
+| `file_search`            | Vector-store-backed retrieval over uploaded files                                                                                        | No (vector store is part of the toolbox)                                                                                | [tool-file-search.md](tool-file-search.md)           |
+| `openapi`                | REST API exposed via an OpenAPI 3.x spec                                                                                                 | Conditional (`connection` requires `project_connection_id`; `managed_identity` does not — uses project MI + `audience`) | [tool-openapi.md](tool-openapi.md)                   |
+| `a2a_preview`            | Call another Foundry agent as a tool                                                                                                     | Optional                                                                                                                | [tool-a2a.md](tool-a2a.md)                           |
+| `work_iq_preview`        | Microsoft 365 work context (mail / meetings / files / chats) via Work IQ                                                                 | Yes (Work IQ `RemoteA2A` OAuth connection; BYO Entra app; M365 Copilot license per user)                                | [tool-work-iq.md](tool-work-iq.md)                   |
+| `fabric_iq_preview`      | Microsoft Fabric data (Ontology / Fabric data agent / Power BI semantic model)                                                           | Yes (Fabric IQ OAuth connection; tenant admin consent)                                                                  | [tool-fabric-iq.md](tool-fabric-iq.md)               |
+| `toolbox_search_preview` | **Tool Search** — a directive (not a tool) that swaps `tools/list` for `tool_search` + `call_tool` meta-tools                            | No                                                                                                                      | [tool-tool-search.md](tool-tool-search.md)           |
 
 **Adjacent (not a `type` in a toolbox version):**
 
@@ -78,15 +78,15 @@ The full set is documented in [agent-tools.md](agent-tools.md) and — authorita
 
 When the user asks to "add an MCP tool" or similar, **never guess**. Confirm each field before generating any JSON or `azure.yaml` snippet:
 
-| # | Question | Why needed |
-|---|----------|------------|
-| 1 | **MCP server URL?** | The `server_url` field on the `mcp` tool entry |
-| 2 | **Auth type?** `none` / `key` / `mi` / `oauth` | Determines whether a project connection is required and which shape to create (see [foundry-tool-catalog.md](foundry-tool-catalog.md)) |
-| 3 | **Project connection name** (if auth ≠ `none`) | The `project_connection_id` field; must already exist in the Foundry project |
-| 4 | **`server_label`** | Short prefix for the tool names exposed by this server (e.g. `myserver`) |
-| 5 | **Toolbox name** | The container that will hold the tool entries |
-| 6 | **Foundry project endpoint** | Where the toolbox is created — read from `PROJECT_ENDPOINT` / `AZURE_AI_PROJECT_ENDPOINT` (avoid `FOUNDRY_`-prefixed names) |
-| 7 | **Many tools planned?** (> ~5) | If yes, also add `{ "type": "toolbox_search_preview" }` so the model uses [Tool Search](#-recommendation-enable-tool-search) instead of seeing the full list. |
+| #   | Question                                       | Why needed                                                                                                                                                    |
+| --- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **MCP server URL?**                            | The `server_url` field on the `mcp` tool entry                                                                                                                |
+| 2   | **Auth type?** `none` / `key` / `mi` / `oauth` | Determines whether a project connection is required and which shape to create (see [foundry-tool-catalog.md](foundry-tool-catalog.md))                        |
+| 3   | **Project connection name** (if auth ≠ `none`) | The `project_connection_id` field; must already exist in the Foundry project                                                                                  |
+| 4   | **`server_label`**                             | Short prefix for the tool names exposed by this server (e.g. `myserver`)                                                                                      |
+| 5   | **Toolbox name**                               | The container that will hold the tool entries                                                                                                                 |
+| 6   | **Foundry project endpoint**                   | Where the toolbox is created — read from `PROJECT_ENDPOINT` / `AZURE_AI_PROJECT_ENDPOINT` (avoid `FOUNDRY_`-prefixed names)                                   |
+| 7   | **Many tools planned?** (> ~5)                 | If yes, also add `{ "type": "toolbox_search_preview" }` so the model uses [Tool Search](#-recommendation-enable-tool-search) instead of seeing the full list. |
 
 ### Toolbox payload — MCP with a project connection
 
@@ -132,13 +132,23 @@ When the user asks to "add an MCP tool" or similar, **never guess**. Confirm eac
   "tools": [
     { "type": "toolbox_search_preview" },
     { "type": "web_search" },
-    { "type": "azure_ai_search", "name": "docs_index", "project_connection_id": "search-conn", "index_name": "docs" },
     {
-      "type": "mcp", "server_label": "github", "server_url": "<github-mcp-url>",
+      "type": "azure_ai_search",
+      "name": "docs_index",
+      "project_connection_id": "search-conn",
+      "index_name": "docs"
+    },
+    {
+      "type": "mcp",
+      "server_label": "github",
+      "server_url": "<github-mcp-url>",
       "project_connection_id": "gh-conn",
       "tool_configs": {
-        "search_issues": { "pin": true, "additional_search_text": "GitHub issues bug tracking" },
-        "*":             { "additional_search_text": "GitHub repositories code" }
+        "search_issues": {
+          "pin": true,
+          "additional_search_text": "GitHub issues bug tracking"
+        },
+        "*": { "additional_search_text": "GitHub repositories code" }
       }
     }
   ]
@@ -171,7 +181,7 @@ resources:
   - kind: toolbox
     name: agent-tools
     tools:
-      - type: toolbox_search_preview   # recommended for any toolbox > ~5 tools
+      - type: toolbox_search_preview # recommended for any toolbox > ~5 tools
       - type: web_search
       - type: mcp
         server_label: <LABEL>
@@ -183,7 +193,7 @@ See [azd `params` reference](https://learn.microsoft.com/azure/developer/azure-d
 
 ## Operational helpers via `azd ai` CLI
 
-> The `azd ai` CLI also exposes `agent connection create`, `toolbox create`, `toolbox list`, and `toolbox delete`. Prefer **Foundry Toolkit (VS Code)** or the **Foundry Portal** for those — the UI gives you tool browsing, connection wizards, and validation. The two commands below are the ones the skill should still drive directly because they're *operational*, not setup.
+> The `azd ai` CLI also exposes `agent connection create`, `toolbox create`, `toolbox list`, and `toolbox delete`. Prefer **Foundry Toolkit (VS Code)** or the **Foundry Portal** for those — the UI gives you tool browsing, connection wizards, and validation. The two commands below are the ones the skill should still drive directly because they're _operational_, not setup.
 
 > All commands require `--project-endpoint <PROJECT_ENDPOINT>` (the value of `PROJECT_ENDPOINT`, e.g. `https://<account>.services.ai.azure.com/api/projects/<project>`). To avoid repeating it, export it once:
 >
@@ -233,17 +243,17 @@ The sample repo provides integration patterns for both Python and C#. Read the s
 
 **Python samples:**
 
-| Sample | Framework | Protocol | When to use |
-|--------|-----------|----------|-------------|
-| [`agent-framework/responses/04-foundry-toolbox/`](https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents/agent-framework/responses/04-foundry-toolbox) — recommended | Agent Framework (MAF) | Responses | **Default choice** |
-| [`bring-your-own/responses/langgraph-toolbox/`](https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents/bring-your-own/responses/langgraph-toolbox) | LangGraph (BYO) | Responses | LangGraph hosted agent with toolbox |
-| [`bring-your-own/responses/bring-your-own-toolbox/`](https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents/bring-your-own/responses/bring-your-own-toolbox) | Generic MCP (BYO) | Responses | Raw `httpx` MCP client — works with any framework |
-| [`bring-your-own/invocations/toolbox/`](https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents/bring-your-own/invocations/toolbox) | Generic MCP (BYO) | Invocations | Toolbox via Invocations protocol |
+| Sample                                                                                                                                                                                                    | Framework             | Protocol    | When to use                                       |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- | ----------- | ------------------------------------------------- |
+| [`agent-framework/responses/04-foundry-toolbox/`](https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents/agent-framework/responses/04-foundry-toolbox) — recommended | Agent Framework (MAF) | Responses   | **Default choice**                                |
+| [`bring-your-own/responses/langgraph-toolbox/`](https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents/bring-your-own/responses/langgraph-toolbox)                   | LangGraph (BYO)       | Responses   | LangGraph hosted agent with toolbox               |
+| [`bring-your-own/responses/bring-your-own-toolbox/`](https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents/bring-your-own/responses/bring-your-own-toolbox)         | Generic MCP (BYO)     | Responses   | Raw `httpx` MCP client — works with any framework |
+| [`bring-your-own/invocations/toolbox/`](https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents/bring-your-own/invocations/toolbox)                                   | Generic MCP (BYO)     | Invocations | Toolbox via Invocations protocol                  |
 
 **C# (.NET) samples:**
 
-| Sample | Description |
-|--------|-------------|
+| Sample                                                                                                                                                                                                                       | Description                                                 |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
 | [`csharp/hosted-agents/agent-framework/foundry-toolbox-server-side/`](https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/csharp/hosted-agents/agent-framework/foundry-toolbox-server-side) — recommended | Agent Framework agent with toolbox MCP (Responses protocol) |
 
 **Notes** (apply to all patterns, both Python and C#):

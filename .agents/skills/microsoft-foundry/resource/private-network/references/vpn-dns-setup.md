@@ -4,23 +4,23 @@ Post-deployment add-on for private network templates (T10, T15–T19). Creates a
 
 ## Assumptions
 
-| Property | Value | Rationale |
-|----------|-------|-----------|
-| Auth | Microsoft Entra ID (AAD) only | No certificate management |
-| Tunnel | OpenVPN | Cross-platform, Azure VPN Client |
-| Gateway SKU | VpnGw1AZ | Zone-redundant, same cost as VpnGw1 |
-| GatewaySubnet | /24 recommended | Agent computes from available VNet space |
-| DNS resolver subnet | /28 minimum | Agent computes from available VNet space |
-| Client address pool | `172.16.201.0/24` | Non-overlapping with VNet |
+| Property            | Value                         | Rationale                                |
+| ------------------- | ----------------------------- | ---------------------------------------- |
+| Auth                | Microsoft Entra ID (AAD) only | No certificate management                |
+| Tunnel              | OpenVPN                       | Cross-platform, Azure VPN Client         |
+| Gateway SKU         | VpnGw1AZ                      | Zone-redundant, same cost as VpnGw1      |
+| GatewaySubnet       | /24 recommended               | Agent computes from available VNet space |
+| DNS resolver subnet | /28 minimum                   | Agent computes from available VNet space |
+| Client address pool | `172.16.201.0/24`             | Non-overlapping with VNet                |
 
 ## Subnet Layout
 
 Adds two subnets to the existing VNet. Uses the next available range after the agent and PE subnets.
 
-| Subnet | CIDR (default) | Purpose | Delegation |
-|--------|----------------|---------|------------|
-| `GatewaySubnet` | Computed | VPN Gateway (name is required by Azure) | None |
-| `dns-resolver-inbound` | Computed | DNS Private Resolver inbound endpoint | `Microsoft.Network/dnsResolvers` |
+| Subnet                 | CIDR (default) | Purpose                                 | Delegation                       |
+| ---------------------- | -------------- | --------------------------------------- | -------------------------------- |
+| `GatewaySubnet`        | Computed       | VPN Gateway (name is required by Azure) | None                             |
+| `dns-resolver-inbound` | Computed       | DNS Private Resolver inbound endpoint   | `Microsoft.Network/dnsResolvers` |
 
 > ⚠️ **Warning:** `GatewaySubnet` is a reserved name — Azure requires this exact name for VPN Gateway.
 
@@ -42,15 +42,15 @@ Example: if subnets `.0.0/24`, `.1.0/24`, `.2.0/24` are in use → use `192.168.
 
 ### 2. Collect Remaining Inputs
 
-| Parameter | Source |
-|-----------|--------|
-| `vnetName` | From main deployment |
-| `vnetResourceGroup` | Resource group containing the VNet (omit if same as deployment RG) |
-| `resourceGroupName` | Resource group for this deployment |
-| `gatewaySubnetCidr` | Computed in step 1 |
-| `dnsResolverSubnetCidr` | Computed in step 1 |
-| `suffix` | From main deployment (or generate unique) |
-| `aadTenantId` | From `az account show --query tenantId` |
+| Parameter               | Source                                                             |
+| ----------------------- | ------------------------------------------------------------------ |
+| `vnetName`              | From main deployment                                               |
+| `vnetResourceGroup`     | Resource group containing the VNet (omit if same as deployment RG) |
+| `resourceGroupName`     | Resource group for this deployment                                 |
+| `gatewaySubnetCidr`     | Computed in step 1                                                 |
+| `dnsResolverSubnetCidr` | Computed in step 1                                                 |
+| `suffix`                | From main deployment (or generate unique)                          |
+| `aadTenantId`           | From `az account show --query tenantId`                            |
 
 ### 3. Check VPN Gateway Quota
 
@@ -63,15 +63,15 @@ az network list-usages --location <location> \
 
 Template: [vpn-dns-setup.bicep](vpn-dns-setup.bicep)
 
-| Parameter | Required | Default | Description |
-|-----------|----------|---------|-------------|
-| `vnetName` | Yes | — | Name of the existing VNet |
-| `vnetResourceGroup` | No | Deployment RG | Resource group of the existing VNet (for BYO VNets in a different RG) |
-| `aadTenantId` | Yes | — | Entra ID tenant ID for VPN auth |
-| `suffix` | Yes | — | Unique suffix for resource naming |
-| `gatewaySubnetCidr` | Yes | — | GatewaySubnet CIDR (computed from VNet) |
-| `dnsResolverSubnetCidr` | Yes | — | DNS resolver inbound subnet CIDR (computed from VNet) |
-| `vpnClientAddressPool` | No | `172.16.201.0/24` | VPN client address pool |
+| Parameter               | Required | Default           | Description                                                           |
+| ----------------------- | -------- | ----------------- | --------------------------------------------------------------------- |
+| `vnetName`              | Yes      | —                 | Name of the existing VNet                                             |
+| `vnetResourceGroup`     | No       | Deployment RG     | Resource group of the existing VNet (for BYO VNets in a different RG) |
+| `aadTenantId`           | Yes      | —                 | Entra ID tenant ID for VPN auth                                       |
+| `suffix`                | Yes      | —                 | Unique suffix for resource naming                                     |
+| `gatewaySubnetCidr`     | Yes      | —                 | GatewaySubnet CIDR (computed from VNet)                               |
+| `dnsResolverSubnetCidr` | Yes      | —                 | DNS resolver inbound subnet CIDR (computed from VNet)                 |
+| `vpnClientAddressPool`  | No       | `172.16.201.0/24` | VPN client address pool                                               |
 
 **Creates:** GatewaySubnet, dns-resolver-inbound subnet, Public IP (zonal), VPN Gateway (VpnGw1AZ, P2S AAD/OpenVPN), DNS Private Resolver with inbound endpoint.
 
@@ -151,11 +151,11 @@ DNS resolves to private IPs — VPN is working. Return to [post-deployment-valid
 
 ## Troubleshooting
 
-| Problem | Cause | Fix |
-|---------|-------|-----|
-| VPN connects but DNS doesn't resolve | Custom DNS not set in VPN client profile | Add DNS resolver inbound IP as custom DNS server |
-| `nslookup` returns public IP | Private DNS zones not linked to VNet | Verify DNS zone VNet links: `az network private-dns zone list -g <rg>` |
-| VPN client auth fails | Wrong tenant or app not consented | Verify `tenantId`, ensure Azure VPN enterprise app is consented in the tenant |
-| Gateway deployment times out | Normal — VPN GW takes 20-45 min | Wait and re-check with `az deployment group show` |
-| Subnet conflict | CIDR overlaps with existing subnet | Use different CIDRs for `gatewaySubnetCidr` / `dnsResolverSubnetCidr` |
-| DNS resolver queries blocked | NRMS auto-deployed NSG missing DNS rules | Add inbound allow rule for UDP/TCP port 53 from VPN client address pool to the `dns-resolver-inbound` subnet NSG |
+| Problem                              | Cause                                    | Fix                                                                                                              |
+| ------------------------------------ | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| VPN connects but DNS doesn't resolve | Custom DNS not set in VPN client profile | Add DNS resolver inbound IP as custom DNS server                                                                 |
+| `nslookup` returns public IP         | Private DNS zones not linked to VNet     | Verify DNS zone VNet links: `az network private-dns zone list -g <rg>`                                           |
+| VPN client auth fails                | Wrong tenant or app not consented        | Verify `tenantId`, ensure Azure VPN enterprise app is consented in the tenant                                    |
+| Gateway deployment times out         | Normal — VPN GW takes 20-45 min          | Wait and re-check with `az deployment group show`                                                                |
+| Subnet conflict                      | CIDR overlaps with existing subnet       | Use different CIDRs for `gatewaySubnetCidr` / `dnsResolverSubnetCidr`                                            |
+| DNS resolver queries blocked         | NRMS auto-deployed NSG missing DNS rules | Add inbound allow rule for UDP/TCP port 53 from VPN client address pool to the `dns-resolver-inbound` subnet NSG |

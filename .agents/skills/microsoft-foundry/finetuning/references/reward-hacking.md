@@ -6,21 +6,21 @@ The model optimizes for the grader's scoring function rather than the actual tas
 
 **Core rule: Your training grader MUST produce the same ranking as your evaluation methodology.**
 
-| If you evaluate with… | Then train with… | NOT with… |
-|------------------------|------------------|-----------|
-| LLM judge (semantic) | LLM judge | AST / regex / structural matching |
-| Exact match | Exact match | Fuzzy or partial matching |
-| Unit tests | Unit tests | Static analysis alone |
+| If you evaluate with… | Then train with… | NOT with…                         |
+| --------------------- | ---------------- | --------------------------------- |
+| LLM judge (semantic)  | LLM judge        | AST / regex / structural matching |
+| Exact match           | Exact match      | Fuzzy or partial matching         |
+| Unit tests            | Unit tests       | Static analysis alone             |
 
 Misaligned graders are the #1 cause of reward hacking.
 
 ## Train-Val Gap Thresholds
 
-| Train-Val Gap | Status | Action |
-|---------------|--------|--------|
-| ≤ 0.05 | ✅ Healthy | Continue training |
-| 0.05–0.10 | ⚠️ Warning | Monitor closely, check outputs qualitatively |
-| > 0.10 | 🛑 Stop | Stop training — reward hacking is likely |
+| Train-Val Gap | Status     | Action                                       |
+| ------------- | ---------- | -------------------------------------------- |
+| ≤ 0.05        | ✅ Healthy | Continue training                            |
+| 0.05–0.10     | ⚠️ Warning | Monitor closely, check outputs qualitatively |
+| > 0.10        | 🛑 Stop    | Stop training — reward hacking is likely     |
 
 ## Pre-Training Checklist
 
@@ -62,11 +62,11 @@ Investigate immediately if **any** are true:
 
 ## Key Principles
 
-| Principle | Action |
-|-----------|--------|
-| Align graders | Training grader must rank outputs same as eval |
-| Cross-validate first | Spearman ρ ≥ 0.8 between training and eval graders |
-| Monitor train-val gap | ≤ 0.05 healthy, > 0.10 stop |
-| Test hackability | Bad outputs should score < 5/10 |
-| Prefer SFT when possible | Use RFT only for verifiable-answer tasks |
-| Iterate graders, not models | Fix grader before restarting training |
+| Principle                   | Action                                             |
+| --------------------------- | -------------------------------------------------- |
+| Align graders               | Training grader must rank outputs same as eval     |
+| Cross-validate first        | Spearman ρ ≥ 0.8 between training and eval graders |
+| Monitor train-val gap       | ≤ 0.05 healthy, > 0.10 stop                        |
+| Test hackability            | Bad outputs should score < 5/10                    |
+| Prefer SFT when possible    | Use RFT only for verifiable-answer tasks           |
+| Iterate graders, not models | Fix grader before restarting training              |

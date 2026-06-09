@@ -4,7 +4,11 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-export async function recordSplit(holdingId: string, ratio: number, date: Date) {
+export async function recordSplit(
+  holdingId: string,
+  ratio: number,
+  date: Date
+) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
@@ -27,7 +31,11 @@ export async function recordSplit(holdingId: string, ratio: number, date: Date) 
   revalidatePath(`/portfolio/${holding.portfolioId}`);
 }
 
-export async function recordBonus(holdingId: string, quantity: number, date: Date) {
+export async function recordBonus(
+  holdingId: string,
+  quantity: number,
+  date: Date
+) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
@@ -67,9 +75,16 @@ export async function recordReturnOfCapital(
   // Calculate current quantity for total amount
   let currentQty = 0;
   for (const tx of holding.transactions) {
-    if (tx.transactionType === "BUY" || tx.transactionType === "TRANSFER_IN" || tx.transactionType === "BONUS") {
+    if (
+      tx.transactionType === "BUY" ||
+      tx.transactionType === "TRANSFER_IN" ||
+      tx.transactionType === "BONUS"
+    ) {
       currentQty += Number(tx.quantity);
-    } else if (tx.transactionType === "SELL" || tx.transactionType === "TRANSFER_OUT") {
+    } else if (
+      tx.transactionType === "SELL" ||
+      tx.transactionType === "TRANSFER_OUT"
+    ) {
       currentQty -= Number(tx.quantity);
     } else if (tx.transactionType === "SPLIT") {
       currentQty *= Number(tx.quantity);
@@ -120,7 +135,12 @@ export async function recordMerger(
 
   // Find or create target instrument and holding
   let targetInstrument = await db.instrument.findUnique({
-    where: { code_marketCode: { code: targetInstrumentCode, marketCode: targetMarketCode } },
+    where: {
+      code_marketCode: {
+        code: targetInstrumentCode,
+        marketCode: targetMarketCode,
+      },
+    },
   });
   if (!targetInstrument) {
     targetInstrument = await db.instrument.create({
@@ -139,7 +159,10 @@ export async function recordMerger(
         instrumentId: targetInstrument.id,
       },
     },
-    create: { portfolioId: holding.portfolioId, instrumentId: targetInstrument.id },
+    create: {
+      portfolioId: holding.portfolioId,
+      instrumentId: targetInstrument.id,
+    },
     update: {},
   });
 

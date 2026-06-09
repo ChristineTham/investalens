@@ -8,13 +8,13 @@ Deploy Azure API Management (APIM) as part of your Azure infrastructure.
 
 ## When to Deploy APIM
 
-| Scenario | APIM Tier | Notes |
-|----------|-----------|-------|
-| AI Gateway for model governance | Standard v2 or Premium v2 | Semantic caching requires v2 SKUs |
-| API consolidation | Standard v2 | Single entry point for microservices |
-| MCP tool hosting | Standard v2 | Rate limiting and auth for AI tools |
-| Development / Testing | Developer | Not for production |
-| High-volume production | Premium v2 | Multi-region, higher limits |
+| Scenario                        | APIM Tier                 | Notes                                |
+| ------------------------------- | ------------------------- | ------------------------------------ |
+| AI Gateway for model governance | Standard v2 or Premium v2 | Semantic caching requires v2 SKUs    |
+| API consolidation               | Standard v2               | Single entry point for microservices |
+| MCP tool hosting                | Standard v2               | Rate limiting and auth for AI tools  |
+| Development / Testing           | Developer                 | Not for production                   |
+| High-volume production          | Premium v2                | Multi-region, higher limits          |
 
 ---
 
@@ -178,15 +178,15 @@ After APIM is deployed:
 
 ## SKU Selection Guide
 
-| Feature | Developer | Standard v2 | Premium v2 |
-|---------|-----------|-------------|------------|
-| GenAI policies | ✅ | ✅ | ✅ |
-| Semantic caching | ❌ | ✅ | ✅ |
-| VNet integration | ❌ | ✅ | ✅ |
-| Multi-region | ❌ | ❌ | ✅ |
-| SLA | None | 99.95% | 99.99% |
-| Scale units | 1 | 1-10 | 1-12 per region |
-| Provisioning time | ~30 min | ~30 min | ~45 min |
+| Feature           | Developer | Standard v2 | Premium v2      |
+| ----------------- | --------- | ----------- | --------------- |
+| GenAI policies    | ✅        | ✅          | ✅              |
+| Semantic caching  | ❌        | ✅          | ✅              |
+| VNet integration  | ❌        | ✅          | ✅              |
+| Multi-region      | ❌        | ❌          | ✅              |
+| SLA               | None      | 99.95%      | 99.99%          |
+| Scale units       | 1         | 1-10        | 1-12 per region |
+| Provisioning time | ~30 min   | ~30 min     | ~45 min         |
 
 > **Recommendation**: Use **Standard v2** for most AI Gateway scenarios. Use **Premium v2** only for multi-region or high-compliance requirements.
 
@@ -194,13 +194,13 @@ After APIM is deployed:
 
 ## Naming Conventions
 
-| Resource | Pattern | Example |
-|----------|---------|---------|
-| APIM Instance | `apim-<app>-<env>` | `apim-myapp-prod` |
-| API | `<api-name>-api` | `openai-api` |
-| Backend | `<service>-backend` | `openai-backend` |
-| Product | `<tier>-product` | `premium-product` |
-| Subscription | `<consumer>-sub` | `frontend-sub` |
+| Resource      | Pattern             | Example           |
+| ------------- | ------------------- | ----------------- |
+| APIM Instance | `apim-<app>-<env>`  | `apim-myapp-prod` |
+| API           | `<api-name>-api`    | `openai-api`      |
+| Backend       | `<service>-backend` | `openai-backend`  |
+| Product       | `<tier>-product`    | `premium-product` |
+| Subscription  | `<consumer>-sub`    | `frontend-sub`    |
 
 ---
 

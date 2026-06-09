@@ -14,6 +14,7 @@ Add net worth tracking, platform polish features, integrations, export enhanceme
 ## Scope
 
 ### In Scope (R4)
+
 - Net worth dashboard (liabilities, property, super, non-investment assets)
 - Emergency fund tracker
 - Automated data backups (to cloud storage)
@@ -30,6 +31,7 @@ Add net worth tracking, platform polish features, integrations, export enhanceme
 - Audit log (track all changes)
 
 ### Out of Scope (Future)
+
 - Native mobile app
 - Real-time streaming prices
 - Social features / sharing
@@ -40,10 +42,10 @@ Add net worth tracking, platform polish features, integrations, export enhanceme
 
 ## Subphase Breakdown
 
-| Phase | Focus | Files |
-|-------|-------|-------|
+| Phase | Focus                                 | Files           |
+| ----- | ------------------------------------- | --------------- |
 | R4-P1 | All R4 features (single coding phase) | `plan/R4-P1.md` |
-| R4-P2 | Validation in Codespaces | `plan/R4-P2.md` |
+| R4-P2 | Validation in Codespaces              | `plan/R4-P2.md` |
 
 ---
 

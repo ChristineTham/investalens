@@ -20,7 +20,7 @@ export function calculateYTM(
     for (let t = 1; t <= periods; t++) {
       const df = Math.pow(1 + r, -t);
       pv += coupon * df;
-      dpv -= t * coupon * df / (1 + r);
+      dpv -= (t * coupon * df) / (1 + r);
     }
     pv += faceValue * Math.pow(1 + r, -periods);
     dpv -= periods * faceValue * Math.pow(1 + r, -(periods + 1));
@@ -31,7 +31,7 @@ export function calculateYTM(
     const diff = pv - price;
     if (Math.abs(diff) < 0.0001) break;
 
-    ytm -= diff / dpv * frequency;
+    ytm -= (diff / dpv) * frequency;
   }
 
   return ytm;
@@ -74,7 +74,8 @@ export function calculateAccruedInterest(
   frequency: number = 2
 ): number {
   const daysSinceLastCoupon = Math.floor(
-    (settlementDate.getTime() - lastCouponDate.getTime()) / (1000 * 60 * 60 * 24)
+    (settlementDate.getTime() - lastCouponDate.getTime()) /
+      (1000 * 60 * 60 * 24)
   );
   const daysInPeriod = 365 / frequency;
   const couponPerPeriod = (faceValue * couponRate) / frequency;
@@ -122,7 +123,11 @@ export interface MaturityItem {
 
 export function getMaturityLadder(
   holdings: Array<{
-    instrument: { code: string; maturityDate: Date | null; faceValue: number | null };
+    instrument: {
+      code: string;
+      maturityDate: Date | null;
+      faceValue: number | null;
+    };
   }>
 ): MaturityItem[] {
   const today = new Date();
@@ -134,7 +139,8 @@ export function getMaturityLadder(
       maturityDate: h.instrument.maturityDate!,
       faceValue: Number(h.instrument.faceValue || 0),
       daysToMaturity: Math.floor(
-        (h.instrument.maturityDate!.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+        (h.instrument.maturityDate!.getTime() - today.getTime()) /
+          (1000 * 60 * 60 * 24)
       ),
     }))
     .sort((a, b) => a.daysToMaturity - b.daysToMaturity);

@@ -12,6 +12,7 @@ Set up the Python serverless function infrastructure on Vercel and implement the
 ## Recommended Skills
 
 Invoke these skills for best-practice guidance during this phase:
+
 - **next-best-practices** — API route handlers for Python function proxying
 - **runtime-cache** — Caching expensive backtest results (Vercel Runtime Cache API)
 - **vercel-react-best-practices** — Chart component performance, lazy loading
@@ -26,6 +27,7 @@ Invoke these skills for best-practice guidance during this phase:
 **Python dependencies** are managed via `pyproject.toml` (from `uv add` in R0-P0). Vercel reads `pyproject.toml` directly — no `requirements.txt` needed.
 
 Ensure these are in `pyproject.toml` (added via `uv add` in R0-P0):
+
 - `skfolio`, `scipy`, `numpy`, `pandas`, `statsmodels`
 
 > **Note:** `google-antigravity` is a real package (`uv add google-antigravity`) but it's an AI **agent framework** (autonomous file reading, command execution, code editing), NOT a document parsing library. For structured extraction of financial statements, the Vercel AI SDK (`ai` + `@ai-sdk/google`) with `generateObject` + Zod schemas is the correct choice — runs in the TypeScript layer with no compiled binary dependency.
@@ -33,6 +35,7 @@ Ensure these are in `pyproject.toml` (added via `uv add` in R0-P0):
 **File: `api/utils/response.py`**
 
 Shared utility for FastAPI-based Python functions:
+
 ```python
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
@@ -48,6 +51,7 @@ def error_response(status: int, message: str):
 **File: `api/utils/transforms.py`**
 
 Data transformation utilities:
+
 ```python
 import pandas as pd
 import numpy as np
@@ -68,13 +72,14 @@ def portfolio_weights_to_series(data: dict) -> pd.Series:
 **File: `lib/services/analytics-client.ts`**
 
 TypeScript client for calling Python functions:
+
 ```typescript
 export class AnalyticsClient {
   private baseUrl: string;
-  
+
   constructor() {
-    this.baseUrl = process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
+    this.baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3000";
   }
 
@@ -96,8 +101,13 @@ export class AnalyticsClient {
 **File: `lib/services/analytics-data.ts`**
 
 Prepare data for Python functions:
+
 ```typescript
-export async function prepareReturnsData(portfolioId: string, startDate: Date, endDate: Date) {
+export async function prepareReturnsData(
+  portfolioId: string,
+  startDate: Date,
+  endDate: Date
+) {
   // Fetch all holdings with price history
   // Transform to { prices: [{date, asset1, asset2, ...}], assets: string[] }
 }
@@ -129,27 +139,27 @@ class handler(BaseHTTPRequestHandler):
         try:
             data = parse_body(self)
             returns = json_to_returns_df(data)
-            
+
             config = data.get("config", {})
             strategy = config.get("strategy", "equal_weighted")
             rebalance_freq = config.get("rebalanceFrequency", "quarterly")
             start_date = config.get("startDate")
             end_date = config.get("endDate")
             benchmark_weights = config.get("benchmarkWeights")
-            
+
             # Build optimisation model based on strategy
             if strategy == "equal_weighted":
                 model = EqualWeighted()
             elif strategy == "mean_variance":
                 model = MeanRisk()
             # ... more strategies
-            
+
             # Run walk-forward backtest
             cv = WalkForward(
                 train_size=252,  # 1 year training
                 test_size=63,    # 1 quarter test
             )
-            
+
             # Fit and predict
             population = Population([])
             for train_idx, test_idx in cv.split(returns):
@@ -158,7 +168,7 @@ class handler(BaseHTTPRequestHandler):
                 model.fit(train_returns)
                 portfolio = model.predict(test_returns)
                 population.append(portfolio)
-            
+
             # Calculate metrics
             result = {
                 "annualizedReturn": float(population.mean()),
@@ -174,7 +184,7 @@ class handler(BaseHTTPRequestHandler):
                 "dates": [d.isoformat() for d in returns.index[len(returns) - len(population.cumulative_returns()):]],
                 "rebalanceDates": [d.isoformat() for d in cv.test_dates()],
             }
-            
+
             success_response(self, result)
         except Exception as e:
             error_response(self, 500, str(e))
@@ -183,11 +193,19 @@ class handler(BaseHTTPRequestHandler):
 **File: `lib/actions/backtest.ts`**
 
 Server action that orchestrates backtesting:
+
 ```typescript
 export async function runBacktest(portfolioId: string, config: BacktestConfig) {
-  const returnsData = await prepareReturnsData(portfolioId, config.startDate, config.endDate);
+  const returnsData = await prepareReturnsData(
+    portfolioId,
+    config.startDate,
+    config.endDate
+  );
   const client = new AnalyticsClient();
-  const result = await client.callFunction("backtest", { ...returnsData, config });
+  const result = await client.callFunction("backtest", {
+    ...returnsData,
+    config,
+  });
   // Cache result via Vercel Runtime Cache API
   return result;
 }
@@ -196,6 +214,7 @@ export async function runBacktest(portfolioId: string, config: BacktestConfig) {
 **File: `app/(dashboard)/analytics/backtest/page.tsx`**
 
 Backtesting UI:
+
 - Strategy selector (Equal Weight, Mean-Variance, Risk Parity, HRP, Min Variance, Max Sharpe)
 - Date range (start/end)
 - Rebalancing frequency (monthly, quarterly, annually)
@@ -216,6 +235,7 @@ Backtesting UI:
 **File: `api/python/backtest_compare.py`**
 
 Run multiple strategies simultaneously for comparison:
+
 - Accept array of strategy configs
 - Return metrics for each
 - Include statistical significance tests (paired t-test on returns)
@@ -231,6 +251,7 @@ Side-by-side comparison table + overlaid equity curves.
 **File: `api/python/walk_forward.py`**
 
 Detailed walk-forward with train/test visualization:
+
 - Show in-sample vs out-of-sample performance per window
 - Detect overfitting (large gap between IS and OOS)
 - Return per-window breakdown

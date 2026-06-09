@@ -57,7 +57,9 @@ export async function getSharedPortfolios() {
 
   return db.portfolioShare.findMany({
     where: { email: session.user.email! },
-    include: { portfolio: { include: { user: { select: { name: true, email: true } } } } },
+    include: {
+      portfolio: { include: { user: { select: { name: true, email: true } } } },
+    },
   });
 }
 

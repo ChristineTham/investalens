@@ -5,6 +5,7 @@
 > in the **azure-appconfiguration-ts** plugin skill if installed.
 
 ## Install
+
 npm install @azure/app-configuration @azure/identity
 
 ## Quick Start
@@ -14,10 +15,14 @@ npm install @azure/app-configuration @azure/identity
 ```typescript
 import { AppConfigurationClient } from "@azure/app-configuration";
 import { DefaultAzureCredential } from "@azure/identity";
-const client = new AppConfigurationClient(process.env.AZURE_APPCONFIG_ENDPOINT!, new DefaultAzureCredential());
+const client = new AppConfigurationClient(
+  process.env.AZURE_APPCONFIG_ENDPOINT!,
+  new DefaultAzureCredential()
+);
 ```
 
 ## Best Practices
+
 - Use provider for apps — @azure/app-configuration-provider for runtime config
 - Use low-level for management — @azure/app-configuration for CRUD operations
 - Enable refresh for dynamic configuration updates

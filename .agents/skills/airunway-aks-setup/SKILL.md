@@ -1,6 +1,6 @@
 ---
 name: airunway-aks-setup
-description: "Set up AI Runway on AKS — from bare cluster to running model. Covers cluster verification, controller install, GPU assessment, provider setup, and first deployment. WHEN: \"setup AI Runway\", \"onboard AKS cluster\", \"install AI Runway\", \"airunway setup\", \"deploy model to AKS\", \"GPU inference on AKS\", \"KAITO setup on AKS\", \"run LLM on AKS\", \"vLLM on AKS\", \"set up model serving on AKS\", \"AI Runway controller\"."
+description: 'Set up AI Runway on AKS — from bare cluster to running model. Covers cluster verification, controller install, GPU assessment, provider setup, and first deployment. WHEN: "setup AI Runway", "onboard AKS cluster", "install AI Runway", "airunway setup", "deploy model to AKS", "GPU inference on AKS", "KAITO setup on AKS", "run LLM on AKS", "vLLM on AKS", "set up model serving on AKS", "AI Runway controller".'
 license: MIT
 metadata:
   author: Microsoft
@@ -20,16 +20,17 @@ This skill assumes an AKS cluster already exists. If the user does not have a cl
 
 ## Quick Reference
 
-| Property | Value |
-|----------|-------|
-| Best for | End-to-end AI Runway onboarding on AKS |
-| CLI tools | `kubectl`, `make`, `curl` |
-| MCP tools | None |
+| Property       | Value                                                                     |
+| -------------- | ------------------------------------------------------------------------- |
+| Best for       | End-to-end AI Runway onboarding on AKS                                    |
+| CLI tools      | `kubectl`, `make`, `curl`                                                 |
+| MCP tools      | None                                                                      |
 | Related skills | `azure-kubernetes` (cluster setup), `azure-diagnostics` (troubleshooting) |
 
 ## When to Use This Skill
 
 Use this skill when the user wants to:
+
 - Set up AI Runway on an existing AKS cluster from scratch
 - Install the AI Runway controller and CRDs
 - Assess GPU hardware compatibility for model deployment
@@ -51,23 +52,23 @@ This skill uses no MCP tools. All cluster operations are performed directly via 
 
 ## Steps
 
-| # | Step | Reference |
-|---|------|-----------|
-| 1 | **Cluster Verification** — context check, node inventory, GPU detection | [step-1-verify.md](references/steps/step-1-verify.md) |
-| 2 | **Controller Installation** — CRD + controller deployment | [step-2-controller.md](references/steps/step-2-controller.md) |
-| 3 | **GPU Assessment** — detect GPU models, flag dtype/attention constraints | [step-3-gpu.md](references/steps/step-3-gpu.md) |
-| 4 | **Provider Setup** — recommend and install inference provider | [step-4-provider.md](references/steps/step-4-provider.md) |
-| 5 | **First Deployment** — pick a model, deploy, verify Ready | [step-5-deploy.md](references/steps/step-5-deploy.md) |
-| 6 | **Summary** — recap, smoke test, next steps | [step-6-summary.md](references/steps/step-6-summary.md) |
+| #   | Step                                                                     | Reference                                                     |
+| --- | ------------------------------------------------------------------------ | ------------------------------------------------------------- |
+| 1   | **Cluster Verification** — context check, node inventory, GPU detection  | [step-1-verify.md](references/steps/step-1-verify.md)         |
+| 2   | **Controller Installation** — CRD + controller deployment                | [step-2-controller.md](references/steps/step-2-controller.md) |
+| 3   | **GPU Assessment** — detect GPU models, flag dtype/attention constraints | [step-3-gpu.md](references/steps/step-3-gpu.md)               |
+| 4   | **Provider Setup** — recommend and install inference provider            | [step-4-provider.md](references/steps/step-4-provider.md)     |
+| 5   | **First Deployment** — pick a model, deploy, verify Ready                | [step-5-deploy.md](references/steps/step-5-deploy.md)         |
+| 6   | **Summary** — recap, smoke test, next steps                              | [step-6-summary.md](references/steps/step-6-summary.md)       |
 
 ## Error Handling
 
-| Error / Symptom | Likely Cause | Remediation |
-|-----------------|--------------|-------------|
-| No kubeconfig context | Not connected to a cluster | Run `az aks get-credentials` or equivalent |
-| Controller in CrashLoopBackOff | Config or RBAC issue | `kubectl logs -n airunway-system -l control-plane=controller-manager --previous` |
-| Provider not ready | Image pull or RBAC issue | `kubectl logs <pod-name> -n <namespace>` for the provider pod |
-| ModelDeployment stuck in Pending | GPU scheduling failure or provider not ready | `kubectl describe modeldeployment <name> -n <namespace>` events |
-| `bfloat16` errors at inference | T4 or V100 lacks bfloat16 support | Add `--dtype float16` to serving args |
+| Error / Symptom                  | Likely Cause                                 | Remediation                                                                      |
+| -------------------------------- | -------------------------------------------- | -------------------------------------------------------------------------------- |
+| No kubeconfig context            | Not connected to a cluster                   | Run `az aks get-credentials` or equivalent                                       |
+| Controller in CrashLoopBackOff   | Config or RBAC issue                         | `kubectl logs -n airunway-system -l control-plane=controller-manager --previous` |
+| Provider not ready               | Image pull or RBAC issue                     | `kubectl logs <pod-name> -n <namespace>` for the provider pod                    |
+| ModelDeployment stuck in Pending | GPU scheduling failure or provider not ready | `kubectl describe modeldeployment <name> -n <namespace>` events                  |
+| `bfloat16` errors at inference   | T4 or V100 lacks bfloat16 support            | Add `--dtype float16` to serving args                                            |
 
 For full error handling and rollback procedures, see [troubleshooting.md](references/troubleshooting.md).

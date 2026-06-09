@@ -50,9 +50,10 @@ export async function exportTrades(
     tx.comments || "",
   ]);
 
-  return [headers.join(","), ...rows.map((r) => r.map(escapeCsv).join(","))].join(
-    "\n"
-  );
+  return [
+    headers.join(","),
+    ...rows.map((r) => r.map(escapeCsv).join(",")),
+  ].join("\n");
 }
 
 export async function exportHoldings(portfolioId: string): Promise<string> {
@@ -73,9 +74,10 @@ export async function exportHoldings(portfolioId: string): Promise<string> {
     h.instrument.currency,
   ]);
 
-  return [headers.join(","), ...rows.map((r) => r.map(escapeCsv).join(","))].join(
-    "\n"
-  );
+  return [
+    headers.join(","),
+    ...rows.map((r) => r.map(escapeCsv).join(",")),
+  ].join("\n");
 }
 
 export async function exportDividends(
@@ -121,9 +123,10 @@ export async function exportDividends(
     String(tx.foreignTax || 0),
   ]);
 
-  return [headers.join(","), ...rows.map((r) => r.map(escapeCsv).join(","))].join(
-    "\n"
-  );
+  return [
+    headers.join(","),
+    ...rows.map((r) => r.map(escapeCsv).join(",")),
+  ].join("\n");
 }
 
 export async function exportFullBackup(portfolioId: string): Promise<string> {

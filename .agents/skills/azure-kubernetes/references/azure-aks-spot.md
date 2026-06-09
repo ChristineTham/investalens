@@ -57,24 +57,24 @@ Pods that tolerate Spot but don't require it (no `nodeSelector` or required node
 
 ```yaml
 tolerations:
-- key: "kubernetes.azure.com/scalesetpriority"
-  operator: "Equal"
-  value: "spot"
-  effect: "NoSchedule"
+  - key: "kubernetes.azure.com/scalesetpriority"
+    operator: "Equal"
+    value: "spot"
+    effect: "NoSchedule"
 nodeSelector:
   kubernetes.azure.com/scalesetpriority: spot
 ```
 
 ## Suitability
 
-| Workload | Spot-Suitable? |
-|----------|----------------|
-| Batch / data processing | Yes |
-| Dev / test environments | Yes |
+| Workload                          | Spot-Suitable?  |
+| --------------------------------- | --------------- |
+| Batch / data processing           | Yes             |
+| Dev / test environments           | Yes             |
 | Stateless web/API (replicas >= 2) | Yes (with care) |
-| Jobs with checkpointing | Yes |
-| Stateful workloads (databases) | No |
-| Single-replica critical services | No |
+| Jobs with checkpointing           | Yes             |
+| Stateful workloads (databases)    | No              |
+| Single-replica critical services  | No              |
 
 > Risk: Low for batch/dev. High for production stateful workloads. Spot VMs evict with 30-second notice. Eviction policy Delete is recommended for AKS.
 
@@ -89,11 +89,11 @@ spec:
     spec:
       terminationGracePeriodSeconds: 25
       containers:
-      - name: <CONTAINER_NAME>
-        lifecycle:
-          preStop:
-            exec:
-              command: ["/bin/sh", "-c", "sleep 5"]  # Drain in-flight requests
+        - name: <CONTAINER_NAME>
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 5"] # Drain in-flight requests
 ```
 
 Set a PodDisruptionBudget to limit simultaneous evictions:

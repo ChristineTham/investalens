@@ -191,13 +191,13 @@
   - Connection string: `postgresql://[user]:[password]@[neon_hostname]/[dbname]`
 - **HTTP usage**:
   ```typescript
-  import { neon } from '@neondatabase/serverless';
+  import { neon } from "@neondatabase/serverless";
   const sql = neon(process.env.DATABASE_URL);
   const rows = await sql`SELECT * FROM posts WHERE id = ${postId}`;
   ```
 - **WebSocket usage (for Prisma adapter)**:
   ```typescript
-  import { Pool } from '@neondatabase/serverless';
+  import { Pool } from "@neondatabase/serverless";
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   ```
 - **Neon CLI setup**: `npx neonctl@latest init` (wizard for API key, MCP server, agent skills)
@@ -419,6 +419,7 @@
   - Run locally: `fastapi dev main.py`
   - Python type hints = API documentation + validation
 - **Vercel deployment pattern**:
+
   ```python
   from fastapi import FastAPI
   app = FastAPI()
@@ -427,6 +428,7 @@
   def read_root():
       return {"Hello": "World"}
   ```
+
   Vercel auto-detects `app` variable as ASGI entrypoint.
 
 ---
@@ -529,6 +531,7 @@
   - **Bundle size concern**: Compiled binary may push Vercel 500MB function limit. Test carefully.
 - **Import**: `from google.antigravity import Agent, LocalAgentConfig`
 - **Usage pattern (Simple Agent)**:
+
   ```python
   import asyncio
   from google.antigravity import Agent, LocalAgentConfig
@@ -544,7 +547,9 @@
 
   asyncio.run(main())
   ```
+
 - **Multimodal ingestion**:
+
   ```python
   from google.antigravity import Agent, LocalAgentConfig
   from google.antigravity.types import from_file
@@ -555,7 +560,9 @@
       response = await agent.chat(["Extract all transactions:", pdf])
       print(await response.text())
   ```
+
 - **Custom tools**:
+
   ```python
   def get_price(ticker: str) -> str:
       """Returns the current price for a ticker."""
@@ -563,6 +570,7 @@
 
   config = LocalAgentConfig(tools=[get_price])
   ```
+
 - **MCP integration**:
   ```python
   from google.antigravity.types import McpStdioServer
@@ -637,46 +645,46 @@
 
 Every package listed above has been verified against its official documentation as of 2026-06-05. The following were confirmed:
 
-| Package | Official URL Checked | Install Command Verified | Key Config Verified |
-|---------|---------------------|--------------------------|---------------------|
-| pnpm | https://pnpm.io/installation | ✅ Node 22+ required | ✅ v11 compatibility |
-| uv | https://docs.astral.sh/uv/ | ✅ `uv init` + `uv add` | ✅ lockfile, .venv |
-| shadcn/ui CLI | https://ui.shadcn.com/docs/cli | ✅ `pnpm dlx shadcn@latest init -t next --base base-ui` | ✅ flags verified |
-| Prisma v7 | https://www.prisma.io/docs/guides/upgrade-prisma-orm/v7 | ✅ `pnpm add -D prisma @types/pg` + `pnpm add @prisma/client @prisma/adapter-pg pg dotenv` | ✅ ESM, driver adapter, prisma.config.ts |
-| @neondatabase/serverless | https://neon.com/docs/serverless/serverless-driver | ✅ `pnpm add @neondatabase/serverless` | ✅ GA v1.0.0+, Node 19+ |
-| Auth.js v5 | https://authjs.dev/getting-started/installation | ✅ `pnpm add next-auth@beta` + `npx auth secret` | ✅ proxy.ts (Next.js 16+) |
-| @auth/prisma-adapter | https://authjs.dev/getting-started/adapters/prisma | ✅ `pnpm add @auth/prisma-adapter` | ✅ schema models |
-| Vercel AI SDK | https://ai-sdk.dev/docs/getting-started | ✅ `pnpm add ai @ai-sdk/google` | ✅ v6, Google provider |
-| Zod | https://zod.dev | ✅ `pnpm add zod` | ✅ v4 stable, strict mode |
-| Recharts | https://recharts.org | ✅ `pnpm add recharts` | ✅ React composable |
-| @tanstack/react-table | https://tanstack.com/table/latest | ✅ `pnpm add @tanstack/react-table` | ✅ headless |
-| Vitest | https://vitest.dev/guide/ | ✅ `pnpm add -D vitest` | ✅ Vite 6+, Node 20+ |
-| Playwright | https://playwright.dev/docs/intro | ✅ `pnpm create playwright` | ✅ interactive setup |
-| Prettier | https://prettier.io/docs/install | ✅ `pnpm add -D --save-exact prettier` | ✅ exact version |
-| prettier-plugin-tailwindcss | https://github.com/tailwindlabs/prettier-plugin-tailwindcss | ✅ `pnpm add -D prettier-plugin-tailwindcss` | ✅ `tailwindStylesheet` for v4 |
-| FastAPI | https://fastapi.tiangolo.com/ | ✅ `uv add "fastapi[standard]"` | ✅ ASGI `app` variable |
-| skfolio | https://skfolio.org/ | ✅ `uv add skfolio` (or `pip install skfolio`) | ✅ scikit-learn API |
-| NumPy | https://numpy.org/install/ | ✅ `uv add numpy` | ✅ |
-| SciPy | https://scipy.org/install/ | ✅ `uv add scipy` | ✅ |
-| pandas | https://pandas.pydata.org/docs/getting_started/install.html | ✅ `uv add pandas` | ✅ |
-| Vercel Python Runtime | https://vercel.com/docs/functions/runtimes/python | ✅ Auto-detected, no runtime field | ✅ pyproject.toml supported |
-| Google Antigravity SDK | https://antigravity.google/product/antigravity-sdk | ✅ `uv add google-antigravity` | ✅ Async Agent API, compiled binary |
+| Package                     | Official URL Checked                                        | Install Command Verified                                                                   | Key Config Verified                      |
+| --------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------- |
+| pnpm                        | https://pnpm.io/installation                                | ✅ Node 22+ required                                                                       | ✅ v11 compatibility                     |
+| uv                          | https://docs.astral.sh/uv/                                  | ✅ `uv init` + `uv add`                                                                    | ✅ lockfile, .venv                       |
+| shadcn/ui CLI               | https://ui.shadcn.com/docs/cli                              | ✅ `pnpm dlx shadcn@latest init -t next --base base-ui`                                    | ✅ flags verified                        |
+| Prisma v7                   | https://www.prisma.io/docs/guides/upgrade-prisma-orm/v7     | ✅ `pnpm add -D prisma @types/pg` + `pnpm add @prisma/client @prisma/adapter-pg pg dotenv` | ✅ ESM, driver adapter, prisma.config.ts |
+| @neondatabase/serverless    | https://neon.com/docs/serverless/serverless-driver          | ✅ `pnpm add @neondatabase/serverless`                                                     | ✅ GA v1.0.0+, Node 19+                  |
+| Auth.js v5                  | https://authjs.dev/getting-started/installation             | ✅ `pnpm add next-auth@beta` + `npx auth secret`                                           | ✅ proxy.ts (Next.js 16+)                |
+| @auth/prisma-adapter        | https://authjs.dev/getting-started/adapters/prisma          | ✅ `pnpm add @auth/prisma-adapter`                                                         | ✅ schema models                         |
+| Vercel AI SDK               | https://ai-sdk.dev/docs/getting-started                     | ✅ `pnpm add ai @ai-sdk/google`                                                            | ✅ v6, Google provider                   |
+| Zod                         | https://zod.dev                                             | ✅ `pnpm add zod`                                                                          | ✅ v4 stable, strict mode                |
+| Recharts                    | https://recharts.org                                        | ✅ `pnpm add recharts`                                                                     | ✅ React composable                      |
+| @tanstack/react-table       | https://tanstack.com/table/latest                           | ✅ `pnpm add @tanstack/react-table`                                                        | ✅ headless                              |
+| Vitest                      | https://vitest.dev/guide/                                   | ✅ `pnpm add -D vitest`                                                                    | ✅ Vite 6+, Node 20+                     |
+| Playwright                  | https://playwright.dev/docs/intro                           | ✅ `pnpm create playwright`                                                                | ✅ interactive setup                     |
+| Prettier                    | https://prettier.io/docs/install                            | ✅ `pnpm add -D --save-exact prettier`                                                     | ✅ exact version                         |
+| prettier-plugin-tailwindcss | https://github.com/tailwindlabs/prettier-plugin-tailwindcss | ✅ `pnpm add -D prettier-plugin-tailwindcss`                                               | ✅ `tailwindStylesheet` for v4           |
+| FastAPI                     | https://fastapi.tiangolo.com/                               | ✅ `uv add "fastapi[standard]"`                                                            | ✅ ASGI `app` variable                   |
+| skfolio                     | https://skfolio.org/                                        | ✅ `uv add skfolio` (or `pip install skfolio`)                                             | ✅ scikit-learn API                      |
+| NumPy                       | https://numpy.org/install/                                  | ✅ `uv add numpy`                                                                          | ✅                                       |
+| SciPy                       | https://scipy.org/install/                                  | ✅ `uv add scipy`                                                                          | ✅                                       |
+| pandas                      | https://pandas.pydata.org/docs/getting_started/install.html | ✅ `uv add pandas`                                                                         | ✅                                       |
+| Vercel Python Runtime       | https://vercel.com/docs/functions/runtimes/python           | ✅ Auto-detected, no runtime field                                                         | ✅ pyproject.toml supported              |
+| Google Antigravity SDK      | https://antigravity.google/product/antigravity-sdk          | ✅ `uv add google-antigravity`                                                             | ✅ Async Agent API, compiled binary      |
 
 ---
 
 ## Known Gaps & Corrections Made
 
-| Issue Found | Source | Correction |
-|-------------|--------|------------|
-| `@vercel/python@4.3.1` in vercel.json | Vercel docs | REMOVED — Python is built-in, auto-detected |
-| `prisma-client-js` generator | Prisma v7 docs | Changed to `prisma-client` |
-| Missing `output` in Prisma generator | Prisma v7 docs | Added `output = "../generated/prisma"` |
-| Missing `dotenv` dependency | Prisma v7 docs | Added to install command |
-| `pip install` for Python packages | uv docs | Changed to `uv add` |
-| `requirements.txt` required for Vercel | Vercel Python docs | NOT required — pyproject.toml works directly |
-| `middleware.ts` for Auth.js | Auth.js docs | Changed to `proxy.ts` (Next.js 16+) |
-| `@vercel/kv` in architecture | Vercel announcement | DEPRECATED — removed from project |
-| Missing `tailwindStylesheet` in prettier config | prettier-plugin-tailwindcss docs | Required for Tailwind CSS v4 |
-| `create-next-app` scaffolding | shadcn docs | NOT used — shadcn CLI handles everything |
-| `google-antigravity` API pattern | Antigravity SDK GitHub README | Fixed: async `Agent(LocalAgentConfig)` + `await agent.chat()`, NOT `ag.Agent(model=...).generate()` |
-| `google-antigravity` for doc parsing | Antigravity SDK docs | Agent framework, not doc parser — use Vercel AI SDK `generateObject` for structured extraction |
+| Issue Found                                     | Source                           | Correction                                                                                          |
+| ----------------------------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `@vercel/python@4.3.1` in vercel.json           | Vercel docs                      | REMOVED — Python is built-in, auto-detected                                                         |
+| `prisma-client-js` generator                    | Prisma v7 docs                   | Changed to `prisma-client`                                                                          |
+| Missing `output` in Prisma generator            | Prisma v7 docs                   | Added `output = "../generated/prisma"`                                                              |
+| Missing `dotenv` dependency                     | Prisma v7 docs                   | Added to install command                                                                            |
+| `pip install` for Python packages               | uv docs                          | Changed to `uv add`                                                                                 |
+| `requirements.txt` required for Vercel          | Vercel Python docs               | NOT required — pyproject.toml works directly                                                        |
+| `middleware.ts` for Auth.js                     | Auth.js docs                     | Changed to `proxy.ts` (Next.js 16+)                                                                 |
+| `@vercel/kv` in architecture                    | Vercel announcement              | DEPRECATED — removed from project                                                                   |
+| Missing `tailwindStylesheet` in prettier config | prettier-plugin-tailwindcss docs | Required for Tailwind CSS v4                                                                        |
+| `create-next-app` scaffolding                   | shadcn docs                      | NOT used — shadcn CLI handles everything                                                            |
+| `google-antigravity` API pattern                | Antigravity SDK GitHub README    | Fixed: async `Agent(LocalAgentConfig)` + `await agent.chat()`, NOT `ag.Agent(model=...).generate()` |
+| `google-antigravity` for doc parsing            | Antigravity SDK docs             | Agent framework, not doc parser — use Vercel AI SDK `generateObject` for structured extraction      |

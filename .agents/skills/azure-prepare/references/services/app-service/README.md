@@ -21,11 +21,11 @@ services:
 
 ## Required Supporting Resources
 
-| Resource | Purpose |
-|----------|---------|
-| App Service Plan | Compute hosting |
-| Application Insights | Monitoring |
-| Key Vault | Secrets (optional) |
+| Resource             | Purpose            |
+| -------------------- | ------------------ |
+| App Service Plan     | Compute hosting    |
+| Application Insights | Monitoring         |
+| Key Vault            | Secrets (optional) |
 
 ## Runtime Stacks
 
@@ -33,29 +33,29 @@ services:
 
 ### Linux (recommended)
 
-| Language | linuxFxVersion |
-|----------|----------------|
-| Node.js 18 | `NODE\|18-lts` |
-| Node.js 20 | `NODE\|20-lts` |
-| Python 3.11 | `PYTHON\|3.11` |
-| .NET 8 | `DOTNETCORE\|8.0` |
-| Java 17 | `JAVA\|17-java17` |
+| Language    | linuxFxVersion    |
+| ----------- | ----------------- |
+| Node.js 18  | `NODE\|18-lts`    |
+| Node.js 20  | `NODE\|20-lts`    |
+| Python 3.11 | `PYTHON\|3.11`    |
+| .NET 8      | `DOTNETCORE\|8.0` |
+| Java 17     | `JAVA\|17-java17` |
 
 ### Windows
 
-| Language | Setting |
-|----------|---------|
-| Node.js | `WEBSITE_NODE_DEFAULT_VERSION: '~20'` (app setting) |
-| .NET 8 | Built-in (no extra config) |
+| Language | Setting                                             |
+| -------- | --------------------------------------------------- |
+| Node.js  | `WEBSITE_NODE_DEFAULT_VERSION: '~20'` (app setting) |
+| .NET 8   | Built-in (no extra config)                          |
 
 ## SKU Selection
 
-| SKU | Use Case |
-|-----|----------|
-| F1/D1 | Development/testing (free/shared) |
-| B1-B3 | Small production, basic features |
-| S1-S3 | Production with auto-scale, slots |
-| P1v3-P3v3 | High-performance production |
+| SKU       | Use Case                          |
+| --------- | --------------------------------- |
+| F1/D1     | Development/testing (free/shared) |
+| B1-B3     | Small production, basic features  |
+| S1-S3     | Production with auto-scale, slots |
+| P1v3-P3v3 | High-performance production       |
 
 ## Health Checks
 

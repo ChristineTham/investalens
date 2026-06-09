@@ -13,12 +13,8 @@ Common query patterns with request bodies. Use the [SKILL.md workflow](../SKILL.
     "aggregation": {
       "totalCost": { "name": "Cost", "function": "Sum" }
     },
-    "grouping": [
-      { "type": "Dimension", "name": "ServiceName" }
-    ],
-    "sorting": [
-      { "direction": "Descending", "name": "Cost" }
-    ]
+    "grouping": [{ "type": "Dimension", "name": "ServiceName" }],
+    "sorting": [{ "direction": "Descending", "name": "Cost" }]
   }
 }
 ```
@@ -59,9 +55,7 @@ Common query patterns with request bodies. Use the [SKILL.md workflow](../SKILL.
     "aggregation": {
       "totalCost": { "name": "Cost", "function": "Sum" }
     },
-    "grouping": [
-      { "type": "Dimension", "name": "ResourceGroupName" }
-    ],
+    "grouping": [{ "type": "Dimension", "name": "ResourceGroupName" }],
     "filter": {
       "tags": {
         "name": "Environment",
@@ -69,9 +63,7 @@ Common query patterns with request bodies. Use the [SKILL.md workflow](../SKILL.
         "values": ["production", "staging"]
       }
     },
-    "sorting": [
-      { "direction": "Descending", "name": "Cost" }
-    ]
+    "sorting": [{ "direction": "Descending", "name": "Cost" }]
   }
 }
 ```
@@ -89,12 +81,8 @@ Common query patterns with request bodies. Use the [SKILL.md workflow](../SKILL.
     "aggregation": {
       "totalCost": { "name": "Cost", "function": "Sum" }
     },
-    "grouping": [
-      { "type": "Dimension", "name": "BenefitName" }
-    ],
-    "sorting": [
-      { "direction": "Descending", "name": "Cost" }
-    ]
+    "grouping": [{ "type": "Dimension", "name": "BenefitName" }],
+    "sorting": [{ "direction": "Descending", "name": "Cost" }]
   }
 }
 ```
@@ -114,12 +102,8 @@ Common query patterns with request bodies. Use the [SKILL.md workflow](../SKILL.
     "aggregation": {
       "totalCost": { "name": "Cost", "function": "Sum" }
     },
-    "grouping": [
-      { "type": "Dimension", "name": "ResourceId" }
-    ],
-    "sorting": [
-      { "direction": "Descending", "name": "Cost" }
-    ]
+    "grouping": [{ "type": "Dimension", "name": "ResourceId" }],
+    "sorting": [{ "direction": "Descending", "name": "Cost" }]
   }
 }
 ```

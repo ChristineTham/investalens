@@ -8,11 +8,11 @@ Execute critical post-deployment configuration after infrastructure provisioning
 
 Post-deployment steps are required when your deployment includes:
 
-| Scenario | Required Actions |
-|----------|-----------------|
+| Scenario                                        | Required Actions                                       |
+| ----------------------------------------------- | ------------------------------------------------------ |
 | **ASP.NET Core + Azure SQL + Managed Identity** | Grant managed identity SQL access, apply EF migrations |
-| **App Service + Azure SQL + Entra auth** | Grant App Service identity database permissions |
-| **Container Apps + SQL Database** | Configure managed identity access, run migrations |
+| **App Service + Azure SQL + Entra auth**        | Grant App Service identity database permissions        |
+| **Container Apps + SQL Database**               | Configure managed identity access, run migrations      |
 
 ## ASP.NET Core + EF Core + Azure SQL
 
@@ -43,6 +43,7 @@ APP_NAME=$SERVICE_API_NAME  # or SERVICE_WEB_NAME
 ```
 
 **PowerShell:**
+
 ```powershell
 # Get the app identity name from azd
 azd env get-values | ForEach-Object {
@@ -63,11 +64,11 @@ See [EF Core Migrations](ef-migrations.md) for deployment patterns and troublesh
 
 **Quick Options:**
 
-| Method | Command | Use When |
-|--------|---------|----------|
-| **azd hook** | Add `postprovision` hook in `azure.yaml` | Automated deployments |
-| **Manual** | `dotnet ef database update` | One-time or troubleshooting |
-| **SQL Script** | `dotnet ef migrations script --idempotent` | Pre-generated scripts |
+| Method         | Command                                    | Use When                    |
+| -------------- | ------------------------------------------ | --------------------------- |
+| **azd hook**   | Add `postprovision` hook in `azure.yaml`   | Automated deployments       |
+| **Manual**     | `dotnet ef database update`                | One-time or troubleshooting |
+| **SQL Script** | `dotnet ef migrations script --idempotent` | Pre-generated scripts       |
 
 ### Step 3: Verify Deployment
 
@@ -83,6 +84,7 @@ curl -f "$ENDPOINT/api/test-db" || echo "Database connection failed"
 ```
 
 **PowerShell:**
+
 ```powershell
 # Get app endpoint
 $Endpoint = azd env get-values | Select-String -Pattern 'SERVICE_.*_URI' |
@@ -96,18 +98,19 @@ try { Invoke-WebRequest "$Endpoint/api/test-db" } catch { Write-Output "Database
 ```
 
 **Expected Result:**
+
 - HTTP 200 from health endpoint
 - No SQL authentication errors in logs
 - Application starts successfully
 
 ## Common Issues
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Login failed for user '<token-identified principal>'` | Managed identity not granted SQL access | Follow [sql-managed-identity.md](sql-managed-identity.md) |
-| `Cannot open database` | Firewall rules block access | Check SQL firewall, ensure "Allow Azure services" enabled |
-| `Invalid object name` | Migrations not applied | Run EF migrations per [ef-migrations.md](ef-migrations.md) |
-| `No such table` | Schema missing | Apply migrations or check connection string database name |
+| Error                                                  | Cause                                   | Solution                                                   |
+| ------------------------------------------------------ | --------------------------------------- | ---------------------------------------------------------- |
+| `Login failed for user '<token-identified principal>'` | Managed identity not granted SQL access | Follow [sql-managed-identity.md](sql-managed-identity.md)  |
+| `Cannot open database`                                 | Firewall rules block access             | Check SQL firewall, ensure "Allow Azure services" enabled  |
+| `Invalid object name`                                  | Migrations not applied                  | Run EF migrations per [ef-migrations.md](ef-migrations.md) |
+| `No such table`                                        | Schema missing                          | Apply migrations or check connection string database name  |
 
 ## Best Practices
 

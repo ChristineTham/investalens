@@ -177,13 +177,13 @@ az containerapp create `
 
 ### Configuration Mapping
 
-| Cloud Run | Container Apps |
-|-----------|----------------|
-| `--min-instances 0` | `--min-replicas 0` |
-| `--max-instances 10` | `--max-replicas 10` |
-| `--concurrency 80` | `--scale-rule-http-concurrency 80` |
-| `--cpu 1` | `--cpu 1.0` |
-| `--memory 512Mi` | `--memory 1Gi` |
+| Cloud Run            | Container Apps                     |
+| -------------------- | ---------------------------------- |
+| `--min-instances 0`  | `--min-replicas 0`                 |
+| `--max-instances 10` | `--max-replicas 10`                |
+| `--concurrency 80`   | `--scale-rule-http-concurrency 80` |
+| `--cpu 1`            | `--cpu 1.0`                        |
+| `--memory 512Mi`     | `--memory 1Gi`                     |
 
 ## Phase 5: Validation
 
@@ -205,9 +205,9 @@ az containerapp logs show --name <app-name> -g $RG --tail 100
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Image pull fails | Verify ACR role: `az role assignment list --assignee $PRINCIPAL_ID --scope $ACR_ID -o table` |
-| App won't start | Check logs: `az containerapp logs show --name <app> -g $RG --tail 100` |
-| Secret not accessible | Verify RBAC: `az role assignment list --assignee $PRINCIPAL_ID --scope $KV_ID -o table` |
-| Scaling not working | Check config: `az containerapp show --name <app> --query properties.template.scale` |
+| Issue                 | Solution                                                                                     |
+| --------------------- | -------------------------------------------------------------------------------------------- |
+| Image pull fails      | Verify ACR role: `az role assignment list --assignee $PRINCIPAL_ID --scope $ACR_ID -o table` |
+| App won't start       | Check logs: `az containerapp logs show --name <app> -g $RG --tail 100`                       |
+| Secret not accessible | Verify RBAC: `az role assignment list --assignee $PRINCIPAL_ID --scope $KV_ID -o table`      |
+| Scaling not working   | Check config: `az containerapp show --name <app> --query properties.template.scale`          |

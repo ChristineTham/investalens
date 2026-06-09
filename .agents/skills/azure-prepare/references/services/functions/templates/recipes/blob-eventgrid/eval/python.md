@@ -2,14 +2,14 @@
 
 ## MCP Template Validation
 
-| Criteria | Expected | Status |
-|----------|----------|--------|
-| Template discovery | `functions_template_get(language: "python")` returns list | ✅ PASS |
-| Filter by resource | `resource == "blob"` finds matches | ✅ PASS |
-| Template scaffolded | `blob-eventgrid-trigger-python-azd` | ✅ PASS |
-| Has trigger code | `@app.blob_trigger` decorator in output | ✅ PASS |
-| Has IaC | `projectFiles[]` includes Bicep | ✅ PASS |
-| Has RBAC | Appropriate role assignment | ✅ PASS |
+| Criteria            | Expected                                                  | Status  |
+| ------------------- | --------------------------------------------------------- | ------- |
+| Template discovery  | `functions_template_get(language: "python")` returns list | ✅ PASS |
+| Filter by resource  | `resource == "blob"` finds matches                        | ✅ PASS |
+| Template scaffolded | `blob-eventgrid-trigger-python-azd`                       | ✅ PASS |
+| Has trigger code    | `@app.blob_trigger` decorator in output                   | ✅ PASS |
+| Has IaC             | `projectFiles[]` includes Bicep                           | ✅ PASS |
+| Has RBAC            | Appropriate role assignment                               | ✅ PASS |
 
 ## Agent Behavior Validation
 

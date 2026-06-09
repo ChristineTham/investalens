@@ -7,9 +7,9 @@ There are **two distinct migration paths** to AMR, depending on the source SKU. 
 
 ## Decision Table — Which Skill?
 
-| Source SKU | ARM Resource Type | CLI / PowerShell | Dedicated Skill | Repo |
-|---|---|---|---|---|
-| **ACR / OSS Redis** — Basic, Standard, Premium (C0–C6, P1–P5) | `Microsoft.Cache/redis` | `az redis`, `*-AzRedisCache` | `amr-migration-skill` | https://github.com/AzureManagedRedis/amr-migration-skill |
+| Source SKU                                                                       | ARM Resource Type                 | CLI / PowerShell                             | Dedicated Skill               | Repo                                                             |
+| -------------------------------------------------------------------------------- | --------------------------------- | -------------------------------------------- | ----------------------------- | ---------------------------------------------------------------- |
+| **ACR / OSS Redis** — Basic, Standard, Premium (C0–C6, P1–P5)                    | `Microsoft.Cache/redis`           | `az redis`, `*-AzRedisCache`                 | `amr-migration-skill`         | https://github.com/AzureManagedRedis/amr-migration-skill         |
 | **ACRE** — Enterprise (`Enterprise_E*`), Enterprise Flash (`EnterpriseFlash_F*`) | `Microsoft.Cache/redisEnterprise` | `az redisenterprise`, `*-AzRedisEnterprise*` | `acre-to-amr-migration-skill` | https://github.com/AzureManagedRedis/acre-to-amr-migration-skill |
 
 > ACR and ACRE are **fundamentally different products** with different ARM resource types, different APIs, and different migration mechanics. Picking the wrong skill will give the user wrong guidance. Always disambiguate before pointing.
@@ -19,6 +19,7 @@ There are **two distinct migration paths** to AMR, depending on the source SKU. 
 Ask the user, or inspect the resource. Any **one** of these signals identifies the source:
 
 **ACR (OSS) indicators** → use `amr-migration-skill`:
+
 - Resource type `Microsoft.Cache/redis` (no "Enterprise" suffix)
 - SKU names `Basic`, `Standard`, `Premium`, or sizes `C0`–`C6`, `P1`–`P5`
 - CLI: `az redis ...` commands
@@ -27,6 +28,7 @@ Ask the user, or inspect the resource. Any **one** of these signals identifies t
 - Default TLS port `6380`
 
 **ACRE indicators** → use `acre-to-amr-migration-skill`:
+
 - Resource type `Microsoft.Cache/redisEnterprise`
 - SKU names starting with `Enterprise_` (e.g. `Enterprise_E10`, `Enterprise_E20`) or `EnterpriseFlash_` (e.g. `EnterpriseFlash_F300`)
 - CLI: `az redisenterprise ...` commands
@@ -68,7 +70,7 @@ When a user asks about migrating any flavor of Azure Cache for Redis to Azure Ma
 1. **Do not attempt the migration from this skill.** Neither SKU specs nor migration automation are inlined here.
 2. **Determine the source** using the disambiguation signals above. If unclear, ask the user (or inspect the script/resource).
 3. **Point the user to the correct dedicated skill** with its repo URL. The repo READMEs include install instructions for GitHub Copilot, Claude Code, and other compatible hosts.
-4. After installation, the user's agent will match the dedicated skill on its trigger phrases (e.g. *"migrate my P2 cache to AMR"*, *"convert my Bicep Redis template"*, *"migrate my Enterprise_E10 cache"*, *"update my ACRE ARM template for AMR"*).
+4. After installation, the user's agent will match the dedicated skill on its trigger phrases (e.g. _"migrate my P2 cache to AMR"_, _"convert my Bicep Redis template"_, _"migrate my Enterprise_E10 cache"_, _"update my ACRE ARM template for AMR"_).
 5. If the user has **both** ACR and ACRE resources, recommend installing **both** skills and running them on the relevant resources separately.
 
 ## Key Migration Facts (so the agent can set expectations)
@@ -76,6 +78,7 @@ When a user asks about migrating any flavor of Azure Cache for Redis to Azure Ma
 These are summarized for awareness. For anything operational, defer to the dedicated skills.
 
 ### ACR → AMR
+
 - **Port**: 6380 → **10000**. Non-TLS 6379 not supported on AMR.
 - **DNS suffix**: `.redis.cache.windows.net` → `<region>.redis.azure.net`
 - **Redis version**: 6 → **7.4**
@@ -84,6 +87,7 @@ These are summarized for awareness. For anything operational, defer to the dedic
 - **DNS-switch automated migration** keeps old hostname working, but the port change still applies — apps must be updated.
 
 ### ACRE → AMR
+
 - **ARM resource type is unchanged** between the ACRE source and AMR target — both use `Microsoft.Cache/redisEnterprise`. Property values do change (API version, SKU naming, etc.); see the breaking-changes reference in the dedicated skill.
 - **Geo-replicated caches** require create-new-and-swap, not in-place migration.
 - **Private Endpoints / Private Link** DNS zones must be updated.

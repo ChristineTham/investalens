@@ -2,27 +2,27 @@
 
 ## Prerequisites
 
-| Requirement | Details |
-|------------|---------|
-| SKU tier | Basic (B1) or higher |
-| DNS access | Ability to create CNAME, A, and TXT records |
-| Domain ownership | Verified via TXT record |
+| Requirement      | Details                                     |
+| ---------------- | ------------------------------------------- |
+| SKU tier         | Basic (B1) or higher                        |
+| DNS access       | Ability to create CNAME, A, and TXT records |
+| Domain ownership | Verified via TXT record                     |
 
 ## DNS Configuration
 
 ### Subdomain (CNAME)
 
-| Record Type | Name | Value |
-|------------|------|-------|
-| CNAME | `www` | `<app-name>.azurewebsites.net` |
-| TXT | `asuid.www` | `<verification-id>` |
+| Record Type | Name        | Value                          |
+| ----------- | ----------- | ------------------------------ |
+| CNAME       | `www`       | `<app-name>.azurewebsites.net` |
+| TXT         | `asuid.www` | `<verification-id>`            |
 
 ### Apex / Root Domain (A Record)
 
-| Record Type | Name | Value |
-|------------|------|-------|
-| A | `@` | `<app-ip-address>` |
-| TXT | `asuid` | `<verification-id>` |
+| Record Type | Name    | Value               |
+| ----------- | ------- | ------------------- |
+| A           | `@`     | `<app-ip-address>`  |
+| TXT         | `asuid` | `<verification-id>` |
 
 Get the verification ID and IP address:
 
@@ -121,11 +121,11 @@ resource "azurerm_app_service_certificate_binding" "binding" {
 
 ## TLS Options
 
-| Option | Cost | Renewal | Use Case |
-|--------|------|---------|----------|
-| App Service Managed Certificate | Free | Auto-renewed | Standard custom domains |
+| Option                              | Cost    | Renewal      | Use Case                      |
+| ----------------------------------- | ------- | ------------ | ----------------------------- |
+| App Service Managed Certificate     | Free    | Auto-renewed | Standard custom domains       |
 | App Service Certificate (purchased) | ~$70/yr | Auto-renewed | Extended validation, wildcard |
-| Bring your own certificate | Varies | Manual | Enterprise PKI, specific CA |
+| Bring your own certificate          | Varies  | Manual       | Enterprise PKI, specific CA   |
 
 ### Enforce HTTPS Only
 
@@ -165,9 +165,9 @@ siteConfig: {
 
 ## Troubleshooting
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| Domain verification fails | Missing TXT record | Add `asuid` TXT record and wait for DNS propagation |
+| Issue                      | Cause                  | Fix                                                   |
+| -------------------------- | ---------------------- | ----------------------------------------------------- |
+| Domain verification fails  | Missing TXT record     | Add `asuid` TXT record and wait for DNS propagation   |
 | Certificate creation fails | DNS not yet propagated | Wait 5-15 min for propagation; verify with `nslookup` |
-| SSL binding error | SKU too low | Upgrade to Basic (B1) or higher |
-| Managed cert not renewing | DNS record changed | Verify CNAME/A record still points to the app |
+| SSL binding error          | SKU too low            | Upgrade to Basic (B1) or higher                       |
+| Managed cert not renewing  | DNS record changed     | Verify CNAME/A record still points to the app         |

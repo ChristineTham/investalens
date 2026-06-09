@@ -78,25 +78,51 @@ export default async function PerformanceReportPage({
         <table className="w-full">
           <thead className="bg-muted/50">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Code</th>
-              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Cost Base</th>
-              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Market Value</th>
-              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Capital Gain</th>
-              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Dividends</th>
-              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Total Return</th>
-              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Return %</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                Code
+              </th>
+              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                Cost Base
+              </th>
+              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                Market Value
+              </th>
+              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                Capital Gain
+              </th>
+              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                Dividends
+              </th>
+              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                Total Return
+              </th>
+              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                Return %
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {report.portfolio.holdings.map((h) => (
               <tr key={h.holdingId} className="hover:bg-accent/50">
                 <td className="px-4 py-3 font-medium">{h.instrumentCode}</td>
-                <td className="px-4 py-3 text-right text-sm">{formatCurrency(h.costBase)}</td>
-                <td className="px-4 py-3 text-right text-sm">{formatCurrency(h.marketValue)}</td>
-                <td className="px-4 py-3 text-right text-sm">{formatCurrency(h.capitalGain)}</td>
-                <td className="px-4 py-3 text-right text-sm">{formatCurrency(h.dividendIncome)}</td>
-                <td className="px-4 py-3 text-right text-sm">{formatCurrency(h.totalReturn)}</td>
-                <td className="px-4 py-3 text-right text-sm">{formatPercent(h.totalReturnPercent)}</td>
+                <td className="px-4 py-3 text-right text-sm">
+                  {formatCurrency(h.costBase)}
+                </td>
+                <td className="px-4 py-3 text-right text-sm">
+                  {formatCurrency(h.marketValue)}
+                </td>
+                <td className="px-4 py-3 text-right text-sm">
+                  {formatCurrency(h.capitalGain)}
+                </td>
+                <td className="px-4 py-3 text-right text-sm">
+                  {formatCurrency(h.dividendIncome)}
+                </td>
+                <td className="px-4 py-3 text-right text-sm">
+                  {formatCurrency(h.totalReturn)}
+                </td>
+                <td className="px-4 py-3 text-right text-sm">
+                  {formatPercent(h.totalReturnPercent)}
+                </td>
               </tr>
             ))}
           </tbody>

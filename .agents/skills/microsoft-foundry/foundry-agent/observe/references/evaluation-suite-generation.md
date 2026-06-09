@@ -21,19 +21,20 @@ Call `evaluation_suite_generation_job_create` with the selected `projectEndpoint
 
 `suiteName` must start with a letter (`A-Z` or `a-z`). If a derived name starts with a number, prefix it with an alphabetic label such as `suite-`.
 
-| Source | Parameters |
-|--------|------------|
-| Deployed agent (code/definition) | `agentName`, **`agentSourceNames: [<agentName>]`** (required for target), `agentSourceDescription` |
-| Existing dataset | `datasetName`, `datasetVersion`, `datasetSourceDescription` |
-| File | `fileId`, `fileSourceDescription` |
-| Prompt | `promptSource`, `promptSourceDescription` |
-| Traces | `traceAgentName` or `traceAgentId`, `traceAgentVersion`, `traceStartTime`, `traceEndTime` (unix seconds), `maxTraces`, `tracesSourceDescription` |
+| Source                           | Parameters                                                                                                                                       |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Deployed agent (code/definition) | `agentName`, **`agentSourceNames: [<agentName>]`** (required for target), `agentSourceDescription`                                               |
+| Existing dataset                 | `datasetName`, `datasetVersion`, `datasetSourceDescription`                                                                                      |
+| File                             | `fileId`, `fileSourceDescription`                                                                                                                |
+| Prompt                           | `promptSource`, `promptSourceDescription`                                                                                                        |
+| Traces                           | `traceAgentName` or `traceAgentId`, `traceAgentVersion`, `traceStartTime`, `traceEndTime` (unix seconds), `maxTraces`, `tracesSourceDescription` |
 
 Set `dataGenerationType` (default `simple_qna`), `category` (default `quality`), `deploymentName` (target model for the evaluator's judge — required for LLM-judge evaluators), and `maxSamples` for generated examples.
 
 ### Parameter Requirements (Learned Constraints)
 
 > ⚠️ The service rejects requests that miss these:
+>
 > - **`maxSamples` must be between 15 and 1000.** Smaller values (e.g., 10) fail with `Max samples must be between 15 and 1000`. Default to `15` for quick smoke suites, `50–100` for richer baselines.
 > - **A `target` is required.** When generating from a deployed agent, pass **`agentSourceNames: [<agentName>]`** (not just `agentName`) so the service can construct the `azure_ai_agent` target. Without it, the request fails with `Target is required for evaluation suite generation`.
 > - **`deploymentName`** (in `initialization_parameters`) is required when the generated evaluator uses an LLM judge — pass the same or a comparable deployment as `generationModelDeploymentName`.
@@ -65,11 +66,11 @@ Use this path when the selected agent root has `eval.yaml` and the user chooses 
 
 Save artifacts under the selected agent root only, using these exact paths and contents:
 
-| Call | Local file | Contents |
-|------|------------|----------|
-| `evaluation_suite_get(projectEndpoint, suiteName, version)` | `.foundry/suites/<suite-name>-v<version>.json` | The **full** returned suite object (target, testing_criteria, dataset ref, input_messages). |
-| `evaluator_catalog_get(name, version)` | `.foundry/evaluators/<evaluator-name>-v<version>.json` | The **full** returned evaluator object including `definition.dimensions`, `definition.metrics`, `definition.data_schema`, and `generation_artifacts`. Do NOT save a YAML stub — persist the complete JSON so HITL rubric edits + `evaluator_catalog_update(createNewVersion: true)` can round-trip. |
-| `evaluation_dataset_get(name, version)` + `evaluation_dataset_sas_url_get(datasetName, datasetVersion)` | `.foundry/datasets/<agent-name>-<dataset-name>-v<version>.ref.json` AND `.foundry/datasets/<dataset-name>-v<version>/<blob-name>` | Metadata stub PLUS the actual dataset blob(s). The SAS-url tool returns a container-scope SAS (`sr=c, sp=rl`); list the container then download every blob (see "Dataset Content Download" below). Set `contentDownloaded: true` + `contentFiles: [...]` in the stub. |
+| Call                                                                                                    | Local file                                                                                                                        | Contents                                                                                                                                                                                                                                                                                            |
+| ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `evaluation_suite_get(projectEndpoint, suiteName, version)`                                             | `.foundry/suites/<suite-name>-v<version>.json`                                                                                    | The **full** returned suite object (target, testing_criteria, dataset ref, input_messages).                                                                                                                                                                                                         |
+| `evaluator_catalog_get(name, version)`                                                                  | `.foundry/evaluators/<evaluator-name>-v<version>.json`                                                                            | The **full** returned evaluator object including `definition.dimensions`, `definition.metrics`, `definition.data_schema`, and `generation_artifacts`. Do NOT save a YAML stub — persist the complete JSON so HITL rubric edits + `evaluator_catalog_update(createNewVersion: true)` can round-trip. |
+| `evaluation_dataset_get(name, version)` + `evaluation_dataset_sas_url_get(datasetName, datasetVersion)` | `.foundry/datasets/<agent-name>-<dataset-name>-v<version>.ref.json` AND `.foundry/datasets/<dataset-name>-v<version>/<blob-name>` | Metadata stub PLUS the actual dataset blob(s). The SAS-url tool returns a container-scope SAS (`sr=c, sp=rl`); list the container then download every blob (see "Dataset Content Download" below). Set `contentDownloaded: true` + `contentFiles: [...]` in the stub.                               |
 
 For the first two, do not skip fields and do not transform — write the JSON returned by the MCP tool. Do not overwrite user-edited cache files without confirmation. Exception: deterministic re-fetch of the same immutable remote `<name>-v<version>` may replace the generated cache artifact for that exact version when rehydrating a missing, stale, or corrupt local cache.
 

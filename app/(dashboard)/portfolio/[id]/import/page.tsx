@@ -8,8 +8,18 @@ import { listBrokerTemplates, getBrokerTemplate } from "@/lib/import/templates";
 import { importTransactions } from "@/lib/actions/import";
 import { FieldMapper } from "@/components/forms/field-mapper";
 import { ImportReviewTable } from "@/components/forms/import-review-table";
-import type { FieldMapping, ImportConfig, ParsedTransaction } from "@/lib/import/types";
-import { Upload, ChevronRight, ChevronLeft, Check, Loader2 } from "lucide-react";
+import type {
+  FieldMapping,
+  ImportConfig,
+  ParsedTransaction,
+} from "@/lib/import/types";
+import {
+  Upload,
+  ChevronRight,
+  ChevronLeft,
+  Check,
+  Loader2,
+} from "lucide-react";
 
 type Step = "upload" | "configure" | "map" | "review" | "complete";
 
@@ -33,9 +43,15 @@ export default function ImportPage({
     transactionType: null,
   });
   const [parsed, setParsed] = useState<ParsedTransaction[]>([]);
-  const [errors, setErrors] = useState<Array<{ row: number; data: Record<string, string>; errors: string[] }>>([]);
+  const [errors, setErrors] = useState<
+    Array<{ row: number; data: Record<string, string>; errors: string[] }>
+  >([]);
   const [importing, setImporting] = useState(false);
-  const [result, setResult] = useState<{ imported: number; rejected: number; duplicates: number } | null>(null);
+  const [result, setResult] = useState<{
+    imported: number;
+    rejected: number;
+    duplicates: number;
+  } | null>(null);
 
   // Resolve params
   useState(() => {
@@ -85,7 +101,11 @@ export default function ImportPage({
 
     try {
       const config: ImportConfig = { mapping, dateFormat, decimalSeparator };
-      const importResult = await importTransactions(portfolioId, csvContent, config);
+      const importResult = await importTransactions(
+        portfolioId,
+        csvContent,
+        config
+      );
       setResult({
         imported: importResult.imported.length,
         rejected: importResult.rejected.length,
@@ -93,7 +113,9 @@ export default function ImportPage({
       });
       setStep("complete");
     } catch {
-      setErrors([{ row: 0, data: {}, errors: ["Import failed. Please try again."] }]);
+      setErrors([
+        { row: 0, data: {}, errors: ["Import failed. Please try again."] },
+      ]);
     } finally {
       setImporting(false);
     }
@@ -108,7 +130,9 @@ export default function ImportPage({
         {(["upload", "configure", "map", "review", "complete"] as Step[]).map(
           (s, i) => (
             <div key={s} className="flex items-center gap-2">
-              {i > 0 && <ChevronRight className="h-3 w-3 text-muted-foreground" />}
+              {i > 0 && (
+                <ChevronRight className="h-3 w-3 text-muted-foreground" />
+              )}
               <span
                 className={
                   step === s
@@ -279,7 +303,9 @@ export default function ImportPage({
               ) : (
                 <Check className="h-4 w-4" />
               )}
-              {importing ? "Importing..." : `Import ${parsed.length} transactions`}
+              {importing
+                ? "Importing..."
+                : `Import ${parsed.length} transactions`}
             </button>
           </div>
         </div>
@@ -292,15 +318,21 @@ export default function ImportPage({
           <h2 className="mt-4 text-xl font-medium">Import Complete</h2>
           <div className="mt-4 flex justify-center gap-6 text-sm">
             <div>
-              <p className="text-2xl font-bold text-success">{result.imported}</p>
+              <p className="text-2xl font-bold text-success">
+                {result.imported}
+              </p>
               <p className="text-muted-foreground">Imported</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-destructive">{result.rejected}</p>
+              <p className="text-2xl font-bold text-destructive">
+                {result.rejected}
+              </p>
               <p className="text-muted-foreground">Rejected</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-warning">{result.duplicates}</p>
+              <p className="text-2xl font-bold text-warning">
+                {result.duplicates}
+              </p>
               <p className="text-muted-foreground">Duplicates</p>
             </div>
           </div>

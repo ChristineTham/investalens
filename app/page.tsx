@@ -8,15 +8,16 @@ export default async function Home() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background">
-      <div className="text-center space-y-6">
+      <div className="space-y-6 text-center">
         <h1 className="font-serif text-4xl font-bold text-foreground">
           InvestaLens
         </h1>
-        <p className="text-lg text-muted-foreground max-w-md">
+        <p className="max-w-md text-lg text-muted-foreground">
           Track, analyse and optimise your investment portfolio. Import from any
-          broker, get performance reports, tax calculations, and advanced analytics.
+          broker, get performance reports, tax calculations, and advanced
+          analytics.
         </p>
-        <div className="flex gap-4 justify-center">
+        <div className="flex justify-center gap-4">
           <Link
             href="/login"
             className="rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"

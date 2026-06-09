@@ -29,11 +29,13 @@ Optional. Specifies which skill documentation to install (e.g., `"neon-drizzle"`
 ## Usage Examples
 
 **Called from another skill:**
+
 ```markdown
 Execute the add-neon-docs skill with SKILL_NAME="neon-drizzle"
 ```
 
 **Called directly by user:**
+
 - "Add neon drizzle knowledge to my project"
 - "Install neon serverless documentation"
 - "Set up Neon best practices for my AI assistant"
@@ -50,12 +52,14 @@ References are added to a "Resources & References" section in your AI documentat
 ```
 
 ### Target Files (in priority order):
+
 - `CLAUDE.md` - Most common for Claude Code projects
 - `AGENTS.md` - Custom AI documentation files
 - `.cursor/README.md` or `.cursor/rules.md` - Cursor IDE projects
 - Creates `CLAUDE.md` if none exist
 
 ### Behavior:
+
 - Existing "Resources & References" sections: New links are appended
 - No existing section: Section is created at end of file
 - No documentation file: `CLAUDE.md` is created with references
@@ -69,6 +73,7 @@ References are added to a "Resources & References" section in your AI documentat
 ## Workflow Reference
 
 For complete implementation details:
+
 - **Workflow**: `install-knowledge.md` - Step-by-step agent workflow with error handling
 - **Metadata**: `skill-knowledge-map.json` - Skill definitions and reference URLs
 

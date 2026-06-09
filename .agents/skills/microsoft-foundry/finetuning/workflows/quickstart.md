@@ -28,7 +28,7 @@ print(resp.choices[0].message.content)
 
 ## Step 2: Generate Training Data
 
-```python
+````python
 import json, re
 
 SYSTEM_PROMPT = "You are a concise technical support agent. Answer in 1-2 sentences."
@@ -56,7 +56,7 @@ for split, name, rng in [("train", "train.jsonl", examples[:40]), ("val", "val.j
                 {"role": "user", "content": ex["question"]},
                 {"role": "assistant", "content": ex["answer"]},
             ]}) + "\n")
-```
+````
 
 Validate: `python scripts/validate/validate_sft.py train.jsonl`
 
@@ -99,6 +99,7 @@ print(f"Job submitted: {job.id}")
 ```
 
 Or via script:
+
 ```bash
 python scripts/submit_training.py --model gpt-4.1-mini --training-file train.jsonl --validation-file val.jsonl --type sft --suffix my-first-ft --epochs 2
 ```

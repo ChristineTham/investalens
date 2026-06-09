@@ -71,6 +71,7 @@ Legacy OKHttp `Interceptor` implementation classes should be migrated to `HttpPi
 Do not skip Step 2: converting the class without wiring it into the manager builder silently drops the behavior.
 
 1. Legacy code:
+
 ```java
 RestClient.Builder builder = new RestClient.Builder()
     ...
@@ -82,6 +83,7 @@ Azure azure = azureAuthed.withSubscription(subscriptionId);
 ```
 
 2. Migrated code (note: `ResourceGroupTaggingPolicy` is the Step 1 conversion of `ResourceGroupTaggingInterceptor`, and it must be registered via `.withPolicy(...)` in Step 2):
+
 ```java
 AzureResourceManager azureResourceManager = AzureResourceManager.configure()
     .withPolicy(new ResourceGroupTaggingPolicy())
@@ -92,6 +94,7 @@ AzureResourceManager azureResourceManager = AzureResourceManager.configure()
 ### ProviderRegistrationInterceptor
 
 If legacy client(XXManager) initializes with `ProviderRegistrationInterceptor`, check whether this client is one of the premium ones:
+
 - Azure
 - AuthorizationManager
 - CdnManager
@@ -119,13 +122,16 @@ If not, add `ProviderRegistrationPolicy` when initializing the client. Otherwise
 For each legacy client, add along with whether to initialize with `ProviderRegistrationPolicy`, to the generated plan guideline, and migrate accordingly.
 
 1. Legacy client(not premium client):
+
 ```java
 BatchManager batchManager = BatchManager.configure()
     .withLogLevel(LogLevel.BASIC)
     .withInterceptor(new ProviderRegistrationInterceptor(credentials))
     .authenticate(credentials, subscriptionId);
 ```
+
 should be migrated to:
+
 ```java
 BatchManager batchManager = BatchManager.configure()
     .withPolicy(new ProviderRegistrationPolicy())
@@ -134,6 +140,7 @@ BatchManager batchManager = BatchManager.configure()
 ```
 
 2. Legacy client(premium clients):
+
 ```java
 Azure azure = Azure.configure()
     .withInterceptor(new ProviderRegistrationInterceptor(credentials))
@@ -141,7 +148,9 @@ Azure azure = Azure.configure()
     .authenticate(credentials)
     .withSubscription(subscriptionId);
 ```
+
 should be migrated to:
+
 ```java
 AzureResourceManager.configure()
     .withLogLevel(HttpLogDetailLevel.BASIC)
@@ -153,6 +162,7 @@ AzureResourceManager.configure()
 azure-resourcemanager-batch is no longer a premium/handwritten library. In BatchAccount, `withNewStorageAccount` should be replaced by `.withAutoStorage(new AutoStorageBaseProperties().withStorageAccountId(storageAccount.id()))`, while the `storageAccount` needs to be created separately.
 
 Legacy code:
+
 ```java
 BatchAccount batchAccount = azure.batchAccounts().define(batchAccountName)
     .withRegion(region)
@@ -167,6 +177,7 @@ BatchAccount batchAccount = azure.batchAccounts().define(batchAccountName)
 ```
 
 Migrated:
+
 ```java
 StorageAccount storageAccount = storageManager.storageAccounts()
     .define(storageAccountName)

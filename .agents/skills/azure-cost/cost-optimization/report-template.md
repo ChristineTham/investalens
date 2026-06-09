@@ -4,46 +4,57 @@ Use `create_file` with path `output/costoptimizereport<YYYYMMDD_HHMMSS>.md` and 
 
 ```markdown
 # Azure Cost Optimization Report
+
 **Generated**: <timestamp>
 
 ## Executive Summary
+
 - Total Monthly Cost: $X (ACTUAL DATA from Cost Management API)
 - Top Cost Drivers: [List top 3 services with costs]
 - Potential Savings: $Y/month
 
 ## Cost Breakdown by Service
-| Service | Cost (USD) | % of Total |
-|---------|-----------|------------|
-| ... | ... | ... |
-| **Total** | **$X** | **100%** |
+
+| Service   | Cost (USD) | % of Total |
+| --------- | ---------- | ---------- |
+| ...       | ...        | ...        |
+| **Total** | **$X**     | **100%**   |
 
 ## Free Tier Analysis
+
 [Resources operating within free tiers]
 
 ## Orphaned Resources (Immediate Savings)
+
 [From azqr — resources that can be deleted immediately]
 
 ## Optimization Recommendations
 
 ### Priority 1: High Impact, Low Risk
+
 - ACTUAL cost: $X/month
 - ESTIMATED savings: $Y/month
 - Commands to execute
 
 ### Priority 2: Medium Impact, Medium Risk
+
 - ACTUAL baseline, ACTUAL metrics, VALIDATED pricing
 - ESTIMATED savings with commands
 
 ### Priority 3: Long-term Optimization
+
 [Reserved Instances, Storage tiering]
 
 ## Total Estimated Savings
+
 - Monthly: $X | Annual: $Y
 
 ## Implementation Commands
+
 [Safe commands with approval warnings]
 
 ## Validation Appendix
+
 - Cost Query Results: `output/cost-query-result<timestamp>.json`
 - Pricing Sources: [Links]
 ```

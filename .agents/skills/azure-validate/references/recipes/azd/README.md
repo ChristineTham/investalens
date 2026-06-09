@@ -35,6 +35,7 @@ azd version
 ```
 
 **If not installed:**
+
 ```
 mcp_azure_mcp_extension_cli_install(cli-type: "azd")
 ```
@@ -58,6 +59,7 @@ azd auth login --check-status
 ```
 
 **If not logged in:**
+
 ```bash
 azd auth login
 ```
@@ -65,6 +67,7 @@ azd auth login
 ### 5. Subscription/Location Check
 
 Check environment values:
+
 ```bash
 azd env get-values
 ```
@@ -72,11 +75,13 @@ azd env get-values
 **If AZURE_SUBSCRIPTION_ID or AZURE_LOCATION not set:**
 
 Use Azure MCP tools to list subscriptions:
+
 ```
 mcp_azure_mcp_subscription_list
 ```
 
 Use Azure MCP tools to list resource groups (check for conflicts):
+
 ```
 mcp_azure_mcp_group_list
   subscription: <subscription-id>
@@ -85,6 +90,7 @@ mcp_azure_mcp_group_list
 Prompt user to confirm subscription and location before continuing.
 
 Refer to the region availability reference to select a region supported by all services in this template:
+
 - [Region availability](../../region-availability.md)
 
 ```bash
@@ -113,6 +119,7 @@ azd provision --preview --no-prompt
 This error means the Aspire AppHost contains custom resource types that have no Azure deployment target (e.g., `HealthChecksUI`, custom child resources, or local-only integrations). These resources are intentionally designed for local development tooling and cannot be meaningfully deployed to Azure.
 
 **Required actions:**
+
 1. ⛔ **Do NOT modify source code** to suppress the error (e.g., do not add `.ExcludeFromManifest()`).
 2. ⛔ **Do NOT proceed with `azd provision` or `azd deploy`.**
 3. ✅ Inform the user: "This application contains custom Aspire resource types (`unsupported resource type: <type-name>`) that cannot be deployed to Azure. The application is designed for local development only."

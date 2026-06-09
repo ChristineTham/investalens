@@ -143,12 +143,12 @@ AZURE_SQL_CONNECTION_STRING=mssql+pyodbc://<username>:<password>@localhost/myapp
 
 ## Files to Add
 
-| File | Action |
-|------|--------|
-| `database.py` | Create — engine, session, managed identity token |
-| `models.py` | Create — SQLAlchemy ORM models |
-| `main.py` | Modify — add CRUD endpoints + DB dependency |
-| `requirements.txt` | Modify — add sqlalchemy, pyodbc, azure-identity |
+| File               | Action                                           |
+| ------------------ | ------------------------------------------------ |
+| `database.py`      | Create — engine, session, managed identity token |
+| `models.py`        | Create — SQLAlchemy ORM models                   |
+| `main.py`          | Modify — add CRUD endpoints + DB dependency      |
+| `requirements.txt` | Modify — add sqlalchemy, pyodbc, azure-identity  |
 
 ## Common Patterns
 

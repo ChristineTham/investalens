@@ -93,8 +93,8 @@ def get_cached(key: str):
 
 ## Files to Modify
 
-| File | Action |
-|------|--------|
-| `cache.py` | Create — Redis client with token refresh |
-| `main.py` | Modify — use cache client |
-| `requirements.txt` | Modify — add redis, azure-identity |
+| File               | Action                                   |
+| ------------------ | ---------------------------------------- |
+| `cache.py`         | Create — Redis client with token refresh |
+| `main.py`          | Modify — use cache client                |
+| `requirements.txt` | Modify — add redis, azure-identity       |

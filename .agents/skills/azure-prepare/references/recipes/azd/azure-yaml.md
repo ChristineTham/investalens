@@ -3,6 +3,7 @@
 > ⛔ **CRITICAL: Check for .NET Aspire projects FIRST**
 >
 > **DO NOT manually create azure.yaml for .NET Aspire projects.** If you detect:
+>
 > - Files ending with `*.AppHost.csproj` (e.g., `MyApp.AppHost.csproj`)
 > - `Aspire.Hosting` or `Aspire.AppHost.Sdk` in `.csproj` files
 >
@@ -49,13 +50,13 @@ services:
 
 ## Host Types
 
-| Host | Azure Service | Use For |
-|------|---------------|---------|
-| `containerapp` | Container Apps | APIs, microservices, workers |
-| `appservice` | App Service | Traditional web apps |
-| `function` | Azure Functions | Serverless functions |
-| `staticwebapp` | Static Web Apps | SPAs, static sites |
-| `aks` | AKS | Kubernetes workloads |
+| Host           | Azure Service   | Use For                      |
+| -------------- | --------------- | ---------------------------- |
+| `containerapp` | Container Apps  | APIs, microservices, workers |
+| `appservice`   | App Service     | Traditional web apps         |
+| `function`     | Azure Functions | Serverless functions         |
+| `staticwebapp` | Static Web Apps | SPAs, static sites           |
+| `aks`          | AKS             | Kubernetes workloads         |
 
 ## Examples
 
@@ -109,6 +110,7 @@ services:
 ```
 
 > 💡 **Tip:** The `context` field specifies the Docker build context directory. This is crucial for:
+>
 > - Dockerfiles with `COPY` commands expecting files relative to a subdirectory
 > - Multi-service repos where each service has its own context
 
@@ -133,10 +135,10 @@ For React, Vue, Angular, Next.js, etc. that require `npm run build`:
 ```yaml
 services:
   web:
-    project: ./src/web     # folder containing package.json
-    language: js           # triggers: npm install && npm run build
+    project: ./src/web # folder containing package.json
+    language: js # triggers: npm install && npm run build
     host: staticwebapp
-    dist: dist             # build output folder (e.g., dist, build, out)
+    dist: dist # build output folder (e.g., dist, build, out)
 ```
 
 ### Static Web App (pure HTML/CSS - no build)
@@ -144,12 +146,13 @@ services:
 For pure HTML sites without a framework build step:
 
 **Static files in subfolder (recommended):**
+
 ```yaml
 services:
   web:
-    project: ./src/web     # folder containing index.html
+    project: ./src/web # folder containing index.html
     host: staticwebapp
-    dist: .                # works when project != root
+    dist: . # works when project != root
 ```
 
 **Static files in root - requires build script:**
@@ -157,6 +160,7 @@ services:
 > ⚠️ **SWA CLI Limitation:** When `project: .`, you cannot use `dist: .`. Files must be copied to a separate output folder.
 
 Add a minimal `package.json` with a build script:
+
 ```json
 {
   "scripts": {
@@ -166,25 +170,27 @@ Add a minimal `package.json` with a build script:
 ```
 
 Then configure azure.yaml with `language: js` to trigger the build:
+
 ```yaml
 services:
   web:
     project: .
-    language: js           # triggers npm install && npm run build
+    language: js # triggers npm install && npm run build
     host: staticwebapp
     dist: public
 ```
 
 ### SWA Project Structure Detection
 
-| Layout | Configuration |
-|--------|---------------|
-| Static in root | `project: .`, `language: js`, `dist: public` + package.json build script |
-| Framework in root | `project: .`, `language: js`, `dist: <output>` |
-| Static in subfolder | `project: ./path`, `dist: .` |
-| Framework in subfolder | `project: ./path`, `language: js`, `dist: <output>` |
+| Layout                 | Configuration                                                            |
+| ---------------------- | ------------------------------------------------------------------------ |
+| Static in root         | `project: .`, `language: js`, `dist: public` + package.json build script |
+| Framework in root      | `project: .`, `language: js`, `dist: <output>`                           |
+| Static in subfolder    | `project: ./path`, `dist: .`                                             |
+| Framework in subfolder | `project: ./path`, `language: js`, `dist: <output>`                      |
 
 > **Key rules:**
+>
 > - `dist` is **relative to `project`** path
 > - **SWA CLI limitation**: When `project: .`, cannot use `dist: .` - must use a distinct folder
 > - For static files in root, add `package.json` with build script to copy files to dist folder
@@ -194,14 +200,17 @@ services:
 ### SWA Bicep Requirement
 
 Bicep must include the `azd-service-name` tag:
+
 ```bicep
 resource staticWebApp 'Microsoft.Web/staticSites@2022-09-01' = {
   name: name
   location: location
   tags: union(tags, { 'azd-service-name': 'web' })}
 ```
+
 }
-```
+
+````
 
 ### App Service
 
@@ -211,7 +220,7 @@ services:
     project: ./src/api
     language: dotnet
     host: appservice
-```
+````
 
 ## Hooks (Optional)
 
@@ -227,11 +236,11 @@ hooks:
 
 ## Valid Values
 
-| Field | Options |
-|-------|---------|
-| `language` | python, js, ts, java, dotnet, go (omit for staticwebapp without build) |
-| `host` | containerapp, appservice, function, staticwebapp, aks |
-| `docker.path` | Path to Dockerfile (relative to project root) |
+| Field            | Options                                                                                |
+| ---------------- | -------------------------------------------------------------------------------------- |
+| `language`       | python, js, ts, java, dotnet, go (omit for staticwebapp without build)                 |
+| `host`           | containerapp, appservice, function, staticwebapp, aks                                  |
+| `docker.path`    | Path to Dockerfile (relative to project root)                                          |
 | `docker.context` | Docker build context directory (optional, defaults to directory containing Dockerfile) |
 
 > 💡 **Docker Context:** When `docker.context` is omitted, azd uses the directory containing the Dockerfile as the build context. Specify `context` explicitly when the Dockerfile expects files from a different directory.

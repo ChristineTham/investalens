@@ -42,6 +42,7 @@ az aks update \
 ## After Enabling
 
 Namespace-level cost data is available in:
+
 - Azure Portal: AKS cluster -> Cost Analysis blade
 - Azure Cost Management: filter by cluster resource ID + `kubernetes namespace` dimension
 

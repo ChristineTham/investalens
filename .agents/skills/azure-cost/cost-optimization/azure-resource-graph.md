@@ -22,11 +22,11 @@ az graph query -q "<KQL>" --query "data[].{name:name, type:type}" -o table
 
 ## Key Tables
 
-| Table | Contains |
-|-------|----------|
-| `Resources` | All ARM resources (name, type, location, properties, tags) |
-| `ResourceContainers` | Subscriptions, resource groups, management groups |
-| `AdvisorResources` | Cost and performance recommendations |
+| Table                | Contains                                                   |
+| -------------------- | ---------------------------------------------------------- |
+| `Resources`          | All ARM resources (name, type, location, properties, tags) |
+| `ResourceContainers` | Subscriptions, resource groups, management groups          |
+| `AdvisorResources`   | Cost and performance recommendations                       |
 
 ## Cost Optimization Query Patterns
 

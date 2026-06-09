@@ -10,23 +10,23 @@ DO NOT USE FOR: running a one-off batch evaluation (use [observe](../observe.md)
 
 ## Quick Reference
 
-| Property | Value |
-|----------|-------|
-| MCP server | `azure` |
+| Property      | Value                                                                                                    |
+| ------------- | -------------------------------------------------------------------------------------------------------- |
+| MCP server    | `azure`                                                                                                  |
 | Key MCP tools | `continuous_eval_create`, `continuous_eval_get`, `continuous_eval_delete`, `agent_get`, `evaluation_get` |
-| Prerequisite | Agent must exist in the project |
-| Local cache | `.foundry/agent-metadata.yaml` |
+| Prerequisite  | Agent must exist in the project                                                                          |
+| Local cache   | `.foundry/agent-metadata.yaml`                                                                           |
 
 ## Entry Points
 
-| User Intent | Start At |
-|-------------|----------|
-| "Enable continuous eval" / "Set up monitoring evaluators" | [Before Starting](#before-starting--detect-current-state) → [Enable or Update](#enable-or-update) |
-| "Is continuous eval running?" / "Check eval status" | [Before Starting](#before-starting--detect-current-state) → [Check Current State](#check-current-state) |
-| "Change evaluators" / "Update sampling rate" | [Before Starting](#before-starting--detect-current-state) → [Check Current State](#check-current-state) → [Enable or Update](#enable-or-update) |
-| "Pause evaluations" / "Disable continuous eval" | [Before Starting](#before-starting--detect-current-state) → [Disable](#disable) |
-| "Stop evaluating this agent" / "Delete continuous eval" | [Before Starting](#before-starting--detect-current-state) → [Delete](#delete) |
-| "Scores are dropping" / "Act on monitoring results" | [Before Starting](#before-starting--detect-current-state) → [Acting on Results](#acting-on-results) |
+| User Intent                                               | Start At                                                                                                                                        |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Enable continuous eval" / "Set up monitoring evaluators" | [Before Starting](#before-starting--detect-current-state) → [Enable or Update](#enable-or-update)                                               |
+| "Is continuous eval running?" / "Check eval status"       | [Before Starting](#before-starting--detect-current-state) → [Check Current State](#check-current-state)                                         |
+| "Change evaluators" / "Update sampling rate"              | [Before Starting](#before-starting--detect-current-state) → [Check Current State](#check-current-state) → [Enable or Update](#enable-or-update) |
+| "Pause evaluations" / "Disable continuous eval"           | [Before Starting](#before-starting--detect-current-state) → [Disable](#disable)                                                                 |
+| "Stop evaluating this agent" / "Delete continuous eval"   | [Before Starting](#before-starting--detect-current-state) → [Delete](#delete)                                                                   |
+| "Scores are dropping" / "Act on monitoring results"       | [Before Starting](#before-starting--detect-current-state) → [Acting on Results](#acting-on-results)                                             |
 
 > ⚠️ **Important:** Always run [Before Starting](#before-starting--detect-current-state) to resolve the project endpoint and agent name before calling any MCP tools.
 
@@ -91,25 +91,26 @@ Tool: continuous_eval_create
 Arguments:
   projectEndpoint: <project endpoint>
   agentName: <agent name>
-  evaluatorNames: ["groundedness", "coherence", "fluency"]  # Illustrative — align with your batch eval evaluators
-  deploymentName: "gpt-4o"          # Required for quality evaluators
-  enabled: true                      # Set false to disable without deleting
+  evaluatorNames: ["groundedness", "coherence", "fluency"] # Illustrative — align with your batch eval evaluators
+  deploymentName: "gpt-4o" # Required for quality evaluators
+  enabled: true # Set false to disable without deleting
 ```
 
 **Evaluator selection guidance:**
+
 - **Quality evaluators** (require `deploymentName`): coherence, fluency, relevance, groundedness, intent_resolution, task_adherence, tool_call_accuracy
 - **Safety evaluators** (no `deploymentName` needed): violence, sexual, self_harm, hate_unfairness, indirect_attack, code_vulnerability, protected_material
 - Custom evaluators from the project's evaluator catalog are also supported by name.
 
 **Optional parameters by agent kind:**
 
-| Parameter | Applies To | Description | Default |
-|-----------|-----------|-------------|---------|
-| `samplingRate` | Prompt | Percentage of responses to evaluate (1-100) | All responses |
-| `maxHourlyRuns` | Prompt | Cap on evaluation runs per hour | No limit |
-| `intervalHours` | Hosted | Hours between evaluation runs | 1 |
-| `maxTraces` | Hosted | Max data points per evaluation run | 1000 |
-| `scenario` | Prompt | Evaluation scenario: `standard` (quality and safety metrics, default) or `business` (business success metrics). An agent can have one of each simultaneously. | `standard` |
+| Parameter       | Applies To | Description                                                                                                                                                   | Default       |
+| --------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| `samplingRate`  | Prompt     | Percentage of responses to evaluate (1-100)                                                                                                                   | All responses |
+| `maxHourlyRuns` | Prompt     | Cap on evaluation runs per hour                                                                                                                               | No limit      |
+| `intervalHours` | Hosted     | Hours between evaluation runs                                                                                                                                 | 1             |
+| `maxTraces`     | Hosted     | Max data points per evaluation run                                                                                                                            | 1000          |
+| `scenario`      | Prompt     | Evaluation scenario: `standard` (quality and safety metrics, default) or `business` (business success metrics). An agent can have one of each simultaneously. | `standard`    |
 
 ### Disable
 
@@ -138,7 +139,7 @@ Tool: continuous_eval_create
 Arguments:
   projectEndpoint: <project endpoint>
   agentName: <agent name>
-  evaluatorNames: ["groundedness", "coherence", "fluency"]  # Must match current config
+  evaluatorNames: ["groundedness", "coherence", "fluency"] # Must match current config
   deploymentName: "gpt-4o"
   enabled: false
 ```
@@ -183,6 +184,7 @@ Arguments:
 ```
 
 Review the run results for score trends. Each run contains scores for every configured evaluator. Look for:
+
 - **Scores below threshold** — any evaluator consistently scoring below your acceptable baseline
 - **Score degradation over time** — scores that were previously healthy but are trending downward
 - **Safety flags** — any non-zero safety evaluator scores that indicate harmful content
@@ -197,12 +199,12 @@ Review the run results for score trends. Each run contains scores for every conf
 
 Once you understand the failure pattern, use the [observe skill](../observe.md) to fix it:
 
-| Symptom | Action |
-|---------|--------|
-| Quality scores dropping (coherence, relevance, task_adherence) | Run [Step 3: Analyze](analyze-results.md) to cluster failures, then [Step 4: Optimize](optimize-deploy.md) to improve the prompt |
-| Safety evaluators flagging (violence, indirect_attack) | Review flagged traces via [trace skill](../../trace/trace.md), then update agent instructions or tool definitions to address the pattern |
-| Grounding failures | Check whether the agent's data sources are still accessible and returning expected results; update knowledge index or tool configuration |
-| Scores fluctuating after a deploy | Run [Step 5: Compare](compare-iterate.md) between the current and previous agent version to isolate the regression |
+| Symptom                                                        | Action                                                                                                                                   |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Quality scores dropping (coherence, relevance, task_adherence) | Run [Step 3: Analyze](analyze-results.md) to cluster failures, then [Step 4: Optimize](optimize-deploy.md) to improve the prompt         |
+| Safety evaluators flagging (violence, indirect_attack)         | Review flagged traces via [trace skill](../../trace/trace.md), then update agent instructions or tool definitions to address the pattern |
+| Grounding failures                                             | Check whether the agent's data sources are still accessible and returning expected results; update knowledge index or tool configuration |
+| Scores fluctuating after a deploy                              | Run [Step 5: Compare](compare-iterate.md) between the current and previous agent version to isolate the regression                       |
 
 ### Step 4: Verify the Fix
 
@@ -218,27 +220,27 @@ After deploying a fix through the observe loop:
 
 All tools return a unified `ContinuousEvalConfig` shape. The `get` tool returns a list; `create` returns a single object.
 
-| Field | Description | Present For |
-|-------|-------------|-------------|
-| `id` | Configuration identifier (needed for delete) | All |
-| `displayName` | Human-readable name | All |
-| `enabled` | Whether evaluation is active | All |
-| `evalId` | Linked evaluation group containing evaluator definitions | All |
-| `agentName` | Target agent name | All |
-| `status` | Provisioning status | Hosted only |
-| `scenario` | Evaluation scenario (`standard` or `business`) | Prompt only |
-| `samplingRate` | Percentage of responses evaluated | Prompt only |
-| `maxHourlyRuns` | Cap on runs per hour | Prompt only |
-| `intervalHours` | Hours between scheduled runs | Hosted only |
-| `maxTraces` | Max data points per run | Hosted only |
-| `createdAt` | Creation timestamp | All |
-| `createdBy` | Creator identity | All |
+| Field           | Description                                              | Present For |
+| --------------- | -------------------------------------------------------- | ----------- |
+| `id`            | Configuration identifier (needed for delete)             | All         |
+| `displayName`   | Human-readable name                                      | All         |
+| `enabled`       | Whether evaluation is active                             | All         |
+| `evalId`        | Linked evaluation group containing evaluator definitions | All         |
+| `agentName`     | Target agent name                                        | All         |
+| `status`        | Provisioning status                                      | Hosted only |
+| `scenario`      | Evaluation scenario (`standard` or `business`)           | Prompt only |
+| `samplingRate`  | Percentage of responses evaluated                        | Prompt only |
+| `maxHourlyRuns` | Cap on runs per hour                                     | Prompt only |
+| `intervalHours` | Hours between scheduled runs                             | Hosted only |
+| `maxTraces`     | Max data points per run                                  | Hosted only |
+| `createdAt`     | Creation timestamp                                       | All         |
+| `createdBy`     | Creator identity                                         | All         |
 
 ## Related Skills
 
-| User Intent | Skill |
-|-------------|-------|
-| "Evaluate my agent" / "Run a batch eval" | [observe skill](../observe.md) |
+| User Intent                                                   | Skill                                      |
+| ------------------------------------------------------------- | ------------------------------------------ |
+| "Evaluate my agent" / "Run a batch eval"                      | [observe skill](../observe.md)             |
 | "Scores are dropping" / "Diagnose and fix quality regression" | [observe skill](../observe.md) (Steps 3–5) |
-| "Analyze production traces" / "Find flagged conversations" | [trace skill](../../trace/trace.md) |
-| "Deploy my agent" / "Redeploy after fix" | [deploy skill](../../deploy/deploy.md) |
+| "Analyze production traces" / "Find flagged conversations"    | [trace skill](../../trace/trace.md)        |
+| "Deploy my agent" / "Redeploy after fix"                      | [deploy skill](../../deploy/deploy.md)     |

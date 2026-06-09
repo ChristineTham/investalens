@@ -34,9 +34,9 @@ The resource definitions may be in module files, not `main.bicep`. Search all `.
 
 If the project uses **Azure Verified Modules** (`br/public:avm/res/...`), the parameter names will **not** match the raw ARM property names shown in the patches below. Per-service AVM examples live in the per-service references. The most universally-applicable mapping is:
 
-| Raw ARM/Bicep property | AVM module parameter |
-|---|---|
-| `sku.name` (storage) | `skuName` (top-level) |
+| Raw ARM/Bicep property | AVM module parameter  |
+| ---------------------- | --------------------- |
+| `sku.name` (storage)   | `skuName` (top-level) |
 
 **Before patching, always:**
 
@@ -55,10 +55,10 @@ If the project uses **Azure Verified Modules** (`br/public:avm/res/...`), the pa
 
 The patches for compute (zone redundancy on the App Service plan or Function App plan, health check path) live in the per-service references because the SKU rules and ARM types differ:
 
-| Service | Reference |
-|---|---|
+| Service           | Reference                                                                  |
+| ----------------- | -------------------------------------------------------------------------- |
 | Azure App Service | [services/app-service/reliability.md](services/app-service/reliability.md) |
-| Azure Functions | [services/functions/reliability.md](services/functions/reliability.md) |
+| Azure Functions   | [services/functions/reliability.md](services/functions/reliability.md)     |
 
 > Azure Container Apps per-service Bicep patches are planned for a future version of this skill.
 
@@ -75,6 +75,7 @@ The one truly cross-service patch — **storage** — lives below.
 > **💡 No `sku` block in the IaC?** If the storage resource (or AVM module call) does not specify a SKU, Azure deploys it as **`Standard_GRS`** by default. The patch in that case is to **add** the `sku` block (raw Bicep) or **add** the `skuName` parameter (AVM), not find-and-replace an existing value. Always grep for the absence of `sku` / `skuName` before assuming there's a value to swap.
 
 **Before:**
+
 ```bicep
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: storageAccountName
@@ -87,6 +88,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
 ```
 
 **After — change to ZRS:**
+
 ```bicep
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: storageAccountName
@@ -101,6 +103,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
 ### Case: SKU not specified at all (defaulted to GRS)
 
 **Before (no `sku` block):**
+
 ```bicep
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: storageAccountName
@@ -110,6 +113,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
 ```
 
 **After — add an explicit `sku`:**
+
 ```bicep
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: storageAccountName
@@ -122,6 +126,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
 ```
 
 **AVM module equivalent:**
+
 ```bicep
 module storage 'br/public:avm/res/storage/storage-account:<version>' = {
   // ...
@@ -138,16 +143,19 @@ module storage 'br/public:avm/res/storage/storage-account:<version>' = {
 If the SKU is parameterized, update the default value:
 
 **Before:**
+
 ```bicep
 param storageSku string = 'Standard_LRS'
 ```
 
 **After:**
+
 ```bicep
 param storageSku string = 'Standard_ZRS'
 ```
 
 Also check `main.parameters.json` for overrides:
+
 ```json
 {
   "storageSku": {
@@ -164,6 +172,7 @@ Changing SKU in Bicep expresses the **desired end state**, but does NOT automati
 - **Existing storage account** → ARM may attempt an in-place SKU update, but LRS→ZRS is a **storage redundancy conversion**, not a simple property change. For supported StorageV2/GPv2 accounts in supported regions, Azure can perform live conversion, but this is not guaranteed and the deployment may fail for unsupported account kinds.
 
 **Always follow this order for existing storage:**
+
 1. Patch the Bicep to `Standard_ZRS` (desired end state)
 2. Run `az storage account migration start` to initiate the live conversion
 3. Wait for migration to complete (`az storage account migration show`)
@@ -178,6 +187,7 @@ Changing SKU in Bicep expresses the **desired end state**, but does NOT automati
 After patching, **the skill executes the deploys itself** — do not stop and tell the user to run commands. Confirm once with the user before each deploy, then run it.
 
 Summarize the plan for the user:
+
 ```
 ✅ Bicep files patched for reliability.
 
@@ -196,4 +206,3 @@ Do NOT bundle the storage SKU change with the safe patches — a failed storage 
 
 Ready for Deploy 1? (yes / no)
 ```
-

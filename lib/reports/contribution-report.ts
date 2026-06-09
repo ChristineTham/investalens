@@ -2,7 +2,10 @@
 
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { calculateHoldingPerformance, type DateRange } from "@/lib/calculations/performance";
+import {
+  calculateHoldingPerformance,
+  type DateRange,
+} from "@/lib/calculations/performance";
 
 export interface ContributionItem {
   holdingId: string;
@@ -44,7 +47,10 @@ export async function generateContributionReport(
       orderBy: { date: "asc" },
     });
 
-    const priceData = prices.map((p) => ({ date: p.date, close: Number(p.close) }));
+    const priceData = prices.map((p) => ({
+      date: p.date,
+      close: Number(p.close),
+    }));
     const txData = holding.transactions.map((tx) => ({
       id: tx.id,
       transactionType: tx.transactionType,

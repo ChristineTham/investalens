@@ -77,21 +77,17 @@ retrieval:
     - end-to-end
     - verification
 chainTo:
-  -
-    pattern: 'process\.env\.\w+|NEXT_PUBLIC_\w+'
+  - pattern: 'process\.env\.\w+|NEXT_PUBLIC_\w+'
     targetSkill: env-vars
-    message: 'Environment variable references detected during verification — loading Env Vars guidance for proper configuration, vercel env pull, and branch scoping.'
+    message: "Environment variable references detected during verification — loading Env Vars guidance for proper configuration, vercel env pull, and branch scoping."
     skipIfFileContains: 'vercel\s+env\s+pull|\.env\.local'
-  -
-    pattern: 'middleware\.(ts|js)|proxy\.(ts|js)|clerkMiddleware|NextResponse\.redirect'
+  - pattern: 'middleware\.(ts|js)|proxy\.(ts|js)|clerkMiddleware|NextResponse\.redirect'
     targetSkill: routing-middleware
-    message: 'Middleware/proxy detected during verification — loading Routing Middleware guidance for request interception, auth checks, and proxy.ts migration.'
-  -
-    pattern: 'streamText\s*\(|generateText\s*\(|useChat\s*\('
+    message: "Middleware/proxy detected during verification — loading Routing Middleware guidance for request interception, auth checks, and proxy.ts migration."
+  - pattern: 'streamText\s*\(|generateText\s*\(|useChat\s*\('
     targetSkill: ai-sdk
-    message: 'AI SDK calls detected during verification — loading AI SDK v6 guidance for streaming, transport, and error handling patterns.'
-    skipIfFileContains: 'toUIMessageStreamResponse|DefaultChatTransport'
-
+    message: "AI SDK calls detected during verification — loading AI SDK v6 guidance for streaming, transport, and error handling patterns."
+    skipIfFileContains: "toUIMessageStreamResponse|DefaultChatTransport"
 ---
 
 # Full-Story Verification
@@ -121,12 +117,12 @@ Before checking anything, determine **what is being built**:
 
 Gather the current state across all layers:
 
-| Layer | How to check | What to capture |
-|-------|-------------|-----------------|
-| **Browser** | Open the relevant page, check console, take screenshots | Visual state, console errors, network failures |
-| **Server terminal** | Read the terminal output from the dev server process | Startup errors, request logs, compilation warnings |
-| **Runtime logs** | Run `vercel logs` (if deployed) or check server stdout | API response codes, error traces, timing |
-| **Environment** | Check `.env.local`, `vercel env ls`, compare expected vs actual | Missing vars, wrong values, production vs development mismatch |
+| Layer               | How to check                                                    | What to capture                                                |
+| ------------------- | --------------------------------------------------------------- | -------------------------------------------------------------- |
+| **Browser**         | Open the relevant page, check console, take screenshots         | Visual state, console errors, network failures                 |
+| **Server terminal** | Read the terminal output from the dev server process            | Startup errors, request logs, compilation warnings             |
+| **Runtime logs**    | Run `vercel logs` (if deployed) or check server stdout          | API response codes, error traces, timing                       |
+| **Environment**     | Check `.env.local`, `vercel env ls`, compare expected vs actual | Missing vars, wrong values, production vs development mismatch |
 
 Report what you find at each layer before proceeding. Use this reporting contract:
 
@@ -145,6 +141,7 @@ Trace the feature's data path from trigger to completion:
 5. **Response → UI** — Does the response format match what the client expects? Is error handling present on both sides?
 
 At each boundary, check for these common breaks:
+
 - **Missing `await`** on async operations
 - **Wrong HTTP method** (GET handler but POST fetch)
 - **Env var absent** in runtime but present in `.env.local`
@@ -180,11 +177,13 @@ Summarize findings in a structured report:
 ## Stop Conditions
 
 **Stop verifying when**:
+
 - All boundaries in the flow are confirmed working with evidence — report success
 - You find the **first broken boundary** — report it with evidence and a specific fix, do not continue past the break
 - Two consecutive layers return no useful signal (e.g., no logs, no errors, no output) — flag the observability gap and recommend adding logging before continuing
 
 **Do not**:
+
 - Run the same check more than twice
 - Continue past a confirmed broken boundary
 - Verify unrelated features — stay on the inferred story
@@ -193,4 +192,3 @@ Summarize findings in a structured report:
 ## Suggest Verification After Implementation
 
 When you finish building or implementing a feature (wrote code, created routes, set up a project), briefly let the user know they can ask you to verify everything works — e.g. browser verification or end-to-end flow check. One sentence is enough. Don't force it if only a small fix or question was involved.
-

@@ -17,9 +17,7 @@ Common forecast patterns with request bodies. Use the [SKILL.md workflow](../SKI
     "aggregation": {
       "totalCost": { "name": "Cost", "function": "Sum" }
     },
-    "sorting": [
-      { "direction": "Ascending", "name": "UsageDate" }
-    ]
+    "sorting": [{ "direction": "Ascending", "name": "UsageDate" }]
   },
   "includeActualCost": true,
   "includeFreshPartialCost": true
@@ -45,9 +43,7 @@ Common forecast patterns with request bodies. Use the [SKILL.md workflow](../SKI
     "aggregation": {
       "totalCost": { "name": "Cost", "function": "Sum" }
     },
-    "sorting": [
-      { "direction": "Ascending", "name": "BillingMonth" }
-    ]
+    "sorting": [{ "direction": "Ascending", "name": "BillingMonth" }]
   },
   "includeActualCost": true,
   "includeFreshPartialCost": true
@@ -73,9 +69,7 @@ Common forecast patterns with request bodies. Use the [SKILL.md workflow](../SKI
     "aggregation": {
       "totalCost": { "name": "Cost", "function": "Sum" }
     },
-    "sorting": [
-      { "direction": "Ascending", "name": "UsageDate" }
-    ]
+    "sorting": [{ "direction": "Ascending", "name": "UsageDate" }]
   },
   "includeActualCost": true,
   "includeFreshPartialCost": true
@@ -101,9 +95,7 @@ Common forecast patterns with request bodies. Use the [SKILL.md workflow](../SKI
     "aggregation": {
       "totalCost": { "name": "Cost", "function": "Sum" }
     },
-    "sorting": [
-      { "direction": "Ascending", "name": "BillingMonth" }
-    ]
+    "sorting": [{ "direction": "Ascending", "name": "BillingMonth" }]
   },
   "includeActualCost": true,
   "includeFreshPartialCost": true
@@ -116,10 +108,10 @@ Common forecast patterns with request bodies. Use the [SKILL.md workflow](../SKI
 
 ## Scope URL Reference
 
-| Scope | URL Pattern |
-|---|---|
-| Subscription | `/subscriptions/<subscription-id>/providers/Microsoft.CostManagement/forecast` |
-| Resource Group | `/subscriptions/<subscription-id>/resourceGroups/<rg-name>/providers/Microsoft.CostManagement/forecast` |
-| Billing Account | `/providers/Microsoft.Billing/billingAccounts/<id>/providers/Microsoft.CostManagement/forecast` |
+| Scope           | URL Pattern                                                                                             |
+| --------------- | ------------------------------------------------------------------------------------------------------- |
+| Subscription    | `/subscriptions/<subscription-id>/providers/Microsoft.CostManagement/forecast`                          |
+| Resource Group  | `/subscriptions/<subscription-id>/resourceGroups/<rg-name>/providers/Microsoft.CostManagement/forecast` |
+| Billing Account | `/providers/Microsoft.Billing/billingAccounts/<id>/providers/Microsoft.CostManagement/forecast`         |
 
 > 💡 **Tip:** These are path-only patterns — not complete URLs. Append `?api-version=2023-11-01` when constructing the full request URL.

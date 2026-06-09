@@ -2,24 +2,26 @@
 
 ## Model Format and SKU Mapping
 
-| Base model family | `model.format` | `sku.name` | Endpoint type |
-|-------------------|---------------|------------|---------------|
-| gpt-4.1-mini | `"OpenAI"` | `"Standard"` | Project |
-| gpt-4.1-nano | `"OpenAI"` | `"Standard"` | Project |
-| o4-mini (RFT) | `"OpenAI"` | `"Standard"` | Project |
-| gpt-oss-20b | `"Microsoft"` | `"GlobalStandard"` | Cognitive Services |
-| Ministral-3B | `"Mistral AI"` | `"GlobalStandard"` | Cognitive Services |
-| Llama-3.3-70B | `"Meta"` | `"GlobalStandard"` | Cognitive Services |
-| Qwen-3-32B | `"Alibaba"` | `"GlobalStandard"` | Cognitive Services |
+| Base model family | `model.format` | `sku.name`         | Endpoint type      |
+| ----------------- | -------------- | ------------------ | ------------------ |
+| gpt-4.1-mini      | `"OpenAI"`     | `"Standard"`       | Project            |
+| gpt-4.1-nano      | `"OpenAI"`     | `"Standard"`       | Project            |
+| o4-mini (RFT)     | `"OpenAI"`     | `"Standard"`       | Project            |
+| gpt-oss-20b       | `"Microsoft"`  | `"GlobalStandard"` | Cognitive Services |
+| Ministral-3B      | `"Mistral AI"` | `"GlobalStandard"` | Cognitive Services |
+| Llama-3.3-70B     | `"Meta"`       | `"GlobalStandard"` | Cognitive Services |
+| Qwen-3-32B        | `"Alibaba"`    | `"GlobalStandard"` | Cognitive Services |
 
 **Format strings are case-sensitive.** `"Mistral AI"` works; `"mistral"` does not.
 
 ## Two Endpoint Types
 
 **Project Endpoint** (OpenAI models): `https://<resource>.services.ai.azure.com/api/projects/<project>/openai/v1/`
+
 - Use `openai.OpenAI(base_url=..., api_key=...)` — NOT `AzureOpenAI`
 
 **Cognitive Services Endpoint** (OSS models): `https://<resource>.cognitiveservices.azure.com/openai/deployments/<name>/chat/completions?api-version=2025-04-01-preview`
+
 - Use `openai.AzureOpenAI(azure_endpoint=..., api_key=..., api_version=...)`
 
 ## CLI Deployment (`az cognitiveservices`)
@@ -39,12 +41,12 @@ az cognitiveservices account deployment create \
 ```
 
 | Base model family | ARM REST `model.format` | CLI `--model-format` |
-|-------------------|------------------------|----------------------|
-| gpt-4.1-mini/nano | `"OpenAI"` | `"OpenAI"` |
-| gpt-oss-20b | `"Microsoft"` | `"OpenAI-OSS"` |
-| Ministral-3B | `"Mistral AI"` | `"OpenAI-OSS"` |
-| Llama-3.3-70B | `"Meta"` | `"OpenAI-OSS"` |
-| Qwen-3-32B | `"Alibaba"` | `"OpenAI-OSS"` |
+| ----------------- | ----------------------- | -------------------- |
+| gpt-4.1-mini/nano | `"OpenAI"`              | `"OpenAI"`           |
+| gpt-oss-20b       | `"Microsoft"`           | `"OpenAI-OSS"`       |
+| Ministral-3B      | `"Mistral AI"`          | `"OpenAI-OSS"`       |
+| Llama-3.3-70B     | `"Meta"`                | `"OpenAI-OSS"`       |
+| Qwen-3-32B        | `"Alibaba"`             | `"OpenAI-OSS"`       |
 
 > ⚠️ Using `"OpenAI-OSS"` in ARM REST or `"Microsoft"` in CLI will fail with HTTP 500.
 
@@ -78,11 +80,11 @@ PUT https://management.azure.com/subscriptions/{sub_id}/resourceGroups/{rg}/prov
 
 ## Common Deployment Errors
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| HTTP 500, no message | Wrong `model.format` | Check format table above |
-| HTTP 409, deployment exists | Name collision | Use unique deployment name |
-| HTTP 403 | ARM token expired | Refresh token |
-| HTTP 400, "api-version not allowed" | `AzureOpenAI` client on `/v1/` endpoint | Switch to `openai.OpenAI` |
-| HTTP 429, quota exceeded | Too many deployments | Delete unused, wait 20s |
-| ProvisioningState: Failed | Model not available in region | Try different region |
+| Error                               | Cause                                   | Fix                        |
+| ----------------------------------- | --------------------------------------- | -------------------------- |
+| HTTP 500, no message                | Wrong `model.format`                    | Check format table above   |
+| HTTP 409, deployment exists         | Name collision                          | Use unique deployment name |
+| HTTP 403                            | ARM token expired                       | Refresh token              |
+| HTTP 400, "api-version not allowed" | `AzureOpenAI` client on `/v1/` endpoint | Switch to `openai.OpenAI`  |
+| HTTP 429, quota exceeded            | Too many deployments                    | Delete unused, wait 20s    |
+| ProvisioningState: Failed           | Model not available in region           | Try different region       |

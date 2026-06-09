@@ -46,10 +46,10 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 
 ### Token Scopes
 
-| Scope | Permissions |
-|-------|-------------|
-| `read` | View portfolios, holdings, transactions, and reports |
-| `write` | Create/update transactions, holdings, and settings |
+| Scope   | Permissions                                                    |
+| ------- | -------------------------------------------------------------- |
+| `read`  | View portfolios, holdings, transactions, and reports           |
+| `write` | Create/update transactions, holdings, and settings             |
 | `admin` | Full access including delete operations and API key management |
 
 ### Revoking Tokens
@@ -74,11 +74,11 @@ https://your-domain.com/api/v1
 
 ## Rate Limits
 
-| Plan | Requests per Minute | Daily Limit |
-|------|--------------------:|------------:|
-| Free | 60 | 1,000 |
-| Standard | 300 | 10,000 |
-| Premium | 1,000 | 100,000 |
+| Plan     | Requests per Minute | Daily Limit |
+| -------- | ------------------: | ----------: |
+| Free     |                  60 |       1,000 |
+| Standard |                 300 |      10,000 |
+| Premium  |               1,000 |     100,000 |
 
 Rate limit headers are included in every response:
 
@@ -177,12 +177,12 @@ GET /portfolios/:id/performance?period=1Y
 
 **Query parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `period` | string | `1D`, `1W`, `1M`, `3M`, `6M`, `YTD`, `1Y`, `3Y`, `5Y`, `MAX` |
-| `startDate` | ISO date | Custom start date (overrides period) |
-| `endDate` | ISO date | Custom end date (defaults to today) |
-| `benchmark` | string | Ticker to benchmark against (e.g. `VAS.ASX`) |
+| Parameter   | Type     | Description                                                  |
+| ----------- | -------- | ------------------------------------------------------------ |
+| `period`    | string   | `1D`, `1W`, `1M`, `3M`, `6M`, `YTD`, `1Y`, `3Y`, `5Y`, `MAX` |
+| `startDate` | ISO date | Custom start date (overrides period)                         |
+| `endDate`   | ISO date | Custom end date (defaults to today)                          |
+| `benchmark` | string   | Ticker to benchmark against (e.g. `VAS.ASX`)                 |
 
 **Response:**
 
@@ -191,12 +191,12 @@ GET /portfolios/:id/performance?period=1Y
   "portfolioId": "pf_001",
   "period": "1Y",
   "totalReturn": 12.45,
-  "capitalGain": 8.20,
+  "capitalGain": 8.2,
   "dividendIncome": 4.25,
-  "currencyGain": 0.00,
+  "currencyGain": 0.0,
   "annualisedReturn": 12.45,
-  "startValue": 100000.00,
-  "endValue": 112450.00
+  "startValue": 100000.0,
+  "endValue": 112450.0
 }
 ```
 
@@ -208,10 +208,10 @@ GET /portfolios/:id/allocation?groupBy=sector
 
 **Query parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `groupBy` | string | `market`, `currency`, `sector`, `industry`, `country`, `type`, `custom_group` |
-| `date` | ISO date | Point-in-time allocation (defaults to today) |
+| Parameter | Type     | Description                                                                   |
+| --------- | -------- | ----------------------------------------------------------------------------- |
+| `groupBy` | string   | `market`, `currency`, `sector`, `industry`, `country`, `type`, `custom_group` |
+| `date`    | ISO date | Point-in-time allocation (defaults to today)                                  |
 
 ---
 
@@ -225,10 +225,10 @@ GET /portfolios/:id/holdings
 
 **Query parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `status` | string | `open`, `closed`, `all` (default: `open`) |
-| `label` | string | Filter by label name |
+| Parameter | Type   | Description                               |
+| --------- | ------ | ----------------------------------------- |
+| `status`  | string | `open`, `closed`, `all` (default: `open`) |
+| `label`   | string | Filter by label name                      |
 
 **Response:**
 
@@ -241,12 +241,12 @@ GET /portfolios/:id/holdings
       "marketCode": "ASX",
       "name": "Vanguard Australian Shares Index ETF",
       "quantity": 500,
-      "averageCost": 85.50,
-      "costBase": 42750.00,
-      "marketValue": 47250.00,
-      "unrealisedGain": 4500.00,
+      "averageCost": 85.5,
+      "costBase": 42750.0,
+      "marketValue": 47250.0,
+      "unrealisedGain": 4500.0,
       "unrealisedGainPct": 10.53,
-      "lastPrice": 94.50,
+      "lastPrice": 94.5,
       "lastPriceDate": "2026-06-05",
       "currency": "AUD"
     }
@@ -274,14 +274,14 @@ GET /portfolios/:id/transactions
 
 **Query parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `startDate` | ISO date | Filter from date |
-| `endDate` | ISO date | Filter to date |
-| `type` | string | Filter by type: `BUY`, `SELL`, `DIVIDEND`, `SPLIT`, `FEE`, `INTEREST`, etc. |
-| `instrument` | string | Filter by instrument code |
-| `limit` | number | Page size (default: 100, max: 1000) |
-| `offset` | number | Pagination offset |
+| Parameter    | Type     | Description                                                                 |
+| ------------ | -------- | --------------------------------------------------------------------------- |
+| `startDate`  | ISO date | Filter from date                                                            |
+| `endDate`    | ISO date | Filter to date                                                              |
+| `type`       | string   | Filter by type: `BUY`, `SELL`, `DIVIDEND`, `SPLIT`, `FEE`, `INTEREST`, etc. |
+| `instrument` | string   | Filter by instrument code                                                   |
+| `limit`      | number   | Page size (default: 100, max: 1000)                                         |
+| `offset`     | number   | Pagination offset                                                           |
 
 ### Create Transaction
 
@@ -298,8 +298,8 @@ POST /portfolios/:id/transactions
   "instrumentCode": "VAS",
   "marketCode": "ASX",
   "quantity": 50,
-  "price": 94.50,
-  "brokerage": 9.50,
+  "price": 94.5,
+  "brokerage": 9.5,
   "currency": "AUD",
   "comment": "Monthly DCA"
 }
@@ -324,7 +324,7 @@ POST /portfolios/:id/transactions/import
       "instrumentCode": "MSFT",
       "marketCode": "NASDAQ",
       "quantity": 5,
-      "price": 450.00,
+      "price": 450.0,
       "brokerage": 0,
       "currency": "USD"
     }
@@ -357,12 +357,12 @@ GET /portfolios/:id/reports/:reportType
 
 **Common query parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `startDate` | ISO date | Report start date |
-| `endDate` | ISO date | Report end date |
-| `groupBy` | string | Grouping option |
-| `format` | string | `json` (default), `csv`, `pdf` |
+| Parameter   | Type     | Description                    |
+| ----------- | -------- | ------------------------------ |
+| `startDate` | ISO date | Report start date              |
+| `endDate`   | ISO date | Report end date                |
+| `groupBy`   | string   | Grouping option                |
+| `format`    | string   | `json` (default), `csv`, `pdf` |
 
 **Example:**
 
@@ -382,11 +382,11 @@ GET /portfolios/:id/export?format=json
 
 **Query parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `format` | string | `json`, `csv` |
-| `scope` | string | `all`, `trades`, `holdings`, `dividends` |
-| `startDate` | ISO date | Filter from date (for trades/dividends) |
+| Parameter   | Type     | Description                              |
+| ----------- | -------- | ---------------------------------------- |
+| `format`    | string   | `json`, `csv`                            |
+| `scope`     | string   | `all`, `trades`, `holdings`, `dividends` |
+| `startDate` | ISO date | Filter from date (for trades/dividends)  |
 
 ### Import from File
 
@@ -427,8 +427,8 @@ POST /watchlists/:id/items
   "marketCode": "NASDAQ",
   "notes": "AI growth play, wait for pullback",
   "priceAlert": {
-    "below": 120.00,
-    "above": 150.00
+    "below": 120.0,
+    "above": 150.0
   }
 }
 ```
@@ -456,9 +456,9 @@ GET /market/securities/:code?market=ASX
   "instrumentCode": "VAS",
   "marketCode": "ASX",
   "name": "Vanguard Australian Shares Index ETF",
-  "price": 94.50,
+  "price": 94.5,
   "change": 0.75,
-  "changePct": 0.80,
+  "changePct": 0.8,
   "lastUpdated": "2026-06-05T16:00:00+10:00",
   "currency": "AUD"
 }
@@ -486,13 +486,13 @@ Register webhooks to receive real-time notifications when events occur in your p
 
 ### Supported Events
 
-| Event | Trigger |
-|-------|---------|
-| `transaction.created` | New transaction added (manual, import, or sync) |
-| `dividend.received` | Dividend or distribution confirmed |
-| `price.alert` | Watchlist price alert triggered |
-| `corporate_action.detected` | Corporate action applied to a holding |
-| `report.ready` | Async report generation completed |
+| Event                       | Trigger                                         |
+| --------------------------- | ----------------------------------------------- |
+| `transaction.created`       | New transaction added (manual, import, or sync) |
+| `dividend.received`         | Dividend or distribution confirmed              |
+| `price.alert`               | Watchlist price alert triggered                 |
+| `corporate_action.detected` | Corporate action applied to a holding           |
+| `report.ready`              | Async report generation completed               |
 
 ### Registering a Webhook
 
@@ -535,27 +535,25 @@ Payloads are signed with HMAC-SHA256 using your secret. Verify the `X-InvestaLen
   "error": {
     "code": "VALIDATION_ERROR",
     "message": "Quantity must be a positive number",
-    "details": [
-      { "field": "quantity", "issue": "must be > 0" }
-    ]
+    "details": [{ "field": "quantity", "issue": "must be > 0" }]
   }
 }
 ```
 
 ### HTTP Status Codes
 
-| Code | Meaning |
-|------|---------|
-| 200 | Success |
-| 201 | Created |
-| 204 | No Content (successful delete) |
-| 400 | Bad Request — validation error |
-| 401 | Unauthorised — missing or invalid token |
-| 403 | Forbidden — insufficient scope |
-| 404 | Not Found |
-| 409 | Conflict — duplicate transaction |
-| 429 | Rate Limited |
-| 500 | Internal Server Error |
+| Code | Meaning                                 |
+| ---- | --------------------------------------- |
+| 200  | Success                                 |
+| 201  | Created                                 |
+| 204  | No Content (successful delete)          |
+| 400  | Bad Request — validation error          |
+| 401  | Unauthorised — missing or invalid token |
+| 403  | Forbidden — insufficient scope          |
+| 404  | Not Found                               |
+| 409  | Conflict — duplicate transaction        |
+| 429  | Rate Limited                            |
+| 500  | Internal Server Error                   |
 
 ---
 
@@ -579,8 +577,8 @@ curl -X POST \
 ### TypeScript/JavaScript
 
 ```typescript
-const response = await fetch('https://api.investalens.app/v1/portfolios', {
-  headers: { 'Authorization': `Bearer ${token}` }
+const response = await fetch("https://api.investalens.app/v1/portfolios", {
+  headers: { Authorization: `Bearer ${token}` },
 });
 const { portfolios } = await response.json();
 ```
@@ -599,9 +597,9 @@ portfolios = response.json()["portfolios"]
 
 ## Related Documentation
 
-| Document | Description |
-|----------|-------------|
-| [DATA_IMPORT.md](DATA_IMPORT.md) | Import architecture, CSV field mapping, and data export |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | System architecture and design decisions |
-| [TOOLS.md](TOOLS.md) | Reports available via API |
-| [SHARESIGHT_API.md](SHARESIGHT_API.md) | Sharesight API as an import source |
+| Document                               | Description                                             |
+| -------------------------------------- | ------------------------------------------------------- |
+| [DATA_IMPORT.md](DATA_IMPORT.md)       | Import architecture, CSV field mapping, and data export |
+| [ARCHITECTURE.md](ARCHITECTURE.md)     | System architecture and design decisions                |
+| [TOOLS.md](TOOLS.md)                   | Reports available via API                               |
+| [SHARESIGHT_API.md](SHARESIGHT_API.md) | Sharesight API as an import source                      |

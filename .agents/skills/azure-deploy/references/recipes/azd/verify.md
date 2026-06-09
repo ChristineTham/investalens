@@ -9,6 +9,7 @@ azd show
 ```
 
 Expected output:
+
 ```text
 Showing deployed resources:
   Resource Group: rg-myapp-dev
@@ -27,6 +28,7 @@ curl -f "$ENDPOINT/health" || curl -f "$ENDPOINT"
 ```
 
 **PowerShell:**
+
 ```powershell
 # Get endpoint
 $Endpoint = azd env get-values | Select-String -Pattern 'SERVICE_.*_URI|.*_ENDPOINT' |
@@ -52,11 +54,11 @@ Parse the `Endpoint:` lines from the `azd show` output to collect all deployed s
 
 **Present a summary to the user that includes:**
 
-| Item | Source |
-|------|--------|
-| Deployed service endpoint(s) | `Endpoint:` lines from `azd show` |
-| Aspire Dashboard URL (if applicable) | `Aspire Dashboard:` line from `azd show` |
-| Azure Portal deployment link (if available) | Portal URL from provisioning output |
+| Item                                        | Source                                   |
+| ------------------------------------------- | ---------------------------------------- |
+| Deployed service endpoint(s)                | `Endpoint:` lines from `azd show`        |
+| Aspire Dashboard URL (if applicable)        | `Aspire Dashboard:` line from `azd show` |
+| Azure Portal deployment link (if available) | Portal URL from provisioning output      |
 
 Example response format:
 
@@ -94,6 +96,7 @@ az sql db query \
 ```
 
 **PowerShell:**
+
 ```powershell
 # Load environment variables
 azd env get-values | ForEach-Object {
@@ -127,6 +130,7 @@ az sql db query \
 ```
 
 **PowerShell:**
+
 ```powershell
 az sql db query `
   --server $env:SQL_SERVER `
@@ -149,18 +153,19 @@ az containerapp logs show --name <app-name> --resource-group <resource-group> --
 ```
 
 **Look for:**
+
 - ✅ No SQL authentication errors
 - ✅ Successful database connection
 - ✅ Application started successfully
 
 ## Common Issues
 
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| HTTP 500 on startup | SQL authentication failure | See [sql-managed-identity.md](sql-managed-identity.md) |
-| "Invalid object name" errors | Migrations not applied | See [ef-migrations.md](ef-migrations.md) |
-| Endpoint not accessible | Service still starting | Wait 1-2 minutes, retry |
-| Health check fails | Application error | Check logs with `az webapp log tail` |
+| Symptom                      | Cause                      | Fix                                                    |
+| ---------------------------- | -------------------------- | ------------------------------------------------------ |
+| HTTP 500 on startup          | SQL authentication failure | See [sql-managed-identity.md](sql-managed-identity.md) |
+| "Invalid object name" errors | Migrations not applied     | See [ef-migrations.md](ef-migrations.md)               |
+| Endpoint not accessible      | Service still starting     | Wait 1-2 minutes, retry                                |
+| Health check fails           | Application error          | Check logs with `az webapp log tail`                   |
 
 ## References
 

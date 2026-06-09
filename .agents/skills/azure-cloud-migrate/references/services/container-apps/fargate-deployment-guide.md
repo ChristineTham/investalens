@@ -182,14 +182,14 @@ az containerapp create --name <app-name> -g $env:RG --environment "$($env:RG)-en
 
 ### Configuration Mapping
 
-| ECS Task Definition | Container Apps CLI |
-|---------------------|--------------------|
-| `cpu: "512"` (0.5 vCPU) | `--cpu 0.5` |
-| `memory: "1024"` (1 GB) | `--memory 1Gi` |
-| `containerPort: 8080` | `--target-port 8080` |
-| `desiredCount: 2` | `--min-replicas 2` |
+| ECS Task Definition             | Container Apps CLI                              |
+| ------------------------------- | ----------------------------------------------- |
+| `cpu: "512"` (0.5 vCPU)         | `--cpu 0.5`                                     |
+| `memory: "1024"` (1 GB)         | `--memory 1Gi`                                  |
+| `containerPort: 8080`           | `--target-port 8080`                            |
+| `desiredCount: 2`               | `--min-replicas 2`                              |
 | `secrets` (Secrets Manager ARN) | `--secrets name=keyvaultref:URI,identityref:ID` |
-| `environment` (env vars) | `--env-vars KEY=value` |
+| `environment` (env vars)        | `--env-vars KEY=value`                          |
 
 ## Phase 5: Validate
 
@@ -209,8 +209,8 @@ az containerapp logs show --name <app-name> -g $env:RG --tail 100
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Image pull fails | Verify ACR role: `az role assignment list --assignee $(az identity show --ids <identity-resource-id> --query principalId -o tsv) --scope $(az acr show -n <acr-name> --query id -o tsv)` |
-| App won't start | Check logs: `az containerapp logs show --name <app-name> -g <resource-group> --tail 100` |
+| Issue                 | Solution                                                                                                                                                                                    |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Image pull fails      | Verify ACR role: `az role assignment list --assignee $(az identity show --ids <identity-resource-id> --query principalId -o tsv) --scope $(az acr show -n <acr-name> --query id -o tsv)`    |
+| App won't start       | Check logs: `az containerapp logs show --name <app-name> -g <resource-group> --tail 100`                                                                                                    |
 | Secret not accessible | Verify RBAC: `az role assignment list --assignee $(az identity show --ids <identity-resource-id> --query principalId -o tsv) --scope $(az keyvault show -n <vault-name> --query id -o tsv)` |

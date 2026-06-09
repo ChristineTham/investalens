@@ -134,15 +134,15 @@ OUTPUT: Complete project ready for `azd up`
 
 When composing multiple templates:
 
-| Action | Allowed | Not Allowed |
-|--------|---------|-------------|
-| Add resource modules from binding templates | ✅ | |
-| Add RBAC role assignments from binding templates | ✅ | |
-| Merge environment variables | ✅ | |
-| Remove RBAC roles | | ❌ |
-| Change managed identity to connection strings | | ❌ |
-| Remove security configurations | | ❌ |
-| Modify resource SKUs without user request | | ❌ |
+| Action                                           | Allowed | Not Allowed |
+| ------------------------------------------------ | ------- | ----------- |
+| Add resource modules from binding templates      | ✅      |             |
+| Add RBAC role assignments from binding templates | ✅      |             |
+| Merge environment variables                      | ✅      |             |
+| Remove RBAC roles                                |         | ❌          |
+| Change managed identity to connection strings    |         | ❌          |
+| Remove security configurations                   |         | ❌          |
+| Modify resource SKUs without user request        |         | ❌          |
 
 **Merge = additive combination, not modification of security patterns.**
 
@@ -164,11 +164,11 @@ appSettings: {
 
 **Validation Checklist (MANDATORY before deploy):**
 
-| Setting Pattern | Required | Example |
-|-----------------|:--------:|---------|
-| `{Connection}__fullyQualifiedNamespace` or `{Connection}__accountEndpoint` | ✅ | `EventHubConnection__fullyQualifiedNamespace` |
-| `{Connection}__credential` | ✅ | `'managedidentity'` (exact case) |
-| `{Connection}__clientId` | ✅ | `apiUserAssignedIdentity.outputs.clientId` |
+| Setting Pattern                                                            | Required | Example                                       |
+| -------------------------------------------------------------------------- | :------: | --------------------------------------------- |
+| `{Connection}__fullyQualifiedNamespace` or `{Connection}__accountEndpoint` |    ✅    | `EventHubConnection__fullyQualifiedNamespace` |
+| `{Connection}__credential`                                                 |    ✅    | `'managedidentity'` (exact case)              |
+| `{Connection}__clientId`                                                   |    ✅    | `apiUserAssignedIdentity.outputs.clientId`    |
 
 > ⛔ **STOP if any check fails.** The function WILL fail at runtime with 500/Unauthorized errors.
 
@@ -227,13 +227,13 @@ azd deploy --no-prompt        # Deploy code (RBAC now active)
 >
 > Query for latest GA/LTS versions before generating IaC.
 
-| Language | `function_runtime` | Version Source |
-|----------|-------------------|----------------|
-| C# (.NET) | `dotnet-isolated` | Latest LTS from docs |
-| TypeScript/JS | `node` | Latest LTS from docs |
-| Python | `python` | Latest GA from docs |
-| Java | `java` | Latest LTS from docs |
-| PowerShell | `powershell` | Latest GA from docs |
+| Language      | `function_runtime` | Version Source       |
+| ------------- | ------------------ | -------------------- |
+| C# (.NET)     | `dotnet-isolated`  | Latest LTS from docs |
+| TypeScript/JS | `node`             | Latest LTS from docs |
+| Python        | `python`           | Latest GA from docs  |
+| Java          | `java`             | Latest LTS from docs |
+| PowerShell    | `powershell`       | Latest GA from docs  |
 
 ### Flex Consumption (FC1) Requires azapi
 

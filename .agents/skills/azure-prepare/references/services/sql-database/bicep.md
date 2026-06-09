@@ -55,6 +55,7 @@ resource sqlFirewallAzure 'Microsoft.Sql/servers/firewallRules@2022-05-01-previe
 **Set Entra admin parameters:**
 
 1. Get current user info:
+
 ```bash
 az ad signed-in-user show --query "{id:id, name:displayName}" -o json
 ```
@@ -62,6 +63,7 @@ az ad signed-in-user show --query "{id:id, name:displayName}" -o json
 > ⚠️ **Warning:** If deploying from CI/CD with a service principal, set `principalType` to `'Application'`. The default `'User'` only works for interactive (human) deployments. Mismatched `principalType` causes `UnmatchedPrincipalType` errors during provisioning.
 
 2. Set as azd environment variables:
+
 ```bash
 PRINCIPAL_INFO=$(az ad signed-in-user show --query "{id:id, name:displayName}" -o json)
 azd env set AZURE_PRINCIPAL_ID $(echo $PRINCIPAL_INFO | jq -r '.id')
@@ -149,6 +151,7 @@ resource sqlPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
 > **CRITICAL:** ARM/Bicep role assignments (`SQL DB Contributor`) only grant **control-plane** access. They do **not** grant the app **data-plane** access to the database. Without the T-SQL grant below, apps using `Authentication=Active Directory Default` will crash on startup with a login failure.
 >
 > **When you generate SQL + Managed Identity infrastructure you MUST also:**
+>
 > 1. Add a `postprovision` hook to `azure.yaml` that runs the SQL grant script
 > 2. Copy the pre-built scripts from [scripts/grant-sql-access.sh](scripts/grant-sql-access.sh) and [scripts/grant-sql-access.ps1](scripts/grant-sql-access.ps1) to `scripts/` in the user's project root
 
@@ -168,6 +171,7 @@ hooks:
 **Copy the pre-built scripts** — Read [scripts/grant-sql-access.sh](scripts/grant-sql-access.sh) and [scripts/grant-sql-access.ps1](scripts/grant-sql-access.ps1) and write them verbatim to the project's `scripts/` folder. Do not regenerate them from scratch.
 
 Key behaviours of the scripts:
+
 - Installs the `rdbms-connect` Azure CLI extension if not already present (required for `az sql db query`)
 - Loads `azd env get-values` safely (no `eval`)
 - Grants `db_datareader` + `db_datawriter` by default (idempotent)
@@ -186,6 +190,7 @@ Key behaviours of the scripts:
 > Always use the Entra-only authentication pattern at the top of this file.
 >
 > ❌ **DO NOT generate conditional patterns like:**
+>
 > ```bicep
 > properties: useEntraAuth ? {
 >   administrators: {
@@ -197,4 +202,5 @@ Key behaviours of the scripts:
 >   administratorLoginPassword: sqlAdminPassword  // ❌ PROHIBITED
 > }
 > ```
+>
 > Use only the unconditional Entra-only pattern. No fallback. No toggle. No conditional.

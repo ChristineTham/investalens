@@ -19,26 +19,26 @@ Sharesight uses OAuth2 Authorization Code flow:
 
 ## Key API Endpoints
 
-| Endpoint | Purpose |
-|----------|---------|
-| `GET /portfolios` | List all portfolios |
-| `GET /portfolios/:id` | Portfolio details |
-| `GET /portfolios/:id/holdings` | Current holdings |
-| `GET /portfolios/:id/trades` | Transaction history |
+| Endpoint                          | Purpose             |
+| --------------------------------- | ------------------- |
+| `GET /portfolios`                 | List all portfolios |
+| `GET /portfolios/:id`             | Portfolio details   |
+| `GET /portfolios/:id/holdings`    | Current holdings    |
+| `GET /portfolios/:id/trades`      | Transaction history |
 | `GET /portfolios/:id/performance` | Performance summary |
-| `GET /portfolios/:id/diversity` | Asset allocation |
+| `GET /portfolios/:id/diversity`   | Asset allocation    |
 
 ## Data Mapping
 
 ### Sharesight → InvestaLens
 
-| Sharesight | InvestaLens |
-|-----------|-------------|
-| Portfolio | Portfolio |
-| Holding | Position |
-| Trade | Transaction |
-| Instrument | Security |
-| Payout | Distribution |
+| Sharesight | InvestaLens  |
+| ---------- | ------------ |
+| Portfolio  | Portfolio    |
+| Holding    | Position     |
+| Trade      | Transaction  |
+| Instrument | Security     |
+| Payout     | Distribution |
 
 ## Rate Limits
 
@@ -56,7 +56,7 @@ Sharesight uses OAuth2 Authorization Code flow:
 
 ## Related Documentation
 
-| Document | Description |
-|----------|-------------|
-| [DATA_IMPORT.md](DATA_IMPORT.md) | Full import architecture and all supported sources |
-| [GETTING-STARTED.md](GETTING-STARTED.md) | How to connect Sharesight during onboarding |
+| Document                                 | Description                                        |
+| ---------------------------------------- | -------------------------------------------------- |
+| [DATA_IMPORT.md](DATA_IMPORT.md)         | Full import architecture and all supported sources |
+| [GETTING-STARTED.md](GETTING-STARTED.md) | How to connect Sharesight during onboarding        |

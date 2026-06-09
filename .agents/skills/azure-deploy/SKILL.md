@@ -1,6 +1,6 @@
 ---
 name: azure-deploy
-description: "Execute Azure deployments for ALREADY-PREPARED applications that have existing .azure/deployment-plan.md and infrastructure files. DO NOT use this skill when the user asks to CREATE a new application — use azure-prepare instead. This skill runs azd up, azd deploy, terraform apply, and az deployment commands with built-in error recovery. Requires .azure/deployment-plan.md from azure-prepare and validated status from azure-validate. WHEN: \"run azd up\", \"run azd deploy\", \"execute deployment\", \"push to production\", \"push to cloud\", \"go live\", \"ship it\", \"bicep deploy\", \"terraform apply\", \"publish to Azure\", \"launch on Azure\". DO NOT USE WHEN: \"create and deploy\", \"build and deploy\", \"create a new app\", \"set up infrastructure\", \"create and deploy to Azure using Terraform\" — use azure-prepare for these."
+description: 'Execute Azure deployments for ALREADY-PREPARED applications that have existing .azure/deployment-plan.md and infrastructure files. DO NOT use this skill when the user asks to CREATE a new application — use azure-prepare instead. This skill runs azd up, azd deploy, terraform apply, and az deployment commands with built-in error recovery. Requires .azure/deployment-plan.md from azure-prepare and validated status from azure-validate. WHEN: "run azd up", "run azd deploy", "execute deployment", "push to production", "push to cloud", "go live", "ship it", "bicep deploy", "terraform apply", "publish to Azure", "launch on Azure". DO NOT USE WHEN: "create and deploy", "build and deploy", "create a new app", "set up infrastructure", "create and deploy to Azure using Terraform" — use azure-prepare for these.'
 license: MIT
 metadata:
   author: Microsoft
@@ -20,6 +20,7 @@ metadata:
 > 2. **azure-validate** was invoked and passed → plan status = `Validated`
 >
 > If EITHER is missing, **STOP IMMEDIATELY**:
+>
 > - No plan? → Invoke **azure-prepare** skill first
 > - Status not `Validated`? → Invoke **azure-validate** skill first
 >
@@ -34,6 +35,7 @@ metadata:
 ## Triggers
 
 Activate this skill when user wants to:
+
 - Execute deployment of an already-prepared application (azure.yaml and infra/ exist)
 - Push updates to an existing Azure deployment
 - Run `azd up`, `azd deploy`, or `az deployment` on a prepared project
@@ -56,18 +58,18 @@ Activate this skill when user wants to:
 
 ## Steps
 
-| # | Action | Reference |
-|---|--------|-----------|
-| 1 | **Check Plan** — Read `.azure/deployment-plan.md`, verify status = `Validated` AND **Validation Proof** section is populated | `.azure/deployment-plan.md` |
-| 2 | **Pre-Deploy Checklist** — MUST complete ALL steps | [Pre-Deploy Checklist](references/pre-deploy-checklist.md) |
-| 3 | **Load Recipe** — Based on `recipe.type` in `.azure/deployment-plan.md` | [recipes/README.md](references/recipes/README.md) |
-| 4 | **RBAC Health Check** — For Container Apps + ACR with managed identity: run `azd provision --no-prompt`, then verify `AcrPull` role has propagated before proceeding (see checklist) | [Pre-Deploy Checklist — Container Apps RBAC](references/pre-deploy-checklist.md#container-apps--acr--pre-deploy-rbac-health-check) |
-| 5 | **Execute Deploy** — Follow recipe steps | Recipe README |
-| 6 | **Post-Deploy** — Configure SQL managed identity and apply EF migrations if applicable | [Post-Deployment](references/recipes/azd/post-deployment.md) |
-| 7 | **Handle Errors** — See recipe's `errors.md` | — |
-| 8 | **Verify Success** — Confirm deployment completed and endpoints are accessible | [Verification](references/recipes/azd/verify.md) |
-| 9 | **Live Role Verification** — Query Azure to confirm provisioned RBAC roles are correct and sufficient | [live-role-verification.md](references/live-role-verification.md) |
-| 10 | **Report Results** — Present deployed endpoint URLs to the user as fully-qualified `https://` links | [Verification](references/recipes/azd/verify.md) |
+| #   | Action                                                                                                                                                                               | Reference                                                                                                                          |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Check Plan** — Read `.azure/deployment-plan.md`, verify status = `Validated` AND **Validation Proof** section is populated                                                         | `.azure/deployment-plan.md`                                                                                                        |
+| 2   | **Pre-Deploy Checklist** — MUST complete ALL steps                                                                                                                                   | [Pre-Deploy Checklist](references/pre-deploy-checklist.md)                                                                         |
+| 3   | **Load Recipe** — Based on `recipe.type` in `.azure/deployment-plan.md`                                                                                                              | [recipes/README.md](references/recipes/README.md)                                                                                  |
+| 4   | **RBAC Health Check** — For Container Apps + ACR with managed identity: run `azd provision --no-prompt`, then verify `AcrPull` role has propagated before proceeding (see checklist) | [Pre-Deploy Checklist — Container Apps RBAC](references/pre-deploy-checklist.md#container-apps--acr--pre-deploy-rbac-health-check) |
+| 5   | **Execute Deploy** — Follow recipe steps                                                                                                                                             | Recipe README                                                                                                                      |
+| 6   | **Post-Deploy** — Configure SQL managed identity and apply EF migrations if applicable                                                                                               | [Post-Deployment](references/recipes/azd/post-deployment.md)                                                                       |
+| 7   | **Handle Errors** — See recipe's `errors.md`                                                                                                                                         | —                                                                                                                                  |
+| 8   | **Verify Success** — Confirm deployment completed and endpoints are accessible                                                                                                       | [Verification](references/recipes/azd/verify.md)                                                                                   |
+| 9   | **Live Role Verification** — Query Azure to confirm provisioned RBAC roles are correct and sufficient                                                                                | [live-role-verification.md](references/live-role-verification.md)                                                                  |
+| 10  | **Report Results** — Present deployed endpoint URLs to the user as fully-qualified `https://` links                                                                                  | [Verification](references/recipes/azd/verify.md)                                                                                   |
 
 > **⛔ URL FORMAT RULE**
 >
@@ -84,12 +86,12 @@ Activate this skill when user wants to:
 
 ## MCP Tools
 
-| Tool | Purpose |
-|------|---------|
-| `mcp_azure_mcp_subscription_list` | List available subscriptions |
-| `mcp_azure_mcp_group_list` | List resource groups in subscription |
-| `mcp_azure_mcp_azd` | Execute AZD commands |
-| `azure__role` | List role assignments for live RBAC verification (step 9) |
+| Tool                              | Purpose                                                   |
+| --------------------------------- | --------------------------------------------------------- |
+| `mcp_azure_mcp_subscription_list` | List available subscriptions                              |
+| `mcp_azure_mcp_group_list`        | List resource groups in subscription                      |
+| `mcp_azure_mcp_azd`               | Execute AZD commands                                      |
+| `azure__role`                     | List role assignments for live RBAC verification (step 9) |
 
 ## References
 

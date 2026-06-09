@@ -2,14 +2,14 @@
 
 ## MCP Template Validation
 
-| Criteria | Expected | Status |
-|----------|----------|--------|
-| Template discovery | `functions_template_get(language: "python")` returns list | ✅ PASS |
-| Filter by resource | `resource == "durable"` finds matches | ✅ PASS |
-| Template scaffolded | `durable-functions-python-azd` | ✅ PASS |
-| Has trigger code | `@app.orchestration_trigger` decorator in output | ✅ PASS |
-| Has IaC | `projectFiles[]` includes Bicep | ✅ PASS |
-| Has RBAC | Appropriate role assignment | ✅ PASS |
+| Criteria            | Expected                                                  | Status  |
+| ------------------- | --------------------------------------------------------- | ------- |
+| Template discovery  | `functions_template_get(language: "python")` returns list | ✅ PASS |
+| Filter by resource  | `resource == "durable"` finds matches                     | ✅ PASS |
+| Template scaffolded | `durable-functions-python-azd`                            | ✅ PASS |
+| Has trigger code    | `@app.orchestration_trigger` decorator in output          | ✅ PASS |
+| Has IaC             | `projectFiles[]` includes Bicep                           | ✅ PASS |
+| Has RBAC            | Appropriate role assignment                               | ✅ PASS |
 
 ## Agent Behavior Validation
 

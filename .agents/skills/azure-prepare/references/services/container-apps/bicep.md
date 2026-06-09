@@ -3,6 +3,7 @@
 > **⚠️ Container Registry Naming:** If using Azure Container Registry, names must be alphanumeric only (5-50 characters). Use `replace()` to remove hyphens: `replace('cr${environmentName}${resourceSuffix}', '-', '')`
 
 > **⚠️ Two-Phase Deployment (Mandatory):** To avoid a circular dependency when scoping the AcrPull role assignment to a Bicep module, use the two-phase pattern below:
+>
 > - **Phase 1:** Deploy ACR and Container App with a public placeholder image and **no** `registries` block.
 > - **Phase 2:** Deploy the AcrPull role assignment as a **separate module** using outputs from Phase 1.
 >

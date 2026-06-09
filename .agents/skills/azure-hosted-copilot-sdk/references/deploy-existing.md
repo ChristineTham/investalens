@@ -16,11 +16,11 @@ This gives you the working infra, scripts, and Dockerfiles without touching the 
 
 From the temp scaffold, copy these into the user's project root:
 
-| Source | Purpose |
-|--------|---------|
-| `infra/` | Bicep modules (AVM-based), main.bicep, resources.bicep |
-| `scripts/get-github-token.mjs` | azd hook — gets `GITHUB_TOKEN` via `gh auth token` |
-| `azure.yaml` | Deployment manifest (will need editing) |
+| Source                         | Purpose                                                |
+| ------------------------------ | ------------------------------------------------------ |
+| `infra/`                       | Bicep modules (AVM-based), main.bicep, resources.bicep |
+| `scripts/get-github-token.mjs` | azd hook — gets `GITHUB_TOKEN` via `gh auth token`     |
+| `azure.yaml`                   | Deployment manifest (will need editing)                |
 
 > ⚠️ Copy `scripts/get-github-token.mjs` exactly — do NOT rewrite it.
 
@@ -51,10 +51,10 @@ If the user has no Dockerfile, copy the template's Dockerfile for the detected l
 
 If the user wants Azure BYOM, add to the copied Bicep:
 
-| Resource | Purpose |
-|----------|---------|
-| Azure OpenAI / AI Services account | Hosts model deployments |
-| Role assignment | `Cognitive Services OpenAI User` for Managed Identity |
+| Resource                           | Purpose                                               |
+| ---------------------------------- | ----------------------------------------------------- |
+| Azure OpenAI / AI Services account | Hosts model deployments                               |
+| Role assignment                    | `Cognitive Services OpenAI User` for Managed Identity |
 
 Add env vars to Container App: `AZURE_OPENAI_ENDPOINT`, `MODEL_PROVIDER=azure`, `MODEL_NAME=<deployment>`, `AZURE_CLIENT_ID=<managed-identity-client-id>`.
 
@@ -64,9 +64,9 @@ See [Azure Model Configuration](azure-model-config.md) for provider config and a
 
 ## 7. Errors
 
-| Error | Fix |
-|-------|-----|
-| `gh` not installed | User must install GitHub CLI |
-| Missing `copilot` scope | Run `gh auth refresh --scopes copilot` |
-| Key Vault soft-delete conflict | Use a unique vault name or purge the old one |
-| Token not injected | Verify `azure.yaml` hooks and `scripts/get-github-token.mjs` exist |
+| Error                          | Fix                                                                |
+| ------------------------------ | ------------------------------------------------------------------ |
+| `gh` not installed             | User must install GitHub CLI                                       |
+| Missing `copilot` scope        | Run `gh auth refresh --scopes copilot`                             |
+| Key Vault soft-delete conflict | Use a unique vault name or purge the old one                       |
+| Token not injected             | Verify `azure.yaml` hooks and `scripts/get-github-token.mjs` exist |

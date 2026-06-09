@@ -1,12 +1,11 @@
 ---
 name: azure-quotas
-description: "Check/manage Azure quotas and usage across providers. For deployment planning, capacity validation, region selection. WHEN: \"check quotas\", \"service limits\", \"current usage\", \"request quota increase\", \"quota exceeded\", \"validate capacity\", \"regional availability\", \"provisioning limits\", \"vCPU limit\", \"how many vCPUs available in my subscription\"."
+description: 'Check/manage Azure quotas and usage across providers. For deployment planning, capacity validation, region selection. WHEN: "check quotas", "service limits", "current usage", "request quota increase", "quota exceeded", "validate capacity", "regional availability", "provisioning limits", "vCPU limit", "how many vCPUs available in my subscription".'
 license: MIT
 metadata:
   author: Microsoft
   version: "1.1.2"
 ---
-
 
 # Azure Quotas - Service Limits & Capacity Management
 
@@ -17,6 +16,7 @@ metadata:
 **What are Azure Quotas?**
 
 Azure quotas (also called service limits) are the maximum number of resources you can deploy in a subscription. Quotas:
+
 - Prevent accidental over-provisioning
 - Ensure fair resource distribution across Azure
 - Represent **available capacity** in each region
@@ -39,16 +39,16 @@ Invoke this skill when:
 
 ## Quick Reference
 
-| **Property** | **Details** |
-|--------------|-------------|
-| **Primary Tool** | Azure CLI (`az quota`) - **USE THIS FIRST, ALWAYS** |
-| **Extension Required** | `az extension add --name quota` (MUST install first) |
-| **Key Commands** | `az quota list`, `az quota show`, `az quota usage list`, `az quota usage show` |
-| **Complete CLI Reference** | [commands.md](./references/commands.md) |
-| **Azure Portal** | [My quotas](https://portal.azure.com/#blade/Microsoft_Azure_Capacity/QuotaMenuBlade/myQuotas) - Use only as fallback |
-| **REST API** | Microsoft.Quota provider - **Unreliable, do NOT use first** |
-| **MCP Server** | `azure-quota` MCP server — **NEVER use this. It is unreliable. Always use `az quota` CLI instead.** |
-| **Required Permission** | Reader (view) or Quota Request Operator (manage) |
+| **Property**               | **Details**                                                                                                          |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **Primary Tool**           | Azure CLI (`az quota`) - **USE THIS FIRST, ALWAYS**                                                                  |
+| **Extension Required**     | `az extension add --name quota` (MUST install first)                                                                 |
+| **Key Commands**           | `az quota list`, `az quota show`, `az quota usage list`, `az quota usage show`                                       |
+| **Complete CLI Reference** | [commands.md](./references/commands.md)                                                                              |
+| **Azure Portal**           | [My quotas](https://portal.azure.com/#blade/Microsoft_Azure_Capacity/QuotaMenuBlade/myQuotas) - Use only as fallback |
+| **REST API**               | Microsoft.Quota provider - **Unreliable, do NOT use first**                                                          |
+| **MCP Server**             | `azure-quota` MCP server — **NEVER use this. It is unreliable. Always use `az quota` CLI instead.**                  |
+| **Required Permission**    | Reader (view) or Quota Request Operator (manage)                                                                     |
 
 > **⚠️ ALWAYS USE CLI FIRST**
 >
@@ -58,10 +58,10 @@ Invoke this skill when:
 
 ## Quota Types
 
-| **Type** | **Adjustability** | **Approval** | **Examples** |
-|----------|-------------------|--------------|--------------|
-| **Adjustable** | Can increase via Portal/CLI/API | Usually auto-approved | VM vCPUs, Public IPs, Storage accounts |
-| **Non-adjustable** | Fixed limits | Cannot be changed | Subscription-wide hard limits |
+| **Type**           | **Adjustability**               | **Approval**          | **Examples**                           |
+| ------------------ | ------------------------------- | --------------------- | -------------------------------------- |
+| **Adjustable**     | Can increase via Portal/CLI/API | Usually auto-approved | VM vCPUs, Public IPs, Storage accounts |
+| **Non-adjustable** | Fixed limits                    | Cannot be changed     | Subscription-wide hard limits          |
 
 **Important:** Requesting quota increases is **free**. You only pay for resources you actually use, not for quota allocation.
 
@@ -71,10 +71,10 @@ Invoke this skill when:
 
 ### Example Mappings
 
-| ARM Resource Type | Quota Resource Name |
-|-------------------|---------------------|
-| `Microsoft.App/managedEnvironments` | `ManagedEnvironmentCount` |
-| `Microsoft.Compute/virtualMachines` | `standardDSv3Family`, `cores`, `virtualMachines` |
+| ARM Resource Type                     | Quota Resource Name                                     |
+| ------------------------------------- | ------------------------------------------------------- |
+| `Microsoft.App/managedEnvironments`   | `ManagedEnvironmentCount`                               |
+| `Microsoft.Compute/virtualMachines`   | `standardDSv3Family`, `cores`, `virtualMachines`        |
 | `Microsoft.Network/publicIPAddresses` | `PublicIPAddresses`, `IPv4StandardSkuPublicIpAddresses` |
 
 ### Discovery Workflow
@@ -82,6 +82,7 @@ Invoke this skill when:
 **Never assume the quota resource name from the ARM type.** Always use this workflow:
 
 1. **List all quotas** for the resource provider:
+
    ```bash
    az quota list --scope /subscriptions/<id>/providers/<ProviderNamespace>/locations/<region>
    ```
@@ -100,10 +101,10 @@ Invoke this skill when:
 
 Pre-built scripts handle quota extension installation, usage queries, and capacity calculation. Use these instead of constructing commands manually. A single call returns limits, usage, and available capacity.
 
-| Script | Purpose | Usage |
-|--------|---------|-------|
+| Script                    | Purpose                                                                                                        | Usage                           |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------- |
 | `scripts/check-quota.ps1` | Returns limit, usage, and available capacity for all quotas (or a single quota when resource name is provided) | Primary script for quota checks |
-| `scripts/check-quota.sh` | Same as above (bash) | Primary script for quota checks |
+| `scripts/check-quota.sh`  | Same as above (bash)                                                                                           | Primary script for quota checks |
 
 ## Core Workflows
 
@@ -116,6 +117,7 @@ Run the script with the resource provider and region. It returns a table of **al
 ```powershell
 .\scripts\check-quota.ps1 -ResourceProvider <provider> -Region <region>
 ```
+
 ```bash
 ./scripts/check-quota.sh <provider> <region>
 ```
@@ -125,6 +127,7 @@ To check a single resource, add the resource name:
 ```powershell
 .\scripts\check-quota.ps1 -ResourceProvider <provider> -Region <region> -ResourceName <resource-name>
 ```
+
 ```bash
 ./scripts/check-quota.sh <provider> <region> <resource-name>
 ```
@@ -137,12 +140,12 @@ To check a single resource, add the resource name:
 
 **Example Output:**
 
-| Resource | Region | Limit | Usage | Available |
-|----------|--------|-------|-------|-----------|
-| cores | eastus | 100 | 50 | 50 |
-| standardDSv3Family | eastus | 350 | 50 | 300 |
-| virtualMachines | eastus | 25000 | 5 | 24995 |
-| ... | ... | ... | ... | ... |
+| Resource           | Region | Limit | Usage | Available |
+| ------------------ | ------ | ----- | ----- | --------- |
+| cores              | eastus | 100   | 50    | 50        |
+| standardDSv3Family | eastus | 350   | 50    | 300       |
+| virtualMachines    | eastus | 25000 | 5     | 24995     |
+| ...                | ...    | ...   | ...   | ...       |
 
 > **📖 See also:** [az quota show](./references/commands.md#az-quota-show), [az quota usage show](./references/commands.md#az-quota-usage-show)
 
@@ -159,22 +162,22 @@ SUBSCRIPTION_ID="<subscription-id>"
 # Check quota availability across regions
 for region in "${REGIONS[@]}"; do
   echo "=== Checking $region ==="
-  
+
   # Get limit
   LIMIT=$(az quota show \
     --resource-name $VM_FAMILY \
     --scope "/subscriptions/$SUBSCRIPTION_ID/providers/Microsoft.Compute/locations/$region" \
     --query "properties.limit.value" -o tsv)
-  
+
   # Get current usage
   USAGE=$(az quota usage show \
     --resource-name $VM_FAMILY \
     --scope "/subscriptions/$SUBSCRIPTION_ID/providers/Microsoft.Compute/locations/$region" \
     --query "properties.usages.value" -o tsv)
-  
+
   # Calculate available
   AVAILABLE=$((LIMIT - USAGE))
-  
+
   echo "Region: $region | Limit: $LIMIT | Usage: $USAGE | Available: $AVAILABLE"
 done
 ```
@@ -199,6 +202,7 @@ az quota request status list \
 ```
 
 **Approval Process:**
+
 - Most adjustable quotas are auto-approved within minutes
 - Some requests require manual review (hours to days)
 - Non-adjustable quotas require Azure Support ticket
@@ -232,22 +236,24 @@ az quota list \
 
 ### Common Errors
 
-| **Error** | **Cause** | **Solution** |
-|-----------|-----------|--------------|
-| REST API "No Limit" | Misleading — not unlimited | Use CLI instead; see warning in Quick Reference |
-| `ExtensionNotFound` | Quota extension not installed | `az extension add --name quota` |
-| `BadRequest` | Resource provider not supported by quota API | Check [service limits docs](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits) |
-| `MissingRegistration` | Microsoft.Quota provider not registered | `az provider register --namespace Microsoft.Quota` |
-| `QuotaExceeded` | Deployment would exceed quota | Request increase or choose different region |
-| `InvalidScope` | Incorrect scope format | Use pattern: `/subscriptions/<id>/providers/<namespace>/locations/<region>` |
-| CLI commands fail entirely | Auth, extension, or environment issue | Verify Azure CLI login (`az account show`), reinstall quota extension, check network. Do NOT use the `azure-quota` MCP server — it is unreliable. |
+| **Error**                  | **Cause**                                    | **Solution**                                                                                                                                      |
+| -------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| REST API "No Limit"        | Misleading — not unlimited                   | Use CLI instead; see warning in Quick Reference                                                                                                   |
+| `ExtensionNotFound`        | Quota extension not installed                | `az extension add --name quota`                                                                                                                   |
+| `BadRequest`               | Resource provider not supported by quota API | Check [service limits docs](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits)          |
+| `MissingRegistration`      | Microsoft.Quota provider not registered      | `az provider register --namespace Microsoft.Quota`                                                                                                |
+| `QuotaExceeded`            | Deployment would exceed quota                | Request increase or choose different region                                                                                                       |
+| `InvalidScope`             | Incorrect scope format                       | Use pattern: `/subscriptions/<id>/providers/<namespace>/locations/<region>`                                                                       |
+| CLI commands fail entirely | Auth, extension, or environment issue        | Verify Azure CLI login (`az account show`), reinstall quota extension, check network. Do NOT use the `azure-quota` MCP server — it is unreliable. |
 
 ### Unsupported Resource Providers
 
 **Known unsupported providers:**
+
 - ❌ Microsoft.DocumentDB (Cosmos DB) - Use Portal or [Cosmos DB limits docs](https://learn.microsoft.com/en-us/azure/cosmos-db/concepts-limits)
 
 **Confirmed working providers:**
+
 - ✅ Microsoft.Compute (VMs, disks, cores)
 - ✅ Microsoft.Network (VNets, IPs, load balancers)
 - ✅ Microsoft.App (Container Apps)
@@ -258,13 +264,13 @@ az quota list \
 
 ## Additional Resources
 
-| Resource | Link |
-|----------|------|
-| **CLI Commands Reference** | [commands.md](./references/commands.md) - Complete syntax, parameters, examples |
-| **Azure Quotas Overview** | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/quotas/quotas-overview) |
+| Resource                         | Link                                                                                                                                     |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **CLI Commands Reference**       | [commands.md](./references/commands.md) - Complete syntax, parameters, examples                                                          |
+| **Azure Quotas Overview**        | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/quotas/quotas-overview)                                                        |
 | **Service Limits Documentation** | [Azure subscription limits](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits) |
-| **Azure Portal - My Quotas** | [Portal Link](https://portal.azure.com/#blade/Microsoft_Azure_Capacity/QuotaMenuBlade/myQuotas) |
-| **Request Quota Increases** | [How to request increases](https://learn.microsoft.com/en-us/azure/quotas/quickstart-increase-quota-portal) |
+| **Azure Portal - My Quotas**     | [Portal Link](https://portal.azure.com/#blade/Microsoft_Azure_Capacity/QuotaMenuBlade/myQuotas)                                          |
+| **Request Quota Increases**      | [How to request increases](https://learn.microsoft.com/en-us/azure/quotas/quickstart-increase-quota-portal)                              |
 
 ## Best Practices
 

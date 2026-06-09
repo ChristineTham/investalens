@@ -33,13 +33,13 @@ InvestaLens portfolio settings are applied to the portfolio you are currently vi
 
 Access portfolio settings via **Settings > Details**:
 
-| Setting | Description | Editable |
-|---------|-------------|----------|
-| Portfolio Name | Display name used within InvestaLens | Yes |
-| Tax Residency | Country determining currency, tax rules, and reporting | **No** (permanent) |
-| Financial Year End | Month marking end of financial year | Yes |
-| Performance Calculation Method | Simple or Compound percentage return calculation | Yes |
-| Tax Entity Type | Determines CGT discount applied (AU only) | Yes |
+| Setting                        | Description                                            | Editable           |
+| ------------------------------ | ------------------------------------------------------ | ------------------ |
+| Portfolio Name                 | Display name used within InvestaLens                   | Yes                |
+| Tax Residency                  | Country determining currency, tax rules, and reporting | **No** (permanent) |
+| Financial Year End             | Month marking end of financial year                    | Yes                |
+| Performance Calculation Method | Simple or Compound percentage return calculation       | Yes                |
+| Tax Entity Type                | Determines CGT discount applied (AU only)              | Yes                |
 
 ---
 
@@ -67,6 +67,7 @@ Add additional portfolios to your InvestaLens account to track multiple broker a
 8. Click **Create Portfolio**
 
 After creation, you can add investments by:
+
 - Importing from a CSV file
 - Connecting via an API integration (e.g. Sharesight)
 - Manually adding holdings
@@ -119,21 +120,21 @@ The sale allocation method determines which buy parcels InvestaLens assigns to a
 
 When you record a sell trade, the system matches that sale against your available buy parcels using the selected method. Each parcel has one of three states:
 
-| State | Description |
-|-------|-------------|
-| Available | Not yet sold; eligible for matching against future sell trades |
-| Partially Disposed | Some units sold; remaining units tracked separately |
-| Fully Disposed | All units sold; no longer available for allocation |
+| State              | Description                                                    |
+| ------------------ | -------------------------------------------------------------- |
+| Available          | Not yet sold; eligible for matching against future sell trades |
+| Partially Disposed | Some units sold; remaining units tracked separately            |
+| Fully Disposed     | All units sold; no longer available for allocation             |
 
 ### Available Methods
 
-| Method | Description |
-|--------|-------------|
-| **First In, First Out (FIFO)** | Shares purchased first are sold first (default, aligns with ATO default) |
-| **Last In, First Out (LIFO)** | Shares purchased most recently are sold first |
-| **Minimise Capital Gain** | Shares with highest purchase price sold first (minimises gain / maximises loss) |
-| **Maximise Capital Gain** | Shares with lowest purchase price sold first |
-| **Minimise Capital Gain Tax** | Considers both purchase price and holding period to minimise overall tax liability; prioritises parcels eligible for CGT discount where beneficial |
+| Method                         | Description                                                                                                                                        |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **First In, First Out (FIFO)** | Shares purchased first are sold first (default, aligns with ATO default)                                                                           |
+| **Last In, First Out (LIFO)**  | Shares purchased most recently are sold first                                                                                                      |
+| **Minimise Capital Gain**      | Shares with highest purchase price sold first (minimises gain / maximises loss)                                                                    |
+| **Maximise Capital Gain**      | Shares with lowest purchase price sold first                                                                                                       |
+| **Minimise Capital Gain Tax**  | Considers both purchase price and holding period to minimise overall tax liability; prioritises parcels eligible for CGT discount where beneficial |
 
 ### Changing Methods Across Financial Years
 
@@ -163,11 +164,11 @@ Share your InvestaLens portfolio with other people, such as:
 
 ### Access Levels
 
-| Level | Capabilities |
-|-------|-------------|
-| **Read Only** | View all data in your portfolio; cannot change or modify anything |
+| Level              | Capabilities                                                                                                                       |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **Read Only**      | View all data in your portfolio; cannot change or modify anything                                                                  |
 | **Read and Write** | View all data plus add, modify, and delete holdings, trades, and dividends. Cannot add portfolios, alter settings, or invite users |
-| **Admin** | View and modify all data, edit portfolio settings and integrations. Cannot delete/rename the portfolio or invite additional users |
+| **Admin**          | View and modify all data, edit portfolio settings and integrations. Cannot delete/rename the portfolio or invite additional users  |
 
 ### How to Share Access
 
@@ -384,22 +385,22 @@ Financial planning best practice recommends maintaining 3–6 months of living e
 
 ### Emergency Fund Dashboard
 
-| Element | Description |
-|---------|-------------|
-| Target | Your defined emergency fund goal |
-| Current Balance | Amount currently held |
-| Progress Bar | Visual indicator showing % of target reached |
-| Months Covered | Current balance ÷ monthly expenses = months of runway |
-| Status | 🟢 Fully funded, 🟡 Partially funded, 🔴 Below minimum |
+| Element         | Description                                            |
+| --------------- | ------------------------------------------------------ |
+| Target          | Your defined emergency fund goal                       |
+| Current Balance | Amount currently held                                  |
+| Progress Bar    | Visual indicator showing % of target reached           |
+| Months Covered  | Current balance ÷ monthly expenses = months of runway  |
+| Status          | 🟢 Fully funded, 🟡 Partially funded, 🔴 Below minimum |
 
 ### Configuration Options
 
-| Setting | Description | Default |
-|---------|-------------|--------|
-| Monthly Expenses | Your average monthly living costs | Manual entry |
-| Target Months | Number of months you want covered | 6 |
-| Linked Cash Account | Cash Account representing emergency savings | None |
-| Include in Net Worth | Whether emergency fund appears in net worth calculation | Yes |
+| Setting              | Description                                             | Default      |
+| -------------------- | ------------------------------------------------------- | ------------ |
+| Monthly Expenses     | Your average monthly living costs                       | Manual entry |
+| Target Months        | Number of months you want covered                       | 6            |
+| Linked Cash Account  | Cash Account representing emergency savings             | None         |
+| Include in Net Worth | Whether emergency fund appears in net worth calculation | Yes          |
 
 ### How It Interacts with Investing
 
@@ -411,11 +412,11 @@ The Emergency Fund is shown on the main dashboard alongside your portfolio value
 
 ## Related Documentation
 
-| Document | Description |
-|----------|-------------|
+| Document                                 | Description                                               |
+| ---------------------------------------- | --------------------------------------------------------- |
 | [GETTING-STARTED.md](GETTING-STARTED.md) | Portfolio setup, CSV import guide, and adding investments |
-| [DATA_IMPORT.md](DATA_IMPORT.md) | Full import architecture and field mapping |
-| [TOOLS.md](TOOLS.md) | All performance, allocation, and tax reports |
-| [TAX.md](TAX.md) | Australian tax reporting, CGT calculations, and AMIT |
-| [ASSETS.md](ASSETS.md) | Supported asset types, custom investments, and exchanges |
-| [ACTIONS.md](ACTIONS.md) | Corporate actions (splits, mergers, and demergers) |
+| [DATA_IMPORT.md](DATA_IMPORT.md)         | Full import architecture and field mapping                |
+| [TOOLS.md](TOOLS.md)                     | All performance, allocation, and tax reports              |
+| [TAX.md](TAX.md)                         | Australian tax reporting, CGT calculations, and AMIT      |
+| [ASSETS.md](ASSETS.md)                   | Supported asset types, custom investments, and exchanges  |
+| [ACTIONS.md](ACTIONS.md)                 | Corporate actions (splits, mergers, and demergers)        |

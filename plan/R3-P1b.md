@@ -12,6 +12,7 @@ Add international broker CSV templates, withholding tax tracking, international 
 ## Recommended Skills
 
 Invoke these skills for best-practice guidance during this phase:
+
 - **next-best-practices** — Server actions for import pipeline
 - **prisma-client-api** — Transaction-based import with rollback
 
@@ -141,8 +142,12 @@ saxo: {
 **File: `lib/import/market-detector.ts`**
 
 Auto-detect market from ticker symbols:
+
 ```typescript
-function detectMarket(symbol: string, hints?: { currency?: string; venue?: string }): string {
+function detectMarket(
+  symbol: string,
+  hints?: { currency?: string; venue?: string }
+): string {
   // Interactive Brokers: "AAPL" (US), "CBA.AX" (ASX), "VOD.L" (LSE)
   // If symbol has known suffix, extract market
   // If no suffix + USD currency → assume NYSE/NASDAQ
@@ -158,25 +163,26 @@ function detectMarket(symbol: string, hints?: { currency?: string; venue?: strin
 **File: `lib/calculations/withholding-tax.ts`**
 
 Track foreign withholding tax:
+
 ```typescript
 interface WithholdingTaxRate {
-  country: string;      // Source country of income
-  residentCountry: string;  // Investor's tax residency
-  dtaRate: number;      // Double Tax Agreement rate
-  defaultRate: number;  // Rate without DTA
+  country: string; // Source country of income
+  residentCountry: string; // Investor's tax residency
+  dtaRate: number; // Double Tax Agreement rate
+  defaultRate: number; // Rate without DTA
 }
 
 // Common DTA rates for Australian residents
 const AU_DTA_RATES: Record<string, number> = {
-  US: 0.15,    // 15% on US dividends
+  US: 0.15, // 15% on US dividends
   UK: 0.15,
   CA: 0.15,
   DE: 0.15,
-  JP: 0.10,
+  JP: 0.1,
   NZ: 0.05,
-  HK: 0.00,   // No withholding tax
-  SG: 0.00,
-  IE: 0.15,   // Important for many ETFs domiciled in Ireland
+  HK: 0.0, // No withholding tax
+  SG: 0.0,
+  IE: 0.15, // Important for many ETFs domiciled in Ireland
 };
 
 function calculateWithholdingTax(
@@ -189,6 +195,7 @@ function calculateWithholdingTax(
 **File: `lib/reports/tax/foreign-income.ts`**
 
 Foreign Income Report:
+
 - Group by source country
 - Show gross income, withholding tax, net income
 - Foreign tax credit available (for ATO claim)
@@ -201,6 +208,7 @@ Foreign Income Report:
 **File: `lib/reports/tax/international-cgt.ts`**
 
 Extend CGT for international holdings:
+
 - Cost base in AUD at purchase date FX rate
 - Proceeds in AUD at sale date FX rate
 - Forex component of gain/loss (separately reportable)
@@ -216,12 +224,14 @@ Extend CGT for international holdings:
 **File: `lib/actions/corporate-actions.ts`** (extend)
 
 Additional corporate actions for international markets:
+
 - `recordADRConversion(holdingId, localShares, adrRatio)` — ADR ↔ ordinary shares
 - `recordSpinOff(holdingId, newInstrumentCode, allocationRatio, costBasePercent)` — US-style spin-off
 - `recordStockDividend(holdingId, sharesReceived, fmv)` — stock dividend (not DRP)
 - `recordMandatoryTakeover(holdingId, cashPerShare, acquirerCode?, sharesPerShare?)` — scheme of arrangement
 
 Currency handling for corporate actions:
+
 - All values stored in instrument's local currency
 - FX conversion applied when calculating AUD cost base impact
 
@@ -232,6 +242,7 @@ Currency handling for corporate actions:
 **File: `lib/data/etf-holdings.ts`** (extend)
 
 Add international ETF composition data:
+
 ```typescript
 const ETF_HOLDINGS: Record<string, ETFComposition> = {
   // Australian-listed international ETFs
@@ -240,7 +251,7 @@ const ETF_HOLDINGS: Record<string, ETFComposition> = {
   "IVV.AX": { currency: "AUD", country: "US", index: "S&P 500" },
   "NDQ.AX": { currency: "AUD", country: "US", index: "NASDAQ 100" },
   "VEU.AX": { currency: "USD", country: "INTL" },
-  
+
   // US-listed ETFs (if held directly)
   "SPY": { currency: "USD", country: "US", index: "S&P 500" },
   "QQQ": { currency: "USD", country: "US", index: "NASDAQ 100" },
@@ -254,6 +265,7 @@ const ETF_HOLDINGS: Record<string, ETFComposition> = {
 ## Task 7: Reporting Currency UI Updates
 
 Update all report pages to:
+
 - Show values in portfolio's reporting currency
 - Show local currency value in tooltip/secondary column
 - Indicate FX rate used
@@ -270,6 +282,7 @@ Component that formats values with currency symbol and optional conversion toolt
 **File: `lib/import/currency-import.ts`**
 
 During import:
+
 - If transaction has explicit currency + FX rate → use as provided
 - If transaction has currency but no FX rate → fetch from ExchangeRate table
 - If neither → use instrument's exchange currency

@@ -12,6 +12,7 @@ Implement AI-powered features (Gemini/Antigravity SDK for statement parsing), FI
 ## Recommended Skills
 
 Invoke these skills for best-practice guidance during this phase:
+
 - **ai-sdk** — Vercel AI SDK for Gemini chat interface, structured output, streaming
 - **building-components** — Custom chat UI components with Base UI primitives
 - **vercel-react-best-practices** — FIRE calculator chart, market sentiment UI
@@ -36,7 +37,15 @@ const TransactionSchema = z.object({
   tradeDate: z.string().describe("ISO 8601 date"),
   instrumentCode: z.string().describe("Ticker symbol"),
   marketCode: z.string().describe("Exchange code, e.g. ASX"),
-  transactionType: z.enum(["BUY", "SELL", "DIVIDEND", "INTEREST", "COUPON", "FEE", "DRP"]),
+  transactionType: z.enum([
+    "BUY",
+    "SELL",
+    "DIVIDEND",
+    "INTEREST",
+    "COUPON",
+    "FEE",
+    "DRP",
+  ]),
   quantity: z.number(),
   price: z.number().describe("Price per unit"),
   brokerage: z.number().default(0),
@@ -71,6 +80,7 @@ ${content}`,
 **File: `lib/actions/ai-import.ts`**
 
 Server action for AI import:
+
 1. Accept file upload (PDF, image, text)
 2. Extract text content (use pdf-parse for PDFs, or send image directly)
 3. Call the TypeScript AI route handler (not Python)
@@ -80,6 +90,7 @@ Server action for AI import:
 **File: `app/(dashboard)/portfolio/[id]/import/ai/page.tsx`**
 
 AI Import UI:
+
 - Upload zone (PDF, PNG, JPG, TXT)
 - Document type selector (Broker Statement, Dividend Statement, Tax Statement, Contract Note)
 - "Parse with AI" button
@@ -101,18 +112,18 @@ interface FIREInput {
   retirementAge: number;
   currentPortfolioValue: number;
   annualContribution: number;
-  contributionGrowthRate: number;  // annual increase in contributions
-  expectedReturnRate: number;      // from portfolio analytics
+  contributionGrowthRate: number; // annual increase in contributions
+  expectedReturnRate: number; // from portfolio analytics
   inflationRate: number;
   annualExpenses: number;
   expenseGrowthRate: number;
-  withdrawalRate: number;          // typically 4%
+  withdrawalRate: number; // typically 4%
   superBalance?: number;
-  superAccessAge?: number;         // typically 60 in AU
+  superAccessAge?: number; // typically 60 in AU
 }
 
 interface FIREResult {
-  fireNumber: number;              // expenses / withdrawal rate
+  fireNumber: number; // expenses / withdrawal rate
   yearsToFIRE: number;
   fireAge: number;
   projectedPortfolioAtRetirement: number;
@@ -127,11 +138,11 @@ interface FIREResult {
     surplus: number;
   }>;
   scenarios: {
-    pessimistic: { fireAge: number; successRate: number };  // -2% return
+    pessimistic: { fireAge: number; successRate: number }; // -2% return
     baseline: { fireAge: number; successRate: number };
-    optimistic: { fireAge: number; successRate: number };   // +2% return
+    optimistic: { fireAge: number; successRate: number }; // +2% return
   };
-  monteCarloProbability?: number;  // if MC simulation run
+  monteCarloProbability?: number; // if MC simulation run
 }
 
 function calculateFIRE(input: FIREInput): FIREResult;
@@ -140,6 +151,7 @@ function calculateFIRE(input: FIREInput): FIREResult;
 **File: `app/(dashboard)/tools/fire/page.tsx`**
 
 FIRE Calculator page:
+
 - Input form (all FIRE parameters with sensible defaults)
 - Auto-fill portfolio value from actual data
 - Auto-fill expected return from historical performance
@@ -176,7 +188,9 @@ interface XrayResult {
   overlap: Array<{ stock: string; etfs: string[]; combinedWeight: number }>;
 }
 
-async function xrayPortfolio(holdings: HoldingWithInstrument[]): Promise<XrayResult>;
+async function xrayPortfolio(
+  holdings: HoldingWithInstrument[]
+): Promise<XrayResult>;
 ```
 
 Data source: ETF composition from provider websites (scrape top holdings) or store in DB.
@@ -184,6 +198,7 @@ Data source: ETF composition from provider websites (scrape top holdings) or sto
 **File: `app/(dashboard)/tools/xray/page.tsx`**
 
 X-ray page:
+
 - Auto-detect ETFs in portfolio
 - Show combined underlying holdings (top 20)
 - Overlap detection (same stock held in multiple ETFs)
@@ -197,17 +212,23 @@ X-ray page:
 **File: `lib/services/share-checker.ts`**
 
 Detect potential issues in portfolio:
+
 ```typescript
 interface CheckResult {
   duplicates: Array<{ holding1: string; holding2: string; similarity: string }>;
   concentration: Array<{ holding: string; weight: number; threshold: number }>;
-  staleData: Array<{ holding: string; lastPriceDate: Date; daysSinceUpdate: number }>;
+  staleData: Array<{
+    holding: string;
+    lastPriceDate: Date;
+    daysSinceUpdate: number;
+  }>;
   missingData: Array<{ holding: string; issue: string }>;
   anomalies: Array<{ holding: string; description: string }>;
 }
 ```
 
 Checks:
+
 - Same instrument in multiple portfolios (intended?)
 - Concentration risk (>20% in one holding)
 - Stale prices (>5 days old, excluding weekends)
@@ -225,13 +246,14 @@ Share Checker page: list of findings with severity badges and fix suggestions.
 **File: `lib/services/market-sentiment.ts`**
 
 Aggregate market indicators:
+
 ```typescript
 interface SentimentData {
-  fearGreedIndex: number;          // 0-100
+  fearGreedIndex: number; // 0-100
   vixLevel: number;
-  marketBreadth: number;           // % stocks above 200-day MA
+  marketBreadth: number; // % stocks above 200-day MA
   putCallRatio: number;
-  sectorHeatmap: Record<string, number>;  // sector → daily return
+  sectorHeatmap: Record<string, number>; // sector → daily return
   asxSummary: {
     open: number;
     close: number;
@@ -247,6 +269,7 @@ Source data from Yahoo Finance (^AXJO for ASX200, ^VIX for volatility).
 **File: `app/(dashboard)/tools/sentiment/page.tsx`**
 
 Market Sentiment page:
+
 - Fear/Greed gauge (0-100 dial)
 - ASX200 intraday chart
 - Sector heatmap (treemap with green/red blocks)
@@ -260,6 +283,7 @@ Market Sentiment page:
 **File: `app/(dashboard)/tools/assistant/page.tsx`**
 
 Optional AI assistant using Vercel AI SDK + Gemini:
+
 - Chat interface
 - Can answer questions about the portfolio
 - Suggests optimisation actions

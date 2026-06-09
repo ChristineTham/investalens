@@ -86,8 +86,7 @@ export async function generateTaxableIncomeReport(
       }
     }
 
-    item.totalIncome =
-      item.netDividend + item.interest - item.taxDeferred;
+    item.totalIncome = item.netDividend + item.interest - item.taxDeferred;
   }
 
   const items = Object.values(byInstrument);

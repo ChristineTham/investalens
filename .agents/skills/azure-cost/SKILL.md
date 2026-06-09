@@ -1,6 +1,6 @@
 ---
 name: azure-cost
-description: "Azure cost management: query costs, forecast spending, optimize to reduce waste. WHEN: \"Azure costs\", \"Azure bill\", \"cost breakdown\", \"how much am I spending\", \"forecast spending\", \"optimize costs\", \"reduce spending\", \"orphaned resources\", \"rightsize VMs\", \"cost spike\", \"reduce storage costs\", \"AKS cost\". DO NOT USE FOR: deploying resources, provisioning, diagnostics, or security audits."
+description: 'Azure cost management: query costs, forecast spending, optimize to reduce waste. WHEN: "Azure costs", "Azure bill", "cost breakdown", "how much am I spending", "forecast spending", "optimize costs", "reduce spending", "orphaned resources", "rightsize VMs", "cost spike", "reduce storage costs", "AKS cost". DO NOT USE FOR: deploying resources, provisioning, diagnostics, or security audits.'
 license: MIT
 metadata:
   author: Microsoft
@@ -13,19 +13,19 @@ Query historical costs, forecast future spending, optimize to reduce waste.
 
 ## Routing
 
-| User Intent | Workflow |
-|-------------|----------|
-| Understand current costs | [Cost Query](cost-query/workflow.md) |
+| User Intent               | Workflow                                           |
+| ------------------------- | -------------------------------------------------- |
+| Understand current costs  | [Cost Query](cost-query/workflow.md)               |
 | Reduce costs / find waste | [Cost Optimization](cost-optimization/workflow.md) |
-| Project future costs | [Cost Forecast](cost-forecast/workflow.md) |
+| Project future costs      | [Cost Forecast](cost-forecast/workflow.md)         |
 
 ## Quick Reference
 
-| Property | Value |
-|----------|-------|
-| **Query API** | `POST {scope}/providers/Microsoft.CostManagement/query?api-version=2023-11-01` |
-| **Forecast API** | `POST {scope}/providers/Microsoft.CostManagement/forecast?api-version=2023-11-01` |
-| **Required Role** | Cost Management Reader + Monitoring Reader + Reader (on target scope) |
+| Property          | Value                                                                             |
+| ----------------- | --------------------------------------------------------------------------------- |
+| **Query API**     | `POST {scope}/providers/Microsoft.CostManagement/query?api-version=2023-11-01`    |
+| **Forecast API**  | `POST {scope}/providers/Microsoft.CostManagement/forecast?api-version=2023-11-01` |
+| **Required Role** | Cost Management Reader + Monitoring Reader + Reader (on target scope)             |
 
 ## Scope Patterns
 

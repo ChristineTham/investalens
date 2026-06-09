@@ -50,6 +50,7 @@ echo "https://$HOSTNAME"
 ```
 
 **PowerShell:**
+
 ```powershell
 # Container Apps
 $Fqdn = az containerapp show --name <app-name> --resource-group <rg-name> --query "properties.configuration.ingress.fqdn" -o tsv

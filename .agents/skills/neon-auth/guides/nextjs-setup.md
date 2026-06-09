@@ -6,12 +6,13 @@
 Complete guide for setting up Neon Auth with Next.js App Router.
 
 ### Important:
+
 - Remember to run the neon-plugin:add-neon-docs skill with the parameter SKILL_NAME="neon-auth" after completing the guide.
 
 ## Table of Contents
 
 - [Next.js Auth Setup](#nextjs-auth-setup)
-    - [Important:](#important)
+  - [Important:](#important)
   - [Table of Contents](#table-of-contents)
   - [Workflow Checklist](#workflow-checklist)
   - [Phase 1: Context Detection](#phase-1-context-detection)
@@ -53,6 +54,7 @@ When following this guide, I will track these high-level tasks:
 Auto-detect project context:
 
 **Check Package Manager:**
+
 ```bash
 ls package-lock.json  # -> npm
 ls bun.lockb          # -> bun
@@ -61,12 +63,15 @@ ls yarn.lock          # -> yarn
 ```
 
 **Check Next.js Version:**
+
 ```bash
 grep '"next"' package.json
 ```
+
 Ensure Next.js 13+ with App Router (pages in `app/` directory).
 
 **Check Existing Setup:**
+
 ```bash
 ls app/api/auth        # Auth routes exist?
 ls lib/auth            # Auth client exists?
@@ -74,11 +79,13 @@ grep '@neondatabase' package.json  # Already installed?
 ```
 
 **Check for Tailwind:**
+
 ```bash
 ls tailwind.config.js tailwind.config.ts 2>/dev/null
 ```
 
 **Check Environment Files:**
+
 ```bash
 ls .env .env.local
 ```
@@ -107,15 +114,18 @@ NEXT_PUBLIC_NEON_AUTH_URL=your-neon-auth-url
 ```
 
 **Where to find your Auth URL:**
+
 1. Go to your Neon project dashboard
 2. Navigate to the "Auth" tab
 3. Copy the Auth URL
 
 **Important:** Both variables are needed:
+
 - `NEON_AUTH_BASE_URL` - Used by server-side API routes
-- `NEXT_PUBLIC_NEON_AUTH_URL` - Used by client-side components (prefixed with NEXT_PUBLIC_)
+- `NEXT_PUBLIC_NEON_AUTH_URL` - Used by client-side components (prefixed with NEXT*PUBLIC*)
 
 Add to `.gitignore` if not already present:
+
 ```
 .env.local
 ```
@@ -133,6 +143,7 @@ export const { GET, POST } = authApiHandler();
 ```
 
 This creates endpoints for:
+
 - `/api/auth/sign-in` - Sign in
 - `/api/auth/sign-up` - Sign up
 - `/api/auth/sign-out` - Sign out
@@ -197,13 +208,15 @@ Import order doesn't matter - auth styles are in `@layer neon-auth`, so your sty
 **If using Tailwind (tailwind.config.{js,ts} exists):**
 
 Add to your global CSS file (e.g., `app/globals.css`):
+
 ```css
-@import '@neondatabase/auth/ui/tailwind';
+@import "@neondatabase/auth/ui/tailwind";
 ```
 
 **If NOT using Tailwind:**
 
 Add to `app/layout.tsx`:
+
 ```typescript
 import "@neondatabase/auth/ui/css";
 ```
@@ -241,6 +254,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 ```
 
 **To add social login buttons**, add the `social` prop:
+
 ```typescript
 <NeonAuthUIProvider
   authClient={authClient}
@@ -333,6 +347,7 @@ export default function RootLayout({
 ```
 
 **Components explained:**
+
 - `<SignedOut>` - Only renders children when user is NOT authenticated
 - `<SignedIn>` - Only renders children when user IS authenticated
 - `<UserButton />` - Displays user avatar with dropdown menu (sign out, account settings)
@@ -364,6 +379,7 @@ export default async function AuthPage({
 ```
 
 This creates routes for:
+
 - `/auth/sign-in` - Sign in page
 - `/auth/sign-up` - Sign up page
 - `/auth/forgot-password` - Password reset request
@@ -386,11 +402,13 @@ This creates routes for:
 - [ ] Check browser console for errors
 
 **Common Issues:**
+
 - "Module not found" - Check import paths match subpath exports
 - Session not persisting - Verify API route is correctly configured
 - CSS not loading - Check you imported CSS in layout (only one method)
 
 For detailed error resolution, see:
+
 - [Troubleshooting Guide](https://raw.githubusercontent.com/neondatabase-labs/ai-rules/main/references/neon-auth-troubleshooting.md)
 - [Common Mistakes](https://raw.githubusercontent.com/neondatabase-labs/ai-rules/main/references/neon-auth-common-mistakes.md)
 
@@ -411,11 +429,13 @@ This will add reference links to Neon Auth best practices documentation in your 
 Your Neon Auth integration is ready to use.
 
 **What's working:**
+
 - Authentication API routes at `/api/auth/*`
 - Client-side auth hooks via `authClient.useSession()`
 - (If configured) Pre-built UI components and auth pages
 
 **Next steps:**
+
 - Add protected routes using session checks
 - Customize UI theme (see neon-auth.mdc for theming)
 - Set up social OAuth providers in Neon dashboard

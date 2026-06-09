@@ -7,16 +7,19 @@ Use this workflow when the user wants to **reduce their costs** — find waste, 
 ## Step 0: Validate Prerequisites
 
 **Required Tools:**
+
 - Azure CLI installed and authenticated (`az login`)
 - Azure CLI extensions: `costmanagement`, `resource-graph`
 - Azure Quick Review (azqr) installed — See [Azure Quick Review](./azure-quick-review.md)
 
 **Required Permissions:**
+
 - Cost Management Reader role
 - Monitoring Reader role
 - Reader role on subscription/resource group
 
 **Verification commands:**
+
 ```powershell
 az --version
 az account show
@@ -30,8 +33,8 @@ azqr version
 azure__get_azure_bestpractices({
   intent: "Get cost optimization best practices",
   command: "get_bestpractices",
-  parameters: { resource: "cost-optimization", action: "all" }
-})
+  parameters: { resource: "cost-optimization", action: "all" },
+});
 ```
 
 ## Step 1.5: Redis-Specific Analysis (Conditional)
@@ -41,6 +44,7 @@ azure__get_azure_bestpractices({
 **Reference**: [Azure Redis Cost Optimization](./services/redis/azure-cache-for-redis.md)
 
 **When to use:**
+
 - User mentions "Redis", "Azure Cache for Redis", or "Azure Managed Redis"
 - Focus is on Redis resource optimization, not general subscription analysis
 
@@ -49,6 +53,7 @@ azure__get_azure_bestpractices({
 ## Step 1.6: Choose Analysis Scope (for Redis-specific analysis)
 
 **If performing Redis cost optimization**, ask the user to select:
+
 1. **Specific Subscription ID**
 2. **Subscription Name**
 3. **Subscription Prefix** (e.g., "CacheTeam")
@@ -70,15 +75,18 @@ For Storage-only requests, follow the Storage reference. For general optimizatio
 **If the user specifically requests AKS cost optimization**, use the specialized AKS reference files:
 
 **When to use AKS-specific analysis:**
+
 - User mentions "AKS", "Kubernetes", "cluster", "node pool", "pod", or "kubectl"
 - User wants to enable the AKS cost analysis add-on or namespace cost visibility
 - User reports a cost spike, unusual cluster utilization, or wants budget alerts
 
 **Tool Selection:**
+
 - **Prefer MCP first**: Use `azure__aks` for AKS operations (list clusters, get node pools, inspect configuration) — it provides richer metadata and is consistent with AKS skill conventions in this repo
 - **Fall back to CLI**: Use `az aks` and `kubectl` only when the specific operation cannot be performed via the MCP surface
 
 **Reference files (load only what is needed for the request):**
+
 - [Cost Analysis Add-on](./azure-aks-cost-addon.md) — enable namespace-level cost visibility
 - [Anomaly Investigation](./azure-aks-anomalies.md) — cost spikes, scaling events, budget alerts
 
@@ -89,6 +97,7 @@ For Storage-only requests, follow the Storage reference. For general optimizatio
 **If performing AKS cost optimization**, ask the user to select their analysis scope:
 
 **Prompt the user with these options:**
+
 1. **Specific Cluster Name** - Analyze a single AKS cluster
 2. **Resource Group** - Analyze all clusters in a resource group
 3. **Subscription ID** - Analyze all clusters in a subscription
@@ -109,6 +118,7 @@ azure__extension_azqr
 ```
 
 **What to look for:**
+
 - Orphaned resources: unattached disks, unused NICs, idle NAT gateways
 - Over-provisioned resources: excessive retention periods, oversized SKUs
 - Missing cost tags
@@ -127,6 +137,7 @@ az resource list --subscription "<SUBSCRIPTION_ID>" --resource-group "<RESOURCE_
 Get actual cost data from Azure Cost Management API (last 30 days). Use the [Cost Query Workflow](../cost-query/workflow.md) with this configuration:
 
 **Create `temp/cost-query.json`:**
+
 ```json
 {
   "type": "ActualCost",
@@ -166,6 +177,7 @@ Get actual cost data from Azure Cost Management API (last 30 days). Use the [Cos
 Fetch current pricing from official Azure pricing pages using `fetch_webpage`:
 
 **Key services to validate:**
+
 - Container Apps: https://azure.microsoft.com/pricing/details/container-apps/
 - Virtual Machines: https://azure.microsoft.com/pricing/details/virtual-machines/
 - App Service: https://azure.microsoft.com/pricing/details/app-service/

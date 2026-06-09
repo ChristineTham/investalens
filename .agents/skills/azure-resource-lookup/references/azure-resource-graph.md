@@ -8,24 +8,24 @@ Azure Resource Graph (ARG) queries use a KQL subset against indexed Azure resour
 az graph query -q "<KQL>" --query "data[].{col1:field1, col2:field2}" -o table
 ```
 
-| Flag | Purpose |
-|------|---------|
-| `-q` | KQL query string |
-| `--query` | JMESPath to shape output columns |
-| `--first N` | Limit to N results |
+| Flag              | Purpose                            |
+| ----------------- | ---------------------------------- |
+| `-q`              | KQL query string                   |
+| `--query`         | JMESPath to shape output columns   |
+| `--first N`       | Limit to N results                 |
 | `--subscriptions` | Scope to specific subscription IDs |
-| `-o table` | Table output (also: json, tsv) |
+| `-o table`        | Table output (also: json, tsv)     |
 
 ## Key Tables
 
-| Table | Contents |
-|-------|----------|
-| `Resources` | All ARM resources — name, type, location, properties, tags, sku |
-| `ResourceContainers` | Subscriptions, resource groups, management groups |
-| `HealthResources` | Resource health availability status |
-| `ServiceHealthResources` | Azure service health events/incidents |
-| `AuthorizationResources` | Role assignments and definitions |
-| `AdvisorResources` | Azure Advisor recommendations |
+| Table                    | Contents                                                        |
+| ------------------------ | --------------------------------------------------------------- |
+| `Resources`              | All ARM resources — name, type, location, properties, tags, sku |
+| `ResourceContainers`     | Subscriptions, resource groups, management groups               |
+| `HealthResources`        | Resource health availability status                             |
+| `ServiceHealthResources` | Azure service health events/incidents                           |
+| `AuthorizationResources` | Role assignments and definitions                                |
+| `AdvisorResources`       | Azure Advisor recommendations                                   |
 
 ## KQL Essentials
 
@@ -40,16 +40,19 @@ az graph query -q "<KQL>" --query "data[].{col1:field1, col2:field2}" -o table
 ## Resource Inventory Patterns
 
 **Count all resources by type:**
+
 ```kql
 Resources | summarize count() by type | order by count_ desc
 ```
 
 **Inventory by type and location:**
+
 ```kql
 Resources | summarize count() by type, location | order by type asc
 ```
 
 **Cross-subscription inventory with subscription names:**
+
 ```kql
 Resources
 | join kind=leftouter (
@@ -62,6 +65,7 @@ Resources
 ```
 
 **All resources in a resource group:**
+
 ```kql
 Resources
 | where resourceGroup =~ '<rg-name>'
@@ -71,6 +75,7 @@ Resources
 ## Orphaned Resource Patterns
 
 **Unattached managed disks:**
+
 ```kql
 Resources
 | where type =~ 'microsoft.compute/disks'
@@ -79,6 +84,7 @@ Resources
 ```
 
 **Unused public IP addresses:**
+
 ```kql
 Resources
 | where type =~ 'microsoft.network/publicipaddresses'
@@ -87,6 +93,7 @@ Resources
 ```
 
 **Orphaned network interfaces:**
+
 ```kql
 Resources
 | where type =~ 'microsoft.network/networkinterfaces'
@@ -95,6 +102,7 @@ Resources
 ```
 
 **Idle load balancers (no backends):**
+
 ```kql
 Resources
 | where type =~ 'microsoft.network/loadbalancers'
@@ -105,6 +113,7 @@ Resources
 ## Tag & Compliance Patterns
 
 **Resources missing a required tag:**
+
 ```kql
 Resources
 | where isnull(tags['Environment']) or isnull(tags['CostCenter'])
@@ -112,6 +121,7 @@ Resources
 ```
 
 **Tag coverage analysis by type:**
+
 ```kql
 Resources
 | extend hasTag = isnotnull(tags['Environment'])
@@ -121,6 +131,7 @@ Resources
 ```
 
 **Resources with public network access:**
+
 ```kql
 Resources
 | where properties.publicNetworkAccess =~ 'Enabled'
@@ -130,6 +141,7 @@ Resources
 ## Health & Diagnostics Patterns
 
 **Resource health status:**
+
 ```kql
 HealthResources
 | where type =~ 'microsoft.resourcehealth/availabilitystatuses'
@@ -138,6 +150,7 @@ HealthResources
 ```
 
 **Active service health incidents:**
+
 ```kql
 ServiceHealthResources
 | where type =~ 'microsoft.resourcehealth/events'
@@ -146,6 +159,7 @@ ServiceHealthResources
 ```
 
 **Failed provisioning states:**
+
 ```kql
 Resources
 | where properties.provisioningState != 'Succeeded'
@@ -155,6 +169,7 @@ Resources
 ## Service-Specific Patterns
 
 **App Services and their plans:**
+
 ```kql
 Resources
 | where type =~ 'microsoft.web/sites'
@@ -162,6 +177,7 @@ Resources
 ```
 
 **Container Apps:**
+
 ```kql
 Resources
 | where type =~ 'microsoft.app/containerapps'
@@ -169,6 +185,7 @@ Resources
 ```
 
 **VNet and subnet discovery:**
+
 ```kql
 Resources
 | where type =~ 'microsoft.network/virtualnetworks'
@@ -177,6 +194,7 @@ Resources
 ```
 
 **Advisor cost recommendations:**
+
 ```kql
 AdvisorResources
 | where properties.category == 'Cost'

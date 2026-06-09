@@ -6,11 +6,11 @@
 
 This check is required when **all** of these are true:
 
-| Condition | How to detect |
-|-----------|--------------|
-| .NET Aspire project | `*.AppHost.csproj` exists or `Aspire.Hosting` package reference |
+| Condition                 | How to detect                                                   |
+| ------------------------- | --------------------------------------------------------------- |
+| .NET Aspire project       | `*.AppHost.csproj` exists or `Aspire.Hosting` package reference |
 | Azure Functions component | `AddAzureFunctionsProject` call in `AppHost.cs` or `Program.cs` |
-| Identity-based storage | `WithHostStorage` call (Aspire default) |
+| Identity-based storage    | `WithHostStorage` call (Aspire default)                         |
 
 ## Detection
 
@@ -21,6 +21,7 @@ grep -rn "AddAzureFunctionsProject" . --include="*.cs"
 ```
 
 **PowerShell:**
+
 ```powershell
 Get-ChildItem -Recurse -Filter "*.cs" | Select-String "AddAzureFunctionsProject" -List
 ```
@@ -33,6 +34,7 @@ find . -name "*.cs" -path "*AppHost*" -print0 | xargs -0 grep -l "AddAzureFuncti
 ```
 
 **PowerShell:**
+
 ```powershell
 Get-ChildItem -Recurse -Filter "*.cs" |
   Where-Object { $_.FullName -match "AppHost" } |
@@ -83,9 +85,9 @@ For Blob Storage, please provide at least one of these.
 
 ## When This Check Does NOT Apply
 
-| Scenario | Why |
-|----------|-----|
-| Aspire project without Azure Functions | No Functions secret manager involved |
-| Standalone Azure Functions (not Aspire) | Uses connection string by default |
-| Functions with explicit connection string | `AzureWebJobsStorage` is a full connection string, not identity-based |
-| `AzureWebJobsSecretStorageType` already set | Configuration is already present |
+| Scenario                                    | Why                                                                   |
+| ------------------------------------------- | --------------------------------------------------------------------- |
+| Aspire project without Azure Functions      | No Functions secret manager involved                                  |
+| Standalone Azure Functions (not Aspire)     | Uses connection string by default                                     |
+| Functions with explicit connection string   | `AzureWebJobsStorage` is a full connection string, not identity-based |
+| `AzureWebJobsSecretStorageType` already set | Configuration is already present                                      |

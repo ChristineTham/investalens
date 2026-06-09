@@ -1,11 +1,17 @@
-import { NextResponse } from "next/server";
-import { authenticateApiRequest, hasScope, jsonError, jsonSuccess } from "@/lib/api/middleware";
+import {
+  authenticateApiRequest,
+  hasScope,
+  jsonError,
+  jsonSuccess,
+} from "@/lib/api/middleware";
 import { db } from "@/lib/db";
 
 export async function GET(request: Request) {
   const auth = await authenticateApiRequest(request);
-  if (!auth) return jsonError("unauthorized", "Invalid or missing API token", 401);
-  if (!hasScope(auth.scope, "read")) return jsonError("forbidden", "Insufficient scope", 403);
+  if (!auth)
+    return jsonError("unauthorized", "Invalid or missing API token", 401);
+  if (!hasScope(auth.scope, "read"))
+    return jsonError("forbidden", "Insufficient scope", 403);
 
   const portfolios = await db.portfolio.findMany({
     where: { userId: auth.userId },
@@ -17,8 +23,10 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const auth = await authenticateApiRequest(request);
-  if (!auth) return jsonError("unauthorized", "Invalid or missing API token", 401);
-  if (!hasScope(auth.scope, "write")) return jsonError("forbidden", "Insufficient scope", 403);
+  if (!auth)
+    return jsonError("unauthorized", "Invalid or missing API token", 401);
+  if (!hasScope(auth.scope, "write"))
+    return jsonError("forbidden", "Insufficient scope", 403);
 
   const body = await request.json();
 

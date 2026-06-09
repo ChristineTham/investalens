@@ -27,7 +27,7 @@ See [Event Hubs trigger connections](https://learn.microsoft.com/en-us/azure/azu
 
 ## Eval
 
-| Path | Description |
-|------|-------------|
-| [eval/summary.md](eval/summary.md) | Evaluation summary |
-| [eval/python.md](eval/python.md) | Python evaluation results |
+| Path                               | Description               |
+| ---------------------------------- | ------------------------- |
+| [eval/summary.md](eval/summary.md) | Evaluation summary        |
+| [eval/python.md](eval/python.md)   | Python evaluation results |

@@ -13,12 +13,12 @@ kubectl get inferenceproviderconfigs --all-namespaces 2>/dev/null || kubectl get
 
 **Provider recommendation logic:**
 
-| Hardware | Use Case | Recommended Provider |
-|----------|----------|---------------------|
-| CPU-only | Any | KAITO (llama.cpp) |
-| GPUs | Standard inference (most users start here) | KAITO |
-| GPUs | High-throughput serving with separate prefill/decode phases | Dynamo |
-| GPUs | Already using Ray for ML workloads | KubeRay |
+| Hardware | Use Case                                                    | Recommended Provider |
+| -------- | ----------------------------------------------------------- | -------------------- |
+| CPU-only | Any                                                         | KAITO (llama.cpp)    |
+| GPUs     | Standard inference (most users start here)                  | KAITO                |
+| GPUs     | High-throughput serving with separate prefill/decode phases | Dynamo               |
+| GPUs     | Already using Ray for ML workloads                          | KubeRay              |
 
 > **Default to KAITO** unless the user has a specific reason to choose otherwise. KAITO is the simplest to set up and handles most use cases. Dynamo is for teams that need to independently scale the prefill and decode stages of inference for high throughput. KubeRay is for teams already invested in the Ray ecosystem.
 

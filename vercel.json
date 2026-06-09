@@ -6,7 +6,5 @@
       "excludeFiles": "{tests/**,__tests__/**,**/*.test.py,**/test_*.py}"
     }
   },
-  "crons": [
-    { "path": "/api/cron/prices", "schedule": "0 8 * * 1-5" }
-  ]
+  "crons": [{ "path": "/api/cron/prices", "schedule": "0 8 * * 1-5" }]
 }

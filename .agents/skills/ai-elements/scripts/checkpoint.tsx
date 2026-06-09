@@ -5,7 +5,10 @@ import {
   CheckpointIcon,
   CheckpointTrigger,
 } from "@/components/ai-elements/checkpoint";
-import { Conversation, ConversationContent } from "@/components/ai-elements/conversation";
+import {
+  Conversation,
+  ConversationContent,
+} from "@/components/ai-elements/conversation";
 import {
   Message,
   MessageContent,

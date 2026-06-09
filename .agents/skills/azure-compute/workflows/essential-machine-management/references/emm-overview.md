@@ -10,19 +10,19 @@ When you enable a subscription for EMM, all VMs and Arc-enabled servers in that 
 
 ### Essentials Tier (Always Enabled)
 
-| Feature | Description |
-| ------- | ----------- |
-| Azure Monitor VM Insights | Monitors VM performance and health, configures metric-based recommended alerts |
-| Azure Update Manager | Automates OS update deployment |
-| Azure Machine Configuration | Audits Azure security baseline policy |
-| Change Tracking & Inventory | Tracks VM configuration changes, maintains resource inventory |
+| Feature                     | Description                                                                    |
+| --------------------------- | ------------------------------------------------------------------------------ |
+| Azure Monitor VM Insights   | Monitors VM performance and health, configures metric-based recommended alerts |
+| Azure Update Manager        | Automates OS update deployment                                                 |
+| Azure Machine Configuration | Audits Azure security baseline policy                                          |
+| Change Tracking & Inventory | Tracks VM configuration changes, maintains resource inventory                  |
 
 ### Security Tier (Optional Add-ons)
 
-| Feature | Description | Cost |
-| ------- | ----------- | ---- |
-| Foundational CSPM | Agentless, risk-prioritized security posture insights | Free |
-| Defender CSPM | Advanced CSPM with attack path analysis | Paid |
+| Feature            | Description                                                                | Cost |
+| ------------------ | -------------------------------------------------------------------------- | ---- |
+| Foundational CSPM  | Agentless, risk-prioritized security posture insights                      | Free |
+| Defender CSPM      | Advanced CSPM with attack path analysis                                    | Paid |
 | Defender for Cloud | EDR, vulnerability management, file integrity monitoring, threat detection | Paid |
 
 ## Pricing

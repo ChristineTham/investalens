@@ -79,8 +79,8 @@ app.get("/api/cached", async (req, res) => {
 
 ## Files to Modify
 
-| File | Action |
-|------|--------|
+| File           | Action                                   |
+| -------------- | ---------------------------------------- |
 | `src/cache.js` | Create — Redis client with token refresh |
-| `src/index.js` | Modify — use getRedisClient() |
-| `package.json` | Modify — add ioredis, @azure/identity |
+| `src/index.js` | Modify — use getRedisClient()            |
+| `package.json` | Modify — add ioredis, @azure/identity    |

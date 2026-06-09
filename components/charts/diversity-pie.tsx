@@ -45,7 +45,9 @@ export function DiversityPieChart({ data }: DiversityPieChartProps) {
           outerRadius={120}
           innerRadius={60}
           paddingAngle={2}
-          label={(props: { name?: string; percent?: number }) => `${props.name || ""} (${((props.percent || 0) * 100).toFixed(1)}%)`}
+          label={(props: { name?: string; percent?: number }) =>
+            `${props.name || ""} (${((props.percent || 0) * 100).toFixed(1)}%)`
+          }
           labelLine={false}
         >
           {data.map((_, index) => (

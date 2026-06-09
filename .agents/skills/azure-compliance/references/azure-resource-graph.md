@@ -22,12 +22,12 @@ az graph query -q "<KQL>" --query "data[].{name:name, type:type}" -o table
 
 ## Key Tables
 
-| Table | Contains |
-|-------|----------|
-| `Resources` | All ARM resources (name, type, location, properties, tags) |
-| `ResourceContainers` | Subscriptions, resource groups, management groups |
-| `AuthorizationResources` | Role assignments and role definitions |
-| `AdvisorResources` | Azure Advisor recommendations |
+| Table                    | Contains                                                   |
+| ------------------------ | ---------------------------------------------------------- |
+| `Resources`              | All ARM resources (name, type, location, properties, tags) |
+| `ResourceContainers`     | Subscriptions, resource groups, management groups          |
+| `AuthorizationResources` | Role assignments and role definitions                      |
+| `AdvisorResources`       | Azure Advisor recommendations                              |
 
 ## Compliance Query Patterns
 

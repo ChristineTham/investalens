@@ -7,7 +7,7 @@
  * Usage: Best for Vercel Edge Functions, AWS Lambda, Cloudflare Workers, etc.
  */
 
-import { neon } from '@neondatabase/serverless';
+import { neon } from "@neondatabase/serverless";
 
 // Initialize the HTTP client
 // This should be done once per request or in a module-level scope
@@ -21,7 +21,7 @@ export async function getUserById(userId: string) {
     const user = await sql`SELECT * FROM users WHERE id = ${userId}`;
     return user[0] || null;
   } catch (error) {
-    console.error('Failed to fetch user:', error);
+    console.error("Failed to fetch user:", error);
     throw error;
   }
 }
@@ -34,7 +34,7 @@ export async function getAllUsers() {
     const users = await sql`SELECT * FROM users ORDER BY created_at DESC`;
     return users;
   } catch (error) {
-    console.error('Failed to fetch users:', error);
+    console.error("Failed to fetch users:", error);
     throw error;
   }
 }
@@ -51,7 +51,7 @@ export async function createUser(email: string, name: string) {
     `;
     return result[0];
   } catch (error) {
-    console.error('Failed to create user:', error);
+    console.error("Failed to create user:", error);
     throw error;
   }
 }
@@ -63,7 +63,7 @@ export async function updateUser(userId: string, updates: Record<string, any>) {
   try {
     const setClauses = Object.entries(updates)
       .map(([key, value]) => `${key} = ${value}`)
-      .join(', ');
+      .join(", ");
 
     const result = await sql`
       UPDATE users
@@ -73,7 +73,7 @@ export async function updateUser(userId: string, updates: Record<string, any>) {
     `;
     return result[0];
   } catch (error) {
-    console.error('Failed to update user:', error);
+    console.error("Failed to update user:", error);
     throw error;
   }
 }
@@ -89,7 +89,7 @@ export async function deleteUser(userId: string) {
     `;
     return result.length > 0;
   } catch (error) {
-    console.error('Failed to delete user:', error);
+    console.error("Failed to delete user:", error);
     throw error;
   }
 }
@@ -121,7 +121,7 @@ export async function createUserWithProfile(
 
     return { userId, profile: profileResult[0] };
   } catch (error) {
-    console.error('Failed to create user with profile:', error);
+    console.error("Failed to create user with profile:", error);
     throw error;
   }
 }
@@ -137,15 +137,15 @@ export async function searchUsers(
   try {
     const results = await sql`
       SELECT * FROM users
-      WHERE name ILIKE ${'%' + query + '%'}
-      OR email ILIKE ${'%' + query + '%'}
+      WHERE name ILIKE ${"%" + query + "%"}
+      OR email ILIKE ${"%" + query + "%"}
       ORDER BY created_at DESC
       LIMIT ${limit}
       OFFSET ${offset}
     `;
     return results;
   } catch (error) {
-    console.error('Failed to search users:', error);
+    console.error("Failed to search users:", error);
     throw error;
   }
 }
@@ -165,7 +165,7 @@ export async function getUserStats() {
     `;
     return stats[0];
   } catch (error) {
-    console.error('Failed to fetch user stats:', error);
+    console.error("Failed to fetch user stats:", error);
     throw error;
   }
 }
@@ -183,7 +183,7 @@ export async function getUserWithProfile(userId: string) {
     `;
     return result[0] || null;
   } catch (error) {
-    console.error('Failed to fetch user with profile:', error);
+    console.error("Failed to fetch user with profile:", error);
     throw error;
   }
 }

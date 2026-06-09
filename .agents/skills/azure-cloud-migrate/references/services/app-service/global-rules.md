@@ -5,6 +5,7 @@ These rules apply to ALL phases of App Service migration.
 ## Destructive Action Policy
 
 ⛔ **NEVER** perform destructive actions without explicit user confirmation via `ask_user`:
+
 - Deleting files or directories
 - Overwriting existing code
 - Deploying to production environments
@@ -14,6 +15,7 @@ These rules apply to ALL phases of App Service migration.
 ## User Confirmation Required
 
 Always use `ask_user` before:
+
 - Selecting Azure subscription
 - Selecting Azure region/location
 - Deploying infrastructure
@@ -40,7 +42,7 @@ Always use `ask_user` before:
 - **DefaultAzureCredential with UAMI**: Always pass `managedIdentityClientId` explicitly:
   ```javascript
   const credential = new DefaultAzureCredential({
-    managedIdentityClientId: process.env.AZURE_CLIENT_ID
+    managedIdentityClientId: process.env.AZURE_CLIENT_ID,
   });
   ```
 

@@ -45,8 +45,8 @@ async def create_item(item: dict):
 
 ## Files to Modify
 
-| File | Action |
-|------|--------|
+| File               | Action                                       |
+| ------------------ | -------------------------------------------- |
 | `cosmos_client.py` | Create — Cosmos client + container reference |
-| `main.py` | Modify — add CRUD endpoints |
-| `requirements.txt` | Modify — add azure-cosmos, azure-identity |
+| `main.py`          | Modify — add CRUD endpoints                  |
+| `requirements.txt` | Modify — add azure-cosmos, azure-identity    |

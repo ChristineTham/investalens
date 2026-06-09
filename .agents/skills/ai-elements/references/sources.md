@@ -63,9 +63,9 @@ const SourceDemo = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 relative size-full rounded-lg border h-[600px]">
-      <div className="flex flex-col h-full">
-        <div className="flex-1 overflow-auto mb-4">
+    <div className="relative mx-auto size-full h-[600px] max-w-4xl rounded-lg border p-6">
+      <div className="flex h-full flex-col">
+        <div className="mb-4 flex-1 overflow-auto">
           <Conversation>
             <ConversationContent>
               {messages.map((message) => (
@@ -120,7 +120,7 @@ const SourceDemo = () => {
 
         <PromptInput
           onSubmit={handleSubmit}
-          className="mt-4 w-full max-w-2xl mx-auto relative"
+          className="relative mx-auto mt-4 w-full max-w-2xl"
         >
           <PromptInputTextarea
             value={input}
@@ -131,7 +131,7 @@ const SourceDemo = () => {
           <PromptInputSubmit
             status={status === "streaming" ? "streaming" : "ready"}
             disabled={!input.trim()}
-            className="absolute bottom-1 right-1"
+            className="absolute right-1 bottom-1"
           />
         </PromptInput>
       </div>
@@ -185,25 +185,25 @@ See `scripts/sources-custom.tsx` for this example.
 
 ### `<Sources />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `...props` | `React.HTMLAttributes<HTMLDivElement>` | - | Any other props are spread to the root div. |
+| Prop       | Type                                   | Default | Description                                 |
+| ---------- | -------------------------------------- | ------- | ------------------------------------------- |
+| `...props` | `React.HTMLAttributes<HTMLDivElement>` | -       | Any other props are spread to the root div. |
 
 ### `<SourcesTrigger />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `count` | `number` | Required | The number of sources to display in the trigger. |
-| `...props` | `React.ComponentProps<typeof CollapsibleTrigger>` | - | Any other props are spread to the CollapsibleTrigger component. |
+| Prop       | Type                                              | Default  | Description                                                     |
+| ---------- | ------------------------------------------------- | -------- | --------------------------------------------------------------- |
+| `count`    | `number`                                          | Required | The number of sources to display in the trigger.                |
+| `...props` | `React.ComponentProps<typeof CollapsibleTrigger>` | -        | Any other props are spread to the CollapsibleTrigger component. |
 
 ### `<SourcesContent />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `...props` | `React.HTMLAttributes<HTMLDivElement>` | - | Any other props are spread to the content container. |
+| Prop       | Type                                   | Default | Description                                          |
+| ---------- | -------------------------------------- | ------- | ---------------------------------------------------- |
+| `...props` | `React.HTMLAttributes<HTMLDivElement>` | -       | Any other props are spread to the content container. |
 
 ### `<Source />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `...props` | `React.AnchorHTMLAttributes<HTMLAnchorElement>` | - | Any other props are spread to the anchor element. |
+| Prop       | Type                                            | Default | Description                                       |
+| ---------- | ----------------------------------------------- | ------- | ------------------------------------------------- |
+| `...props` | `React.AnchorHTMLAttributes<HTMLAnchorElement>` | -       | Any other props are spread to the anchor element. |

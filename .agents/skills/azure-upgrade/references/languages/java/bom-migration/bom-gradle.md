@@ -17,11 +17,13 @@ python3 ./references/languages/java/scripts/upgrade_bom.py <project_dir>
 ```
 
 Options:
+
 - `--gradle <cmd>` — override the Gradle command (default: auto-detects `gradlew` or `gradle`).
 
 If the script fails after starting, treat that as an automation failure only: keep the resolved `TARGET_AZURE_SDK_BOM_VERSION`, manually apply the fallback steps below, and continue validation.
 
 Under the hood (OpenRewrite recipes):
+
 - **Add BOM**: `AddPlatformDependency` ([docs](https://docs.openrewrite.org/recipes/gradle/addplatformdependency))
 - **Upgrade BOM**: `UpgradeDependencyVersion` ([docs](https://docs.openrewrite.org/recipes/gradle/upgradedependencyversion))
 - **Remove redundant versions**: `RemoveRedundantDependencyVersions` ([docs](https://docs.openrewrite.org/recipes/gradle/removeredundantdependencyversions))
@@ -31,6 +33,7 @@ Under the hood (OpenRewrite recipes):
 ## Expected build.gradle after migration
 
 Groovy DSL (`build.gradle`):
+
 ```groovy
 dependencies {
     implementation enforcedPlatform("com.azure:azure-sdk-bom:{bom_version}")
@@ -41,6 +44,7 @@ dependencies {
 ```
 
 Kotlin DSL (`build.gradle.kts`):
+
 ```kotlin
 dependencies {
     implementation(enforcedPlatform("com.azure:azure-sdk-bom:{bom_version}"))
@@ -59,6 +63,7 @@ When Python is unavailable or `upgrade_bom.py` fails, edit `build.gradle` (or `b
 Inside the `dependencies { }` block, add or update the `enforcedPlatform` line for `azure-sdk-bom`:
 
 Groovy DSL:
+
 ```groovy
 dependencies {
     implementation enforcedPlatform("com.azure:azure-sdk-bom:{bom_version}")
@@ -67,6 +72,7 @@ dependencies {
 ```
 
 Kotlin DSL:
+
 ```kotlin
 dependencies {
     implementation(enforcedPlatform("com.azure:azure-sdk-bom:{bom_version}"))
@@ -84,6 +90,7 @@ dependencies {
 For every Azure dependency whose group starts with `com.azure` and is managed by the BOM (verify against `https://repo1.maven.org/maven2/com/azure/azure-sdk-bom/{bom_version}/azure-sdk-bom-{bom_version}.pom`), strip the version coordinate.
 
 Groovy DSL — string notation:
+
 ```groovy
 // Before
 implementation "com.azure:azure-identity:1.13.0"
@@ -92,6 +99,7 @@ implementation "com.azure:azure-identity"
 ```
 
 Groovy DSL — map notation:
+
 ```groovy
 // Before
 implementation group: "com.azure", name: "azure-identity", version: "1.13.0"
@@ -100,6 +108,7 @@ implementation group: "com.azure", name: "azure-identity"
 ```
 
 Kotlin DSL:
+
 ```kotlin
 // Before
 implementation("com.azure:azure-identity:1.13.0")
@@ -124,6 +133,7 @@ Run the Gradle wrapper to inspect the resolved classpath. Use the form appropria
 ```
 
 Then confirm:
+
 - The platform `com.azure:azure-sdk-bom:{bom_version}` appears.
 - `{bom_version}` equals `TARGET_AZURE_SDK_BOM_VERSION`.
 - All BOM-managed Azure artifacts resolve to versions sourced from the BOM.

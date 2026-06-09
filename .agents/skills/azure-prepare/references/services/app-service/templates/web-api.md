@@ -4,17 +4,18 @@ Default template for REST API workloads on Azure App Service. Use when no specif
 
 ## Templates by Runtime
 
-| Runtime | AZD Template | Framework |
-|---------|-------------|-----------|
-| C# (.NET) | `azd init -t todo-csharp` | ASP.NET Core Minimal API |
-| Node.js (JS) | `azd init -t todo-nodejs-mongo` | Express.js |
-| Node.js (TS) | `azd init -t todo-nodejs-mongo` | Express.js (TypeScript) |
-| Python | `azd init -t todo-python-mongo` | FastAPI / Flask |
-| Java | `azd init -t todo-java-mongo` | Spring Boot |
+| Runtime      | AZD Template                    | Framework                |
+| ------------ | ------------------------------- | ------------------------ |
+| C# (.NET)    | `azd init -t todo-csharp`       | ASP.NET Core Minimal API |
+| Node.js (JS) | `azd init -t todo-nodejs-mongo` | Express.js               |
+| Node.js (TS) | `azd init -t todo-nodejs-mongo` | Express.js (TypeScript)  |
+| Python       | `azd init -t todo-python-mongo` | FastAPI / Flask          |
+| Java         | `azd init -t todo-java-mongo`   | Spring Boot              |
 
 **Browse all:** [Awesome AZD App Service](https://azure.github.io/awesome-azd/?tags=appservice)
 
 > ⚠️ The AZD templates above include Mongo/Cosmos by default. When using as a pure Web API base, strip the database layer before applying a recipe:
+>
 > - Remove `infra/app/db.bicep` (or equivalent database module)
 > - Remove Cosmos/Mongo module references from `infra/main.bicep`
 > - Remove Cosmos/Mongo packages from the application source
@@ -52,17 +53,18 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2023-12-01' = {
 }
 ```
 
-| Environment | Recommended SKU | Notes |
-|-------------|----------------|-------|
-| Dev/Test | B1 | Basic tier, no autoscale |
-| Production | P1v3 | Premium v3, autoscale, VNet integration |
-| High-scale | P2v3 / P3v3 | Higher CPU/memory |
+| Environment | Recommended SKU | Notes                                   |
+| ----------- | --------------- | --------------------------------------- |
+| Dev/Test    | B1              | Basic tier, no autoscale                |
+| Production  | P1v3            | Premium v3, autoscale, VNet integration |
+| High-scale  | P2v3 / P3v3     | Higher CPU/memory                       |
 
 ## Health Check Endpoint
 
 > **CRITICAL**: Always include a health check endpoint. App Service uses it for instance monitoring.
 
 Configure in App Service:
+
 ```bicep
 properties: {
   siteConfig: {
@@ -74,18 +76,21 @@ properties: {
 ### Health check by language
 
 **C# (ASP.NET Core)**
+
 ```csharp
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 ```
 
 **Node.js (Express)**
+
 ```javascript
-app.get('/health', (req, res) => {
-  res.json({ status: 'healthy' });
+app.get("/health", (req, res) => {
+  res.json({ status: "healthy" });
 });
 ```
 
 **Python (FastAPI)**
+
 ```python
 @app.get("/health")
 async def health():
@@ -93,6 +98,7 @@ async def health():
 ```
 
 **Java (Spring Boot)**
+
 ```java
 @GetMapping("/health")
 public Map<String, String> health() {
@@ -105,6 +111,7 @@ public Map<String, String> health() {
 All App Service deployments can use container deployment. Each runtime should include a Dockerfile:
 
 **Python (FastAPI)**
+
 ```dockerfile
 FROM python:3.12-slim
 WORKDIR /app
@@ -116,6 +123,7 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
 **Node.js**
+
 ```dockerfile
 FROM node:20-slim
 WORKDIR /app
@@ -167,6 +175,7 @@ azd up --no-prompt
 ```
 
 **PowerShell:**
+
 ```powershell
 $ENV_NAME = "$(Split-Path -Leaf (Get-Location) | ForEach-Object { $_.ToLower() -replace '[ _]','-' })-dev"
 azd init -t <template> -e $ENV_NAME --no-prompt

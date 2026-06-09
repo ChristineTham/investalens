@@ -6,12 +6,12 @@ Storage accounts must match or exceed the redundancy level of the compute they s
 
 ## Upgrade Paths
 
-| Current | Target | Method | Downtime |
-|---|---|---|---|
-| Standard_LRS → Standard_ZRS | ZRS | Live migration or manual | None (live) or planned (manual) |
-| Standard_LRS → Standard_GRS | GRS | In-place update | None |
-| Standard_LRS → Standard_GZRS | GZRS | In-place update | None |
-| Premium_LRS → Premium_ZRS | ZRS | Manual migration only | Planned |
+| Current                      | Target | Method                   | Downtime                        |
+| ---------------------------- | ------ | ------------------------ | ------------------------------- |
+| Standard_LRS → Standard_ZRS  | ZRS    | Live migration or manual | None (live) or planned (manual) |
+| Standard_LRS → Standard_GRS  | GRS    | In-place update          | None                            |
+| Standard_LRS → Standard_GZRS | GZRS   | In-place update          | None                            |
+| Premium_LRS → Premium_ZRS    | ZRS    | Manual migration only    | Planned                         |
 
 ## In-Place Upgrade (LRS → GRS/GZRS)
 
@@ -62,6 +62,7 @@ az storage account migration show \
 > **⛔ HARD GATE: Do NOT proceed to enable zone-redundant compute until migration status is `Succeeded` and `az storage account show --query sku.name` returns `Standard_ZRS`.**
 
 ⚠️ **Live migration limitations:**
+
 - Only supported for **Standard general-purpose v2** accounts
 - Premium storage accounts require manual migration
 - BlobStorage and Storage (classic) kinds require manual migration
@@ -148,12 +149,14 @@ azcopy copy \
 ## Function App Storage Considerations
 
 Function Apps have a host storage account used for:
+
 - Function code storage
 - Timer trigger leases
 - Event Hub checkpoints
 - Durable Functions state
 
 **Critical:** When upgrading Function App storage:
+
 - The `AzureWebJobsStorage` connection string must point to the upgraded/new account
 - If using a separate deployment storage account, upgrade that too
 - Durable Functions state is stored in the host storage — ensure no active orchestrations during manual migration

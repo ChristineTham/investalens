@@ -13,10 +13,7 @@ export default async function PortfolioDetailPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link
-          href="/portfolio"
-          className="rounded-md p-2 hover:bg-accent"
-        >
+        <Link href="/portfolio" className="rounded-md p-2 hover:bg-accent">
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div className="flex-1">
@@ -78,7 +75,7 @@ export default async function PortfolioDetailPage({
                   <td className="px-4 py-3 text-sm">
                     {holding.instrument.name}
                   </td>
-                  <td className="px-4 py-3 text-sm capitalize text-muted-foreground">
+                  <td className="px-4 py-3 text-sm text-muted-foreground capitalize">
                     {holding.instrument.instrumentType}
                   </td>
                   <td className="px-4 py-3 text-right text-sm text-muted-foreground">

@@ -4,11 +4,11 @@
 
 ## Quick Reference
 
-| Property      | Details                                                                                                           |
-| ------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Best for      | RDP/SSH connection failures, NSG/firewall misconfig, credential resets, NIC issues                                |
-| Primary tools | Azure CLI, Azure PowerShell, Serial Console, Boot Diagnostics, Run Command                                        |
-| Reference     | [references/cannot-connect-to-vm.md](references/cannot-connect-to-vm.md) |
+| Property      | Details                                                                            |
+| ------------- | ---------------------------------------------------------------------------------- |
+| Best for      | RDP/SSH connection failures, NSG/firewall misconfig, credential resets, NIC issues |
+| Primary tools | Azure CLI, Azure PowerShell, Serial Console, Boot Diagnostics, Run Command         |
+| Reference     | [references/cannot-connect-to-vm.md](references/cannot-connect-to-vm.md)           |
 
 ## MCP Tools
 
@@ -73,6 +73,7 @@ If the user shares an Azure VM name or resource ID, attempt to use the azure-res
 Open [references/cannot-connect-to-vm.md](references/cannot-connect-to-vm.md) and use its routing table to identify the symptom category and open the matching sub-reference for the full **Symptoms → Solutions** table and Quick Commands.
 
 If additional details are needed to narrow to a specific solution row, ask the user. For example:
+
 - "What error message do you see in the RDP dialog?"
 - "Does the connection time out, or do you get an error immediately?"
 - "Is this a Windows or Linux VM?"
@@ -85,16 +86,17 @@ If additional details are needed to narrow to a specific solution row, ask the u
 
 Run the pre-flight checks from [references/cannot-connect-to-vm.md — Pre-Flight Safety Checks](references/cannot-connect-to-vm.md#pre-flight-safety-checks) and evaluate:
 
-| Check | Required Value | If Failed |
-| ----- | -------------- | --------- |
-| VM power state | `PowerState/running` | Start the VM first |
-| VM provisioning state | `ProvisioningState/succeeded` | Do NOT run extension commands. Wait for current operation to complete, or use Serial Console / offline repair |
-| VM agent status | `Ready` | Do NOT run extension commands. Use Serial Console or offline repair instead |
-| Existing extensions | No extensions in `Creating`, `Updating`, or `Deleting` state | Do NOT add new extensions. Wait for completion, remove stuck extensions via Portal, or use Serial Console |
+| Check                 | Required Value                                               | If Failed                                                                                                     |
+| --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| VM power state        | `PowerState/running`                                         | Start the VM first                                                                                            |
+| VM provisioning state | `ProvisioningState/succeeded`                                | Do NOT run extension commands. Wait for current operation to complete, or use Serial Console / offline repair |
+| VM agent status       | `Ready`                                                      | Do NOT run extension commands. Use Serial Console or offline repair instead                                   |
+| Existing extensions   | No extensions in `Creating`, `Updating`, or `Deleting` state | Do NOT add new extensions. Wait for completion, remove stuck extensions via Portal, or use Serial Console     |
 
 > 💡 **Tip:** If any check returns `null`, empty, or the CLI command itself errors, treat the result as **unsafe**.
 
 **If any check fails:**
+
 1. **Stop.** Do NOT attempt any extension-backed remediation.
 2. **Inform the user** which check(s) failed and what the current state is.
 3. **Suggest non-agent alternatives:** Serial Console, offline repair VM, or Portal-based actions.
@@ -107,8 +109,8 @@ Once you've identified the specific solution row, fetch the linked Microsoft doc
 ```javascript
 fetch_webpage({
   urls: ["<documentation-url-from-solution-row>"],
-  query: "<user's specific symptom or error message>"
-})
+  query: "<user's specific symptom or error message>",
+});
 ```
 
 This ensures the user gets current guidance even if Microsoft updates their docs.
@@ -136,15 +138,15 @@ If the symptom doesn't match any solution in the reference file, or the fix does
 
 ## Error Handling
 
-| Error                                  | Likely Cause                    | Action                                                                             |
-| -------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------- |
-| `fetch_webpage` fails or returns empty | URL may have changed            | Fall back to quick commands in reference file; suggest user check the URL manually |
-| CLI command fails with "not found"     | VM name or resource group wrong | Ask user to verify VM name and resource group                                      |
-| Run Command times out                  | VM agent not responding         | Route to "VM Agent Not Responding" section in reference file                       |
-| Serial Console not available           | Boot diagnostics not enabled    | Run `az vm boot-diagnostics enable` first                                          |
-| Password reset fails                   | VMAccess extension error        | Check reference file for VMAccess alternatives (offline reset, Serial Console)     |
+| Error                                     | Likely Cause                      | Action                                                                                                                                                                    |
+| ----------------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fetch_webpage` fails or returns empty    | URL may have changed              | Fall back to quick commands in reference file; suggest user check the URL manually                                                                                        |
+| CLI command fails with "not found"        | VM name or resource group wrong   | Ask user to verify VM name and resource group                                                                                                                             |
+| Run Command times out                     | VM agent not responding           | Route to "VM Agent Not Responding" section in reference file                                                                                                              |
+| Serial Console not available              | Boot diagnostics not enabled      | Run `az vm boot-diagnostics enable` first                                                                                                                                 |
+| Password reset fails                      | VMAccess extension error          | Check reference file for VMAccess alternatives (offline reset, Serial Console)                                                                                            |
 | VM stuck in "Updating" after extension op | Extension deadlocked the VM agent | Do NOT add more extensions. Remove stuck extensions via Portal, then restart. See [Pre-Flight Safety Checks](references/cannot-connect-to-vm.md#pre-flight-safety-checks) |
-| `VMAgentStatusCommunicationError`      | Agent not reporting status      | Do NOT run extension commands. Use Serial Console or offline repair VM             |
+| `VMAgentStatusCommunicationError`         | Agent not reporting status        | Do NOT run extension commands. Use Serial Console or offline repair VM                                                                                                    |
 
 ---
 

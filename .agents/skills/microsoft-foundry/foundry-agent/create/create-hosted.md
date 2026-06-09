@@ -4,14 +4,14 @@ Create new hosted agent applications for Microsoft Foundry, or convert existing 
 
 ## Quick Reference
 
-| Property | Value |
-|----------|-------|
-| **Samples Repo** | `microsoft-foundry/foundry-samples` |
-| **Python Samples** | `samples/python/hosted-agents/` |
-| **C# Samples** | `samples/csharp/hosted-agents/` |
+| Property               | Value                                                                      |
+| ---------------------- | -------------------------------------------------------------------------- |
+| **Samples Repo**       | `microsoft-foundry/foundry-samples`                                        |
+| **Python Samples**     | `samples/python/hosted-agents/`                                            |
+| **C# Samples**         | `samples/csharp/hosted-agents/`                                            |
 | **Hosted Agents Docs** | https://learn.microsoft.com/azure/ai-foundry/agents/concepts/hosted-agents |
-| **Default Selection** | `Python` + `responses` + `Microsoft Agent Framework` |
-| **Best For** | Creating new or converting existing agent projects for Foundry |
+| **Default Selection**  | `Python` + `responses` + `Microsoft Agent Framework`                       |
+| **Best For**           | Creating new or converting existing agent projects for Foundry             |
 
 ## When to Use This Skill
 
@@ -39,11 +39,11 @@ If the user hasn't already specified, use `ask_user` to collect in this order:
 
 **Protocol:**
 
-| Protocol | Best For |
-|----------|----------|
-| `responses` (default) | Conversational agents using the OpenAI-compatible `/responses` contract |
-| `invocations` | Arbitrary payloads, custom SSE behavior, protocol bridges, webhook-style callers, or client-managed sessions |
-| `invocations_ws` | Real-time duplex workloads — voice agents, live streams, signaling for out-of-band media transports. The verify and adapter sections below assume HTTP — for WS specifics (URL with `agent_session_id`, browser-proxy requirement, framing), follow the dedicated [invocations-ws skill](../invocations-ws/invocations-ws.md). |
+| Protocol              | Best For                                                                                                                                                                                                                                                                                                                       |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `responses` (default) | Conversational agents using the OpenAI-compatible `/responses` contract                                                                                                                                                                                                                                                        |
+| `invocations`         | Arbitrary payloads, custom SSE behavior, protocol bridges, webhook-style callers, or client-managed sessions                                                                                                                                                                                                                   |
+| `invocations_ws`      | Real-time duplex workloads — voice agents, live streams, signaling for out-of-band media transports. The verify and adapter sections below assume HTTP — for WS specifics (URL with `agent_session_id`, browser-proxy requirement, framing), follow the dedicated [invocations-ws skill](../invocations-ws/invocations-ws.md). |
 
 > 💡 **Tip:** A single hosted agent can expose **multiple protocols simultaneously**. Declare each in `agent.yaml` under `protocols:` and register the matching handlers on the same `InvocationAgentServerHost` (e.g., `invocations` + `invocations_ws` to pair a control/batch HTTP path with a WebSocket path).
 
@@ -51,11 +51,11 @@ If the user hasn't already specified, use `ask_user` to collect in this order:
 
 The paths below refer to the framework-level directories in the Foundry sample repo. Choose the protocol-specific subpath in Step 3.
 
-| Framework | Python Path | C# Path |
-|-----------|-------------|---------|
+| Framework                           | Python Path       | C# Path           |
+| ----------------------------------- | ----------------- | ----------------- |
 | Microsoft Agent Framework (default) | `agent-framework` | `agent-framework` |
-| LangGraph | `bring-your-own` | ❌ Python only |
-| Custom | `bring-your-own` | `bring-your-own` |
+| LangGraph                           | `bring-your-own`  | ❌ Python only    |
+| Custom                              | `bring-your-own`  | `bring-your-own`  |
 
 > ⚠️ **Warning:** LangGraph is Python-only. For C# + LangGraph, suggest Microsoft Agent Framework or Custom instead.
 
@@ -71,16 +71,16 @@ In non-interactive or YOLO mode, default to Python + `responses` + Microsoft Age
 
 List available samples using the GitHub API. First resolve the `sample_browse_path` (the browse root) from the selected language, protocol, and framework:
 
-| Selection | Sample Browse Path |
-|-----------|--------------------|
-| Python + Microsoft Agent Framework + `responses` | `samples/python/hosted-agents/agent-framework/responses/` |
-| Python + Microsoft Agent Framework + `invocations` | `samples/python/hosted-agents/agent-framework/invocations/` |
-| Python + LangGraph | `samples/python/hosted-agents/bring-your-own/{protocol}/langgraph-chat/` |
-| Python + Custom | `samples/python/hosted-agents/bring-your-own/{protocol}/` |
-| Python + Custom + `invocations_ws` | `samples/python/hosted-agents/bring-your-own/invocations_ws/` |
-| C# + Microsoft Agent Framework + `responses` | `samples/csharp/hosted-agents/agent-framework/` |
-| C# + Microsoft Agent Framework + `invocations` | `samples/csharp/hosted-agents/agent-framework/invocations-echo-agent/` |
-| C# + Custom | `samples/csharp/hosted-agents/bring-your-own/{protocol}/` |
+| Selection                                          | Sample Browse Path                                                       |
+| -------------------------------------------------- | ------------------------------------------------------------------------ |
+| Python + Microsoft Agent Framework + `responses`   | `samples/python/hosted-agents/agent-framework/responses/`                |
+| Python + Microsoft Agent Framework + `invocations` | `samples/python/hosted-agents/agent-framework/invocations/`              |
+| Python + LangGraph                                 | `samples/python/hosted-agents/bring-your-own/{protocol}/langgraph-chat/` |
+| Python + Custom                                    | `samples/python/hosted-agents/bring-your-own/{protocol}/`                |
+| Python + Custom + `invocations_ws`                 | `samples/python/hosted-agents/bring-your-own/invocations_ws/`            |
+| C# + Microsoft Agent Framework + `responses`       | `samples/csharp/hosted-agents/agent-framework/`                          |
+| C# + Microsoft Agent Framework + `invocations`     | `samples/csharp/hosted-agents/agent-framework/invocations-echo-agent/`   |
+| C# + Custom                                        | `samples/csharp/hosted-agents/bring-your-own/{protocol}/`                |
 
 Use the chosen lane to browse the repo under `sample_browse_path`:
 
@@ -101,6 +101,7 @@ Download only the selected sample directory — do NOT clone the entire repo. Pr
 Use the exact `selected_sample_path` selected in Step 3.
 
 **Using `gh` CLI (preferred if available):**
+
 ```bash
 gh api repos/microsoft-foundry/foundry-samples/contents/{selected_sample_path} \
   --jq '.[] | select(.type=="file") | .download_url' | while read url; do
@@ -111,6 +112,7 @@ done
 ```
 
 **Using curl (fallback):**
+
 ```bash
 curl -s "https://api.github.com/repos/microsoft-foundry/foundry-samples/contents/{selected_sample_path}" | \
   jq -r '.[] | select(.type=="file") | .path + "\t" + .download_url' | while IFS=$'\t' read path url; do
@@ -146,6 +148,7 @@ For nested directories, recursively fetch the GitHub contents API for entries wh
 7. Once startup and test request succeed, stop the server to prevent resource usage
 
 **Guardrails:**
+
 - ✅ Perform real run to catch startup errors
 - ✅ Cleanup after verification (stop server)
 - ✅ Ignore auth/connection/timeout errors (expected without Azure config)
@@ -162,11 +165,11 @@ Scan the project to determine:
 1. **Language** — Python (look for `requirements.txt`, `pyproject.toml`, `*.py`) or C# (look for `*.csproj`, `*.cs`)
 2. **Framework** — Identify which agent framework is in use:
 
-| Indicator | Framework |
-|-----------|-----------|
-| Imports from `agent_framework` or `Microsoft.Agents.AI` | Microsoft Agent Framework |
-| Imports from `langgraph`, `langchain` | LangGraph |
-| No recognized framework imports, or other frameworks (e.g., Semantic Kernel, AutoGen, custom code) | Custom |
+| Indicator                                                                                          | Framework                 |
+| -------------------------------------------------------------------------------------------------- | ------------------------- |
+| Imports from `agent_framework` or `Microsoft.Agents.AI`                                            | Microsoft Agent Framework |
+| Imports from `langgraph`, `langchain`                                                              | LangGraph                 |
+| No recognized framework imports, or other frameworks (e.g., Semantic Kernel, AutoGen, custom code) | Custom                    |
 
 3. **Target protocol** — If the user has not specified one, infer whether the project should target `responses`, `invocations`, or `invocations_ws` based on the existing caller contract (HTTP request/response → `responses` or `invocations`; long-lived duplex stream / real-time media → `invocations_ws`)
 4. **Entry point** — Identify the main script/entrypoint that creates and runs the agent
@@ -178,18 +181,18 @@ Add the correct adapter package based on framework, language, and protocol. Get 
 
 **Python adapter packages:**
 
-| Framework | Package(s) |
-|-----------|------------|
-| Microsoft Agent Framework | `responses`: `agent-framework-foundry-hosting`; `invocations`: `agent-framework-foundry-hosting` |
-| LangGraph | `responses`: `azure-ai-agentserver-responses` + `azure-ai-agentserver-core`; `invocations`: `azure-ai-agentserver-invocations` + `azure-ai-agentserver-core` |
-| Custom | `responses`: `azure-ai-agentserver-responses`; `invocations`: `azure-ai-agentserver-invocations` |
+| Framework                 | Package(s)                                                                                                                                                   |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Microsoft Agent Framework | `responses`: `agent-framework-foundry-hosting`; `invocations`: `agent-framework-foundry-hosting`                                                             |
+| LangGraph                 | `responses`: `azure-ai-agentserver-responses` + `azure-ai-agentserver-core`; `invocations`: `azure-ai-agentserver-invocations` + `azure-ai-agentserver-core` |
+| Custom                    | `responses`: `azure-ai-agentserver-responses`; `invocations`: `azure-ai-agentserver-invocations`                                                             |
 
 **.NET adapter packages:**
 
-| Framework | Package(s) |
-|-----------|------------|
+| Framework                 | Package(s)                                                                                                                                    |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | Microsoft Agent Framework | `responses`: `Microsoft.Agents.AI.Foundry.Hosting`; `invocations`: `Microsoft.Agents.AI.Foundry.Hosting` + `Azure.AI.AgentServer.Invocations` |
-| Custom | `responses`: `Azure.AI.AgentServer.Responses`; `invocations`: `Azure.AI.AgentServer.Invocations` |
+| Custom                    | `responses`: `Azure.AI.AgentServer.Responses`; `invocations`: `Azure.AI.AgentServer.Invocations`                                              |
 
 Add the package to the project's dependency file (`requirements.txt`, `pyproject.toml`, or `.csproj`). For Python, also add `python-dotenv` if not present.
 
@@ -198,31 +201,38 @@ Add the package to the project's dependency file (`requirements.txt`, `pyproject
 Modify the project's main entrypoint to wrap the existing agent with the adapter. The approach differs by framework and protocol:
 
 **Microsoft Agent Framework + `responses` (Python):**
+
 - Import `ResponsesHostServer` from the adapter package
 - Pass the agent instance (from `agent_framework` package) to the adapter
 - Call `.run()` on the adapter as the default entrypoint
 
 **Microsoft Agent Framework + `invocations` (Python):**
+
 - Use `InvocationAgentServerHost()`
 - Implement an `@app.invoke_handler`
 - Manage session state if the agent needs multi-turn memory
 
 **Microsoft Agent Framework + `responses` (C#):**
+
 - Register Foundry responses hosting and map the `responses` protocol
 
 **Microsoft Agent Framework + `invocations` (C#):**
+
 - Register invocations services and an invocation handler
 - Map the `invocations` protocol
 
 **LangGraph:**
+
 - Python only
 - Follow the `bring-your-own/{protocol}/langgraph-chat` sample for the selected protocol lane
 
 **Custom:**
+
 - Follow the corresponding `bring-your-own/{protocol}` sample for the selected language
 - Prefer the protocol SDK sample for the selected lane instead of inventing a custom contract when a sample already exists
 
 **`invocations_ws`:**
+
 - Use the `azure-ai-agentserver-invocations` SDK and register a WebSocket handler with `@app.ws_handler` on the same `InvocationAgentServerHost`
 - Follow the [invocations-ws skill](../invocations-ws/invocations-ws.md) for the wire-level contract and `agent_session_id` semantics
 - Reference samples live under `samples/python/hosted-agents/bring-your-own/invocations_ws/`
@@ -336,11 +346,11 @@ If the user's request clearly requires another supported lane, use that lane ins
 
 ## Error Handling
 
-| Error | Cause | Resolution |
-|-------|-------|------------|
-| GitHub API rate limit | Too many requests | Authenticate with `gh auth login` |
-| `gh` not available | CLI not installed | Use curl REST API fallback |
-| Sample not found | Path changed in repo or selected lane has no matching sample | List the selected parent directory again and choose a current sample |
-| Requested combination not supported | Example: C# + LangGraph | Explain the gap and switch to the nearest supported lane |
-| Protocol mismatch | Code, `agent.yaml`, and test request are not aligned | Make all three match the selected protocol |
-| Dependency install fails | Version conflicts | Use versions from the selected sample's own dependency file |
+| Error                               | Cause                                                        | Resolution                                                           |
+| ----------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------- |
+| GitHub API rate limit               | Too many requests                                            | Authenticate with `gh auth login`                                    |
+| `gh` not available                  | CLI not installed                                            | Use curl REST API fallback                                           |
+| Sample not found                    | Path changed in repo or selected lane has no matching sample | List the selected parent directory again and choose a current sample |
+| Requested combination not supported | Example: C# + LangGraph                                      | Explain the gap and switch to the nearest supported lane             |
+| Protocol mismatch                   | Code, `agent.yaml`, and test request are not aligned         | Make all three match the selected protocol                           |
+| Dependency install fails            | Version conflicts                                            | Use versions from the selected sample's own dependency file          |

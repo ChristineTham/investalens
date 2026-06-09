@@ -48,8 +48,8 @@ app.post("/api/items", async (req, res) => {
 
 ## Files to Modify
 
-| File | Action |
-|------|--------|
+| File                  | Action                                       |
+| --------------------- | -------------------------------------------- |
 | `src/cosmosClient.js` | Create — Cosmos client + container reference |
-| `src/index.js` | Modify — add CRUD endpoints |
-| `package.json` | Modify — add @azure/cosmos, @azure/identity |
+| `src/index.js`        | Modify — add CRUD endpoints                  |
+| `package.json`        | Modify — add @azure/cosmos, @azure/identity  |

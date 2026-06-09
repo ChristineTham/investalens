@@ -17,15 +17,16 @@ Systematically improve a fine-tuned model through successive experiments.
 
 ## Experiment Tracking
 
-| Run | Base model | Dataset | Epochs | LR | Batch | Best val_loss | Combined eval |
-|-----|-----------|---------|--------|-----|-------|--------------|---------------|
-| R1 | gpt-4.1-mini | v1 (335 ex) | 2 | 1.0 | default | 0.320 | 8.05 |
-| R2 | gpt-4.1-mini | v1 (335 ex) | 2 | 0.5 | default | 0.310 | 9.15 |
-| ... | ... | ... | ... | ... | ... | ... | ... |
+| Run | Base model   | Dataset     | Epochs | LR  | Batch   | Best val_loss | Combined eval |
+| --- | ------------ | ----------- | ------ | --- | ------- | ------------- | ------------- |
+| R1  | gpt-4.1-mini | v1 (335 ex) | 2      | 1.0 | default | 0.320         | 8.05          |
+| R2  | gpt-4.1-mini | v1 (335 ex) | 2      | 0.5 | default | 0.310         | 9.15          |
+| ... | ...          | ...         | ...    | ... | ...     | ...           | ...           |
 
 ## What to Try (Priority Order)
 
 ### Priority 1: Data Quality (highest leverage)
+
 - **Fix inconsistencies**: Contradicting examples confuse the model
 - **Add diversity**: Add examples for input types the model fails on
 - **Reduce noise**: Remove "correct but not ideal" outputs
@@ -35,6 +36,7 @@ Systematically improve a fine-tuned model through successive experiments.
 See `references/hyperparameters.md` for full guide.
 
 **Quick sweep strategy:**
+
 1. Baseline: epochs=2, lr=1.0
 2. Overfitting → lr=0.5 or epochs=1
 3. Underfitting → lr=1.5 or epochs=3
@@ -42,15 +44,16 @@ See `references/hyperparameters.md` for full guide.
 
 ### Priority 3: Base Model
 
-| Model | Best for |
-|-------|----------|
-| gpt-4.1-mini | Best quality-per-dollar, most tasks |
-| gpt-4.1-nano | Fastest inference, simple tasks |
-| gpt-oss-20b | Large datasets, lowest absolute loss |
-| Ministral-3B | Lightweight, fast inference |
-| Qwen-3-32B, Llama-3.3-70B | Multilingual or specialized tasks |
+| Model                     | Best for                             |
+| ------------------------- | ------------------------------------ |
+| gpt-4.1-mini              | Best quality-per-dollar, most tasks  |
+| gpt-4.1-nano              | Fastest inference, simple tasks      |
+| gpt-oss-20b               | Large datasets, lowest absolute loss |
+| Ministral-3B              | Lightweight, fast inference          |
+| Qwen-3-32B, Llama-3.3-70B | Multilingual or specialized tasks    |
 
 ### Priority 4: Training Type
+
 - SFT plateaued + need better reasoning → RFT (if model supports it)
 - Need style alignment → DPO
 - See `references/training-types.md` before switching
@@ -80,6 +83,7 @@ Training curves healthy (no overfitting)?
 ## Multi-Model Strategy
 
 Run the same dataset through 2-3 base models:
+
 1. **gpt-4.1-mini** — primary candidate
 2. **gpt-oss-20b** — large-dataset specialist (500+ examples)
 3. **gpt-4.1-nano** — fast inference option

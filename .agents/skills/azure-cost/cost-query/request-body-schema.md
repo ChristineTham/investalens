@@ -21,12 +21,12 @@ Schema for the [Cost Management Query API](https://learn.microsoft.com/en-us/res
 
 ## Top-Level Fields
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `type` | string | Yes | `ActualCost`, `AmortizedCost`, or `Usage` |
-| `timeframe` | string | Yes | Predefined or `Custom` time window |
+| Field        | Type   | Required    | Description                                                                 |
+| ------------ | ------ | ----------- | --------------------------------------------------------------------------- |
+| `type`       | string | Yes         | `ActualCost`, `AmortizedCost`, or `Usage`                                   |
+| `timeframe`  | string | Yes         | Predefined or `Custom` time window                                          |
 | `timePeriod` | object | Conditional | Required when `timeframe` is `Custom`. Contains `from`/`to` ISO 8601 dates. |
-| `dataset` | object | Yes | Defines granularity, aggregation, grouping, filtering, sorting |
+| `dataset`    | object | Yes         | Defines granularity, aggregation, grouping, filtering, sorting              |
 
 ### Timeframe Values
 
@@ -36,11 +36,11 @@ Schema for the [Cost Management Query API](https://learn.microsoft.com/en-us/res
 
 ### Granularity
 
-| Value | Max Range | Description |
-|-------|-----------|-------------|
-| `None` | 12 months | Aggregated total, no date breakdown |
-| `Daily` | 31 days | Day-by-day breakdown |
-| `Monthly` | 12 months | Month-by-month breakdown |
+| Value     | Max Range | Description                         |
+| --------- | --------- | ----------------------------------- |
+| `None`    | 12 months | Aggregated total, no date breakdown |
+| `Daily`   | 31 days   | Day-by-day breakdown                |
+| `Monthly` | 12 months | Month-by-month breakdown            |
 
 ### Aggregation
 
@@ -48,11 +48,11 @@ Schema for the [Cost Management Query API](https://learn.microsoft.com/en-us/res
 "aggregation": { "totalCost": { "name": "Cost", "function": "Sum" } }
 ```
 
-| Field | Required | Description |
-|-------|----------|-------------|
-| `<alias>` (key) | Yes | Output column alias (e.g., `totalCost`) |
-| `name` | Yes | Source column: `Cost`, `PreTaxCost`, or `UsageQuantity` |
-| `function` | Yes | `Sum` (only supported function for cost queries) |
+| Field           | Required | Description                                             |
+| --------------- | -------- | ------------------------------------------------------- |
+| `<alias>` (key) | Yes      | Output column alias (e.g., `totalCost`)                 |
+| `name`          | Yes      | Source column: `Cost`, `PreTaxCost`, or `UsageQuantity` |
+| `function`      | Yes      | `Sum` (only supported function for cost queries)        |
 
 ### Grouping
 
@@ -97,31 +97,31 @@ Filter expressions restrict which cost records are included. Filters support log
 
 #### Logical Operators
 
-| Operator | Description | Children |
-|----------|-------------|----------|
-| `and` | All child expressions must match. | 2 or more expressions. |
-| `or` | Any child expression must match. | 2 or more expressions. |
-| `not` | Negates a single child expression. | Exactly 1 expression. |
+| Operator | Description                        | Children               |
+| -------- | ---------------------------------- | ---------------------- |
+| `and`    | All child expressions must match.  | 2 or more expressions. |
+| `or`     | Any child expression must match.   | 2 or more expressions. |
+| `not`    | Negates a single child expression. | Exactly 1 expression.  |
 
 > ⚠️ **Warning:** `and` and `or` must contain at least 2 child expressions. `not` must contain exactly 1.
 
 #### Comparison Operators (ComparisonOperator Enum)
 
-| Operator | Description | Example |
-|----------|-------------|---------|
-| `In` | Value is in the provided list. Supports multiple values. | `"values": ["vm", "storage"]` |
-| `Equal` | Exact match against a single value. | `"values": ["production"]` |
-| `Contains` | String contains the specified substring. | `"values": ["prod"]` |
-| `LessThan` | Numeric less-than comparison. | `"values": ["100"]` |
-| `GreaterThan` | Numeric greater-than comparison. | `"values": ["0"]` |
-| `NotEqual` | Value does not match the specified value. | `"values": ["dev"]` |
+| Operator      | Description                                              | Example                       |
+| ------------- | -------------------------------------------------------- | ----------------------------- |
+| `In`          | Value is in the provided list. Supports multiple values. | `"values": ["vm", "storage"]` |
+| `Equal`       | Exact match against a single value.                      | `"values": ["production"]`    |
+| `Contains`    | String contains the specified substring.                 | `"values": ["prod"]`          |
+| `LessThan`    | Numeric less-than comparison.                            | `"values": ["100"]`           |
+| `GreaterThan` | Numeric greater-than comparison.                         | `"values": ["0"]`             |
+| `NotEqual`    | Value does not match the specified value.                | `"values": ["dev"]`           |
 
 #### Filter Target Types
 
-| Target | Description |
-|--------|-------------|
+| Target       | Description                                                               |
+| ------------ | ------------------------------------------------------------------------- |
 | `dimensions` | Filter on built-in dimensions (e.g., `ResourceGroupName`, `ServiceName`). |
-| `tags` | Filter on Azure resource tags (e.g., `Environment`, `CostCenter`). |
+| `tags`       | Filter on Azure resource tags (e.g., `Environment`, `CostCenter`).        |
 
 ### Sorting
 
@@ -131,10 +131,10 @@ Filter expressions restrict which cost records are included. Filters support log
 ]
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `direction` | string | Yes | `Ascending` or `Descending`. |
-| `name` | string | Yes | Column name to sort by (must be present in aggregation or grouping). |
+| Field       | Type   | Required | Description                                                          |
+| ----------- | ------ | -------- | -------------------------------------------------------------------- |
+| `direction` | string | Yes      | `Ascending` or `Descending`.                                         |
+| `name`      | string | Yes      | Column name to sort by (must be present in aggregation or grouping). |
 
 ## Response Structure
 
@@ -159,12 +159,12 @@ Filter expressions restrict which cost records are included. Filters support log
 }
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `columns` | array | Array of column definitions with `name` and `type`. |
-| `columns[].name` | string | Column name. |
-| `columns[].type` | string | Data type: `Number` or `String`. |
-| `rows` | array | Array of row arrays. Values ordered to match `columns`. |
-| `nextLink` | string | URL for next page of results, or `null` if no more pages. |
+| Field            | Type   | Description                                               |
+| ---------------- | ------ | --------------------------------------------------------- |
+| `columns`        | array  | Array of column definitions with `name` and `type`.       |
+| `columns[].name` | string | Column name.                                              |
+| `columns[].type` | string | Data type: `Number` or `String`.                          |
+| `rows`           | array  | Array of row arrays. Values ordered to match `columns`.   |
+| `nextLink`       | string | URL for next page of results, or `null` if no more pages. |
 
 > 💡 **Tip:** `UsageDate` is returned as a number in `YYYYMMDD` format (e.g., `20240115`) when granularity is `Daily` or `Monthly`.

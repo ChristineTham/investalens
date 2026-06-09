@@ -33,6 +33,7 @@ azqr scan --subscription "<SUBSCRIPTION_ID>" --resource-group "<RESOURCE_GROUP>"
 ## Save Output
 
 Save all generated files to the `output/` folder:
+
 1. Create the folder: `mkdir output` (if it doesn't exist)
 2. Save the azqr report as: `output/azqr_report_<YYYYMMDD_HHMMSS>.json`
 3. After the scan completes, delete the temporary `filters.yaml` file
@@ -40,8 +41,9 @@ Save all generated files to the `output/` folder:
 ## Report Output
 
 The scan generates a JSON report with recommendations categorized by impact level (High/Medium/Low), including:
+
 - Orphaned resources (NICs, disks, IPs)
-- Azure Advisor cost recommendations  
+- Azure Advisor cost recommendations
 - Resource inventory
 - Cost breakdown by resource
 

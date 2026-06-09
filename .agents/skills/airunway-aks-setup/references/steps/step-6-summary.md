@@ -3,6 +3,7 @@
 **Goal**: Confirm everything is working and guide the user on next steps.
 
 Report:
+
 - Cluster context and node inventory (Step 1)
 - Controller version and namespace (Step 2)
 - GPU types and constraints in effect (Step 3)
@@ -42,6 +43,7 @@ fi
 **Expected output:** A JSON response with a `choices` array containing the model's reply.
 
 **Suggest next steps:**
+
 - Open the AI Runway Web UI to browse and deploy additional models
 - Configure an ingress gateway for external access
 - Review `controller/config/samples/` for advanced ModelDeployment options

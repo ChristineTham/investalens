@@ -2,14 +2,14 @@
 
 ## MCP Template Validation
 
-| Criteria | Expected | Status |
-|----------|----------|--------|
-| Template discovery | `functions_template_get(language: "python")` returns list | ✅ PASS |
-| Filter by resource | `resource == "servicebus"` finds matches | ✅ PASS |
-| Template scaffolded | `servicebus-trigger-python-azd` | ✅ PASS |
-| Has trigger code | `@app.service_bus_queue_trigger` decorator in output | ✅ PASS |
-| Has IaC | `projectFiles[]` includes Bicep | ✅ PASS |
-| Has RBAC | Service Bus Data Receiver/Sender role | ✅ PASS |
+| Criteria            | Expected                                                  | Status  |
+| ------------------- | --------------------------------------------------------- | ------- |
+| Template discovery  | `functions_template_get(language: "python")` returns list | ✅ PASS |
+| Filter by resource  | `resource == "servicebus"` finds matches                  | ✅ PASS |
+| Template scaffolded | `servicebus-trigger-python-azd`                           | ✅ PASS |
+| Has trigger code    | `@app.service_bus_queue_trigger` decorator in output      | ✅ PASS |
+| Has IaC             | `projectFiles[]` includes Bicep                           | ✅ PASS |
+| Has RBAC            | Service Bus Data Receiver/Sender role                     | ✅ PASS |
 
 ## Agent Behavior Validation
 

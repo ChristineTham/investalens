@@ -54,13 +54,13 @@ kubectl top pods --all-namespaces --sort-by=cpu
 
 ## Common Causes
 
-| Symptom | Likely Cause | Action |
-|---------|-------------|--------|
-| Node count surged off-peak | HPA/VPA misconfiguration | Review HPA min replicas |
-| Single pod consuming all CPU | Memory leak or runaway process | Check logs, add resource limits |
-| Cost spike on specific day | Batch job ran unexpectedly | Review CronJob schedule |
-| Persistent high node count | CAS scale-down blocked | Check PodDisruptionBudgets, system pods |
-| Sudden namespace cost jump | New deployment with no resource limits | Add requests/limits |
+| Symptom                      | Likely Cause                           | Action                                  |
+| ---------------------------- | -------------------------------------- | --------------------------------------- |
+| Node count surged off-peak   | HPA/VPA misconfiguration               | Review HPA min replicas                 |
+| Single pod consuming all CPU | Memory leak or runaway process         | Check logs, add resource limits         |
+| Cost spike on specific day   | Batch job ran unexpectedly             | Review CronJob schedule                 |
+| Persistent high node count   | CAS scale-down blocked                 | Check PodDisruptionBudgets, system pods |
+| Sudden namespace cost jump   | New deployment with no resource limits | Add requests/limits                     |
 
 ## Set Up Budget Alert
 
@@ -75,4 +75,3 @@ az consumption budget create \
   --threshold 80 \
   --contact-emails "<contact-email>"
 ```
-

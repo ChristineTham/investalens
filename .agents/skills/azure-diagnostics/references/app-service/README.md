@@ -2,21 +2,22 @@
 
 ## Common Issues Matrix
 
-| Symptom | Likely Cause | Action |
-|---------|--------------|-----------|
-| High CPU / memory | Runaway process, inefficient code | Use Process Explorer via Kudu, scale up |
-| Deployment failure | Build error, locked files, quota | Check Kudu logs at `https://APP.scm.azurewebsites.net/api/deployments` to look for details on build errors, locked files or lack of storage quota |
-| App crash / restart | Unhandled exception, OOM kill | Review Event Log and STDERR in Diagnose & Solve |
-| Slow responses | Downstream dependency, no caching | Enable request tracing, check dependency calls |
-| 502 / 503 errors | App not starting, port conflict | Check STDERR logs, verify startup command |
-| TLS / domain errors | Certificate expired, DNS mismatch | `az webapp config ssl list`, verify CNAME |
-| Health check failure | Endpoint not returning 200 | Verify health check path responds within 2 min |
+| Symptom              | Likely Cause                      | Action                                                                                                                                            |
+| -------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| High CPU / memory    | Runaway process, inefficient code | Use Process Explorer via Kudu, scale up                                                                                                           |
+| Deployment failure   | Build error, locked files, quota  | Check Kudu logs at `https://APP.scm.azurewebsites.net/api/deployments` to look for details on build errors, locked files or lack of storage quota |
+| App crash / restart  | Unhandled exception, OOM kill     | Review Event Log and STDERR in Diagnose & Solve                                                                                                   |
+| Slow responses       | Downstream dependency, no caching | Enable request tracing, check dependency calls                                                                                                    |
+| 502 / 503 errors     | App not starting, port conflict   | Check STDERR logs, verify startup command                                                                                                         |
+| TLS / domain errors  | Certificate expired, DNS mismatch | `az webapp config ssl list`, verify CNAME                                                                                                         |
+| Health check failure | Endpoint not returning 200        | Verify health check path responds within 2 min                                                                                                    |
 
 ---
 
 ## High CPU / Memory Diagnosis
 
 **Diagnose:**
+
 ```bash
 # Check app metrics
 az monitor metrics list --resource APP_RESOURCE_ID \
@@ -34,6 +35,7 @@ az rest --method get \
 ## Deployment Failure Analysis
 
 **Diagnose:**
+
 ```bash
 # List deployment history
 az webapp deployment list -n APP -g RG --output table
@@ -46,6 +48,7 @@ az webapp log tail -n APP -g RG
 ```
 
 **KQL — Failed deployments:**
+
 ```kql
 // Replace <app-service-resource-id> with the full resource ID, for example:
 // /subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.Web/sites/<app-name>
@@ -58,17 +61,18 @@ AppServicePlatformLogs
 
 **Common deployment failures:**
 
-| Error Message | Cause | Fix |
-|---------------|-------|-----|
-| `WEBSITE_RUN_FROM_PACKAGE=1` but no package | Missing zip deploy artifact | Redeploy with `az webapp deploy --src-path app.zip` |
-| `Error building on server` | Oryx build failure | Check build logs, pin runtime version |
-| `Locked file` during deploy | Files in use | Set an environment variable named `MSDEPLOY_RENAME_LOCKED_FILES=1` on the App Service resource to enable MSDeploy to rename locked files. |
+| Error Message                               | Cause                       | Fix                                                                                                                                       |
+| ------------------------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `WEBSITE_RUN_FROM_PACKAGE=1` but no package | Missing zip deploy artifact | Redeploy with `az webapp deploy --src-path app.zip`                                                                                       |
+| `Error building on server`                  | Oryx build failure          | Check build logs, pin runtime version                                                                                                     |
+| `Locked file` during deploy                 | Files in use                | Set an environment variable named `MSDEPLOY_RENAME_LOCKED_FILES=1` on the App Service resource to enable MSDeploy to rename locked files. |
 
 ---
 
 ## Application Crash / Restart Diagnosis
 
 **Diagnose:**
+
 ```bash
 # Check recent restarts via activity log
 az monitor activity-log list -g RG --resource-id APP_RESOURCE_ID \
@@ -79,6 +83,7 @@ az webapp log download -n APP -g RG --log-file logs.zip
 ```
 
 **KQL — App crashes and errors:**
+
 ```kql
 AppServiceConsoleLogs
 | where TimeGenerated > ago(1h)
@@ -89,6 +94,7 @@ AppServiceConsoleLogs
 ```
 
 **Health check failures:**
+
 ```bash
 # Show health check config
 az webapp show -n APP -g RG --query "siteConfig.healthCheckPath"
@@ -104,6 +110,7 @@ curl -s -o /dev/null -w "%{http_code}" https://APP.azurewebsites.net/health
 ## Slow Response Time Investigation
 
 **Diagnose:**
+
 ```bash
 # Check average response time
 az monitor metrics list --resource APP_RESOURCE_ID \
@@ -114,6 +121,7 @@ az webapp log config -n APP -g RG --failed-request-tracing true
 ```
 
 **KQL — Slow requests with dependency analysis:**
+
 ```kql
 AppServiceHTTPLogs
 | where TimeGenerated > ago(1h)
@@ -124,6 +132,7 @@ AppServiceHTTPLogs
 ```
 
 **Auto-Heal — Automatic mitigation:**
+
 ```bash
 # Configure auto-heal to recycle on slow requests
 az webapp config set -n APP -g RG \
@@ -136,6 +145,7 @@ az webapp config set -n APP -g RG \
 ## Custom Domain / TLS Certificate Issues
 
 **Diagnose:**
+
 ```bash
 # List custom domains
 az webapp config hostname list -g RG --webapp-name APP --output table
@@ -147,26 +157,26 @@ az webapp config ssl list -g RG --output table
 az webapp config ssl show --certificate-name CERT -g RG
 ```
 
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| `ERR_CERT_DATE_INVALID` | Certificate expired | If certificate came from an external certificate authority, renew with `az webapp config ssl upload` and upload a new certificate or enable managed certificates to allow Azure to provide a free TLS/SSL certificate |
-| `DNS_PROBE_FINISHED_NXDOMAIN` | CNAME not configured | Add CNAME record pointing to `APP.azurewebsites.net` |
-| `SSL binding not found` | Missing SNI binding | Add the missing SNI binding using `az webapp config ssl bind --certificate-thumbprint THUMB --ssl-type SNI -n APP -g RG` |
-| Managed cert pending | DNS validation incomplete | Verify TXT record `asuid.DOMAIN` matches custom domain verification ID |
+| Symptom                       | Cause                     | Fix                                                                                                                                                                                                                   |
+| ----------------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ERR_CERT_DATE_INVALID`       | Certificate expired       | If certificate came from an external certificate authority, renew with `az webapp config ssl upload` and upload a new certificate or enable managed certificates to allow Azure to provide a free TLS/SSL certificate |
+| `DNS_PROBE_FINISHED_NXDOMAIN` | CNAME not configured      | Add CNAME record pointing to `APP.azurewebsites.net`                                                                                                                                                                  |
+| `SSL binding not found`       | Missing SNI binding       | Add the missing SNI binding using `az webapp config ssl bind --certificate-thumbprint THUMB --ssl-type SNI -n APP -g RG`                                                                                              |
+| Managed cert pending          | DNS validation incomplete | Verify TXT record `asuid.DOMAIN` matches custom domain verification ID                                                                                                                                                |
 
 ---
 
 ## AZ CLI or MCP Tools for App Service Diagnostics
 
-| Tool | Command | Use When |
-|----------|---------|----------|
-| `Azure CLI` | `az webapp list` | List all web apps in subscription |
-| `Azure CLI` | `az webapp show -n APP -g RG` | Get app config, stack, status |
-| `Azure CLI` | `az webapp config appsettings list -n APP -g RG` | Check env vars and connection strings |
-| `Azure CLI` | `az webapp deployment slot list -n APP -g RG` | Compare slot configurations |
-| `mcp_azure_mcp_appservice` | `appservice_webapp_diagnostic_diagnose` | AI-powered root cause analysis |
-| `mcp_azure_mcp_monitor` | `monitor_resource_log_query` | Run KQL against Log Analytics |
-| `mcp_azure_mcp_resourcehealth` | `get` | Check platform-level health status |
+| Tool                           | Command                                          | Use When                              |
+| ------------------------------ | ------------------------------------------------ | ------------------------------------- |
+| `Azure CLI`                    | `az webapp list`                                 | List all web apps in subscription     |
+| `Azure CLI`                    | `az webapp show -n APP -g RG`                    | Get app config, stack, status         |
+| `Azure CLI`                    | `az webapp config appsettings list -n APP -g RG` | Check env vars and connection strings |
+| `Azure CLI`                    | `az webapp deployment slot list -n APP -g RG`    | Compare slot configurations           |
+| `mcp_azure_mcp_appservice`     | `appservice_webapp_diagnostic_diagnose`          | AI-powered root cause analysis        |
+| `mcp_azure_mcp_monitor`        | `monitor_resource_log_query`                     | Run KQL against Log Analytics         |
+| `mcp_azure_mcp_resourcehealth` | `get`                                            | Check platform-level health status    |
 
 > 💡 **Tip:** Start with `mcp_azure_mcp_appservice` (`diagnose`) — it automatically runs relevant detectors and surfaces the most likely root cause before you dig into logs manually.
 

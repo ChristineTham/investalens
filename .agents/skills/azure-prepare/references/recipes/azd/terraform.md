@@ -5,6 +5,7 @@ Use Azure Developer CLI (azd) with Terraform as the infrastructure provider.
 ## When to Use
 
 Choose azd+Terraform when you want:
+
 - **Terraform's multi-cloud capabilities** with **azd's deployment simplicity**
 - Existing Terraform expertise but want `azd up` convenience
 - Team familiar with Terraform but needs environment management
@@ -12,14 +13,14 @@ Choose azd+Terraform when you want:
 
 ## Benefits
 
-| Feature | Pure Terraform | AZD + Terraform |
-|---------|---------------|-----------------|
-| Deploy command | `terraform apply` | `azd up` |
-| Environment management | Manual workspaces | Built-in `azd env` |
-| CI/CD generation | Manual setup | Auto-generated pipelines |
-| Service deployment | Manual scripts | Automatic from azure.yaml |
-| State management | Manual backend setup | Configurable |
-| Multi-cloud | ✅ Yes | ✅ Yes |
+| Feature                | Pure Terraform       | AZD + Terraform           |
+| ---------------------- | -------------------- | ------------------------- |
+| Deploy command         | `terraform apply`    | `azd up`                  |
+| Environment management | Manual workspaces    | Built-in `azd env`        |
+| CI/CD generation       | Manual setup         | Auto-generated pipelines  |
+| Service deployment     | Manual scripts       | Automatic from azure.yaml |
+| State management       | Manual backend setup | Configurable              |
+| Multi-cloud            | ✅ Yes               | ✅ Yes                    |
 
 ## Configuration
 
@@ -45,7 +46,7 @@ services:
     host: containerapp
     docker:
       path: ./src/api/Dockerfile
-  
+
   web:
     project: ./src/web
     language: js
@@ -73,6 +74,7 @@ infra/
 ### 3. Provider Configuration
 
 **provider.tf:**
+
 ```hcl
 terraform {
   required_version = ">= 1.5.0"
@@ -103,6 +105,7 @@ provider "azurerm" {
 ```
 
 > **⚠️ IMPORTANT**: For **Azure Functions Flex Consumption**, use azurerm provider **v4.2 or later**:
+>
 > ```hcl
 > terraform {
 >   required_providers {
@@ -113,6 +116,7 @@ provider "azurerm" {
 >   }
 > }
 > ```
+>
 > See [Terraform Functions patterns](../../services/functions/terraform.md) for Flex Consumption examples.
 
 ### 4. Variables and Outputs
@@ -129,9 +133,9 @@ provider "azurerm" {
 >
 > ```json
 > {
->     "environment_name": "${AZURE_ENV_NAME}",
->     "location": "${AZURE_LOCATION}",
->     "subscription_id": "${AZURE_SUBSCRIPTION_ID}"
+>   "environment_name": "${AZURE_ENV_NAME}",
+>   "location": "${AZURE_LOCATION}",
+>   "subscription_id": "${AZURE_SUBSCRIPTION_ID}"
 > }
 > ```
 >
@@ -139,6 +143,7 @@ provider "azurerm" {
 > `azd env set TF_VAR_myvar value`
 
 **variables.tf:**
+
 ```hcl
 variable "environment_name" {
   type        = string
@@ -159,6 +164,7 @@ variable "principal_id" {
 ```
 
 **outputs.tf:**
+
 ```hcl
 # Required: Resource group name
 output "AZURE_RESOURCE_GROUP" {
@@ -185,24 +191,24 @@ output "WEB_URL" {
 resource "azurerm_container_app" "api" {
   name                = "ca-${var.environment_name}-api"
   resource_group_name = azurerm_resource_group.main.name
-  
+
   # Required for azd deploy to find this resource
   tags = merge(var.tags, {
     "azd-service-name" = "api"  # Matches service name in azure.yaml
   })
-  
+
   # ... rest of configuration
 }
 
 resource "azurerm_static_web_app" "web" {
   name                = "swa-${var.environment_name}-web"
   resource_group_name = azurerm_resource_group.main.name
-  
+
   # Required for azd deploy to find this resource
   tags = merge(var.tags, {
     "azd-service-name" = "web"  # Matches service name in azure.yaml
   })
-  
+
   # ... rest of configuration
 }
 ```
@@ -217,7 +223,7 @@ Tag the resource group with environment name:
 resource "azurerm_resource_group" "main" {
   name     = "rg-${var.environment_name}"
   location = var.location
-  
+
   tags = {
     "azd-env-name" = var.environment_name
   }
@@ -254,15 +260,17 @@ explicit `TF_VAR_*` environment variables. Define the variable in `variables.tf`
 it in `main.tfvars.json`.
 
 infra/main.tfvars.json — azd substitutes ${VAR} references via envsubst:
+
 ```json
 {
-    "environment_name": "${AZURE_ENV_NAME}",
-    "location": "${AZURE_LOCATION}",
-    "database_name": "${DATABASE_NAME}"
+  "environment_name": "${AZURE_ENV_NAME}",
+  "location": "${AZURE_LOCATION}",
+  "database_name": "${DATABASE_NAME}"
 }
 ```
 
 variables.tf — value provided via main.tfvars.json or TF_VAR_database_name:
+
 ```hcl
 variable "database_name" {
   type = string
@@ -351,6 +359,7 @@ azd pipeline config --provider azdo
 ```
 
 Generated pipelines will:
+
 - Install Terraform
 - Run `terraform init`, `plan`, `apply`
 - Use azd authentication
@@ -358,20 +367,21 @@ Generated pipelines will:
 
 ## Comparison: azd+Terraform vs Pure Terraform
 
-| Aspect | Pure Terraform | azd + Terraform |
-|--------|---------------|-----------------|
-| **IaC** | Terraform | Terraform |
-| **Provision** | `terraform apply` | `azd provision` (wraps terraform) |
-| **Deploy apps** | Manual scripts | `azd deploy` (automatic) |
-| **Environment mgmt** | Workspaces | `azd env` |
-| **Auth** | Manual az login | `azd auth login` |
-| **CI/CD** | Manual setup | `azd pipeline config` |
-| **Multi-service** | Manual orchestration | Automatic from azure.yaml |
-| **Learning curve** | Medium | Low |
+| Aspect               | Pure Terraform       | azd + Terraform                   |
+| -------------------- | -------------------- | --------------------------------- |
+| **IaC**              | Terraform            | Terraform                         |
+| **Provision**        | `terraform apply`    | `azd provision` (wraps terraform) |
+| **Deploy apps**      | Manual scripts       | `azd deploy` (automatic)          |
+| **Environment mgmt** | Workspaces           | `azd env`                         |
+| **Auth**             | Manual az login      | `azd auth login`                  |
+| **CI/CD**            | Manual setup         | `azd pipeline config`             |
+| **Multi-service**    | Manual orchestration | Automatic from azure.yaml         |
+| **Learning curve**   | Medium               | Low                               |
 
 ## When NOT to Use azd+Terraform
 
 Use pure Terraform (without azd) when:
+
 - Multi-cloud deployment (not Azure-first)
 - Complex Terraform modules/workspaces that conflict with azd conventions
 - Existing complex Terraform CI/CD that's hard to migrate
@@ -390,7 +400,7 @@ resource "azurerm_storage_account" "storage" {
   location                        = azurerm_resource_group.rg.location
   account_tier                    = "Standard"
   account_replication_type        = "LRS"
-  
+
   # Azure policy requirements
   allow_nested_items_to_be_public = false   # Disable anonymous blob access
   local_user_enabled              = false   # Disable local users
@@ -413,15 +423,15 @@ resource "azurerm_linux_function_app" "function" {
   service_plan_id               = azurerm_service_plan.plan.id
   storage_account_name          = azurerm_storage_account.storage.name
   storage_uses_managed_identity = true   # Use MI instead of access key
-  
+
   identity {
     type = "SystemAssigned"
   }
-  
+
   tags = {
     "azd-service-name" = "api"   # REQUIRED for azd deploy
   }
-  
+
   depends_on = [azurerm_role_assignment.deployer_storage]
 }
 
@@ -461,17 +471,17 @@ resource "azurerm_cosmosdb_account" "cosmos" {
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| `resource not found: unable to find a resource tagged with 'azd-service-name'` | Add `azd-service-name` tag to hosting resource in Terraform |
-| `RequestDisallowedByPolicy: shared key access` | Set `shared_access_key_enabled = false` on storage |
-| `RequestDisallowedByPolicy: local auth disabled` | Set `local_auth_enabled = false` on Service Bus |
-| `RequestDisallowedByPolicy: anonymous blob access` | Set `allow_nested_items_to_be_public = false` on storage |
-| `terraform command not found` | Install Terraform CLI: `brew install terraform` or download from terraform.io |
-| State conflicts | Configure remote backend in provider.tf |
-| Variable not passed to Terraform | Ensure variable is set with `azd env set` and defined in variables.tf |
-| Literal `{{ .Env.* }}` in Terraform errors | Use `${VAR}` syntax in `main.tfvars.json`, not Go-style `{{ .Env.* }}`. azd substitutes `${VAR}` references via envsubst |
-| `main.tfvars.json` interpolation failure | Ensure `main.tfvars.json` uses `${VAR}` syntax (e.g., `${AZURE_ENV_NAME}`), not Go-style `{{ .Env.* }}` templates |
+| Issue                                                                          | Solution                                                                                                                 |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| `resource not found: unable to find a resource tagged with 'azd-service-name'` | Add `azd-service-name` tag to hosting resource in Terraform                                                              |
+| `RequestDisallowedByPolicy: shared key access`                                 | Set `shared_access_key_enabled = false` on storage                                                                       |
+| `RequestDisallowedByPolicy: local auth disabled`                               | Set `local_auth_enabled = false` on Service Bus                                                                          |
+| `RequestDisallowedByPolicy: anonymous blob access`                             | Set `allow_nested_items_to_be_public = false` on storage                                                                 |
+| `terraform command not found`                                                  | Install Terraform CLI: `brew install terraform` or download from terraform.io                                            |
+| State conflicts                                                                | Configure remote backend in provider.tf                                                                                  |
+| Variable not passed to Terraform                                               | Ensure variable is set with `azd env set` and defined in variables.tf                                                    |
+| Literal `{{ .Env.* }}` in Terraform errors                                     | Use `${VAR}` syntax in `main.tfvars.json`, not Go-style `{{ .Env.* }}`. azd substitutes `${VAR}` references via envsubst |
+| `main.tfvars.json` interpolation failure                                       | Ensure `main.tfvars.json` uses `${VAR}` syntax (e.g., `${AZURE_ENV_NAME}`), not Go-style `{{ .Env.* }}` templates        |
 
 ## References
 

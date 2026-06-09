@@ -38,24 +38,24 @@
 
 ### Supported Language Stacks
 
-| Stack ID | Language | Supported? |
-|----------|----------|------------|
-| `dotnet-isolated` | .NET (isolated worker model) | ✅ Yes |
-| `node` | JavaScript/TypeScript | ✅ Yes |
-| `java` | Java | ✅ Yes |
-| `python` | Python | ✅ Yes |
-| `powershell` | PowerShell | ✅ Yes |
-| `dotnet` | .NET (in-process model) | ❌ No — must migrate to isolated first |
-| `custom` | Custom handlers | ✅ Yes |
+| Stack ID          | Language                     | Supported?                             |
+| ----------------- | ---------------------------- | -------------------------------------- |
+| `dotnet-isolated` | .NET (isolated worker model) | ✅ Yes                                 |
+| `node`            | JavaScript/TypeScript        | ✅ Yes                                 |
+| `java`            | Java                         | ✅ Yes                                 |
+| `python`          | Python                       | ✅ Yes                                 |
+| `powershell`      | PowerShell                   | ✅ Yes                                 |
+| `dotnet`          | .NET (in-process model)      | ❌ No — must migrate to isolated first |
+| `custom`          | Custom handlers              | ✅ Yes                                 |
 
 ### Known Limitations (Flex Consumption)
 
-| Feature | Status | Impact |
-|---------|--------|--------|
-| Deployment slots | ❌ Not supported | Rearchitect to use separate apps |
-| TLS/SSL certificates | ❌ Not supported | Wait for support or find alternative |
+| Feature                | Status                   | Impact                                       |
+| ---------------------- | ------------------------ | -------------------------------------------- |
+| Deployment slots       | ❌ Not supported         | Rearchitect to use separate apps             |
+| TLS/SSL certificates   | ❌ Not supported         | Wait for support or find alternative         |
 | Blob trigger (polling) | ❌ Only EventGrid source | Convert `LogsAndContainerScan` → `EventGrid` |
-| Azure Government | ❌ Not available | Cannot migrate yet |
+| Azure Government       | ❌ Not available         | Cannot migrate yet                           |
 
 ## Upgrade Phases
 
@@ -86,6 +86,7 @@ Collect all settings and configurations from the existing app before creating th
 Run the automated migration command from [automation.md](automation.md) — Step 4.
 
 The `flex-migration start` command automatically:
+
 - Assesses your source app for Flex Consumption compatibility
 - Creates a new function app in the Flex Consumption plan
 - Migrates app settings, identity assignments, storage mounts, CORS, custom domains, and access restrictions
@@ -152,26 +153,26 @@ After user selects an option, execute the corresponding deployment method from [
 
 ## Trigger Migration Risks
 
-| Trigger Type | Risk | Mitigation |
-|-------------|------|------------|
-| Azure Blob storage | High | Create separate container for event-based trigger in new app |
-| Azure Cosmos DB | High | Create dedicated lease container for new app; set `StartFromBeginning: false` |
-| Azure Event Grid | Medium | Recreate event subscriptions; ensure idempotent functions |
-| Azure Event Hubs | Medium | Create new consumer group for new app |
-| Azure Service Bus | High | Create new topic/queue; update senders; drain original before shutdown |
-| Azure Storage Queue | High | Create new queue; update senders; drain original before shutdown |
-| HTTP | Low | Update clients to target new app URL |
-| Timer | Low | Offset schedules during cutover to avoid simultaneous execution |
+| Trigger Type        | Risk   | Mitigation                                                                    |
+| ------------------- | ------ | ----------------------------------------------------------------------------- |
+| Azure Blob storage  | High   | Create separate container for event-based trigger in new app                  |
+| Azure Cosmos DB     | High   | Create dedicated lease container for new app; set `StartFromBeginning: false` |
+| Azure Event Grid    | Medium | Recreate event subscriptions; ensure idempotent functions                     |
+| Azure Event Hubs    | Medium | Create new consumer group for new app                                         |
+| Azure Service Bus   | High   | Create new topic/queue; update senders; drain original before shutdown        |
+| Azure Storage Queue | High   | Create new queue; update senders; drain original before shutdown              |
+| HTTP                | Low    | Update clients to target new app URL                                          |
+| Timer               | Low    | Offset schedules during cutover to avoid simultaneous execution               |
 
 ## IaC Key Differences
 
-| Property | Consumption | Flex Consumption |
-|----------|-------------|------------------|
-| SKU | `Y1` (Dynamic) | `FC1` (FlexConsumption) |
-| Plan required | Optional (auto-created) | Required (must be explicit) |
-| OS | Linux | Linux only |
-| Configuration | App settings | `functionAppConfig` section |
-| Storage | `WEBSITE_CONTENTSHARE` setting | `deployment.storage` in `functionAppConfig` |
+| Property      | Consumption                    | Flex Consumption                            |
+| ------------- | ------------------------------ | ------------------------------------------- |
+| SKU           | `Y1` (Dynamic)                 | `FC1` (FlexConsumption)                     |
+| Plan required | Optional (auto-created)        | Required (must be explicit)                 |
+| OS            | Linux                          | Linux only                                  |
+| Configuration | App settings                   | `functionAppConfig` section                 |
+| Storage       | `WEBSITE_CONTENTSHARE` setting | `deployment.storage` in `functionAppConfig` |
 
 ## Deprecated Settings (Do NOT Migrate)
 
@@ -201,15 +202,15 @@ These app settings are NOT supported in Flex Consumption and should be filtered 
 
 ## Troubleshooting
 
-| Issue | Remediation |
-|-------|-------------|
-| Cold start performance issues | Review concurrency settings; check for missing dependencies |
-| Missing bindings | Verify extension bundles; update binding configurations |
-| Permission errors | Check identity assignments and role permissions |
-| Network connectivity | Validate access restrictions and networking settings |
-| Missing App Insights | Recreate the Application Insights connection |
-| App fails to start | Check portal Diagnose & Solve; review App Insights Failures blade |
-| Triggers not processing | Verify binding configs, connection strings, consumer groups |
+| Issue                         | Remediation                                                       |
+| ----------------------------- | ----------------------------------------------------------------- |
+| Cold start performance issues | Review concurrency settings; check for missing dependencies       |
+| Missing bindings              | Verify extension bundles; update binding configurations           |
+| Permission errors             | Check identity assignments and role permissions                   |
+| Network connectivity          | Validate access restrictions and networking settings              |
+| Missing App Insights          | Recreate the Application Insights connection                      |
+| App fails to start            | Check portal Diagnose & Solve; review App Insights Failures blade |
+| Triggers not processing       | Verify binding configs, connection strings, consumer groups       |
 
 ## Rollback
 

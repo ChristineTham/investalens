@@ -10,9 +10,9 @@ Before proceeding, verify Azure MCP Server and Functions tools are available:
 functions_template_get(language: "python")
 ```
 
-| Result | Action |
-|--------|--------|
-| ✅ Returns template list | Use **Primary Path: MCP Tools** below |
+| Result                    | Action                                                              |
+| ------------------------- | ------------------------------------------------------------------- |
+| ✅ Returns template list  | Use **Primary Path: MCP Tools** below                               |
 | ❌ Tool not found / Error | Jump to **[Fallback (MCP Unavailable)](#fallback-mcp-unavailable)** |
 
 ---
@@ -65,10 +65,10 @@ Each array entry contains `{ path, content }`. For every entry in BOTH arrays:
 1. **Create directories** — extract the parent directory from each `path` (e.g., `infra/` from `infra/main.bicep`, `.azure/` from `.azure/config.json`). Create all unique parent directories first.
 2. **Write the file** — use the `path` as the file path and `content` as the file body. Write every file exactly as specified.
 
-| Array | Contains | Action |
-|-------|----------|--------|
+| Array             | Contains                                      | Action                                                 |
+| ----------------- | --------------------------------------------- | ------------------------------------------------------ |
 | `functionFiles[]` | Function source code, infra, and config files | Write all — these are the trigger/binding code and IaC |
-| `projectFiles[]` | host.json, dependencies, settings files | Write all — these are runtime configuration |
+| `projectFiles[]`  | host.json, dependencies, settings files       | Write all — these are runtime configuration            |
 
 **PRESERVE generated IaC security patterns** — keep RBAC, managed identity, and security config intact. When composing multiple templates, merge additively (see [composition.md](recipes/composition.md)).
 
@@ -113,6 +113,7 @@ GET https://cdn.functions.azure.com/public/templates-manifest/manifest.json
 ```
 
 > ⚠️ **If manifest fetch fails** (any error):
+>
 > 1. Fall back to the source manifest at `https://github.com/Azure/azure-functions-templates/blob/dev/Functions.Templates/Template-Manifest/manifest.json`
 > 2. If both sources are unreachable, fall back to known-good repos: `Azure-Samples/functions-quickstart-*` keyed by language + resource (e.g., `functions-quickstart-python-http-azd`)
 > 3. If all fallbacks fail, report the error to the user and ask them to retry later
@@ -121,13 +122,13 @@ GET https://cdn.functions.azure.com/public/templates-manifest/manifest.json
 
 Each template entry contains:
 
-| Field | Description | Example |
-|-------|-------------|---------|
-| `language` | Programming language | `Python`, `TypeScript`, `JavaScript`, `Java`, `CSharp`, `PowerShell` |
-| `resource` | Trigger type (see [selection.md](selection.md)) | `http`, `cosmos`, `timer`, `eventhub`, `servicebus`, `blob`, `sql`, `mcp`, `durable` |
-| `iac` | Infrastructure type | `bicep`, `terraform` |
-| `repositoryUrl` | GitHub repo with complete project | `https://github.com/Azure-Samples/functions-quickstart-python-http-azd` |
-| `folderPath` | Path within repo | `.` or `src/api` |
+| Field           | Description                                     | Example                                                                              |
+| --------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `language`      | Programming language                            | `Python`, `TypeScript`, `JavaScript`, `Java`, `CSharp`, `PowerShell`                 |
+| `resource`      | Trigger type (see [selection.md](selection.md)) | `http`, `cosmos`, `timer`, `eventhub`, `servicebus`, `blob`, `sql`, `mcp`, `durable` |
+| `iac`           | Infrastructure type                             | `bicep`, `terraform`                                                                 |
+| `repositoryUrl` | GitHub repo with complete project               | `https://github.com/Azure-Samples/functions-quickstart-python-http-azd`              |
+| `folderPath`    | Path within repo                                | `.` or `src/api`                                                                     |
 
 Filter: `language == <user-lang> AND resource == <mapped-resource> AND iac == <user-iac>`
 

@@ -4,14 +4,14 @@
 
 **Model recommendations** (based on cluster VRAM from Step 3 — see [gpu-profiles.md](../gpu-profiles.md) for full sizing guide):
 
-| Cluster Capacity | Recommended Model | Provider | Notes |
-|-----------------|-------------------|----------|-------|
-| CPU-only | `google/gemma-3-1b-it-qat-q8_0-gguf` | KAITO (llama.cpp) | GGUF Q8 quantized; runs on CPU |
-| 1× T4 (16 GB) | `microsoft/Phi-3-mini-4k-instruct` | KAITO (vLLM) | Small, fast; fits T4 with headroom |
-| 1× A10G or L4 (24 GB) | `meta-llama/Llama-3.1-8B-Instruct` | KAITO (vLLM) | Good general-purpose starter (gated — needs HF token) |
-| 1× A100 40 GB | `microsoft/Phi-3-medium-128k-instruct` | KAITO (vLLM) | ~28 GB float16; non-gated; MIT license |
-| 1× A100 80 GB / H100 | `meta-llama/Llama-3.1-8B-Instruct` | KAITO (vLLM) | Oversized for 8B; suggest 70B with tensor parallelism if more GPUs available |
-| 4× A100 80 GB | `meta-llama/Llama-3.1-70B-Instruct` | KAITO (vLLM, tensor parallel) | Large model; requires tensor parallelism; gated — needs HF token |
+| Cluster Capacity      | Recommended Model                      | Provider                      | Notes                                                                        |
+| --------------------- | -------------------------------------- | ----------------------------- | ---------------------------------------------------------------------------- |
+| CPU-only              | `google/gemma-3-1b-it-qat-q8_0-gguf`   | KAITO (llama.cpp)             | GGUF Q8 quantized; runs on CPU                                               |
+| 1× T4 (16 GB)         | `microsoft/Phi-3-mini-4k-instruct`     | KAITO (vLLM)                  | Small, fast; fits T4 with headroom                                           |
+| 1× A10G or L4 (24 GB) | `meta-llama/Llama-3.1-8B-Instruct`     | KAITO (vLLM)                  | Good general-purpose starter (gated — needs HF token)                        |
+| 1× A100 40 GB         | `microsoft/Phi-3-medium-128k-instruct` | KAITO (vLLM)                  | ~28 GB float16; non-gated; MIT license                                       |
+| 1× A100 80 GB / H100  | `meta-llama/Llama-3.1-8B-Instruct`     | KAITO (vLLM)                  | Oversized for 8B; suggest 70B with tensor parallelism if more GPUs available |
+| 4× A100 80 GB         | `meta-llama/Llama-3.1-70B-Instruct`    | KAITO (vLLM, tensor parallel) | Large model; requires tensor parallelism; gated — needs HF token             |
 
 Present recommendation. Ask user to confirm or choose their own model.
 
@@ -93,6 +93,7 @@ kubectl get modeldeployment <model-name> -n <namespace> -w
 ```
 
 Wait until `STATUS = Ready`. If not ready within 10 minutes:
+
 - `kubectl describe modeldeployment <model-name> -n <namespace>` — check events
 - `kubectl get pods -l modeldeployment=<model-name> -n <namespace>` — check pod status
 

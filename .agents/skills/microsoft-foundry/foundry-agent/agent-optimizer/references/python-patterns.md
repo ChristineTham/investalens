@@ -117,12 +117,12 @@ skills = load_skills_from_dir(Path(config.skills_dir)) if config.skills_dir else
 
 Use evaluator and dataset goals to decide what belongs in the baseline:
 
-| Signal | Prefer |
-| ------ | ------ |
-| `relevance`, `task_adherence` | primary instructions and model |
-| `intent_resolution` | router/orchestrator instructions |
-| `builtin.tool_call_accuracy` | tool-calling instructions and OpenAI function tool definitions |
-| safety/groundedness | safety, retrieval, citation, or answer-synthesis instructions |
+| Signal                        | Prefer                                                         |
+| ----------------------------- | -------------------------------------------------------------- |
+| `relevance`, `task_adherence` | primary instructions and model                                 |
+| `intent_resolution`           | router/orchestrator instructions                               |
+| `builtin.tool_call_accuracy`  | tool-calling instructions and OpenAI function tool definitions |
+| safety/groundedness           | safety, retrieval, citation, or answer-synthesis instructions  |
 
 For multi-agent apps, scaffold the target role's instructions and related skills/tools. Do not merge unrelated role prompts into one baseline.
 

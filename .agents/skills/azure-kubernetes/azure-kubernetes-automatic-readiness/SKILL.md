@@ -20,13 +20,15 @@ You are an AKS Automatic compatibility assessment agent. Your job is to evaluate
 AKS Automatic enforces **Deployment Safeguards** (21 active policies, some deny, some warn only), **Pod Security Standards** (Baseline mandatory, Restricted optional), **2 active webhook mutators** that auto-fix certain fields at admission (resource-requests defaults and anti-affinity/topology-spread), and **23 cluster-level configuration requirements**.
 
 ## Quick Reference
-| Property | Value |
-|----------|-------|
-| Best for | AKS Automatic migration readiness and manifest validation |
-| MCP Tools | `mcp_azure_mcp_aks` |
+
+| Property       | Value                                                                                                            |
+| -------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Best for       | AKS Automatic migration readiness and manifest validation                                                        |
+| MCP Tools      | `mcp_azure_mcp_aks`                                                                                              |
 | Related skills | azure-kubernetes (cluster creation), azure-diagnostics (live troubleshooting), azure-validate (readiness checks) |
 
 ## When to Use This Skill
+
 - "Can I migrate to AKS Automatic?"
 - "Check my cluster readiness for Automatic"
 - "Validate manifests against AKS Automatic constraints"
@@ -37,10 +39,12 @@ AKS Automatic enforces **Deployment Safeguards** (21 active policies, some deny,
 ## Routing Rules
 
 ### Route to `azure-kubernetes` instead:
+
 - "Create an AKS cluster" / "What are AKS best practices?" / "How do I deploy to AKS?"
 - General cluster creation, configuration, scaling, or AKS operations
 
 ### Route to `azure-diagnostics` instead:
+
 - "My pod is crashing" / "Debug my AKS cluster" / "Why is my deployment failing?"
 - Live troubleshooting, debugging, error diagnosis on a running cluster
 
@@ -52,8 +56,9 @@ AKS Automatic enforces **Deployment Safeguards** (21 active policies, some deny,
 4. **Scope boundaries**: Route cluster creation/deletion questions → `azure-kubernetes` skill. Route live troubleshooting → `azure-diagnostics` skill.
 
 ## MCP Tools
-| Tool | Purpose | Key Parameters |
-|------|---------|----------------|
+
+| Tool                | Purpose                                                                                                   | Key Parameters                                                 |
+| ------------------- | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
 | `mcp_azure_mcp_aks` | AKS MCP entry point — call `discover` first, then use the assessment action name returned in the response | `subscriptionId`, `resourceGroupName`, `resourceName`, `scope` |
 
 ## Workflow
@@ -79,7 +84,7 @@ Call the AKS MCP tool — this is the preferred path. Always call `discover` fir
 
 ```javascript
 // Step 1: Discover available actions
-mcp_azure_mcp_aks({ action: "discover" })
+mcp_azure_mcp_aks({ action: "discover" });
 
 // Step 2: Use the assessment action name from the discover response
 mcp_azure_mcp_aks({
@@ -89,18 +94,20 @@ mcp_azure_mcp_aks({
   resourceName: "<cluster-name>",
   scope: {
     excludeNamespaces: ["kube-system", "gatekeeper-system"],
-    workloadTypes: ["Deployment", "StatefulSet", "DaemonSet", "CronJob", "Job"]
-  }
-})
+    workloadTypes: ["Deployment", "StatefulSet", "DaemonSet", "CronJob", "Job"],
+  },
+});
 ```
 
 **Required permissions:**
+
 - `Microsoft.ContainerService/managedClusters/read`
 - `Microsoft.ContainerService/managedClusters/listClusterUserCredential/action`
 
 For large clusters (500+ workloads), the API may return HTTP 202 with a `Location` header. Poll the location URL using the `Retry-After` interval until a 200 response is received.
 
 **Parsing the MCP response:**
+
 1. **`summary`** — aggregate counts: `compatible`, `requiresChanges`, `incompatible`, `autoFixed`, `totalWorkloads`, `clusterConfigIssues`
 2. **`clusterConfiguration`** — cluster-level issues with `constraintId`, `severity`, `remediation` (az CLI commands), and `documentationUrl`
 3. **`workloads[]`** — per-workload array, each with `name`, `namespace`, `kind`, `overallStatus`, and `issues[]`
@@ -116,6 +123,7 @@ Each issue in `workloads[].issues[]` contains: `constraintId`, `severity` (`inco
 ```
 
 If `mcp_azure_mcp_aks` is not available, inform the user:
+
 > "The Azure MCP server is not configured in your editor. To enable live cluster assessment, follow the setup guide at [aka.ms/azure-mcp-setup](https://aka.ms/azure-mcp-setup). For now, I can validate your local manifests offline."
 
 Then proceed to offline mode.
@@ -124,10 +132,11 @@ Then proceed to offline mode.
 
 Load the constraint spec from `references/constraint-spec-v1.yaml` and evaluate each manifest. The check field tells you what to check for and what fields to check. The fix field will tell you any allowed values and possible fixes. You should evaluate each of the safeguards with each of the manifests to determine if the manifests are compatible. Suggest any fixes that are needed.
 
-Key Checks: 
+Key Checks:
 **Per container** (containers, initContainers, ephemeralContainers):
+
 - Resource requests/limits → `safeguard-container-resource-requests`
-- Readiness and liveness probes → `safeguard-probes-configured` *(warning-only — not blocked at admission; treat as informational)*
+- Readiness and liveness probes → `safeguard-probes-configured` _(warning-only — not blocked at admission; treat as informational)_
 - Image tag not `:latest` → `safeguard-images-no-latest`
 - `securityContext.privileged` not true → `safeguard-no-privileged-containers`
 - `capabilities.add` only adds allowed capabilities → `safeguard-container-capabilities`
@@ -135,23 +144,24 @@ Key Checks:
 - no `host` field in any container probes and lifecycle hooks → `safeguard-host-probes`
 
 **Per pod spec:**
+
 - `hostPID`/`hostIPC` not true → `safeguard-block-host-namespaces` (incompatible)
 - `hostNetwork`/`hostPort` not true → `safeguard-host-network-ports` (incompatible)
 - No `hostPath` volumes → `safeguard-no-host-path-volumes` (incompatible)
 
 **Per workload type:**
+
 - Deployments/StatefulSets with replicas > 1: podAntiAffinity or topologySpreadConstraints → `safeguard-pod-enforce-antiaffinity`
 - StorageClass: CSI provisioner (not in-tree) → `safeguard-csi-driver-storage-class`
 
-
 ### Severity Classification
 
-| Severity | Meaning | Action |
-|----------|---------|--------|
-| `incompatible` | Fundamental architecture issue; cannot run on Automatic without redesign | Must fix before migration — flag prominently |
-| `requiresChanges` | Manifest changes needed; will be denied at admission | Generate fix diffs |
-| `autoFixed` | AKS Automatic will mutate this at admission; no user action needed | Informational — show what will change |
-| `informational` | No enforcement | Mention briefly |
+| Severity          | Meaning                                                                  | Action                                       |
+| ----------------- | ------------------------------------------------------------------------ | -------------------------------------------- |
+| `incompatible`    | Fundamental architecture issue; cannot run on Automatic without redesign | Must fix before migration — flag prominently |
+| `requiresChanges` | Manifest changes needed; will be denied at admission                     | Generate fix diffs                           |
+| `autoFixed`       | AKS Automatic will mutate this at admission; no user action needed       | Informational — show what will change        |
+| `informational`   | No enforcement                                                           | Mention briefly                              |
 
 ### Step 3: Present Findings
 
@@ -172,6 +182,7 @@ Always start with the summary:
 Grouping: ≤ 10 issues → list individually; > 10 → group by constraint ID. Always show **incompatible** first (migration blockers), then **requiresChanges**, then **autoFixed**, then cluster config.
 
 Per-issue format:
+
 ```
 ### ❌ [constraint-id] — Short description
 **Severity:** incompatible | requiresChanges
@@ -185,6 +196,7 @@ Per-issue format:
 ### Step 4: Offer Fixes
 
 **Deterministic fixes** (have `suggestedPatch` — generate YAML diff directly):
+
 - `safeguard-container-resource-requests` — add `resources.requests`
 - `safeguard-container-capabilities` — remove `capabilities.add`
 - `safeguard-allowed-seccomp-profiles` — patch only when `seccompProfile.type: Unconfined` is present, or when the MCP `suggestedPatch` explicitly requires a seccomp change
@@ -194,6 +206,7 @@ Per-issue format:
 Use patterns in `references/common-fixes.md` and generate a before/after diff. Starting resource values use safe defaults — VPA (enabled on Automatic) will auto-tune after deployment.
 
 **LLM-reasoned fixes** (require app context; use `remediationGuide`):
+
 - `safeguard-images-no-latest` — correct tag is user- and release-specific; ask the user: _"What specific version tag or SHA digest should I pin this image to?"_ Do not guess
 - `safeguard-pod-enforce-antiaffinity` — needs app labels for selector
 - `safeguard-no-host-path-volumes` — replacement depends on what hostPath is used for
@@ -203,6 +216,7 @@ Use patterns in `references/common-fixes.md` and generate a before/after diff. S
 For incompatible findings (e.g., hostPath volumes), explain the issue and propose alternatives. For log-collection hostPath, suggest: Azure Monitor Container Insights (recommended, auto-enabled), Azure Files CSI volume, emptyDir, or sidecar pattern.
 
 **Fix application flow:**
+
 1. Generate the fix as a YAML diff
 2. Show the diff with explanation
 3. Wait for explicit approval: "apply", "edit", or "skip"
@@ -214,6 +228,7 @@ If the user says "fix all" or "apply all deterministic fixes", first generate a 
 ### Step 5: Recommend Next Steps
 
 **All issues resolved (or only autoFixed remaining):**
+
 ```
 Your workloads are ready for AKS Automatic! Next steps:
 1. Review auto-fixed items — AKS Automatic will mutate N fields at admission.
@@ -221,6 +236,7 @@ Your workloads are ready for AKS Automatic! Next steps:
 3. Perform the SKU switch — follow the migration guide.
 4. Verify — after migration, check all workloads are running and healthy.
 ```
+
 See `references/migration-guide-summary.md` for the full migration checklist.
 
 **Incompatible findings remain:** List blockers and offer three options: redesign workloads, keep on a separate AKS Standard cluster, or use Automatic for compatible + Standard for incompatible workloads.
@@ -229,21 +245,21 @@ See `references/migration-guide-summary.md` for the full migration checklist.
 
 ## Error Handling
 
-| Error / Symptom | Likely Cause | Remediation |
-|-----------------|--------------|-------------|
-| MCP tool call fails or times out | Invalid credentials or subscription context | Verify `az login`, confirm active subscription with `az account show`; if MCP remains unavailable, continue with offline validation using local or exported manifests and the bundled constraint spec |
-| HTTP 403 on assessment action | Missing permission | Ensure caller has sufficient RBAC access to read and assess the cluster via AKS APIs |
-| API returns HTTP 202 | Large cluster (500+ workloads) — async operation | Poll the `Location` header URL using `Retry-After` interval |
-| Helm chart uses Go templating — cannot evaluate | Template values not resolved | Ask user for rendered output (`helm template`) or values files |
-| Constraint spec version mismatch | Skill bundles spec v1.1.1 (2026-03-15) | Note version in output; recommend re-running after spec update |
+| Error / Symptom                                 | Likely Cause                                     | Remediation                                                                                                                                                                                           |
+| ----------------------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| MCP tool call fails or times out                | Invalid credentials or subscription context      | Verify `az login`, confirm active subscription with `az account show`; if MCP remains unavailable, continue with offline validation using local or exported manifests and the bundled constraint spec |
+| HTTP 403 on assessment action                   | Missing permission                               | Ensure caller has sufficient RBAC access to read and assess the cluster via AKS APIs                                                                                                                  |
+| API returns HTTP 202                            | Large cluster (500+ workloads) — async operation | Poll the `Location` header URL using `Retry-After` interval                                                                                                                                           |
+| Helm chart uses Go templating — cannot evaluate | Template values not resolved                     | Ask user for rendered output (`helm template`) or values files                                                                                                                                        |
+| Constraint spec version mismatch                | Skill bundles spec v1.1.1 (2026-03-15)           | Note version in output; recommend re-running after spec update                                                                                                                                        |
 
 ## Reference Files
 
-| File | When to load |
-|------|--------------|
-| `references/constraint-spec-v1.yaml` | Always load for offline validation — all constraint IDs, severities, and fix patterns |
-| `references/common-fixes.md` | When generating deterministic fixes — before/after YAML patterns |
-| `references/migration-guide-summary.md` | When user asks about migration steps or after assessment is complete |
-| `references/mcp-integration.md` | When troubleshooting MCP tool calls or debugging the fallback chain |
+| File                                    | When to load                                                                          |
+| --------------------------------------- | ------------------------------------------------------------------------------------- |
+| `references/constraint-spec-v1.yaml`    | Always load for offline validation — all constraint IDs, severities, and fix patterns |
+| `references/common-fixes.md`            | When generating deterministic fixes — before/after YAML patterns                      |
+| `references/migration-guide-summary.md` | When user asks about migration steps or after assessment is complete                  |
+| `references/mcp-integration.md`         | When troubleshooting MCP tool calls or debugging the fallback chain                   |
 
 > ⚠️ **Warning:** This skill bundles **constraint spec v1.1.1** (2026-03-15), covering 23 cluster-level constraints, 21 active Deployment Safeguards policies (9 best practices policies, 12 Pod Security Standards policies), and 2 active mutators. Always note the spec version in assessment output.

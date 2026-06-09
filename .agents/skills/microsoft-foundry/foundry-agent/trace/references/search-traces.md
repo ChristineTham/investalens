@@ -28,6 +28,7 @@ dependencies
 ## Search by Response ID
 
 Auto-detect the response ID format to determine agent type:
+
 - `caresp_...` → Hosted agent (AgentServer)
 - `resp_...` → Prompt agent (Foundry Responses API)
 - `chatcmpl-...` → Azure OpenAI chat completions
@@ -69,7 +70,7 @@ Also check for eval results: see [Eval Correlation](eval-correlation.md).
 
 ## Search by Agent Name
 
-> **Note:** For hosted agents, `gen_ai.agent.name` in `dependencies` refers to *sub-agents* (e.g., `BingSearchAgent`), not the top-level hosted agent. See "Search by Hosted Agent Name" below.
+> **Note:** For hosted agents, `gen_ai.agent.name` in `dependencies` refers to _sub-agents_ (e.g., `BingSearchAgent`), not the top-level hosted agent. See "Search by Hosted Agent Name" below.
 
 > 💡 **Hosted-agent versioning:** If you need the deployed version, use the hosted-agent pattern below and parse `gen_ai.agent.id` when it is emitted in `<agent-name>:<version>` format.
 
@@ -138,10 +139,10 @@ If `gen_ai.agent.id` does not contain `:`, continue using the requests-scoped na
 
 Present results in this format:
 
-| Conversation ID | Agent Version | Start Time | Duration | Spans | Errors | Input Tokens | Output Tokens |
-|----------------|---------------|------------|----------|-------|--------|-------------|---------------|
-| conv_abc123 | 3 | 2025-01-15 10:30 | 4.2s | 12 | 0 | 850 | 320 |
-| conv_def456 | 4 | 2025-01-15 10:25 | 8.7s | 18 | 2 | 1200 | 450 |
+| Conversation ID | Agent Version | Start Time       | Duration | Spans | Errors | Input Tokens | Output Tokens |
+| --------------- | ------------- | ---------------- | -------- | ----- | ------ | ------------ | ------------- |
+| conv_abc123     | 3             | 2025-01-15 10:30 | 4.2s     | 12    | 0      | 850          | 320           |
+| conv_def456     | 4             | 2025-01-15 10:25 | 8.7s     | 18    | 2      | 1200         | 450           |
 
 Highlight rows with errors in the summary. Offer to drill into any conversation via [Conversation Detail](conversation-detail.md).
 

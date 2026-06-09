@@ -37,7 +37,7 @@ resource "azurerm_storage_account" "function_storage" {
   resource_group_name      = azurerm_resource_group.main.name
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  
+
   min_tls_version              = "TLS1_2"
   allow_nested_items_to_be_public = false
   shared_access_key_enabled    = false  # Enforce managed identity
@@ -101,7 +101,7 @@ resource "azurerm_linux_function_app" "function_app" {
 
   site_config {
     application_insights_connection_string = azurerm_application_insights.function_insights.connection_string
-    
+
     application_stack {
       python_version = "3.11"  # Adjust based on runtime
     }
@@ -123,6 +123,7 @@ resource "azurerm_role_assignment" "function_storage_access" {
 ```
 
 > 💡 **Key Points:**
+>
 > - Use `AzureWebJobsStorage__blobServiceUri` instead of connection string
 > - Set `shared_access_key_enabled = false` for enhanced security
 > - Use `storage_uses_managed_identity = true` for deployment authentication
@@ -141,7 +142,7 @@ module "function_app" {
   name                = "${var.resource_prefix}-${var.service_name}-${var.unique_hash}"
   location            = var.location
   resource_group_name = azurerm_resource_group.main.name
-  
+
   kind    = "functionapp"
   os_type = "Linux"
 
@@ -152,7 +153,7 @@ module "function_app" {
 
   site_config = {
     application_insights_connection_string = azurerm_application_insights.function_insights.connection_string
-    
+
     application_stack = {
       python_version = "3.11"
     }
@@ -181,6 +182,7 @@ module "function_app" {
 **⚠️ Not recommended for new deployments. Use Flex Consumption instead.**
 
 > 💡 **OS and Slots Matter for Consumption:**
+>
 > - **Linux Consumption** (`os_type = "Linux"`): Does **not** support deployment slots.
 > - **Windows Consumption** (`os_type = "Windows"`): Supports **1 staging slot** (2 total including production).
 >   If a user specifically needs Windows Consumption with a slot, that is supported — use the Windows pattern below.
@@ -211,13 +213,13 @@ resource "azurerm_linux_function_app" "function_app" {
   resource_group_name = azurerm_resource_group.main.name
   service_plan_id     = azurerm_service_plan.function_plan.id
   https_only          = true
-  
+
   storage_account_name       = azurerm_storage_account.function_storage.name
   storage_account_access_key = azurerm_storage_account.function_storage.primary_access_key
-  
+
   site_config {
     application_insights_connection_string = azurerm_application_insights.function_insights.connection_string
-    
+
     application_stack {
       python_version = "3.11"
     }
@@ -315,15 +317,15 @@ data "azurerm_servicebus_namespace" "example" {
 
 resource "azurerm_linux_function_app" "function_app" {
   # ... (Function App definition from above)
-  
+
   app_settings = {
     # Storage with managed identity
     "AzureWebJobsStorage__blobServiceUri" = azurerm_storage_account.function_storage.primary_blob_endpoint
-    
+
     # Service Bus with managed identity
     "SERVICEBUS__fullyQualifiedNamespace" = "${data.azurerm_servicebus_namespace.example.name}.servicebus.windows.net"
     "SERVICEBUS_QUEUE_NAME"               = var.servicebus_queue_name
-    
+
     # Other settings...
     "FUNCTIONS_EXTENSION_VERSION"  = "~4"
     "FUNCTIONS_WORKER_RUNTIME"     = "python"
@@ -347,6 +349,7 @@ resource "azurerm_role_assignment" "servicebus_sender" {
 ```
 
 > 💡 **Key Points:**
+>
 > - Use `SERVICEBUS__fullyQualifiedNamespace` (double underscore) for managed identity
 > - Grant `Service Bus Data Receiver` role for reading messages
 > - Grant `Service Bus Data Sender` role for sending messages (if needed)
@@ -365,13 +368,13 @@ resource "azurerm_service_plan" "function_plan" {
 
 resource "azurerm_linux_function_app" "function_app" {
   # ... (rest of configuration similar to Flex Consumption)
-  
+
   site_config {
     # Premium-specific settings
     always_on                      = true
     pre_warmed_instance_count      = 1
     elastic_instance_minimum       = 1
-    
+
     application_stack {
       python_version = "3.11"
     }

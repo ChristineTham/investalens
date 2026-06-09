@@ -15,11 +15,11 @@ Connect an agent to Microsoft Fabric data — Ontology, Fabric data agents, and 
 
 ## `server_url` by Fabric item type
 
-| Fabric item | `server_url` pattern | Supported auth |
-|---|---|---|
-| Ontology | `https://{host}/v1/mcp/dataPlane/workspaces/{workspaceId}/items/{itemId}/ontologyEndpoint` | BYO Entra app only |
-| Fabric data agent | `https://{host}/v1/mcp/workspaces/{workspaceId}/dataagents/{dataAgentId}/agent` | BYO Entra app *or* managed OAuth |
-| Power BI semantic model | `https://{host}/v1/mcp/fabricaihub/integrations/m365` | BYO Entra app *or* managed OAuth |
+| Fabric item             | `server_url` pattern                                                                       | Supported auth                   |
+| ----------------------- | ------------------------------------------------------------------------------------------ | -------------------------------- |
+| Ontology                | `https://{host}/v1/mcp/dataPlane/workspaces/{workspaceId}/items/{itemId}/ontologyEndpoint` | BYO Entra app only               |
+| Fabric data agent       | `https://{host}/v1/mcp/workspaces/{workspaceId}/dataagents/{dataAgentId}/agent`            | BYO Entra app _or_ managed OAuth |
+| Power BI semantic model | `https://{host}/v1/mcp/fabricaihub/integrations/m365`                                      | BYO Entra app _or_ managed OAuth |
 
 ## Requirements
 

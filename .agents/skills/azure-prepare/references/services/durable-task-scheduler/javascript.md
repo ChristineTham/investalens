@@ -127,19 +127,19 @@ df.app.orchestration("approvalWorkflow", function* (context) {
 
 ## Orchestration Determinism
 
-| ❌ NEVER | ✅ ALWAYS USE |
-|----------|--------------|
-| `new Date()` | `context.df.currentUtcDateTime` |
-| `Math.random()` | Pass random values from activities |
-| `setTimeout()` | `context.df.createTimer()` |
-| Direct I/O, HTTP, database | `context.df.callActivity()` |
+| ❌ NEVER                   | ✅ ALWAYS USE                      |
+| -------------------------- | ---------------------------------- |
+| `new Date()`               | `context.df.currentUtcDateTime`    |
+| `Math.random()`            | Pass random values from activities |
+| `setTimeout()`             | `context.df.createTimer()`         |
+| Direct I/O, HTTP, database | `context.df.callActivity()`        |
 
 ### Replay-Safe Logging
 
 ```javascript
 df.app.orchestration("myOrchestration", function* (context) {
   if (!context.df.isReplaying) {
-    console.log("Started");  // Only logs once, not on replay
+    console.log("Started"); // Only logs once, not on replay
   }
   const result = yield context.df.callActivity("myActivity", "input");
   return result;
@@ -163,7 +163,10 @@ df.app.orchestration("workflowWithRetry", function* (context) {
     return result;
   } catch (ex) {
     context.df.setCustomStatus({ error: ex.message });
-    yield context.df.callActivity("compensationActivity", context.df.getInput());
+    yield context.df.callActivity(
+      "compensationActivity",
+      context.df.getInput()
+    );
     return "Compensated";
   }
 });
@@ -174,9 +177,13 @@ df.app.orchestration("workflowWithRetry", function* (context) {
 For applications running outside Azure Functions (containers, VMs, Azure Container Apps, Azure Kubernetes Service):
 
 ```javascript
-const { createAzureManagedWorkerBuilder, createAzureManagedClient } = require("@microsoft/durabletask-js-azuremanaged");
+const {
+  createAzureManagedWorkerBuilder,
+  createAzureManagedClient,
+} = require("@microsoft/durabletask-js-azuremanaged");
 
-const connectionString = "Endpoint=http://localhost:8080;Authentication=None;TaskHub=default";
+const connectionString =
+  "Endpoint=http://localhost:8080;Authentication=None;TaskHub=default";
 
 // Activity
 const sayHello = async (_ctx, name) => `Hello ${name}!`;
@@ -198,8 +205,15 @@ async function main() {
 
   // Client
   const client = createAzureManagedClient(connectionString);
-  const instanceId = await client.scheduleNewOrchestration("myOrchestration", "World");
-  const state = await client.waitForOrchestrationCompletion(instanceId, true, 30);
+  const instanceId = await client.scheduleNewOrchestration(
+    "myOrchestration",
+    "World"
+  );
+  const state = await client.waitForOrchestrationCompletion(
+    instanceId,
+    true,
+    30
+  );
   console.log("Output:", state.serializedOutput);
 
   await client.stop();
@@ -208,4 +222,3 @@ async function main() {
 
 main().catch(console.error);
 ```
-

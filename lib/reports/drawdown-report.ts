@@ -50,7 +50,8 @@ export async function generateDrawdownReport(
 
     const firstPrice = Number(prices[0].close);
     const lastPrice = Number(prices[prices.length - 1].close);
-    const totalReturn = firstPrice > 0 ? (lastPrice - firstPrice) / firstPrice : 0;
+    const totalReturn =
+      firstPrice > 0 ? (lastPrice - firstPrice) / firstPrice : 0;
 
     items.push({
       instrumentCode: holding.instrument.code,

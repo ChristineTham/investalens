@@ -2,13 +2,13 @@
 
 ## What "health probe" means per service
 
-| Service | Mechanism | Where |
-|---|---|---|
-| App Service (Basic / Standard / Premium / Dedicated) | `siteConfig.healthCheckPath` (platform health check) | [services/app-service/reliability.md](services/app-service/reliability.md) |
-| Functions Premium / Dedicated | `siteConfig.healthCheckPath` (platform health check) | [services/functions/reliability.md](services/functions/reliability.md) |
-| Functions Flex Consumption (FC1) / Consumption (Y1) | HTTP-triggered `/api/health` function in **app code** — `healthCheckPath` is unsupported | [services/functions/reliability.md](services/functions/reliability.md) |
-| Azure Front Door | `healthProbeSettings` on origin group | [health-probe-checks.md](health-probe-checks.md) |
-| Traffic Manager | `monitorConfig` on profile | [health-probe-checks.md](health-probe-checks.md) |
+| Service                                              | Mechanism                                                                                | Where                                                                      |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| App Service (Basic / Standard / Premium / Dedicated) | `siteConfig.healthCheckPath` (platform health check)                                     | [services/app-service/reliability.md](services/app-service/reliability.md) |
+| Functions Premium / Dedicated                        | `siteConfig.healthCheckPath` (platform health check)                                     | [services/functions/reliability.md](services/functions/reliability.md)     |
+| Functions Flex Consumption (FC1) / Consumption (Y1)  | HTTP-triggered `/api/health` function in **app code** — `healthCheckPath` is unsupported | [services/functions/reliability.md](services/functions/reliability.md)     |
+| Azure Front Door                                     | `healthProbeSettings` on origin group                                                    | [health-probe-checks.md](health-probe-checks.md)                           |
+| Traffic Manager                                      | `monitorConfig` on profile                                                               | [health-probe-checks.md](health-probe-checks.md)                           |
 
 > Container Apps (`liveness` / `readiness` probes) deep-dive references are planned for a future version of this skill but are not yet shipped.
 
@@ -27,4 +27,3 @@ These apply to any service:
 3. **Two endpoints, not one** — a fast `/health` for the load balancer, and an optional `/health/deep` for on-call diagnostics.
 4. **For Container Apps, both liveness AND readiness** — liveness alone restarts the container without taking it out of rotation first.
 5. **Test the endpoint** before relying on it: `curl https://<app-url>/api/health`.
-

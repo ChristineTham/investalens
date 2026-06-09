@@ -4,12 +4,12 @@ Copilot-guided step-by-step workflow for enabling Essential Machine Management o
 
 ## Quick Reference
 
-| Property | Value |
-| -------- | ----- |
-| Resource type | `Microsoft.ManagedOps/ManagedOps` |
-| Resource provider | `Microsoft.ManagedOps` |
-| API version | `2025-07-28-preview` |
-| Deployment scope | Subscription-level |
+| Property          | Value                             |
+| ----------------- | --------------------------------- |
+| Resource type     | `Microsoft.ManagedOps/ManagedOps` |
+| Resource provider | `Microsoft.ManagedOps`            |
+| API version       | `2025-07-28-preview`              |
+| Deployment scope  | Subscription-level                |
 
 ## Workflow Steps
 
@@ -17,8 +17,8 @@ Copilot-guided step-by-step workflow for enabling Essential Machine Management o
 
 Ask the user which subscription to enable EMM for. Use MCP tools to list subscriptions if needed.
 
-| MCP Tool | Purpose |
-| -------- | ------- |
+| MCP Tool                          | Purpose                      |
+| --------------------------------- | ---------------------------- |
 | `mcp_azure_mcp_subscription_list` | List available subscriptions |
 
 Store the selected `subscriptionId` and `tenant` for all subsequent steps.
@@ -51,11 +51,11 @@ GET https://management.azure.com/subscriptions/{subscriptionId}/providers/Micros
 
 For each role assignment, match `properties.roleDefinitionId` to the role definitions to resolve the role name and its `properties.permissions[]`. Then check whether the user's combined permissions cover all three required roles:
 
-| Required Role | Key Permissions (actions) |
-| ------------- | ------------------------ |
+| Required Role                              | Key Permissions (actions)                                                                                                                                                                         |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Essential Machine Management Administrator | `Microsoft.ManagedOps/managedOps/*`, `Microsoft.Insights/dataCollectionRules/*`, `Microsoft.Monitor/accounts/*`, `Microsoft.OperationalInsights/workspaces/read`, `Microsoft.Security/pricings/*` |
-| Managed Identity Operator | `Microsoft.ManagedIdentity/userAssignedIdentities/*/read`, `Microsoft.ManagedIdentity/userAssignedIdentities/*/assign/action` |
-| Resource Policy Contributor | `Microsoft.Authorization/policyassignments/*`, `Microsoft.Authorization/policydefinitions/*`, `Microsoft.PolicyInsights/*` |
+| Managed Identity Operator                  | `Microsoft.ManagedIdentity/userAssignedIdentities/*/read`, `Microsoft.ManagedIdentity/userAssignedIdentities/*/assign/action`                                                                     |
+| Resource Policy Contributor                | `Microsoft.Authorization/policyassignments/*`, `Microsoft.Authorization/policydefinitions/*`, `Microsoft.PolicyInsights/*`                                                                        |
 
 > 💡 **Tip:** If the user has **Owner** at subscription scope, they satisfy all required permissions. Check for these first as a fast path.
 
@@ -86,14 +86,15 @@ Store the full UAMI resource ID: `/subscriptions/<sub>/resourceGroups/<rg>/provi
 
 Ask the user for a **Log Analytics workspace** and an **Azure Monitor workspace**. Offer to create new ones if needed.
 
-| Resource | CLI Command | Purpose |
-| -------- | ----------- | ------- |
-| Log Analytics workspace (list) | `az monitor log-analytics workspace list --subscription <subId> -o table` | List existing workspaces |
-| Log Analytics workspace (create) | `az monitor log-analytics workspace create --workspace-name <name> --resource-group <rg> --subscription <subId> --location <location>` | Create new workspace |
-| Azure Monitor workspace (list) | `az resource list --resource-type "Microsoft.Monitor/accounts" --subscription <subId> -o table` | List existing workspaces |
-| Azure Monitor workspace (create) | `az resource create --resource-type "Microsoft.Monitor/accounts" --name <name> --resource-group <rg> --subscription <subId> --location <location> --properties "{}"` | Create new workspace |
+| Resource                         | CLI Command                                                                                                                                                          | Purpose                  |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| Log Analytics workspace (list)   | `az monitor log-analytics workspace list --subscription <subId> -o table`                                                                                            | List existing workspaces |
+| Log Analytics workspace (create) | `az monitor log-analytics workspace create --workspace-name <name> --resource-group <rg> --subscription <subId> --location <location>`                               | Create new workspace     |
+| Azure Monitor workspace (list)   | `az resource list --resource-type "Microsoft.Monitor/accounts" --subscription <subId> -o table`                                                                      | List existing workspaces |
+| Azure Monitor workspace (create) | `az resource create --resource-type "Microsoft.Monitor/accounts" --name <name> --resource-group <rg> --subscription <subId> --location <location> --properties "{}"` | Create new workspace     |
 
 > ⚠️ **Warning:** If workspaces are in a **different subscription** than the target:
+>
 > - Register `Microsoft.ManagedOps` RP in the workspace subscription
 > - User needs **EMM Administrator** role on the workspace resource group
 > - UAMI needs **Contributor** on the workspace resource group
@@ -104,11 +105,11 @@ Store both workspace resource IDs.
 
 Ask the user about optional security add-ons.
 
-| Feature | Default | Cost |
-| ------- | ------- | ---- |
-| Foundational CSPM | Always enabled | Free |
-| Defender CSPM | Disabled | Paid |
-| Defender for Cloud | Disabled | Paid |
+| Feature            | Default        | Cost |
+| ------------------ | -------------- | ---- |
+| Foundational CSPM  | Always enabled | Free |
+| Defender CSPM      | Disabled       | Paid |
+| Defender for Cloud | Disabled       | Paid |
 
 Store user selections as `enabled` or `disabled`.
 
@@ -186,11 +187,11 @@ DELETE /subscriptions/{subscriptionId}/providers/Microsoft.ManagedOps/managedOps
 
 ## Error Handling
 
-| Error | Cause | Remediation |
-| ----- | ----- | ----------- |
-| 403 on role check | User has no RBAC role assignment on the subscription (the `assignedTo` filter is self-scoped and does not require `roleAssignments/read`, but the user must have at least one role on the subscription) | Inform user they lack Owner or Contributor role on this subscription and cannot proceed with EMM enrollment |
-| Missing required roles | User missing EMM Administrator, Managed Identity Operator, or Resource Policy Contributor | Guide user to assign missing roles, then re-validate |
-| UAMI lacks Contributor | Managed identity missing Contributor role | Assign Contributor to the UAMI at subscription scope |
-| RP registration failed | Insufficient permissions to register providers | User needs Contributor or Owner on the subscription |
-| PUT deployment fails | ARM validation error | Check error details; verify all prerequisites met |
-| Cross-subscription error | Workspace in different sub without RP/role setup | Register `Microsoft.ManagedOps` in workspace sub; assign roles on workspace RG |
+| Error                    | Cause                                                                                                                                                                                                   | Remediation                                                                                                 |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| 403 on role check        | User has no RBAC role assignment on the subscription (the `assignedTo` filter is self-scoped and does not require `roleAssignments/read`, but the user must have at least one role on the subscription) | Inform user they lack Owner or Contributor role on this subscription and cannot proceed with EMM enrollment |
+| Missing required roles   | User missing EMM Administrator, Managed Identity Operator, or Resource Policy Contributor                                                                                                               | Guide user to assign missing roles, then re-validate                                                        |
+| UAMI lacks Contributor   | Managed identity missing Contributor role                                                                                                                                                               | Assign Contributor to the UAMI at subscription scope                                                        |
+| RP registration failed   | Insufficient permissions to register providers                                                                                                                                                          | User needs Contributor or Owner on the subscription                                                         |
+| PUT deployment fails     | ARM validation error                                                                                                                                                                                    | Check error details; verify all prerequisites met                                                           |
+| Cross-subscription error | Workspace in different sub without RP/role setup                                                                                                                                                        | Register `Microsoft.ManagedOps` in workspace sub; assign roles on workspace RG                              |

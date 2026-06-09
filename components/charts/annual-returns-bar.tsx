@@ -42,9 +42,19 @@ export function AnnualReturnsBarChart({
         />
         <Legend />
         <ReferenceLine y={0} stroke="var(--muted-foreground)" />
-        <Bar dataKey="portfolio" fill="var(--primary)" name="Portfolio" radius={[4, 4, 0, 0]} />
+        <Bar
+          dataKey="portfolio"
+          fill="var(--primary)"
+          name="Portfolio"
+          radius={[4, 4, 0, 0]}
+        />
         {showBenchmark && (
-          <Bar dataKey="benchmark" fill="var(--muted)" name="Benchmark" radius={[4, 4, 0, 0]} />
+          <Bar
+            dataKey="benchmark"
+            fill="var(--muted)"
+            name="Benchmark"
+            radius={[4, 4, 0, 0]}
+          />
         )}
       </BarChart>
     </ResponsiveContainer>

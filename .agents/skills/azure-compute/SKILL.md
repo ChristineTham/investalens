@@ -14,6 +14,7 @@ Routes Azure VM requests to the appropriate workflow based on user intent.
 ## When to Use This Skill
 
 Activate this skill when the user:
+
 - Asks about Azure Virtual Machines (VMs) or VM Scale Sets (VMSS)
 - Asks about choosing a VM, VM sizing, pricing, or cost estimates
 - Needs a workload-based recommendation for scenarios like database, GPU, deep learning, HPC, web tier, or dev/test
@@ -43,21 +44,20 @@ User intent?
    └─ Ask: "Are you looking for a VM recommendation, troubleshooting a connectivity issue, managing capacity reservations, or enabling Essential Machine Management?"
 ```
 
-| Signal                                                                        | Workflow                                                                                   |
-| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| "recommend VM", "which VM", "VM size", "VM pricing", "VMSS", "scale set"     | [VM Recommender](workflows/vm-recommender/vm-recommender.md)                               |
-| "can't connect", "RDP", "SSH", "NSG blocking", "reset password", "black screen" | [VM Troubleshooter](workflows/vm-troubleshooter/vm-troubleshooter.md)                   |
-| "capacity reservation", "CRG", "reserve capacity", "guarantee capacity", "associate VM with CRG" | [Capacity Reservation](workflows/capacity-reservation/capacity-reservation.md) |
-| "essential machine management", "EMM", "machine enrollment" | [Essential Machine Management](workflows/essential-machine-management/essential-machine-management.md) |
+| Signal                                                                                           | Workflow                                                                                               |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| "recommend VM", "which VM", "VM size", "VM pricing", "VMSS", "scale set"                         | [VM Recommender](workflows/vm-recommender/vm-recommender.md)                                           |
+| "can't connect", "RDP", "SSH", "NSG blocking", "reset password", "black screen"                  | [VM Troubleshooter](workflows/vm-troubleshooter/vm-troubleshooter.md)                                  |
+| "capacity reservation", "CRG", "reserve capacity", "guarantee capacity", "associate VM with CRG" | [Capacity Reservation](workflows/capacity-reservation/capacity-reservation.md)                         |
+| "essential machine management", "EMM", "machine enrollment"                                      | [Essential Machine Management](workflows/essential-machine-management/essential-machine-management.md) |
 
 > **Routing rule:** Always read the matched workflow file before accessing any reference files. The workflow file contains the step-by-step guidance and the reference routing table for the user's request.
 
 ## Workflows
 
-| Workflow                  | Purpose                                                  | References                                                                   |
-| ------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| **VM Recommender**        | Recommend VM sizes, VMSS, pricing using public APIs/docs | [vm-families](references/vm-families.md), [retail-prices-api](references/retail-prices-api.md), [vmss-guide](references/vmss-guide.md), [vm-quotas](references/vm-quotas.md) |
-| **VM Troubleshooter**     | Diagnose and resolve VM connectivity failures (RDP/SSH)  | [cannot-connect-to-vm](workflows/vm-troubleshooter/references/cannot-connect-to-vm.md) |
-| **Capacity Reservation**  | Create and manage Capacity Reservation Groups (CRGs)     | [capacity-reservation-overview](workflows/capacity-reservation/references/capacity-reservation-overview.md), [association-disassociation](workflows/capacity-reservation/references/association-disassociation.md) |
+| Workflow                         | Purpose                                                    | References                                                                                                                                                                                                                                                                                                                                                                                       |
+| -------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **VM Recommender**               | Recommend VM sizes, VMSS, pricing using public APIs/docs   | [vm-families](references/vm-families.md), [retail-prices-api](references/retail-prices-api.md), [vmss-guide](references/vmss-guide.md), [vm-quotas](references/vm-quotas.md)                                                                                                                                                                                                                     |
+| **VM Troubleshooter**            | Diagnose and resolve VM connectivity failures (RDP/SSH)    | [cannot-connect-to-vm](workflows/vm-troubleshooter/references/cannot-connect-to-vm.md)                                                                                                                                                                                                                                                                                                           |
+| **Capacity Reservation**         | Create and manage Capacity Reservation Groups (CRGs)       | [capacity-reservation-overview](workflows/capacity-reservation/references/capacity-reservation-overview.md), [association-disassociation](workflows/capacity-reservation/references/association-disassociation.md)                                                                                                                                                                               |
 | **Essential Machine Management** | Enable and manage EMM for subscription-level VM onboarding | [emm-overview](workflows/essential-machine-management/references/emm-overview.md), [emm-prerequisites](workflows/essential-machine-management/references/emm-prerequisites.md), [emm-enable-flow-portal-guidance](workflows/essential-machine-management/references/emm-enable-flow-portal-guidance.md), [emm-enable-flow](workflows/essential-machine-management/references/emm-enable-flow.md) |
-

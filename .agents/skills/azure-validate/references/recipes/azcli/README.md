@@ -28,6 +28,7 @@ az version
 ```
 
 **If not installed:**
+
 ```
 mcp_azure_mcp_extension_cli_install(cli-type: "az")
 ```
@@ -39,11 +40,13 @@ az account show
 ```
 
 **If not logged in:**
+
 ```bash
 az login
 ```
 
 **Set subscription:**
+
 ```bash
 az account set --subscription <subscription-id>
 ```

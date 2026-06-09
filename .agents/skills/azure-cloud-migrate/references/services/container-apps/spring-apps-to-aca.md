@@ -8,22 +8,22 @@ This migration enables you to move existing Spring Boot applications from Azure 
 
 ## Migration Scenarios
 
-| Source Platform | Target Platform | Migration Path |
-|----------------|-----------------|----------------|
-| Azure Spring Apps | Azure Container Apps | Assess → Containerize → Deploy → Spring Cloud components |
-| Spring Boot on VMs | Azure Container Apps | Assess → Containerize → Deploy |
-| Spring Boot (other cloud) | Azure Container Apps | Assess → Containerize → Deploy |
+| Source Platform           | Target Platform      | Migration Path                                           |
+| ------------------------- | -------------------- | -------------------------------------------------------- |
+| Azure Spring Apps         | Azure Container Apps | Assess → Containerize → Deploy → Spring Cloud components |
+| Spring Boot on VMs        | Azure Container Apps | Assess → Containerize → Deploy                           |
+| Spring Boot (other cloud) | Azure Container Apps | Assess → Containerize → Deploy                           |
 
 ## Service Mapping
 
-| Spring Apps Feature | Container Apps Equivalent |
-|-------------------|---------------------------|
-| App Deployment | Container App |
-| Service Registry (Eureka) | Managed Eureka for Spring (`eureka-server-for-spring`); alt: Dapr service invocation + internal DNS |
-| Config Server | Managed Config Server for Spring (`config-server-for-spring`); alt: Azure App Configuration + Key Vault |
-| Spring Cloud Gateway | Managed Gateway for Spring; alt: Azure API Management / Container Apps ingress |
-| Distributed Tracing | Application Insights |
-| Log Streaming | Log Analytics Workspace |
+| Spring Apps Feature       | Container Apps Equivalent                                                                               |
+| ------------------------- | ------------------------------------------------------------------------------------------------------- |
+| App Deployment            | Container App                                                                                           |
+| Service Registry (Eureka) | Managed Eureka for Spring (`eureka-server-for-spring`); alt: Dapr service invocation + internal DNS     |
+| Config Server             | Managed Config Server for Spring (`config-server-for-spring`); alt: Azure App Configuration + Key Vault |
+| Spring Cloud Gateway      | Managed Gateway for Spring; alt: Azure API Management / Container Apps ingress                          |
+| Distributed Tracing       | Application Insights                                                                                    |
+| Log Streaming             | Log Analytics Workspace                                                                                 |
 
 ## Pre-Migration Assessment
 
@@ -47,13 +47,13 @@ See [spring-deployment-guide.md](spring-deployment-guide.md) for detailed phase-
 
 ## Key Differences from Azure Spring Apps
 
-| Aspect | Azure Spring Apps | Container Apps |
-|--------|-------------------|----------------|
-| Deployment Unit | JAR/WAR | Container Image |
-| Service Discovery | Built-in Eureka | Managed Eureka component (or Dapr / DNS) |
+| Aspect                   | Azure Spring Apps      | Container Apps                                         |
+| ------------------------ | ---------------------- | ------------------------------------------------------ |
+| Deployment Unit          | JAR/WAR                | Container Image                                        |
+| Service Discovery        | Built-in Eureka        | Managed Eureka component (or Dapr / DNS)               |
 | Configuration Management | Built-in Config Server | Managed Config Server component (or App Configuration) |
-| Scaling | Auto-scaling | HTTP/CPU/Memory/Custom metrics |
-| Networking | VNet injection | VNet integration + Internal ingress |
+| Scaling                  | Auto-scaling           | HTTP/CPU/Memory/Custom metrics                         |
+| Networking               | VNet injection         | VNet integration + Internal ingress                    |
 
 ## Best Practices
 
@@ -66,6 +66,7 @@ See [spring-deployment-guide.md](spring-deployment-guide.md) for detailed phase-
 ## Next Steps After Migration
 
 After successful migration:
+
 1. Configure Spring Cloud components (optional)
 2. Set up CI/CD pipeline with GitHub Actions / Azure DevOps
 3. Configure custom domains and SSL certificates

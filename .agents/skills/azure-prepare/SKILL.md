@@ -1,6 +1,6 @@
 ---
 name: azure-prepare
-description: "Prepare Azure apps for deployment (infra Bicep/Terraform, azure.yaml, Dockerfiles). Use for create/modernize or create+deploy; not cross-cloud migration (use azure-cloud-migrate). DO NOT USE FOR: copilot-sdk apps (use azure-hosted-copilot-sdk). WHEN: \"create app\", \"build web app\", \"create API\", \"create serverless HTTP API\", \"create frontend\", \"create back end\", \"build a service\", \"modernize application\", \"update application\", \"add authentication\", \"add caching\", \"host on Azure\", \"create and deploy\", \"deploy to Azure\", \"deploy to Azure using Terraform\", \"deploy to Azure App Service\", \"deploy to Azure App Service using Terraform\", \"deploy to Azure Container Apps\", \"deploy to Azure Container Apps using Terraform\", \"generate Terraform\", \"generate Bicep\", \"function app\", \"timer trigger\", \"service bus trigger\", \"event-driven function\", \"containerized Node.js app\", \"social media app\", \"static portfolio website\", \"todo list with frontend and API\", \"prepare my Azure application to use Key Vault\", \"managed identity\"."
+description: 'Prepare Azure apps for deployment (infra Bicep/Terraform, azure.yaml, Dockerfiles). Use for create/modernize or create+deploy; not cross-cloud migration (use azure-cloud-migrate). DO NOT USE FOR: copilot-sdk apps (use azure-hosted-copilot-sdk). WHEN: "create app", "build web app", "create API", "create serverless HTTP API", "create frontend", "create back end", "build a service", "modernize application", "update application", "add authentication", "add caching", "host on Azure", "create and deploy", "deploy to Azure", "deploy to Azure using Terraform", "deploy to Azure App Service", "deploy to Azure App Service using Terraform", "deploy to Azure Container Apps", "deploy to Azure Container Apps using Terraform", "generate Terraform", "generate Bicep", "function app", "timer trigger", "service bus trigger", "event-driven function", "containerized Node.js app", "social media app", "static portfolio website", "todo list with frontend and API", "prepare my Azure application to use Key Vault", "managed identity".'
 license: MIT
 metadata:
   author: Microsoft
@@ -18,6 +18,7 @@ metadata:
 ## Triggers
 
 Activate this skill when user wants to:
+
 - Create a new application
 - Add services or components to an existing app
 - Make updates or changes to existing application
@@ -53,7 +54,7 @@ Activate this skill when user wants to:
 >
 > The `.azure/deployment-plan.md` file is the **source of truth** for this workflow and for azure-validate and azure-deploy skills. Without it, those skills will fail.
 >
-> ⚠️ **CRITICAL: `.azure/deployment-plan.md` must be WRITTEN TO DISK inside the workspace root** (e.g., `/tmp/my-project/.azure/deployment-plan.md`), not in the session-state folder. Use a file-write tool to create this file. This is the deployment plan artifact read by azure-validate and azure-deploy. **You MUST create this file — do not proceed without it.** 
+> ⚠️ **CRITICAL: `.azure/deployment-plan.md` must be WRITTEN TO DISK inside the workspace root** (e.g., `/tmp/my-project/.azure/deployment-plan.md`), not in the session-state folder. Use a file-write tool to create this file. This is the deployment plan artifact read by azure-validate and azure-deploy. **You MUST create this file — do not proceed without it.**
 > ⚠️ **CRITICAL: You must create the file with the name `.azure/deployment-plan.md` as is**. You must not use other names such as `.azure/plan.md`.
 >
 > ⛔ **Critical:** Skipping the plan file creation will cause azure-validate and azure-deploy to fail. This requirement has no exceptions.
@@ -66,22 +67,22 @@ Activate this skill when user wants to:
 
 ### Check 1: Prompt keywords
 
-| Prompt keywords | Invoke FIRST |
-|----------------|-------------|
-| Lambda, AWS Lambda, migrate AWS, migrate GCP, Lambda to Functions, migrate from AWS, migrate from GCP | **azure-cloud-migrate** |
-| copilot SDK, copilot app, copilot-powered, @github/copilot-sdk, CopilotClient | **azure-hosted-copilot-sdk** |
-| Azure Functions, function app, serverless function, timer trigger, HTTP trigger, func new | Stay in **azure-prepare** — prefer Azure Functions templates in Step 4 |
-| APIM, API Management, API gateway, deploy APIM | Stay in **azure-prepare** — see [APIM Deployment Guide](references/apim.md) |
-| AI gateway, AI gateway policy, AI gateway backend, AI gateway configuration | **azure-aigateway** |
+| Prompt keywords                                                                                                      | Invoke FIRST                                                                                                                                                                                                                                                                                 |
+| -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lambda, AWS Lambda, migrate AWS, migrate GCP, Lambda to Functions, migrate from AWS, migrate from GCP                | **azure-cloud-migrate**                                                                                                                                                                                                                                                                      |
+| copilot SDK, copilot app, copilot-powered, @github/copilot-sdk, CopilotClient                                        | **azure-hosted-copilot-sdk**                                                                                                                                                                                                                                                                 |
+| Azure Functions, function app, serverless function, timer trigger, HTTP trigger, func new                            | Stay in **azure-prepare** — prefer Azure Functions templates in Step 4                                                                                                                                                                                                                       |
+| APIM, API Management, API gateway, deploy APIM                                                                       | Stay in **azure-prepare** — see [APIM Deployment Guide](references/apim.md)                                                                                                                                                                                                                  |
+| AI gateway, AI gateway policy, AI gateway backend, AI gateway configuration                                          | **azure-aigateway**                                                                                                                                                                                                                                                                          |
 | workflow, orchestration, multi-step, pipeline, fan-out/fan-in, saga, long-running process, durable, order processing | Stay in **azure-prepare** — select **durable** recipe in Step 4. **MUST** load [durable.md](references/services/functions/durable.md), [DTS reference](references/services/durable-task-scheduler/README.md), and [DTS Bicep patterns](references/services/durable-task-scheduler/bicep.md). |
 
 ### Check 2: Codebase markers (even if prompt is generic like "deploy to Azure")
 
-| Codebase marker | Where | Invoke FIRST |
-|----------------|-------|-------------|
-| `@github/copilot-sdk` in dependencies | `package.json` | **azure-hosted-copilot-sdk** |
-| `copilot-sdk` in name or dependencies | `package.json` | **azure-hosted-copilot-sdk** |
-| `CopilotClient` import | `.ts`/`.js` source files | **azure-hosted-copilot-sdk** |
+| Codebase marker                       | Where                    | Invoke FIRST                 |
+| ------------------------------------- | ------------------------ | ---------------------------- |
+| `@github/copilot-sdk` in dependencies | `package.json`           | **azure-hosted-copilot-sdk** |
+| `copilot-sdk` in name or dependencies | `package.json`           | **azure-hosted-copilot-sdk** |
+| `CopilotClient` import                | `.ts`/`.js` source files | **azure-hosted-copilot-sdk** |
 | `createSession` + `sendAndWait` calls | `.ts`/`.js` source files | **azure-hosted-copilot-sdk** |
 
 > ⚠️ Check the user's **prompt text** — not just existing code. Critical for greenfield projects with no codebase to scan. See [full routing table](references/specialized-routing.md).
@@ -94,17 +95,17 @@ After the specialized skill completes, **resume azure-prepare** at Phase 1 Step 
 
 Create `.azure/deployment-plan.md` by completing these steps. Do NOT generate any artifacts until the plan is approved.
 
-| # | Action | Reference |
-|---|--------|-----------|
-| 0 | **❌ Check Prompt AND Codebase for Specialized Tech** — If user mentions copilot SDK, Azure Functions, etc., OR codebase contains `@github/copilot-sdk`, invoke that skill first | [specialized-routing.md](references/specialized-routing.md) |
-| 1 | **Analyze Workspace** — Determine mode: NEW, MODIFY, or MODERNIZE | [analyze.md](references/analyze.md) |
-| 2 | **Gather Requirements** — Classification, scale, budget | [requirements.md](references/requirements.md) |
-| 3 | **Scan Codebase** — Identify components, technologies, dependencies | [scan.md](references/scan.md) |
-| 4 | **Select Recipe** — Choose AZD (default), AZCLI, Bicep, or Terraform | [recipe-selection.md](references/recipe-selection.md) |
-| 5 | **Plan Architecture** — Select stack + map components to Azure services | [architecture.md](references/architecture.md) |
-| 6 | **Finalize Plan (MANDATORY)** - Use a file-write tool to finalize `.azure/deployment-plan.md` with all decisions from steps 1-5. Update the skeleton written at the start of Phase 1 with the complete content. The file must be fully populated before you present the plan to the user. | [plan-template.md](references/plan-template.md) |
-| 7 | **Present Plan** — Show plan to user and ask for approval | `.azure/deployment-plan.md` |
-| 8 | **Destructive actions require `ask_user`** | [Global Rules](references/global-rules.md) |
+| #   | Action                                                                                                                                                                                                                                                                                    | Reference                                                   |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| 0   | **❌ Check Prompt AND Codebase for Specialized Tech** — If user mentions copilot SDK, Azure Functions, etc., OR codebase contains `@github/copilot-sdk`, invoke that skill first                                                                                                          | [specialized-routing.md](references/specialized-routing.md) |
+| 1   | **Analyze Workspace** — Determine mode: NEW, MODIFY, or MODERNIZE                                                                                                                                                                                                                         | [analyze.md](references/analyze.md)                         |
+| 2   | **Gather Requirements** — Classification, scale, budget                                                                                                                                                                                                                                   | [requirements.md](references/requirements.md)               |
+| 3   | **Scan Codebase** — Identify components, technologies, dependencies                                                                                                                                                                                                                       | [scan.md](references/scan.md)                               |
+| 4   | **Select Recipe** — Choose AZD (default), AZCLI, Bicep, or Terraform                                                                                                                                                                                                                      | [recipe-selection.md](references/recipe-selection.md)       |
+| 5   | **Plan Architecture** — Select stack + map components to Azure services                                                                                                                                                                                                                   | [architecture.md](references/architecture.md)               |
+| 6   | **Finalize Plan (MANDATORY)** - Use a file-write tool to finalize `.azure/deployment-plan.md` with all decisions from steps 1-5. Update the skeleton written at the start of Phase 1 with the complete content. The file must be fully populated before you present the plan to the user. | [plan-template.md](references/plan-template.md)             |
+| 7   | **Present Plan** — Show plan to user and ask for approval                                                                                                                                                                                                                                 | `.azure/deployment-plan.md`                                 |
+| 8   | **Destructive actions require `ask_user`**                                                                                                                                                                                                                                                | [Global Rules](references/global-rules.md)                  |
 
 ---
 
@@ -116,26 +117,26 @@ Create `.azure/deployment-plan.md` by completing these steps. Do NOT generate an
 
 Execute the approved plan. Update `.azure/deployment-plan.md` status after each step.
 
-| # | Action | Reference |
-|---|--------|-----------|
-| 1 | **Research Components** — Load service references + invoke related skills | [research.md](references/research.md) |
-| 2 | **Confirm Azure Context** — Detect and confirm subscription + location and check the resource provisioning limit | [Azure Context](references/azure-context.md) |
-| 3 | **Generate Artifacts** — Create infrastructure and configuration files | [generate.md](references/generate.md) |
-| 4 | **Harden Security** — Apply security best practices | [security.md](references/security.md) |
-| 5 | **Functional Verification** — Verify the app works (UI + backend), locally if possible | [functional-verification.md](references/functional-verification.md) |
-| 6 | **⛔ Update Plan (MANDATORY before hand-off)** — Use the `edit` tool to change the Status in `.azure/deployment-plan.md` to `Ready for Validation`. You **MUST** complete this edit **BEFORE** invoking azure-validate. Do NOT skip this step. | `.azure/deployment-plan.md` |
-| 7 | **⛔ MANDATORY Hand Off** — Invoke **azure-validate** skill. Your preparation work is done. Do NOT run `azd up`, `azd deploy`, or any deployment command directly — all deployment execution is handled by azure-deploy after azure-validate completes. **PREREQUISITE:** Step 6 must be completed first — `.azure/deployment-plan.md` status must say `Ready for Validation`. | — |
+| #   | Action                                                                                                                                                                                                                                                                                                                                                                         | Reference                                                           |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| 1   | **Research Components** — Load service references + invoke related skills                                                                                                                                                                                                                                                                                                      | [research.md](references/research.md)                               |
+| 2   | **Confirm Azure Context** — Detect and confirm subscription + location and check the resource provisioning limit                                                                                                                                                                                                                                                               | [Azure Context](references/azure-context.md)                        |
+| 3   | **Generate Artifacts** — Create infrastructure and configuration files                                                                                                                                                                                                                                                                                                         | [generate.md](references/generate.md)                               |
+| 4   | **Harden Security** — Apply security best practices                                                                                                                                                                                                                                                                                                                            | [security.md](references/security.md)                               |
+| 5   | **Functional Verification** — Verify the app works (UI + backend), locally if possible                                                                                                                                                                                                                                                                                         | [functional-verification.md](references/functional-verification.md) |
+| 6   | **⛔ Update Plan (MANDATORY before hand-off)** — Use the `edit` tool to change the Status in `.azure/deployment-plan.md` to `Ready for Validation`. You **MUST** complete this edit **BEFORE** invoking azure-validate. Do NOT skip this step.                                                                                                                                 | `.azure/deployment-plan.md`                                         |
+| 7   | **⛔ MANDATORY Hand Off** — Invoke **azure-validate** skill. Your preparation work is done. Do NOT run `azd up`, `azd deploy`, or any deployment command directly — all deployment execution is handled by azure-deploy after azure-validate completes. **PREREQUISITE:** Step 6 must be completed first — `.azure/deployment-plan.md` status must say `Ready for Validation`. | —                                                                   |
 
 ---
 
 ## Outputs
 
-| Artifact | Location |
-|----------|----------|
-| **Plan** | `.azure/deployment-plan.md` |
-| Infrastructure | `./infra/` |
-| AZD Config | `azure.yaml` (AZD only) |
-| Dockerfiles | `src/<component>/Dockerfile` |
+| Artifact       | Location                     |
+| -------------- | ---------------------------- |
+| **Plan**       | `.azure/deployment-plan.md`  |
+| Infrastructure | `./infra/`                   |
+| AZD Config     | `azure.yaml` (AZD only)      |
+| Dockerfiles    | `src/<component>/Dockerfile` |
 
 ---
 

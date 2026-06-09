@@ -6,17 +6,17 @@ Build, deploy, and connect to Foundry hosted agents that expose a **duplex WebSo
 
 ## Quick Reference
 
-| Property | Value |
-|----------|-------|
-| Agent type | Hosted (Bring Your Own container) only |
-| Protocol id (`agent.yaml`) | `invocations_ws` |
-| Recommended version | `1.0.0` |
-| Container route | `WS /invocations_ws` (served by `azure-ai-agentserver-invocations`; the host binds the port and probes for you) |
-| Foundry-side URL | `wss://{account}.services.ai.azure.com/api/projects/agents/endpoint/protocols/invocations_ws?project_name={project}&agent_name={agentName}&agent_session_id={sessionId}&foundry_features=HostedAgents=V1Preview` |
-| Auth | `Authorization: Bearer <Entra token>` for scope `https://ai.azure.com/.default` |
-| Wire format | Developer-defined (binary frames, JSON text frames, protobuf, raw PCM — anything) |
-| Session affinity | Per-connection, keyed by the `agent_session_id` query parameter (optional — auto-generated if omitted) |
-| Multi-turn / state | Agent-managed inside the container; platform does **not** store history |
+| Property                   | Value                                                                                                                                                                                                            |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent type                 | Hosted (Bring Your Own container) only                                                                                                                                                                           |
+| Protocol id (`agent.yaml`) | `invocations_ws`                                                                                                                                                                                                 |
+| Recommended version        | `1.0.0`                                                                                                                                                                                                          |
+| Container route            | `WS /invocations_ws` (served by `azure-ai-agentserver-invocations`; the host binds the port and probes for you)                                                                                                  |
+| Foundry-side URL           | `wss://{account}.services.ai.azure.com/api/projects/agents/endpoint/protocols/invocations_ws?project_name={project}&agent_name={agentName}&agent_session_id={sessionId}&foundry_features=HostedAgents=V1Preview` |
+| Auth                       | `Authorization: Bearer <Entra token>` for scope `https://ai.azure.com/.default`                                                                                                                                  |
+| Wire format                | Developer-defined (binary frames, JSON text frames, protobuf, raw PCM — anything)                                                                                                                                |
+| Session affinity           | Per-connection, keyed by the `agent_session_id` query parameter (optional — auto-generated if omitted)                                                                                                           |
+| Multi-turn / state         | Agent-managed inside the container; platform does **not** store history                                                                                                                                          |
 
 ## When to Use This Skill
 
@@ -29,14 +29,14 @@ Build, deploy, and connect to Foundry hosted agents that expose a **duplex WebSo
 
 ## Protocol Comparison
 
-| Aspect | `responses` | `invocations` | `invocations_ws` |
-|--------|-------------|---------------|------------------|
-| Transport | HTTPS | HTTPS | WebSocket (`wss://`) |
-| Lifetime | Per request | Per request | Long-lived duplex |
-| Wire format | OpenAI-compatible JSON | Raw bytes (developer-defined) | Frames, developer-defined |
-| History | Platform via `conversationId` | Agent-managed | Agent-managed via `agent_session_id` |
-| Streaming | `stream: true` (SSE) | Agent-controlled | Native duplex |
-| Best for | Chat | Webhooks / classifiers / protocol bridges | Voice, signaling, real-time |
+| Aspect      | `responses`                   | `invocations`                             | `invocations_ws`                     |
+| ----------- | ----------------------------- | ----------------------------------------- | ------------------------------------ |
+| Transport   | HTTPS                         | HTTPS                                     | WebSocket (`wss://`)                 |
+| Lifetime    | Per request                   | Per request                               | Long-lived duplex                    |
+| Wire format | OpenAI-compatible JSON        | Raw bytes (developer-defined)             | Frames, developer-defined            |
+| History     | Platform via `conversationId` | Agent-managed                             | Agent-managed via `agent_session_id` |
+| Streaming   | `stream: true` (SSE)          | Agent-controlled                          | Native duplex                        |
+| Best for    | Chat                          | Webhooks / classifiers / protocol bridges | Voice, signaling, real-time          |
 
 ## Workflow
 
@@ -72,7 +72,7 @@ protocols:
   - protocol: invocations_ws
     version: 1.0.0
 resources:
-  cpu: "1"          # voice/media: at least 1 vCPU / 2 GiB; up to 2 vCPU / 4 GiB
+  cpu: "1" # voice/media: at least 1 vCPU / 2 GiB; up to 2 vCPU / 4 GiB
   memory: 2Gi
 environment_variables:
   - name: SOME_SECRET
@@ -141,15 +141,15 @@ The same `agent_session_id` can be used to stream container logs (see the [`trou
 
 ## Error Handling
 
-| Error | Cause | Resolution |
-|-------|-------|------------|
-| HTTP 401 / 403 on WS upgrade | Missing or stale Entra token | Re-run `az account get-access-token --resource https://ai.azure.com`; ensure the caller has Foundry data-plane RBAC |
-| HTTP 404 on upgrade | Wrong `agent_name` / `project_name`, missing preview flag, or unsupported region | Verify with `agent_get`; ensure `foundry_features=HostedAgents=V1Preview` is on the URL (or `Foundry-Features` header); confirm region per [Hosted Agents region availability](https://learn.microsoft.com/azure/foundry/agents/concepts/hosted-agents#region-availability) |
-| WS closes immediately after accept | Container handler raised inside the request | Check logs via `azd ai agent monitor`; typical causes are missing env vars or unreachable backend services |
-| Browser cannot connect directly | Browser `WebSocket` cannot set `Authorization` | Run a thin server-side proxy that injects the token before forwarding |
-| Frames received but no response | Wire-format mismatch | Confirm both ends use the same framing (binary vs text, codec, sample rate, schema). The platform does **not** validate or transcode frames |
-| Cold-start delay on first connect | Container initialising (VAD, model load, etc.) | Expected; subsequent connections to the same container are fast |
-| State lost across reconnect | Different `agent_session_id` used | Reuse the same `agent_session_id` query parameter to preserve agent-managed state |
+| Error                              | Cause                                                                            | Resolution                                                                                                                                                                                                                                                                  |
+| ---------------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| HTTP 401 / 403 on WS upgrade       | Missing or stale Entra token                                                     | Re-run `az account get-access-token --resource https://ai.azure.com`; ensure the caller has Foundry data-plane RBAC                                                                                                                                                         |
+| HTTP 404 on upgrade                | Wrong `agent_name` / `project_name`, missing preview flag, or unsupported region | Verify with `agent_get`; ensure `foundry_features=HostedAgents=V1Preview` is on the URL (or `Foundry-Features` header); confirm region per [Hosted Agents region availability](https://learn.microsoft.com/azure/foundry/agents/concepts/hosted-agents#region-availability) |
+| WS closes immediately after accept | Container handler raised inside the request                                      | Check logs via `azd ai agent monitor`; typical causes are missing env vars or unreachable backend services                                                                                                                                                                  |
+| Browser cannot connect directly    | Browser `WebSocket` cannot set `Authorization`                                   | Run a thin server-side proxy that injects the token before forwarding                                                                                                                                                                                                       |
+| Frames received but no response    | Wire-format mismatch                                                             | Confirm both ends use the same framing (binary vs text, codec, sample rate, schema). The platform does **not** validate or transcode frames                                                                                                                                 |
+| Cold-start delay on first connect  | Container initialising (VAD, model load, etc.)                                   | Expected; subsequent connections to the same container are fast                                                                                                                                                                                                             |
+| State lost across reconnect        | Different `agent_session_id` used                                                | Reuse the same `agent_session_id` query parameter to preserve agent-managed state                                                                                                                                                                                           |
 
 ## Reference Samples
 

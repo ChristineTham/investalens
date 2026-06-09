@@ -45,6 +45,7 @@ IF integration IN [sql, cosmos, redis, auth]:
 ### Step 3: Add IaC Module (for full recipes only)
 
 **Bicep:**
+
 1. Read recipe's `README.md` for the Bicep module file
 2. Copy module into `infra/app/`
 3. Add module reference in `infra/main.bicep`:
@@ -63,6 +64,7 @@ IF integration IN [sql, cosmos, redis, auth]:
 4. If VNET_ENABLED, add the network module for private endpoints
 
 **Terraform:**
+
 1. Copy recipe `.tf` files into `infra/`
 2. Merge app settings into web app resource block
 3. Networking uses `count = var.vnet_enabled ? 1 : 0`
@@ -78,11 +80,11 @@ Read the recipe's `README.md` for required app settings. Add them to the web app
 >
 > ⚠️ **Connection-string format is language-specific.** The example below is **.NET / ADO.NET** format. For other stacks, use the per-language env vars documented in `recipes/sql/source/{language}.md`:
 >
-> | Language | Env var(s) | Format |
-> |---|---|---|
-> | .NET | `AZURE_SQL_CONNECTION_STRING` | `Server=...;Authentication=Active Directory Managed Identity;User Id=<clientId>;` (ADO.NET) |
-> | Python | `AZURE_SQL_SERVER`, `AZURE_SQL_DATABASE`, `AZURE_CLIENT_ID` | Code obtains MI access token and passes via ODBC `attrs_before` |
-> | Node.js | `DATABASE_URL` | `sqlserver://<host>:1433;database=<db>;authentication=ActiveDirectoryMsi;clientId=<clientId>` (Prisma) |
+> | Language | Env var(s)                                                  | Format                                                                                                 |
+> | -------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+> | .NET     | `AZURE_SQL_CONNECTION_STRING`                               | `Server=...;Authentication=Active Directory Managed Identity;User Id=<clientId>;` (ADO.NET)            |
+> | Python   | `AZURE_SQL_SERVER`, `AZURE_SQL_DATABASE`, `AZURE_CLIENT_ID` | Code obtains MI access token and passes via ODBC `attrs_before`                                        |
+> | Node.js  | `DATABASE_URL`                                              | `sqlserver://<host>:1433;database=<db>;authentication=ActiveDirectoryMsi;clientId=<clientId>` (Prisma) |
 
 > ```bicep
 > appSettings: [
@@ -102,6 +104,7 @@ Read the recipe's `README.md` for required app settings. Add them to the web app
 ### Step 6: Update azure.yaml (if needed)
 
 Some recipes require hooks:
+
 ```yaml
 hooks:
   postprovision:
@@ -116,11 +119,13 @@ hooks:
 ### Step 7: Validate and Deploy
 
 **Required Environment Setup:**
+
 ```bash
 azd env set AZURE_LOCATION eastus2
 ```
 
 **Deployment (two-phase recommended):**
+
 ```bash
 azd provision --no-prompt     # Create resources + RBAC assignments
 sleep 60                       # Wait for RBAC propagation

@@ -10,25 +10,25 @@ USE FOR: evaluate my agent, run an eval, test my agent, check agent quality, run
 
 ## Quick Reference
 
-| Property | Value |
-|----------|-------|
-| MCP server | `azure` |
+| Property      | Value                                                                                                                                                                                                                                                                                                                                                                          |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| MCP server    | `azure`                                                                                                                                                                                                                                                                                                                                                                        |
 | Key MCP tools | `evaluation_suite_generation_job_create`, `evaluation_suite_generation_job_get`, `evaluation_suite_get`, `data_generation_job_create`, `evaluator_generation_job_create`, `evaluation_agent_batch_eval_create`, `evaluation_comparison_create`, `evaluation_get`, `prompt_optimize`, `agent_update`, `continuous_eval_create`, `continuous_eval_get`, `continuous_eval_delete` |
-| Prerequisite | Agent deployed and running (use [deploy skill](../deploy/deploy.md)) |
-| Local cache | selected `.foundry/agent-metadata*.yaml` overlay, `.foundry/suites/`, `.foundry/evaluators/`, `.foundry/datasets/`, `.foundry/results/`; `eval.yaml` can provide local eval intent |
+| Prerequisite  | Agent deployed and running (use [deploy skill](../deploy/deploy.md))                                                                                                                                                                                                                                                                                                           |
+| Local cache   | selected `.foundry/agent-metadata*.yaml` overlay, `.foundry/suites/`, `.foundry/evaluators/`, `.foundry/datasets/`, `.foundry/results/`; `eval.yaml` can provide local eval intent                                                                                                                                                                                             |
 
 ## Entry Points
 
-| User Intent | Start At |
-|-------------|----------|
-| "Deploy and evaluate my agent" | [Step 1: Auto-Setup Evaluation Suite](references/deploy-and-setup.md) (deploy first via [deploy skill](../deploy/deploy.md)) |
-| "Agent just deployed" / "Set up evaluation" | [Step 1: Auto-Setup Evaluation Suite](references/deploy-and-setup.md) (skip deploy, run suite generation) |
-| "Evaluate my agent" / "Run an eval" | [Step 1: Auto-Setup Evaluation Suite](references/deploy-and-setup.md) first if `.foundry/evaluators/`, `.foundry/datasets/`, or `suiteName` cache is missing, stale, or the user requests refresh, then [Step 2: Evaluate](references/evaluate-step.md) |
-| "Why did my eval fail?" / "Analyze results" | [Step 3: Analyze](references/analyze-results.md) |
-| "Improve my agent" / "Optimize prompt" | [Step 4: Optimize](references/optimize-deploy.md) |
-| "Compare agent versions" | [Step 5: Compare](references/compare-iterate.md) |
-| "Set up CI/CD evals" | [Step 6: CI/CD & Monitoring](references/cicd-monitoring.md) |
-| "Enable continuous monitoring" / "Set up production monitoring" / "Evaluation results dropping" | [Continuous Eval](references/continuous-eval.md) |
+| User Intent                                                                                     | Start At                                                                                                                                                                                                                                                |
+| ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Deploy and evaluate my agent"                                                                  | [Step 1: Auto-Setup Evaluation Suite](references/deploy-and-setup.md) (deploy first via [deploy skill](../deploy/deploy.md))                                                                                                                            |
+| "Agent just deployed" / "Set up evaluation"                                                     | [Step 1: Auto-Setup Evaluation Suite](references/deploy-and-setup.md) (skip deploy, run suite generation)                                                                                                                                               |
+| "Evaluate my agent" / "Run an eval"                                                             | [Step 1: Auto-Setup Evaluation Suite](references/deploy-and-setup.md) first if `.foundry/evaluators/`, `.foundry/datasets/`, or `suiteName` cache is missing, stale, or the user requests refresh, then [Step 2: Evaluate](references/evaluate-step.md) |
+| "Why did my eval fail?" / "Analyze results"                                                     | [Step 3: Analyze](references/analyze-results.md)                                                                                                                                                                                                        |
+| "Improve my agent" / "Optimize prompt"                                                          | [Step 4: Optimize](references/optimize-deploy.md)                                                                                                                                                                                                       |
+| "Compare agent versions"                                                                        | [Step 5: Compare](references/compare-iterate.md)                                                                                                                                                                                                        |
+| "Set up CI/CD evals"                                                                            | [Step 6: CI/CD & Monitoring](references/cicd-monitoring.md)                                                                                                                                                                                             |
+| "Enable continuous monitoring" / "Set up production monitoring" / "Evaluation results dropping" | [Continuous Eval](references/continuous-eval.md)                                                                                                                                                                                                        |
 
 > ⚠️ **Important:** Before running any evaluation (Step 2), always resolve the selected agent root, environment, effective deployment context, and metadata overlay file. In azd projects, derive project endpoint and deployed agent identity from `azd env get-values`; use metadata for synced suite/cache refs and explicit overrides. Inspect `.foundry/evaluators/`, `.foundry/datasets/`, `.foundry/suites/`, and matching `eval.yaml` in that root only. If the selected suite has `suiteName`, confirm it with `evaluation_suite_get`; otherwise use verified eval.yaml or legacy dataset/evaluator metadata. If cache is missing, stale, or the user wants to refresh it, route through [Step 1: Auto-Setup](references/deploy-and-setup.md) first — even if the user only asked to "evaluate." Do **not** merge `.foundry` cache or source context from sibling agent folders or sibling metadata files.
 
@@ -84,10 +84,10 @@ USE FOR: evaluate my agent, run an eval, test my agent, check agent quality, run
 
 Use this only when generated suite setup is unavailable or the user explicitly wants manual evaluator selection.
 
-| Phase | When | Evaluators | Dataset fields | Goal |
-|-------|------|------------|----------------|------|
-| Fallback baseline | Before the first manual fallback batch run | <=5 built-in evaluators: `relevance`, `task_adherence`, `intent_resolution`, `indirect_attack`, plus `builtin.tool_call_accuracy` when the agent uses tools | `query`, `expected_behavior` (plus optional `context`, `ground_truth`) | Establish a fast baseline and identify which failure patterns built-ins can and cannot explain |
-| Phase 2 - After analysis | After reviewing the first run's failures and clusters | Reuse existing custom evaluators first; create a new custom evaluator only when the built-in set cannot capture the gap | Reuse `expected_behavior` as a per-query rubric | Turn broad failure signals into targeted, domain-aware scoring |
+| Phase                    | When                                                  | Evaluators                                                                                                                                                  | Dataset fields                                                         | Goal                                                                                           |
+| ------------------------ | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Fallback baseline        | Before the first manual fallback batch run            | <=5 built-in evaluators: `relevance`, `task_adherence`, `intent_resolution`, `indirect_attack`, plus `builtin.tool_call_accuracy` when the agent uses tools | `query`, `expected_behavior` (plus optional `context`, `ground_truth`) | Establish a fast baseline and identify which failure patterns built-ins can and cannot explain |
+| Phase 2 - After analysis | After reviewing the first run's failures and clusters | Reuse existing custom evaluators first; create a new custom evaluator only when the built-in set cannot capture the gap                                     | Reuse `expected_behavior` as a per-query rubric                        | Turn broad failure signals into targeted, domain-aware scoring                                 |
 
 The fallback baseline keeps manual setup fast and comparable across agents. Even though the initial built-in evaluators do not consume `expected_behavior`, include it in every seed dataset row so the same dataset is ready for Phase 2 custom evaluators without regeneration.
 
@@ -114,9 +114,9 @@ promptText: |
 
 ## Related Skills
 
-| User Intent | Skill |
-|-------------|-------|
-| "Analyze production traces" / "Search conversations" / "Find errors in App Insights" | [trace skill](../trace/trace.md) |
-| "Debug hosted agent issues" / "Hosted-agent logs" | [troubleshoot skill](../troubleshoot/troubleshoot.md) |
-| "Deploy or redeploy agent" | [deploy skill](../deploy/deploy.md) |
-| "Enable continuous evaluation" / "Set up ongoing monitoring" | [Continuous Eval](references/continuous-eval.md) (reference within this skill) |
+| User Intent                                                                          | Skill                                                                          |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| "Analyze production traces" / "Search conversations" / "Find errors in App Insights" | [trace skill](../trace/trace.md)                                               |
+| "Debug hosted agent issues" / "Hosted-agent logs"                                    | [troubleshoot skill](../troubleshoot/troubleshoot.md)                          |
+| "Deploy or redeploy agent"                                                           | [deploy skill](../deploy/deploy.md)                                            |
+| "Enable continuous evaluation" / "Set up ongoing monitoring"                         | [Continuous Eval](references/continuous-eval.md) (reference within this skill) |

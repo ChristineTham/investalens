@@ -6,4 +6,5 @@
 2. Generate IaC from the approved plan. Refer to [bicep-generation.md](../bicep-generation.md) for Bicep or [terraform-generation.md](../terraform-generation.md) for Terraform.
 
 ## Gate
+
 - All required IaC files generated and saved to disk.

@@ -9,6 +9,7 @@ This document provides remediation templates for frequently identified complianc
 **Issue:** Storage account accessible via public endpoint
 
 **Azure CLI:**
+
 ```bash
 # Create private endpoint
 az network private-endpoint create \
@@ -28,6 +29,7 @@ az storage account update \
 ```
 
 **Bicep:**
+
 ```bicep
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
   name: 'pe-${storageAccount.name}'
@@ -54,6 +56,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
 **Issue:** No soft delete protection for blobs
 
 **Azure CLI:**
+
 ```bash
 az storage account blob-service-properties update \
   --account-name <storage-name> \
@@ -65,6 +68,7 @@ az storage account blob-service-properties update \
 ```
 
 **Bicep:**
+
 ```bicep
 resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = {
   parent: storageAccount
@@ -91,6 +95,7 @@ resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01
 **Issue:** Key Vault can be permanently deleted
 
 **Azure CLI:**
+
 ```bash
 az keyvault update \
   --name <vault-name> \
@@ -99,6 +104,7 @@ az keyvault update \
 ```
 
 **Bicep:**
+
 ```bicep
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: keyVaultName
@@ -117,6 +123,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
 **Issue:** Using access policies instead of RBAC
 
 **Azure CLI:**
+
 ```bash
 az keyvault update \
   --name <vault-name> \
@@ -133,6 +140,7 @@ az keyvault update \
 **Issue:** No diagnostics configured for VM
 
 **Azure CLI:**
+
 ```bash
 # Create Log Analytics workspace (if needed)
 az monitor log-analytics workspace create \
@@ -148,6 +156,7 @@ az monitor diagnostic-settings create \
 ```
 
 **Bicep:**
+
 ```bicep
 resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: 'diag-${vm.name}'
@@ -169,6 +178,7 @@ resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
 **Issue:** VM not protected by Azure Backup
 
 **Azure CLI:**
+
 ```bash
 # Create Recovery Services vault (if needed)
 az backup vault create \
@@ -193,6 +203,7 @@ az backup protection enable-for-vm \
 **Issue:** No security monitoring for AKS
 
 **Azure CLI:**
+
 ```bash
 az aks update \
   --resource-group <rg-name> \
@@ -201,6 +212,7 @@ az aks update \
 ```
 
 **Bicep:**
+
 ```bicep
 resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-01-01' = {
   name: clusterName
@@ -224,6 +236,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-01-01' = {
 **Issue:** AKS using service principal instead of managed identity
 
 **Azure CLI:**
+
 ```bash
 az aks update \
   --resource-group <rg-name> \
@@ -240,6 +253,7 @@ az aks update \
 **Issue:** SQL Server auditing not enabled
 
 **Azure CLI:**
+
 ```bash
 # Enable to Log Analytics
 az sql server audit-policy update \
@@ -251,6 +265,7 @@ az sql server audit-policy update \
 ```
 
 **Bicep:**
+
 ```bicep
 resource sqlAudit 'Microsoft.Sql/servers/auditingSettings@2023-05-01-preview' = {
   parent: sqlServer
@@ -268,6 +283,7 @@ resource sqlAudit 'Microsoft.Sql/servers/auditingSettings@2023-05-01-preview' = 
 **Issue:** SQL Server accessible via public endpoint
 
 **Azure CLI:**
+
 ```bash
 # Create private endpoint
 az network private-endpoint create \
@@ -295,6 +311,7 @@ az sql server update \
 **Issue:** App Service not using managed identity
 
 **Azure CLI:**
+
 ```bash
 az webapp identity assign \
   --resource-group <rg-name> \
@@ -302,6 +319,7 @@ az webapp identity assign \
 ```
 
 **Bicep:**
+
 ```bicep
 resource webApp 'Microsoft.Web/sites@2023-01-01' = {
   name: appName
@@ -320,6 +338,7 @@ resource webApp 'Microsoft.Web/sites@2023-01-01' = {
 **Issue:** HTTP traffic allowed
 
 **Azure CLI:**
+
 ```bash
 az webapp update \
   --resource-group <rg-name> \
@@ -332,6 +351,7 @@ az webapp update \
 **Issue:** TLS version below 1.2
 
 **Azure CLI:**
+
 ```bash
 az webapp config set \
   --resource-group <rg-name> \

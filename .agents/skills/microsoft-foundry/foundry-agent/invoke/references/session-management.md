@@ -10,10 +10,10 @@ Sessions bind a hosted agent to a dedicated compute instance. Files written to `
 
 ## Session Creation
 
-| Protocol | How a session is created | Session id |
-|----------|--------------------------|------------|
-| `responses`, `invocations` (HTTP) | Call the `session_create` MCP tool before invoking the agent | **Server-issued** `sessionId` (or a client-supplied one passed to `session_create`) |
-| `invocations_ws` (WebSocket) | Implicitly, on the first WebSocket upgrade (no `session_create` call) | **Client-supplied** `agent_session_id` query parameter on the upgrade URL — **optional**; if omitted, the platform (or the container) generates a random id |
+| Protocol                          | How a session is created                                              | Session id                                                                                                                                                  |
+| --------------------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `responses`, `invocations` (HTTP) | Call the `session_create` MCP tool before invoking the agent          | **Server-issued** `sessionId` (or a client-supplied one passed to `session_create`)                                                                         |
+| `invocations_ws` (WebSocket)      | Implicitly, on the first WebSocket upgrade (no `session_create` call) | **Client-supplied** `agent_session_id` query parameter on the upgrade URL — **optional**; if omitted, the platform (or the container) generates a random id |
 
 Both ids follow the same format rule: `^[A-Za-z0-9_-]{8,128}$`.
 
@@ -59,11 +59,11 @@ Session IDs must match the pattern `^[A-Za-z0-9_-]{8,128}$`.
 
 Use `session_create` to provision a new session:
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `projectEndpoint` | ✅ | AI Foundry project endpoint |
-| `agentName` | ✅ | Name of the hosted agent |
-| `sessionId` | ❌ | Optional custom session ID (8-128 chars, alphanumeric + hyphens/underscores) |
+| Parameter         | Required | Description                                                                  |
+| ----------------- | -------- | ---------------------------------------------------------------------------- |
+| `projectEndpoint` | ✅       | AI Foundry project endpoint                                                  |
+| `agentName`       | ✅       | Name of the hosted agent                                                     |
+| `sessionId`       | ❌       | Optional custom session ID (8-128 chars, alphanumeric + hyphens/underscores) |
 
 Returns: Session resource with `sessionId`, status, and expiration.
 
@@ -71,11 +71,11 @@ Returns: Session resource with `sessionId`, status, and expiration.
 
 Use `session_get` to check session status:
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `projectEndpoint` | ✅ | AI Foundry project endpoint |
-| `agentName` | ✅ | Name of the hosted agent |
-| `sessionId` | ✅ | The session ID to inspect |
+| Parameter         | Required | Description                 |
+| ----------------- | -------- | --------------------------- |
+| `projectEndpoint` | ✅       | AI Foundry project endpoint |
+| `agentName`       | ✅       | Name of the hosted agent    |
+| `sessionId`       | ✅       | The session ID to inspect   |
 
 Returns: Session details including status, version, creation time, and expiration.
 
@@ -83,11 +83,11 @@ Returns: Session details including status, version, creation time, and expiratio
 
 Use `session_delete` to release compute resources:
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `projectEndpoint` | ✅ | AI Foundry project endpoint |
-| `agentName` | ✅ | Name of the hosted agent |
-| `sessionId` | ✅ | The session ID to delete |
+| Parameter         | Required | Description                 |
+| ----------------- | -------- | --------------------------- |
+| `projectEndpoint` | ✅       | AI Foundry project endpoint |
+| `agentName`       | ✅       | Name of the hosted agent    |
+| `sessionId`       | ✅       | The session ID to delete    |
 
 > ⚠️ **Warning:** Deleting a session permanently removes all files stored in `$HOME` for that session.
 
@@ -95,23 +95,23 @@ Use `session_delete` to release compute resources:
 
 Use `session_list` to enumerate sessions:
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `projectEndpoint` | ✅ | AI Foundry project endpoint |
-| `agentName` | ✅ | Name of the hosted agent |
-| `limit` | ❌ | Max results to return (1-100, default 20) |
-| `order` | ❌ | Sort order: `asc` or `desc` (default `asc`) |
-| `after` | ❌ | Cursor for forward pagination |
-| `before` | ❌ | Cursor for backward pagination |
+| Parameter         | Required | Description                                 |
+| ----------------- | -------- | ------------------------------------------- |
+| `projectEndpoint` | ✅       | AI Foundry project endpoint                 |
+| `agentName`       | ✅       | Name of the hosted agent                    |
+| `limit`           | ❌       | Max results to return (1-100, default 20)   |
+| `order`           | ❌       | Sort order: `asc` or `desc` (default `asc`) |
+| `after`           | ❌       | Cursor for forward pagination               |
+| `before`          | ❌       | Cursor for backward pagination              |
 
 > ⚠️ **Warning:** `after` and `before` are mutually exclusive — do not pass both.
 
 ## Session vs Conversation
 
-| Concept | Purpose | Scope |
-|---------|---------|-------|
-| `sessionId` | Binds requests to a compute instance with persistent filesystem state | Hosted agents only |
-| `conversationId` | Tracks conversation history across turns | Responses protocol only |
+| Concept          | Purpose                                                               | Scope                   |
+| ---------------- | --------------------------------------------------------------------- | ----------------------- |
+| `sessionId`      | Binds requests to a compute instance with persistent filesystem state | Hosted agents only      |
+| `conversationId` | Tracks conversation history across turns                              | Responses protocol only |
 
 - A single session can host multiple conversations
 - A conversation does not require a session (prompt agents use `conversationId` without sessions)

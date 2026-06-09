@@ -4,12 +4,12 @@ The `invocations` protocol is **bytes in, bytes out**. The platform is pure pass
 
 ## Input/Output Contract
 
-| Aspect | `responses` | `invocations` |
-|--------|------------|---------------|
-| **Input** | `inputText` is a natural language message (e.g., `"What is the weather?"`) | `inputText` is forwarded as the **raw HTTP request body** — bytes in. Format as whatever the container's invoke handler expects (typically JSON) |
-| **Output** | Structured OpenAI response with `output_text` | **Raw response bytes** from the container — JSON, text, or SSE events. Format is defined by the agent developer |
-| **Conversation history** | Platform-managed via `conversationId` | Agent-managed via session filesystem; `conversationId` does **not** apply |
-| **Streaming** | Platform-managed via `stream: true` | Agent-controlled; `stream` parameter does **not** apply |
+| Aspect                   | `responses`                                                                | `invocations`                                                                                                                                    |
+| ------------------------ | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Input**                | `inputText` is a natural language message (e.g., `"What is the weather?"`) | `inputText` is forwarded as the **raw HTTP request body** — bytes in. Format as whatever the container's invoke handler expects (typically JSON) |
+| **Output**               | Structured OpenAI response with `output_text`                              | **Raw response bytes** from the container — JSON, text, or SSE events. Format is defined by the agent developer                                  |
+| **Conversation history** | Platform-managed via `conversationId`                                      | Agent-managed via session filesystem; `conversationId` does **not** apply                                                                        |
+| **Streaming**            | Platform-managed via `stream: true`                                        | Agent-controlled; `stream` parameter does **not** apply                                                                                          |
 
 ## Discovering the Expected Input Schema
 
@@ -51,17 +51,17 @@ agent_invoke(projectEndpoint, agentName, inputText: "{\"message\":\"hello\"}", p
 
 ## Common Use Cases
 
-| Scenario | Why Invocations |
-|----------|----------------|
-| Webhook receiver (GitHub, Stripe, Jira) | External system sends its own payload format |
-| Non-conversational processing (classification, extraction) | Input is structured data, not a chat message |
-| Custom streaming protocol (AG-UI) | Needs raw SSE control, not OpenAI-compatible streaming |
-| Protocol bridge (proprietary systems) | Caller has its own protocol that doesn't map to `/responses` |
+| Scenario                                                   | Why Invocations                                              |
+| ---------------------------------------------------------- | ------------------------------------------------------------ |
+| Webhook receiver (GitHub, Stripe, Jira)                    | External system sends its own payload format                 |
+| Non-conversational processing (classification, extraction) | Input is structured data, not a chat message                 |
+| Custom streaming protocol (AG-UI)                          | Needs raw SSE control, not OpenAI-compatible streaming       |
+| Protocol bridge (proprietary systems)                      | Caller has its own protocol that doesn't map to `/responses` |
 
 ## Error Handling
 
-| Error | Cause | Resolution |
-|-------|-------|------------|
-| 400/422 or invocation failed | Request body does not match what the container expects | Fetch OpenAPI spec or inspect handler code for the correct schema |
-| 404 on OpenAPI spec | Developer did not register an `openapi_spec` | Inspect handler source code or ask the user for the API contract |
-| Empty response | Agent returned no content | Check agent logs via `session_logstream`; verify the handler processes the request body correctly |
+| Error                        | Cause                                                  | Resolution                                                                                        |
+| ---------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| 400/422 or invocation failed | Request body does not match what the container expects | Fetch OpenAPI spec or inspect handler code for the correct schema                                 |
+| 404 on OpenAPI spec          | Developer did not register an `openapi_spec`           | Inspect handler source code or ask the user for the API contract                                  |
+| Empty response               | Agent returned no content                              | Check agent logs via `session_logstream`; verify the handler processes the request body correctly |

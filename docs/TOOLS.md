@@ -64,13 +64,13 @@ Lists paid, announced, and estimated dividend and interest payments. The report 
 
 **Payment statuses:**
 
-| Status | Description |
-|--------|-------------|
-| Announced | Payment officially declared by the issuer but not yet processed |
-| Pending Payment | Ex-date has passed, confirming eligibility, awaiting distribution |
-| Paid (Unconfirmed) | Payment recorded as issued but not yet confirmed as received |
-| Paid (Confirmed) | Payment successfully received and verified in your portfolio |
-| Estimated | Projection based on currently available information, subject to change |
+| Status             | Description                                                            |
+| ------------------ | ---------------------------------------------------------------------- |
+| Announced          | Payment officially declared by the issuer but not yet processed        |
+| Pending Payment    | Ex-date has passed, confirming eligibility, awaiting distribution      |
+| Paid (Unconfirmed) | Payment recorded as issued but not yet confirmed as received           |
+| Paid (Confirmed)   | Payment successfully received and verified in your portfolio           |
+| Estimated          | Projection based on currently available information, subject to change |
 
 > **Note:** Estimated data may be incomplete and is subject to change up until the dividend ex-date. The report is indicative only.
 
@@ -106,13 +106,13 @@ Displays how each holding inside a portfolio contributes to overall portfolio pe
 
 **Understanding the columns:**
 
-| Column | Description |
-|--------|-------------|
-| Capital Gains | Change in market value (unrealised + realised gains/losses) over the period |
-| Dividends | Total dividends and distributions received during the period, including franking credits |
-| Currency Gains | FX impact on foreign-denominated holdings when exchange rates move |
-| Total Return | Sum of capital gains, dividends, and currency gains |
-| Contribution % | How much each holding drove overall portfolio performance |
+| Column         | Description                                                                              |
+| -------------- | ---------------------------------------------------------------------------------------- |
+| Capital Gains  | Change in market value (unrealised + realised gains/losses) over the period              |
+| Dividends      | Total dividends and distributions received during the period, including franking credits |
+| Currency Gains | FX impact on foreign-denominated holdings when exchange rates move                       |
+| Total Return   | Sum of capital gains, dividends, and currency gains                                      |
+| Contribution % | How much each holding drove overall portfolio performance                                |
 
 **How contribution % is calculated:**
 
@@ -192,15 +192,15 @@ Shows the underlying holdings within your ETFs (Exchange Traded Funds), revealin
 
 **Report elements:**
 
-| Element | Description |
-|---------|-------------|
-| Pie Chart | Graphical representation of exposure based on selected grouping |
-| Holdings List | Full list of direct and underlying holdings |
-| Ownership Indicator | Whether a holding is owned directly, via an ETF (underlying), or nested |
-| Exposure % | Each stock's exposure as a percentage of total portfolio value (direct + underlying) |
-| Value | Current portfolio value attributed to the holding (direct + indirect) |
-| Arrow Indicator | Expand to see breakdown of direct vs underlying exposure for each holding |
-| Residual ETFs | Holdings beyond the display limit grouped under "Residual ETF" |
+| Element             | Description                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------ |
+| Pie Chart           | Graphical representation of exposure based on selected grouping                      |
+| Holdings List       | Full list of direct and underlying holdings                                          |
+| Ownership Indicator | Whether a holding is owned directly, via an ETF (underlying), or nested              |
+| Exposure %          | Each stock's exposure as a percentage of total portfolio value (direct + underlying) |
+| Value               | Current portfolio value attributed to the holding (direct + indirect)                |
+| Arrow Indicator     | Expand to see breakdown of direct vs underlying exposure for each holding            |
+| Residual ETFs       | Holdings beyond the display limit grouped under "Residual ETF"                       |
 
 **Why it matters:** Understanding underlying asset exposure is critical for risk management and portfolio diversification. Many investors assume their ETFs are more diversified than they are — the Exposure Report surfaces hidden concentrations, such as heavy overlap between ETFs or unexpected overweighting in a single stock, sector, or country.
 
@@ -242,12 +242,12 @@ A RoMaD value above 1 suggests the portfolio achieved a return greater than its 
 
 **Graph interpretation (four quadrants):**
 
-| Quadrant | Risk | Return | Interpretation |
-|----------|------|--------|----------------|
-| Upper Left | Low | High | Most favourable — low drawdown risk, high returns |
-| Lower Left | Low | Low | Stable — provides stability and hedging |
-| Upper Right | High | High | Growth stocks — high return potential, high risk |
-| Lower Right | High | Low | Least desirable — high risk, poor performance |
+| Quadrant    | Risk | Return | Interpretation                                    |
+| ----------- | ---- | ------ | ------------------------------------------------- |
+| Upper Left  | Low  | High   | Most favourable — low drawdown risk, high returns |
+| Lower Left  | Low  | Low    | Stable — provides stability and hedging           |
+| Upper Right | High | High   | Growth stocks — high return potential, high risk  |
+| Lower Right | High | Low    | Least desirable — high risk, poor performance     |
 
 **Additional features:**
 
@@ -287,17 +287,17 @@ Shows opening and closing balances at cost price. Designed for entities (compani
 
 **Report columns:**
 
-| Column | Description |
-|--------|-------------|
-| Opening Balance | Cost base carried forward to the start date (cumulative cost net of prior sales and adjustments) |
-| Opening Market Value | Market value at start of report period |
-| Opening Quantity | Units held at start date |
-| Purchases | Cost of shares purchased during the period |
-| Cost of Sales | Original buy value of shares sold (determined by sale allocation method) |
-| Capital Adjustments | Cost base adjustments (e.g. AMIT increases/decreases from trust distributions) |
-| Closing Balance | Cost base at end of period: Opening Balance + Purchases − Cost of Sales ± Capital Adjustments |
-| Closing Market Value | Market value at end of report period |
-| Closing Quantity | Units held at end date |
+| Column               | Description                                                                                      |
+| -------------------- | ------------------------------------------------------------------------------------------------ |
+| Opening Balance      | Cost base carried forward to the start date (cumulative cost net of prior sales and adjustments) |
+| Opening Market Value | Market value at start of report period                                                           |
+| Opening Quantity     | Units held at start date                                                                         |
+| Purchases            | Cost of shares purchased during the period                                                       |
+| Cost of Sales        | Original buy value of shares sold (determined by sale allocation method)                         |
+| Capital Adjustments  | Cost base adjustments (e.g. AMIT increases/decreases from trust distributions)                   |
+| Closing Balance      | Cost base at end of period: Opening Balance + Purchases − Cost of Sales ± Capital Adjustments    |
+| Closing Market Value | Market value at end of report period                                                             |
+| Closing Quantity     | Units held at end date                                                                           |
 
 **Options:**
 
@@ -354,16 +354,16 @@ Track assets you're interested in without adding them to your portfolio. The Wat
 
 **Watchlist columns:**
 
-| Column | Description |
-|--------|-------------|
-| Symbol | Ticker and exchange |
-| Name | Company or fund name |
-| Price | Current or last closing price |
-| Change (%) | Daily price movement |
-| 1W / 1M / YTD / 1Y | Period performance |
-| Market Cap | Current market capitalisation |
-| Dividend Yield | Trailing 12-month yield |
-| Notes | Your personal research notes |
+| Column             | Description                   |
+| ------------------ | ----------------------------- |
+| Symbol             | Ticker and exchange           |
+| Name               | Company or fund name          |
+| Price              | Current or last closing price |
+| Change (%)         | Daily price movement          |
+| 1W / 1M / YTD / 1Y | Period performance            |
+| Market Cap         | Current market capitalisation |
+| Dividend Yield     | Trailing 12-month yield       |
+| Notes              | Your personal research notes  |
 
 ---
 
@@ -373,23 +373,23 @@ Monitor broad market conditions and investor sentiment to contextualise your por
 
 **Available indicators:**
 
-| Indicator | Description | Source |
-|-----------|-------------|--------|
-| Fear & Greed Index | Composite measure of market emotion (0–100 scale) | CNN Business methodology |
-| VIX (Volatility Index) | Expected 30-day market volatility from S&P 500 options | CBOE |
-| Put/Call Ratio | Ratio of put options to call options traded | Market data |
-| Market Breadth | % of stocks above 200-day moving average | Exchange data |
-| Yield Curve | Spread between 10-year and 2-year government bonds | Reserve Bank / Treasury |
+| Indicator              | Description                                            | Source                   |
+| ---------------------- | ------------------------------------------------------ | ------------------------ |
+| Fear & Greed Index     | Composite measure of market emotion (0–100 scale)      | CNN Business methodology |
+| VIX (Volatility Index) | Expected 30-day market volatility from S&P 500 options | CBOE                     |
+| Put/Call Ratio         | Ratio of put options to call options traded            | Market data              |
+| Market Breadth         | % of stocks above 200-day moving average               | Exchange data            |
+| Yield Curve            | Spread between 10-year and 2-year government bonds     | Reserve Bank / Treasury  |
 
 **Sentiment scale:**
 
-| Range | Interpretation | Typical Action |
-|-------|---------------|----------------|
-| 0–25 | Extreme Fear | Potential buying opportunity (contrarian) |
-| 25–45 | Fear | Market caution, watch for entry points |
-| 45–55 | Neutral | Balanced sentiment |
-| 55–75 | Greed | Consider taking profits |
-| 75–100 | Extreme Greed | Elevated risk of correction |
+| Range  | Interpretation | Typical Action                            |
+| ------ | -------------- | ----------------------------------------- |
+| 0–25   | Extreme Fear   | Potential buying opportunity (contrarian) |
+| 25–45  | Fear           | Market caution, watch for entry points    |
+| 45–55  | Neutral        | Balanced sentiment                        |
+| 55–75  | Greed          | Consider taking profits                   |
+| 75–100 | Extreme Greed  | Elevated risk of correction               |
 
 > **Note:** Sentiment indicators are informational only and should not be used as the sole basis for investment decisions.
 
@@ -403,15 +403,15 @@ Model your path to financial independence by projecting when your portfolio will
 
 **Input parameters:**
 
-| Parameter | Description |
-|-----------|-------------|
-| Current portfolio value | Total investment assets today |
-| Annual contributions | How much you invest each year |
-| Expected return (%) | Assumed annual portfolio return (real, after inflation) |
-| Annual expenses | Your target annual spending in retirement |
+| Parameter                | Description                                                     |
+| ------------------------ | --------------------------------------------------------------- |
+| Current portfolio value  | Total investment assets today                                   |
+| Annual contributions     | How much you invest each year                                   |
+| Expected return (%)      | Assumed annual portfolio return (real, after inflation)         |
+| Annual expenses          | Your target annual spending in retirement                       |
 | Safe withdrawal rate (%) | Percentage of portfolio you plan to draw annually (default: 4%) |
-| Current age | Your age today |
-| Target retirement age | When you'd like to achieve financial independence |
+| Current age              | Your age today                                                  |
+| Target retirement age    | When you'd like to achieve financial independence               |
 
 **Outputs:**
 
@@ -424,12 +424,12 @@ Model your path to financial independence by projecting when your portfolio will
 
 **FIRE variants:**
 
-| Variant | Description | Withdrawal Rate |
-|---------|-------------|------------------|
-| Lean FIRE | Minimal lifestyle, lower expenses | 4% |
-| Regular FIRE | Comfortable lifestyle matching current spending | 4% |
-| Fat FIRE | Generous lifestyle with buffer | 3–3.5% |
-| Barista FIRE | Partial FIRE with part-time income supplementing withdrawals | 2–3% + income |
+| Variant      | Description                                                  | Withdrawal Rate |
+| ------------ | ------------------------------------------------------------ | --------------- |
+| Lean FIRE    | Minimal lifestyle, lower expenses                            | 4%              |
+| Regular FIRE | Comfortable lifestyle matching current spending              | 4%              |
+| Fat FIRE     | Generous lifestyle with buffer                               | 3–3.5%          |
+| Barista FIRE | Partial FIRE with part-time income supplementing withdrawals | 2–3% + income   |
 
 **Integration with your portfolio:**
 
@@ -452,26 +452,26 @@ X-ray scans your portfolio and generates alerts across multiple risk dimensions.
 
 ### Risk Categories
 
-| Category | What It Checks |
-|----------|---------------|
-| **Concentration** | Single holdings exceeding a threshold (default: 10% of portfolio) |
-| **Sector Overweight** | Any sector exceeding a threshold (default: 30%) |
-| **Country Exposure** | Over-reliance on a single country/market |
-| **Currency Risk** | Unhedged foreign currency exposure above threshold |
-| **ETF Overlap** | Holdings duplicated across multiple ETFs (uses Exposure Report data) |
-| **Liquidity** | Holdings with low trading volume or wide bid-ask spreads |
-| **Dividend Dependency** | Income concentration — single holdings providing >25% of portfolio income |
-| **Drawdown Vulnerability** | Holdings with historical MDD exceeding threshold |
-| **Correlation** | Highly correlated holdings that don't provide diversification |
-| **Missing Data** | Holdings without recent price updates or incomplete cost base |
+| Category                   | What It Checks                                                            |
+| -------------------------- | ------------------------------------------------------------------------- |
+| **Concentration**          | Single holdings exceeding a threshold (default: 10% of portfolio)         |
+| **Sector Overweight**      | Any sector exceeding a threshold (default: 30%)                           |
+| **Country Exposure**       | Over-reliance on a single country/market                                  |
+| **Currency Risk**          | Unhedged foreign currency exposure above threshold                        |
+| **ETF Overlap**            | Holdings duplicated across multiple ETFs (uses Exposure Report data)      |
+| **Liquidity**              | Holdings with low trading volume or wide bid-ask spreads                  |
+| **Dividend Dependency**    | Income concentration — single holdings providing >25% of portfolio income |
+| **Drawdown Vulnerability** | Holdings with historical MDD exceeding threshold                          |
+| **Correlation**            | Highly correlated holdings that don't provide diversification             |
+| **Missing Data**           | Holdings without recent price updates or incomplete cost base             |
 
 ### Alert Severities
 
-| Severity | Meaning |
-|----------|--------|
+| Severity    | Meaning                                                       |
+| ----------- | ------------------------------------------------------------- |
 | 🔴 Critical | Immediate attention recommended — significant risk identified |
-| 🟡 Warning | Potential issue — review when convenient |
-| 🟢 Info | Observation only — no action required |
+| 🟡 Warning  | Potential issue — review when convenient                      |
+| 🟢 Info     | Observation only — no action required                         |
 
 ### Configuring Thresholds
 
@@ -529,12 +529,12 @@ Run reports across multiple portfolios for a complete picture of all investments
 
 ## Related Documentation
 
-| Document | Description |
-|----------|-------------|
-| [TAX.md](TAX.md) | Comprehensive tax reporting — CGT, taxable income, AMIT, and tax planning |
-| [ACCOUNT.md](ACCOUNT.md) | Custom groups, labels, portfolio sharing, and consolidated views |
-| [ASSETS.md](ASSETS.md) | Supported asset types and stock exchanges |
-| [ACTIONS.md](ACTIONS.md) | Corporate actions and how they affect holdings |
-| [GETTING-STARTED.md](GETTING-STARTED.md) | Portfolio setup and importing investments |
-| [API.md](API.md) | Programmatic access to reports and data |
-| [ADVANCED.md](ADVANCED.md) | Backtesting, Monte Carlo simulation, optimisation, and factor analysis |
+| Document                                 | Description                                                               |
+| ---------------------------------------- | ------------------------------------------------------------------------- |
+| [TAX.md](TAX.md)                         | Comprehensive tax reporting — CGT, taxable income, AMIT, and tax planning |
+| [ACCOUNT.md](ACCOUNT.md)                 | Custom groups, labels, portfolio sharing, and consolidated views          |
+| [ASSETS.md](ASSETS.md)                   | Supported asset types and stock exchanges                                 |
+| [ACTIONS.md](ACTIONS.md)                 | Corporate actions and how they affect holdings                            |
+| [GETTING-STARTED.md](GETTING-STARTED.md) | Portfolio setup and importing investments                                 |
+| [API.md](API.md)                         | Programmatic access to reports and data                                   |
+| [ADVANCED.md](ADVANCED.md)               | Backtesting, Monte Carlo simulation, optimisation, and factor analysis    |

@@ -20,8 +20,9 @@ Automates creation, management, and cleanup of temporary Neon databases using th
 ## Code Generation Rules
 
 When generating TypeScript/JavaScript code:
+
 - BEFORE generating import statements, check tsconfig.json for path aliases (compilerOptions.paths)
-- If path aliases exist (e.g., "@/*": ["./src/*"]), use them (e.g., import { x } from '@/lib/utils')
+- If path aliases exist (e.g., "@/_": ["./src/_"]), use them (e.g., import { x } from '@/lib/utils')
 - If NO path aliases exist or unsure, ALWAYS use relative imports (e.g., import { x } from '../../../lib/utils')
 - Verify imports match the project's configuration
 - Default to relative imports - they always work regardless of configuration
@@ -29,6 +30,7 @@ When generating TypeScript/JavaScript code:
 ## Reference Documentation
 
 **Primary Resource:** See `[neon-toolkit.mdc](https://raw.githubusercontent.com/neondatabase-labs/ai-rules/main/neon-toolkit.mdc)` in project root for comprehensive guidelines including:
+
 - Core concepts (Organization, Project, Branch, Endpoint)
 - Installation and authentication setup
 - Database lifecycle management patterns
@@ -38,13 +40,15 @@ When generating TypeScript/JavaScript code:
 ## Quick Setup
 
 ### Installation
+
 ```bash
 npm install @neondatabase/toolkit
 ```
 
 ### Basic Usage
+
 ```typescript
-import { NeonToolkit } from '@neondatabase/toolkit';
+import { NeonToolkit } from "@neondatabase/toolkit";
 
 const neon = new NeonToolkit({ apiKey: process.env.NEON_API_KEY! });
 
@@ -67,6 +71,7 @@ await db.delete();
 ## Common Use Cases
 
 ### Testing
+
 ```typescript
 const db = await neon.createEphemeralDatabase();
 // Run tests with fresh database
@@ -74,6 +79,7 @@ await db.delete();
 ```
 
 ### CI/CD Integration
+
 ```bash
 export NEON_API_KEY=${{ secrets.NEON_API_KEY }}
 npm test  # Uses ephemeral database

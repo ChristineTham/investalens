@@ -238,7 +238,7 @@ class MyTransaction extends MyQueryable<TClient> implements Transaction {
   constructor(
     client: TClient,
     options: TransactionOptions,
-    release: () => void,
+    release: () => void
   ) {
     super(client);
     this.options = options;
@@ -280,7 +280,7 @@ class MyAdapter extends MyQueryable<TClient> implements SqlDriverAdapter {
   }
 
   async startTransaction(
-    isolationLevel?: IsolationLevel,
+    isolationLevel?: IsolationLevel
   ): Promise<Transaction> {
     // Validate isolation level for your database
     const validLevels = new Set<IsolationLevel>([
@@ -351,7 +351,7 @@ export class MyAdapterFactory implements SqlMigrationAwareDriverAdapterFactory {
 
   constructor(
     private readonly config: MyAdapterConfig,
-    private readonly options?: MyAdapterOptions,
+    private readonly options?: MyAdapterOptions
   ) {}
 
   connect(): Promise<SqlDriverAdapter> {
@@ -596,7 +596,7 @@ describe("E2E", () => {
       prisma.$transaction(async (tx) => {
         await tx.user.create({ data: { name: "Bob" } });
         throw new Error("Rollback!");
-      }),
+      })
     ).rejects.toThrow();
 
     expect(await prisma.user.count()).toBe(0);

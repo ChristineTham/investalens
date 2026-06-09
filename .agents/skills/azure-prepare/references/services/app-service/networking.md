@@ -4,13 +4,14 @@ VNet integration, Private Endpoints, Access Restrictions, and Hybrid Connections
 
 ## Feature Availability by SKU
 
-| Feature | Free | Basic | Standard | Premium | Isolated |
-|---------|:-:|:-:|:-:|:-:|:-:|
-| VNet integration (outbound) | ❌ | ✅ | ✅ | ✅ | ✅ (native) |
-| Private Endpoints (inbound) | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Access Restrictions | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Hybrid Connections | ❌ | 5 | 25 | 200 | 200 |
-| Access to service-endpoint-protected resources | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Feature                                        | Free | Basic | Standard | Premium |  Isolated   |
+| ---------------------------------------------- | :--: | :---: | :------: | :-----: | :---------: |
+| VNet integration (outbound)                    |  ❌  |  ✅   |    ✅    |   ✅    | ✅ (native) |
+| Private Endpoints (inbound)                    |  ❌  |  ✅   |    ✅    |   ✅    |     ✅      |
+| Access Restrictions                            |  ✅  |  ✅   |    ✅    |   ✅    |     ✅      |
+| Hybrid Connections                             |  ❌  |   5   |    25    |   200   |     200     |
+| Access to service-endpoint-protected resources |  ❌  |  ✅   |    ✅    |   ✅    |     ✅      |
+
 > Note: Service endpoints are configured on VNets/subnets and downstream services (e.g., Storage, SQL). App Service accesses them via VNet integration rather than enabling service endpoints directly on the app.
 
 ## VNet Integration (Outbound)
@@ -19,11 +20,11 @@ Routes outbound traffic from the app through a VNet subnet, enabling access to p
 
 ### Subnet Requirements
 
-| Requirement | Value |
-|------------|-------|
+| Requirement         | Value                            |
+| ------------------- | -------------------------------- |
 | Minimum subnet size | `/26` (64 addresses) recommended |
-| Delegation | `Microsoft.Web/serverFarms` |
-| Dedicated | One subnet per App Service plan |
+| Delegation          | `Microsoft.Web/serverFarms`      |
+| Dedicated           | One subnet per App Service plan  |
 
 ### Bicep — VNet Integration
 
@@ -58,13 +59,12 @@ resource webApp 'Microsoft.Web/sites@2024-11-01' = {
 ### CLI - VNet Integration
 
 ```bash
-# Configure virtual network integration 
+# Configure virtual network integration
 az webapp vnet-integration add --resource-group RG --name APP --vnet VNET --subnet SUBNET
 
 # Update app configuration to route all outbound traffic through the virtual network integration
 az resource update --resource-group RG --name APP --resource-type "Microsoft.Web/sites" --set properties.outboundVnetRouting.allTraffic=true
 ```
-
 
 > 💡 **Tip:** Set `outboundVnetRouting.allTraffic: true` to route ALL outbound traffic through the VNet. Without this, only RFC1918 traffic is routed through the VNet.
 
@@ -191,10 +191,10 @@ Connect to on-premises resources without VPN. Requires Basic tier or higher. Use
 
 ## Troubleshooting
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| Cannot reach private DB | VNet integration not enabled | Enable VNet integration; check `outboundVnetRouting.allTraffic` |
-| DNS resolution fails | Private DNS zone not linked | Link `privatelink.*` DNS zone to VNet |
-| Access restriction not working | Priority ordering wrong | Lower numbers = higher priority; check rule order |
-| Hybrid Connection timeout | HCM not running | Verify HCM service status on-premises |
-| Outbound traffic blocked | NSG rules on subnet | Allow outbound to required services in NSG |
+| Issue                          | Cause                        | Fix                                                             |
+| ------------------------------ | ---------------------------- | --------------------------------------------------------------- |
+| Cannot reach private DB        | VNet integration not enabled | Enable VNet integration; check `outboundVnetRouting.allTraffic` |
+| DNS resolution fails           | Private DNS zone not linked  | Link `privatelink.*` DNS zone to VNet                           |
+| Access restriction not working | Priority ordering wrong      | Lower numbers = higher priority; check rule order               |
+| Hybrid Connection timeout      | HCM not running              | Verify HCM service status on-premises                           |
+| Outbound traffic blocked       | NSG rules on subnet          | Allow outbound to required services in NSG                      |

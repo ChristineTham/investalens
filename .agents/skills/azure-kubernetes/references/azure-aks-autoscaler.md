@@ -38,11 +38,11 @@ az aks nodepool update \
 
 ## Recommended min/max Defaults
 
-| Scenario | min-count | max-count |
-|----------|-----------|-----------|
-| Dev/test | 1 | current_count |
-| Production (web/API) | 2 | current_count * 3 |
-| Production (batch) | 0 | current_count * 5 |
+| Scenario             | min-count | max-count          |
+| -------------------- | --------- | ------------------ |
+| Dev/test             | 1         | current_count      |
+| Production (web/API) | 2         | current_count \* 3 |
+| Production (batch)   | 0         | current_count \* 5 |
 
 > Risk: Low. CAS only scales down when pods can be safely rescheduled. Set min-count >= 2 for production HA.
 
@@ -73,18 +73,17 @@ az aks update \
 
 ## Profile Comparison
 
-| Profile | scale-down-delay-after-add | scale-down-unneeded-time | utilization-threshold | Best For |
-|---------|----------------------------|--------------------------|----------------------|----------|
-| Default | 10m | 10m | 0.5 | General workloads |
-| Cost-Optimized | 5m | 5m | 0.5 | Cost-sensitive, non-critical |
-| Conservative | 30m | 30m | 0.7 | Stateful / production |
-| Aggressive | 2m | 2m | 0.4 | Dev/test, batch |
+| Profile        | scale-down-delay-after-add | scale-down-unneeded-time | utilization-threshold | Best For                     |
+| -------------- | -------------------------- | ------------------------ | --------------------- | ---------------------------- |
+| Default        | 10m                        | 10m                      | 0.5                   | General workloads            |
+| Cost-Optimized | 5m                         | 5m                       | 0.5                   | Cost-sensitive, non-critical |
+| Conservative   | 30m                        | 30m                      | 0.7                   | Stateful / production        |
+| Aggressive     | 2m                         | 2m                       | 0.4                   | Dev/test, batch              |
 
 > Risk: High for aggressive tuning. Ensure PodDisruptionBudgets (PDBs) are set on critical workloads before tuning. Always confirm with user before applying.
 >
 > Check existing PDBs before tuning:
+>
 > ```bash
 > kubectl get pdb --all-namespaces
 > ```
-
-

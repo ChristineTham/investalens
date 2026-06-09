@@ -16,6 +16,7 @@ metadata:
 ## Triggers
 
 Activate this skill when user wants to:
+
 - Debug or troubleshoot production issues
 - Diagnose errors in Azure services
 - Analyze application logs or metrics
@@ -52,13 +53,13 @@ Activate this skill when user wants to:
 
 ## Troubleshooting Guides by Service
 
-| Service | Common Issues | Reference |
-|---------|---------------|-----------|
-| **Container Apps** | Image pull failures, cold starts, health probes, port mismatches | [container-apps/](references/container-apps/README.md) |
-| **App Service** | High CPU, deployment failures, crashes, slow responses, TLS/custom domains | [app-service/](references/app-service/README.md) |
-| **Function Apps** | App details, invocation failures, timeouts, binding errors, cold starts, missing app settings | [functions/](references/functions/README.md) |
-| **AKS** | Cluster access, nodes, `kube-system`, scheduling, crash loops, ingress, DNS, upgrades | [AKS Troubleshooting](troubleshooting/aks/aks-troubleshooting.md) |
-| **Messaging** | Event Hubs & Service Bus SDK errors, AMQP failures, message lock, connectivity | [Messaging Troubleshooting](troubleshooting/messaging/README.md) |
+| Service            | Common Issues                                                                                 | Reference                                                         |
+| ------------------ | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **Container Apps** | Image pull failures, cold starts, health probes, port mismatches                              | [container-apps/](references/container-apps/README.md)            |
+| **App Service**    | High CPU, deployment failures, crashes, slow responses, TLS/custom domains                    | [app-service/](references/app-service/README.md)                  |
+| **Function Apps**  | App details, invocation failures, timeouts, binding errors, cold starts, missing app settings | [functions/](references/functions/README.md)                      |
+| **AKS**            | Cluster access, nodes, `kube-system`, scheduling, crash loops, ingress, DNS, upgrades         | [AKS Troubleshooting](troubleshooting/aks/aks-troubleshooting.md) |
+| **Messaging**      | Event Hubs & Service Bus SDK errors, AMQP failures, message lock, connectivity                | [Messaging Troubleshooting](troubleshooting/messaging/README.md)  |
 
 ---
 
@@ -89,6 +90,7 @@ az monitor app-insights query --apps APP-INSIGHTS -g RG \
 ### AppLens (MCP Tools)
 
 For AI-powered diagnostics, use:
+
 ```
 mcp_azure_mcp_applens
   intent: "diagnose issues with <resource-name>"
@@ -105,6 +107,7 @@ Provides:
 ### Azure Monitor (MCP Tools)
 
 For querying logs and metrics:
+
 ```
 mcp_azure_mcp_monitor
   intent: "query logs for <resource-name>"

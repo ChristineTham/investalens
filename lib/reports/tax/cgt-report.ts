@@ -45,7 +45,8 @@ export async function generateCgtReport(
   });
   if (!portfolio) throw new Error("Portfolio not found");
 
-  const allocationMethod = method || (portfolio.saleAllocationMethod as SaleAllocationMethod);
+  const allocationMethod =
+    method || (portfolio.saleAllocationMethod as SaleAllocationMethod);
   const fyStart = new Date(financialYear - 1, portfolio.financialYearEnd, 1);
   const fyEnd = new Date(financialYear, portfolio.financialYearEnd, 0);
 

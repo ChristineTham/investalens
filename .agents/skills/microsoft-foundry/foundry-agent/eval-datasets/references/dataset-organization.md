@@ -6,14 +6,14 @@ Organize datasets using metadata fields, create train/validation/test splits, an
 
 Add metadata to each JSONL example to enable filtering and organization:
 
-| Field | Values | Purpose |
-|-------|--------|---------|
-| `category` | `edge-case`, `regression`, `happy-path`, `multi-turn`, `safety` | Test case classification |
-| `source` | `trace`, `synthetic`, `manual`, `feedback` | How the example was created |
-| `split` | `train`, `val`, `test` | Dataset split assignment |
-| `tags` | key/value object such as `{"tier": "smoke", "purpose": "baseline"}` | Flexible suite-alignment and filtering labels |
-| `harvestRule` | `error`, `latency`, `low-eval`, `combined` | Which harvest template captured it |
-| `agentVersion` | `"1"`, `"2"`, etc. | Agent version when trace was captured |
+| Field          | Values                                                              | Purpose                                       |
+| -------------- | ------------------------------------------------------------------- | --------------------------------------------- |
+| `category`     | `edge-case`, `regression`, `happy-path`, `multi-turn`, `safety`     | Test case classification                      |
+| `source`       | `trace`, `synthetic`, `manual`, `feedback`                          | How the example was created                   |
+| `split`        | `train`, `val`, `test`                                              | Dataset split assignment                      |
+| `tags`         | key/value object such as `{"tier": "smoke", "purpose": "baseline"}` | Flexible suite-alignment and filtering labels |
+| `harvestRule`  | `error`, `latency`, `low-eval`, `combined`                          | Which harvest template captured it            |
+| `agentVersion` | `"1"`, `"2"`, etc.                                                  | Agent version when trace was captured         |
 
 ### Example JSONL with Metadata
 
@@ -29,13 +29,13 @@ Add metadata to each JSONL example to enable filtering and organization:
 
 When creating a new dataset, assign splits based on rules:
 
-| Rule | Split | Rationale |
-|------|-------|-----------|
-| First 70% of examples | `train` | Bulk of data for development |
-| Next 15% of examples | `val` | Validation during optimization |
-| Final 15% of examples | `test` | Held-out for final evaluation |
-| All `tags.tier == "smoke"` examples | `test` | Smoke suites always stay in test |
-| All `category: safety` examples | `test` | Safety always evaluated |
+| Rule                                | Split   | Rationale                        |
+| ----------------------------------- | ------- | -------------------------------- |
+| First 70% of examples               | `train` | Bulk of data for development     |
+| Next 15% of examples                | `val`   | Validation during optimization   |
+| Final 15% of examples               | `test`  | Held-out for final evaluation    |
+| All `tags.tier == "smoke"` examples | `test`  | Smoke suites always stay in test |
+| All `category: safety` examples     | `test`  | Safety always evaluated          |
 
 ### Manual Split Assignment
 
@@ -101,12 +101,12 @@ tiers = Counter(e.get("metadata", {}).get("tags", {}).get("tier", "none") for e 
 
 Present as a table:
 
-| Dimension | Values | Count |
-|-----------|--------|-------|
+| Dimension    | Values                                                                  | Count    |
+| ------------ | ----------------------------------------------------------------------- | -------- |
 | **Category** | happy-path: 20, edge-case: 15, regression: 8, safety: 5, multi-turn: 10 | 58 total |
-| **Source** | trace: 30, synthetic: 18, manual: 10 | 58 total |
-| **Split** | train: 40, val: 9, test: 9 | 58 total |
-| **Tier** | smoke: 12, regression: 25, coverage: 21 | 58 total |
+| **Source**   | trace: 30, synthetic: 18, manual: 10                                    | 58 total |
+| **Split**    | train: 40, val: 9, test: 9                                              | 58 total |
+| **Tier**     | smoke: 12, regression: 25, coverage: 21                                 | 58 total |
 
 ## Next Steps
 

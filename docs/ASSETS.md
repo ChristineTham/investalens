@@ -89,14 +89,14 @@ InvestaLens has a dedicated Cash Account feature to track cash holdings alongsid
 
 **Cash Account capabilities:**
 
-| Feature | Description |
-|---------|-------------|
-| Track bank/savings accounts | Record balances and interest earned |
-| Track brokerage cash accounts | Monitor uninvested cash at your broker |
-| Track term deposits | Fixed interest with maturity dates |
-| Foreign currency accounts | Track cash held in foreign currencies |
-| Sync trades and payouts | Link investment transactions to cash flows |
-| Export | Download transaction history as CSV |
+| Feature                       | Description                                |
+| ----------------------------- | ------------------------------------------ |
+| Track bank/savings accounts   | Record balances and interest earned        |
+| Track brokerage cash accounts | Monitor uninvested cash at your broker     |
+| Track term deposits           | Fixed interest with maturity dates         |
+| Foreign currency accounts     | Track cash held in foreign currencies      |
+| Sync trades and payouts       | Link investment transactions to cash flows |
+| Export                        | Download transaction history as CSV        |
 
 **Cash Account operations:**
 
@@ -116,18 +116,18 @@ Term deposits and other fixed interest securities can be tracked using the Custo
 3. Select **Fixed Interest** from the Investment Type dropdown
 4. Complete the form:
 
-| Field | Recommendation |
-|-------|---------------|
-| Instrument Code | Short abbreviation (acts as the ticker) |
-| Instrument Name | Full name of the holding |
-| Investment Type | Fixed Interest |
-| Face Value per Unit | Set to $1 (simplest approach) |
-| Coupon Rate | Your interest rate/yield |
-| Income Type | Dividends or Interest |
-| Payment Frequency | How often interest is paid |
-| First Payment Date | Must be after the Trade Date and before Maturity Date |
-| Maturity Date | When the term deposit ends |
-| Quantity | The dollar amount invested (since Face Value = $1) |
+| Field               | Recommendation                                        |
+| ------------------- | ----------------------------------------------------- |
+| Instrument Code     | Short abbreviation (acts as the ticker)               |
+| Instrument Name     | Full name of the holding                              |
+| Investment Type     | Fixed Interest                                        |
+| Face Value per Unit | Set to $1 (simplest approach)                         |
+| Coupon Rate         | Your interest rate/yield                              |
+| Income Type         | Dividends or Interest                                 |
+| Payment Frequency   | How often interest is paid                            |
+| First Payment Date  | Must be after the Trade Date and before Maturity Date |
+| Maturity Date       | When the term deposit ends                            |
+| Quantity            | The dollar amount invested (since Face Value = $1)    |
 
 **Interest calculation:**
 
@@ -146,39 +146,39 @@ InvestaLens supports tracking listed bonds, unlisted/OTC bonds, and bond funds w
 
 #### Adding Bonds
 
-| Bond Type | How to Add |
-|-----------|-----------|
-| **Listed bonds** | Search by name or ticker on supported exchanges (ASX, LSE, NYSE) |
-| **Unlisted/OTC bonds** | Create as Custom Investment with **Fixed Interest** type |
-| **UK gilts** | Listed on LSE — search and add directly |
+| Bond Type                 | How to Add                                                        |
+| ------------------------- | ----------------------------------------------------------------- |
+| **Listed bonds**          | Search by name or ticker on supported exchanges (ASX, LSE, NYSE)  |
+| **Unlisted/OTC bonds**    | Create as Custom Investment with **Fixed Interest** type          |
+| **UK gilts**              | Listed on LSE — search and add directly                           |
 | **Corporate bonds (OTC)** | Custom Investment with coupon rate, maturity date, and face value |
-| **Bond ETFs/Funds** | Search by ticker (e.g. VAF, IAF, AGG, BND) |
+| **Bond ETFs/Funds**       | Search by ticker (e.g. VAF, IAF, AGG, BND)                        |
 
 #### Bond-Specific Fields
 
 When adding a bond (listed or custom), InvestaLens tracks:
 
-| Field | Description |
-|-------|-------------|
-| Face Value (Par) | Nominal value per unit (typically $100 for Australian bonds) |
-| Coupon Rate | Annual interest rate (%) |
-| Payment Frequency | Monthly, Quarterly, Semi-Annual, or Annual |
-| Maturity Date | When the bond matures and principal is returned |
-| Purchase Yield (YTM) | Yield to maturity at time of purchase |
-| Credit Rating | Issuer credit rating (AAA to unrated) |
+| Field                | Description                                                  |
+| -------------------- | ------------------------------------------------------------ |
+| Face Value (Par)     | Nominal value per unit (typically $100 for Australian bonds) |
+| Coupon Rate          | Annual interest rate (%)                                     |
+| Payment Frequency    | Monthly, Quarterly, Semi-Annual, or Annual                   |
+| Maturity Date        | When the bond matures and principal is returned              |
+| Purchase Yield (YTM) | Yield to maturity at time of purchase                        |
+| Credit Rating        | Issuer credit rating (AAA to unrated)                        |
 
 #### Bond Portfolio Analytics
 
-| Feature | Description |
-|---------|-------------|
-| Yield to Maturity | Weighted average YTM across all bond holdings |
-| Modified Duration | Portfolio sensitivity to interest rate changes |
-| Weighted Average Maturity | Average time to maturity weighted by market value |
-| Credit Quality Breakdown | Distribution of holdings by credit rating |
-| Maturity Ladder | Visual timeline of upcoming maturities and cash flows |
-| Coupon Calendar | Schedule of upcoming coupon payments with amounts |
-| Income Forecast | Projected income from coupons over next 12 months |
-| Accrued Interest | Interest earned but not yet paid since last coupon date |
+| Feature                   | Description                                             |
+| ------------------------- | ------------------------------------------------------- |
+| Yield to Maturity         | Weighted average YTM across all bond holdings           |
+| Modified Duration         | Portfolio sensitivity to interest rate changes          |
+| Weighted Average Maturity | Average time to maturity weighted by market value       |
+| Credit Quality Breakdown  | Distribution of holdings by credit rating               |
+| Maturity Ladder           | Visual timeline of upcoming maturities and cash flows   |
+| Coupon Calendar           | Schedule of upcoming coupon payments with amounts       |
+| Income Forecast           | Projected income from coupons over next 12 months       |
+| Accrued Interest          | Interest earned but not yet paid since last coupon date |
 
 #### Tracking Bond Income
 
@@ -191,12 +191,12 @@ Bond coupon payments are recorded as **INTEREST** transactions. InvestaLens auto
 
 #### Supported Bond Platforms
 
-| Platform | Region | Notes |
-|----------|--------|-------|
-| FIIG Securities | Australia | Corporate and government bonds, negotiable at OTC |
-| ASX-listed bonds | Australia | Exchange-traded Australian government and corporate bonds |
-| XTBs (Exchange Traded Bond units) | Australia | ASX-listed units over corporate bonds |
-| Interactive Brokers | Global | Listed bonds across multiple markets |
+| Platform                          | Region    | Notes                                                     |
+| --------------------------------- | --------- | --------------------------------------------------------- |
+| FIIG Securities                   | Australia | Corporate and government bonds, negotiable at OTC         |
+| ASX-listed bonds                  | Australia | Exchange-traded Australian government and corporate bonds |
+| XTBs (Exchange Traded Bond units) | Australia | ASX-listed units over corporate bonds                     |
+| Interactive Brokers               | Global    | Listed bonds across multiple markets                      |
 
 #### Maturity Events
 
@@ -315,74 +315,74 @@ InvestaLens supports over 60 stock exchanges and managed funds worldwide. Automa
 
 > **Note:** If a market you invest in is not listed below, you can add your holding as a [Custom Investment](#custom-investments).
 
-| Country | Exchange | Type | Code | Price Delay |
-|---------|----------|------|------|-------------|
-| Australia | Australian Securities Exchange | Stock Exchange | ASX | 20 minutes |
-| Australia | Australia Managed Funds | Managed Fund | FundAU | Daily |
-| Australia | Cboe Australia | Stock Exchange | CXA | 20 minutes |
-| Australia | Managed Funds | Managed Fund | mFund | Daily |
-| Austria | Vienna Stock Exchange | Stock Exchange | VIE | Daily |
-| Belgium | Euronext Brussels | Stock Exchange | EURONEXT | End of day |
-| Brazil | B3 BOVESPA | Stock Exchange | BVMF | End of day |
-| Canada | Canadian Securities Exchange | Stock Exchange | CNSX | End of day |
-| Canada | Toronto TSX Ventures Exchange | Stock Exchange | CVE | End of day |
-| Canada | Neo Exchange | Stock Exchange | NEO | End of day |
-| Canada | Toronto Stock Exchange | Stock Exchange | TSE | End of day |
-| Canada | Canadian Mutual Funds | Managed Fund | FundCA | Daily |
-| China | Hong Kong Stock Exchange | Stock Exchange | HKG | End of day |
-| China | Shenzhen Stock Exchange | Stock Exchange | SHE | End of day |
-| China | Shanghai Stock Exchange | Stock Exchange | SHG | End of day |
-| Czech Republic | Prague Stock Exchange | Stock Exchange | PSE | End of day |
-| Denmark | Nasdaq Nordic Copenhagen | Stock Exchange | CSE | End of day |
-| Finland | Nasdaq Nordic Helsinki | Stock Exchange | HEL | End of day |
-| France | Euronext Paris | Stock Exchange | EURONEXT | End of day |
-| Germany | Deutsche Börse Frankfurt Stock Exchange | Stock Exchange | FRA | End of day |
-| Germany | Deutsche Börse Xetra | Stock Exchange | XETR | End of day |
-| Greece | Athens Stock Exchange | Stock Exchange | ASE | End of day |
-| Hungary | Budapest Stock Exchange | Stock Exchange | BDP | End of day |
-| Iceland | Nasdaq Nordic Iceland | Stock Exchange | ICE | End of day |
-| India | Bombay Stock Exchange Limited | Stock Exchange | BSE | End of day |
-| India | National Stock Exchange of India | Stock Exchange | NSE | End of day |
-| Indonesia | Indonesia Stock Exchange | Stock Exchange | IDX | End of day |
-| Ireland | Irish Funds | Managed Fund | FundIE | Daily |
-| Ireland | Euronext Dublin | Stock Exchange | DUB | End of day |
-| Israel | Tel Aviv Stock Exchange | Stock Exchange | TLV | End of day |
-| Italy | Borsa Italiana Milan Stock Exchange | Stock Exchange | BIT | End of day |
-| Japan | Tokyo Stock Exchange | Stock Exchange | TYO | End of day |
-| Luxembourg | Luxembourg Managed Funds | Managed Fund | FundLU | End of day |
-| Malaysia | Bursa Malaysia Stock Exchange | Stock Exchange | KLS | End of day |
-| Mexico | Bolsa Mexicana de Valores | Stock Exchange | BMV | End of day |
-| Netherlands | Euronext Amsterdam | Stock Exchange | EURONEXT | End of day |
-| New Zealand | New Zealand Stock Exchange | Stock Exchange | NZX | 20 minutes |
-| New Zealand | New Zealand Managed Funds | Managed Fund | FundNZ | Daily |
-| Norway | Oslo Stock Exchange | Stock Exchange | OSL | End of day |
-| Peru | Bolsa de Valores de Lima | Stock Exchange | BVL | End of day |
-| Philippines | Philippine Stock Exchange | Stock Exchange | PHS | End of day |
-| Poland | Warsaw Stock Exchange | Stock Exchange | WAR | End of day |
-| Portugal | Euronext Lisbon | Stock Exchange | EURONEXT | End of day |
-| Romania | Bucharest Stock Exchange | Stock Exchange | BVB | End of day |
-| Russia | Moscow Exchange | Stock Exchange | MISX | End of day |
-| Singapore | Singapore Exchange | Stock Exchange | SGX | End of day |
-| South Africa | Johannesburg Stock Exchange | Stock Exchange | JSE | End of day |
-| South Korea | Korean Securities Dealers Automated Quotations | Stock Exchange | KOSDAQ | End of day |
-| South Korea | Korea Exchange | Stock Exchange | KRX | End of day |
-| Spain | Bolsas y Mercados Españoles | Stock Exchange | BME | End of day |
-| Sweden | Nasdaq Nordic Stockholm | Stock Exchange | STO | End of day |
-| Switzerland | SIX Swiss Exchange | Stock Exchange | SWX | End of day |
-| Taiwan | Taiwan Stock Exchange | Stock Exchange | TAI | End of day |
-| Thailand | Stock Exchange of Thailand | Stock Exchange | BKK | End of day |
-| Turkey | Borsa Istanbul | Stock Exchange | BIST | End of day |
-| United Arab Emirates | Abu Dhabi Stock Exchange | Stock Exchange | ADX | Daily |
-| United Kingdom | London Stock Exchange | Stock Exchange | LSE | 15 minutes |
-| United Kingdom | UK Mutual Funds | Managed Fund | FundUK | Daily |
-| United Kingdom | UK Life and Pension Funds | Managed Fund | FundUK | Daily |
-| United States | NYSE American | Stock Exchange | AMEX | 15 minutes |
-| United States | BATS Exchange | Stock Exchange | BATS | 15 minutes |
-| United States | NASDAQ Stock Exchange | Stock Exchange | NASDAQ | 15 minutes |
-| United States | The New York Stock Exchange | Stock Exchange | NYSE | 15 minutes |
-| United States | NYSE ARCA | Stock Exchange | NYSE | 15 minutes |
-| United States | Other OTC | Stock Exchange | OTC | End of day |
-| United States | US Mutual Funds | Managed Fund | FundUS | Daily |
+| Country              | Exchange                                       | Type           | Code     | Price Delay |
+| -------------------- | ---------------------------------------------- | -------------- | -------- | ----------- |
+| Australia            | Australian Securities Exchange                 | Stock Exchange | ASX      | 20 minutes  |
+| Australia            | Australia Managed Funds                        | Managed Fund   | FundAU   | Daily       |
+| Australia            | Cboe Australia                                 | Stock Exchange | CXA      | 20 minutes  |
+| Australia            | Managed Funds                                  | Managed Fund   | mFund    | Daily       |
+| Austria              | Vienna Stock Exchange                          | Stock Exchange | VIE      | Daily       |
+| Belgium              | Euronext Brussels                              | Stock Exchange | EURONEXT | End of day  |
+| Brazil               | B3 BOVESPA                                     | Stock Exchange | BVMF     | End of day  |
+| Canada               | Canadian Securities Exchange                   | Stock Exchange | CNSX     | End of day  |
+| Canada               | Toronto TSX Ventures Exchange                  | Stock Exchange | CVE      | End of day  |
+| Canada               | Neo Exchange                                   | Stock Exchange | NEO      | End of day  |
+| Canada               | Toronto Stock Exchange                         | Stock Exchange | TSE      | End of day  |
+| Canada               | Canadian Mutual Funds                          | Managed Fund   | FundCA   | Daily       |
+| China                | Hong Kong Stock Exchange                       | Stock Exchange | HKG      | End of day  |
+| China                | Shenzhen Stock Exchange                        | Stock Exchange | SHE      | End of day  |
+| China                | Shanghai Stock Exchange                        | Stock Exchange | SHG      | End of day  |
+| Czech Republic       | Prague Stock Exchange                          | Stock Exchange | PSE      | End of day  |
+| Denmark              | Nasdaq Nordic Copenhagen                       | Stock Exchange | CSE      | End of day  |
+| Finland              | Nasdaq Nordic Helsinki                         | Stock Exchange | HEL      | End of day  |
+| France               | Euronext Paris                                 | Stock Exchange | EURONEXT | End of day  |
+| Germany              | Deutsche Börse Frankfurt Stock Exchange        | Stock Exchange | FRA      | End of day  |
+| Germany              | Deutsche Börse Xetra                           | Stock Exchange | XETR     | End of day  |
+| Greece               | Athens Stock Exchange                          | Stock Exchange | ASE      | End of day  |
+| Hungary              | Budapest Stock Exchange                        | Stock Exchange | BDP      | End of day  |
+| Iceland              | Nasdaq Nordic Iceland                          | Stock Exchange | ICE      | End of day  |
+| India                | Bombay Stock Exchange Limited                  | Stock Exchange | BSE      | End of day  |
+| India                | National Stock Exchange of India               | Stock Exchange | NSE      | End of day  |
+| Indonesia            | Indonesia Stock Exchange                       | Stock Exchange | IDX      | End of day  |
+| Ireland              | Irish Funds                                    | Managed Fund   | FundIE   | Daily       |
+| Ireland              | Euronext Dublin                                | Stock Exchange | DUB      | End of day  |
+| Israel               | Tel Aviv Stock Exchange                        | Stock Exchange | TLV      | End of day  |
+| Italy                | Borsa Italiana Milan Stock Exchange            | Stock Exchange | BIT      | End of day  |
+| Japan                | Tokyo Stock Exchange                           | Stock Exchange | TYO      | End of day  |
+| Luxembourg           | Luxembourg Managed Funds                       | Managed Fund   | FundLU   | End of day  |
+| Malaysia             | Bursa Malaysia Stock Exchange                  | Stock Exchange | KLS      | End of day  |
+| Mexico               | Bolsa Mexicana de Valores                      | Stock Exchange | BMV      | End of day  |
+| Netherlands          | Euronext Amsterdam                             | Stock Exchange | EURONEXT | End of day  |
+| New Zealand          | New Zealand Stock Exchange                     | Stock Exchange | NZX      | 20 minutes  |
+| New Zealand          | New Zealand Managed Funds                      | Managed Fund   | FundNZ   | Daily       |
+| Norway               | Oslo Stock Exchange                            | Stock Exchange | OSL      | End of day  |
+| Peru                 | Bolsa de Valores de Lima                       | Stock Exchange | BVL      | End of day  |
+| Philippines          | Philippine Stock Exchange                      | Stock Exchange | PHS      | End of day  |
+| Poland               | Warsaw Stock Exchange                          | Stock Exchange | WAR      | End of day  |
+| Portugal             | Euronext Lisbon                                | Stock Exchange | EURONEXT | End of day  |
+| Romania              | Bucharest Stock Exchange                       | Stock Exchange | BVB      | End of day  |
+| Russia               | Moscow Exchange                                | Stock Exchange | MISX     | End of day  |
+| Singapore            | Singapore Exchange                             | Stock Exchange | SGX      | End of day  |
+| South Africa         | Johannesburg Stock Exchange                    | Stock Exchange | JSE      | End of day  |
+| South Korea          | Korean Securities Dealers Automated Quotations | Stock Exchange | KOSDAQ   | End of day  |
+| South Korea          | Korea Exchange                                 | Stock Exchange | KRX      | End of day  |
+| Spain                | Bolsas y Mercados Españoles                    | Stock Exchange | BME      | End of day  |
+| Sweden               | Nasdaq Nordic Stockholm                        | Stock Exchange | STO      | End of day  |
+| Switzerland          | SIX Swiss Exchange                             | Stock Exchange | SWX      | End of day  |
+| Taiwan               | Taiwan Stock Exchange                          | Stock Exchange | TAI      | End of day  |
+| Thailand             | Stock Exchange of Thailand                     | Stock Exchange | BKK      | End of day  |
+| Turkey               | Borsa Istanbul                                 | Stock Exchange | BIST     | End of day  |
+| United Arab Emirates | Abu Dhabi Stock Exchange                       | Stock Exchange | ADX      | Daily       |
+| United Kingdom       | London Stock Exchange                          | Stock Exchange | LSE      | 15 minutes  |
+| United Kingdom       | UK Mutual Funds                                | Managed Fund   | FundUK   | Daily       |
+| United Kingdom       | UK Life and Pension Funds                      | Managed Fund   | FundUK   | Daily       |
+| United States        | NYSE American                                  | Stock Exchange | AMEX     | 15 minutes  |
+| United States        | BATS Exchange                                  | Stock Exchange | BATS     | 15 minutes  |
+| United States        | NASDAQ Stock Exchange                          | Stock Exchange | NASDAQ   | 15 minutes  |
+| United States        | The New York Stock Exchange                    | Stock Exchange | NYSE     | 15 minutes  |
+| United States        | NYSE ARCA                                      | Stock Exchange | NYSE     | 15 minutes  |
+| United States        | Other OTC                                      | Stock Exchange | OTC      | End of day  |
+| United States        | US Mutual Funds                                | Managed Fund   | FundUS   | Daily       |
 
 ---
 
@@ -409,26 +409,26 @@ Net Worth = Total Assets (all portfolios) − Total Liabilities
 
 Liabilities represent financial obligations that reduce your net worth. Add them via **Account > Liabilities**.
 
-| Liability Type | Example | How to Record |
-|---------------|---------|---------------|
-| Mortgage | Home loan balance | Enter current outstanding balance, update periodically |
-| Investment Loan | Margin loan, investment property loan | Link to portfolio for LVR tracking |
-| Student Loan | HECS-HELP, FEE-HELP | Enter balance; manual updates |
-| Personal Loan | Car loan, personal finance | Enter balance and repayment schedule |
-| Credit Card | Outstanding balance | Enter current balance |
-| Other | Any other financial obligation | Free-form entry |
+| Liability Type  | Example                               | How to Record                                          |
+| --------------- | ------------------------------------- | ------------------------------------------------------ |
+| Mortgage        | Home loan balance                     | Enter current outstanding balance, update periodically |
+| Investment Loan | Margin loan, investment property loan | Link to portfolio for LVR tracking                     |
+| Student Loan    | HECS-HELP, FEE-HELP                   | Enter balance; manual updates                          |
+| Personal Loan   | Car loan, personal finance            | Enter balance and repayment schedule                   |
+| Credit Card     | Outstanding balance                   | Enter current balance                                  |
+| Other           | Any other financial obligation        | Free-form entry                                        |
 
 **Liability fields:**
 
-| Field | Description |
-|-------|-------------|
-| Name | Display name (e.g. "ANZ Home Loan") |
-| Type | Category from the table above |
-| Balance | Current outstanding amount |
-| Interest Rate | Annual interest rate (for projection) |
-| Currency | Currency of the liability |
+| Field            | Description                                                    |
+| ---------------- | -------------------------------------------------------------- |
+| Name             | Display name (e.g. "ANZ Home Loan")                            |
+| Type             | Category from the table above                                  |
+| Balance          | Current outstanding amount                                     |
+| Interest Rate    | Annual interest rate (for projection)                          |
+| Currency         | Currency of the liability                                      |
 | Linked Portfolio | Optional — link to an investment portfolio for LVR calculation |
-| Notes | Free-text notes |
+| Notes            | Free-text notes                                                |
 
 ### Net Worth Dashboard
 
@@ -455,11 +455,11 @@ Liabilities are not automatically updated (there is no bank feed integration for
 
 ## Related Documentation
 
-| Document | Description |
-|----------|-------------|
-| [GETTING-STARTED.md](GETTING-STARTED.md) | How to add investments to your portfolio |
-| [DATA_IMPORT.md](DATA_IMPORT.md) | Import architecture, CSV mapping, and bond-specific import fields |
-| [TOOLS.md](TOOLS.md) | Reports and analysis tools for your holdings |
-| [ACCOUNT.md](ACCOUNT.md) | Custom groups, labels, and portfolio organisation |
-| [TAX.md](TAX.md) | Tax implications of different asset types (AMIT, stapled securities) |
-| [ACTIONS.md](ACTIONS.md) | Corporate actions affecting your holdings (splits, mergers, rights) |
+| Document                                 | Description                                                          |
+| ---------------------------------------- | -------------------------------------------------------------------- |
+| [GETTING-STARTED.md](GETTING-STARTED.md) | How to add investments to your portfolio                             |
+| [DATA_IMPORT.md](DATA_IMPORT.md)         | Import architecture, CSV mapping, and bond-specific import fields    |
+| [TOOLS.md](TOOLS.md)                     | Reports and analysis tools for your holdings                         |
+| [ACCOUNT.md](ACCOUNT.md)                 | Custom groups, labels, and portfolio organisation                    |
+| [TAX.md](TAX.md)                         | Tax implications of different asset types (AMIT, stapled securities) |
+| [ACTIONS.md](ACTIONS.md)                 | Corporate actions affecting your holdings (splits, mergers, rights)  |

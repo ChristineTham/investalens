@@ -54,10 +54,10 @@ Query/response data lives in `datasource_item.query` and `datasource_item['sampl
 
 Custom evaluators produce **two** result entries per item in the `results` array:
 
-| Entry | `metric` field | Has score? | Has reason/label/passed? |
-|-------|----------------|------------|--------------------------|
-| Entry 1 | `"custom_score"` | ✅ numeric score | ❌ null |
-| Entry 2 | `"{evaluator_name}"` | ❌ null | ✅ real reason, label, passed |
+| Entry   | `metric` field       | Has score?       | Has reason/label/passed?      |
+| ------- | -------------------- | ---------------- | ----------------------------- |
+| Entry 1 | `"custom_score"`     | ✅ numeric score | ❌ null                       |
+| Entry 2 | `"{evaluator_name}"` | ❌ null          | ✅ real reason, label, passed |
 
 To get the complete picture, merge both entries:
 
@@ -105,24 +105,24 @@ Save results to `.foundry/results/<environment>/<eval-id>/<run-id>.json` (use `j
 
 Analyze every row in the results. Group failures into clusters:
 
-| Cluster | Description |
-|---------|-------------|
+| Cluster                         | Description                               |
+| ------------------------------- | ----------------------------------------- |
 | Incorrect / hallucinated answer | Agent gave a wrong or fabricated response |
-| Incomplete answer | Agent missed key parts |
-| Tool call failure | Agent failed to invoke or misused a tool |
-| Safety / content violation | Flagged by safety evaluators |
-| Runtime error | Agent crashed or returned an error |
-| Off-topic / refusal | Agent refused or went off-topic |
+| Incomplete answer               | Agent missed key parts                    |
+| Tool call failure               | Agent failed to invoke or misused a tool  |
+| Safety / content violation      | Flagged by safety evaluators              |
+| Runtime error                   | Agent crashed or returned an error        |
+| Off-topic / refusal             | Agent refused or went off-topic           |
 
 Produce a prioritized action table:
 
-| Focus | Cluster | Suggested Action |
-|-------|---------|------------------|
-| Runtime blockers | Runtime errors or failing suites tagged `tier=smoke` | Check container logs or fix blockers first |
-| Key regressions | Incorrect answers on suites tagged `purpose=regression` or `tier=smoke` | Optimize prompt or tool instructions |
-| Broader quality gaps | Incomplete answers or coverage-oriented suites | Optimize prompt or expand context |
-| Tooling issues | Tool call failures | Fix tool definitions or instructions |
-| Safety issues | Safety violations | Add guardrails to instructions |
+| Focus                | Cluster                                                                 | Suggested Action                           |
+| -------------------- | ----------------------------------------------------------------------- | ------------------------------------------ |
+| Runtime blockers     | Runtime errors or failing suites tagged `tier=smoke`                    | Check container logs or fix blockers first |
+| Key regressions      | Incorrect answers on suites tagged `purpose=regression` or `tier=smoke` | Optimize prompt or tool instructions       |
+| Broader quality gaps | Incomplete answers or coverage-oriented suites                          | Optimize prompt or expand context          |
+| Tooling issues       | Tool call failures                                                      | Fix tool definitions or instructions       |
+| Safety issues        | Safety violations                                                       | Add guardrails to instructions             |
 
 **Rule:** Prioritize runtime errors first, then suites tagged `tier=smoke`, then suites tagged `purpose=regression`, then broader coverage suites by count × severity.
 

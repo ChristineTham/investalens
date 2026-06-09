@@ -8,7 +8,11 @@ interface FieldMapperProps {
   onMappingChange: (mapping: FieldMapping) => void;
 }
 
-const FIELDS: Array<{ key: keyof FieldMapping; label: string; required: boolean }> = [
+const FIELDS: Array<{
+  key: keyof FieldMapping;
+  label: string;
+  required: boolean;
+}> = [
   { key: "tradeDate", label: "Trade Date", required: true },
   { key: "instrumentCode", label: "Instrument Code", required: true },
   { key: "quantity", label: "Quantity", required: true },
@@ -19,10 +23,18 @@ const FIELDS: Array<{ key: keyof FieldMapping; label: string; required: boolean 
   { key: "currency", label: "Currency", required: false },
   { key: "exchangeRate", label: "Exchange Rate", required: false },
   { key: "comments", label: "Comments/Notes", required: false },
-  { key: "combinedCode", label: "Combined Code (e.g. TLS.ASX)", required: false },
+  {
+    key: "combinedCode",
+    label: "Combined Code (e.g. TLS.ASX)",
+    required: false,
+  },
 ];
 
-export function FieldMapper({ headers, mapping, onMappingChange }: FieldMapperProps) {
+export function FieldMapper({
+  headers,
+  mapping,
+  onMappingChange,
+}: FieldMapperProps) {
   function handleChange(key: keyof FieldMapping, value: string) {
     onMappingChange({
       ...mapping,
@@ -42,7 +54,7 @@ export function FieldMapper({ headers, mapping, onMappingChange }: FieldMapperPr
             value={mapping[field.key] || ""}
             onChange={(e) => handleChange(field.key, e.target.value)}
             aria-label={`Map ${field.label}`}
-            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           >
             <option value="">— Skip —</option>
             {headers.map((header) => (

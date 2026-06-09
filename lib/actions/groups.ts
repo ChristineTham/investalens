@@ -48,7 +48,10 @@ export async function addCategory(groupId: string, name: string) {
   return category;
 }
 
-export async function assignInstrument(categoryId: string, instrumentId: string) {
+export async function assignInstrument(
+  categoryId: string,
+  instrumentId: string
+) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
@@ -59,7 +62,10 @@ export async function assignInstrument(categoryId: string, instrumentId: string)
   revalidatePath("/settings/groups");
 }
 
-export async function removeAssignment(categoryId: string, instrumentId: string) {
+export async function removeAssignment(
+  categoryId: string,
+  instrumentId: string
+) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 

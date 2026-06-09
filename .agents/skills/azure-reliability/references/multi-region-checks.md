@@ -27,6 +27,7 @@ Resources
 ```
 
 **Interpretation:**
+
 - Results show apps with the same base name deployed across multiple regions → ✅ Multi-region
 - No results → ❌ All apps are single-region
 
@@ -85,12 +86,12 @@ az afd origin list \
 
 ## Assessment Criteria
 
-| Check | Pass | Fail |
-|---|---|---|
-| App deployed in ≥2 regions | ✅ Multi-region | ❌ Single region |
-| Global load balancer exists (Front Door or TM) | ✅ Traffic routing | ❌ No failover mechanism |
-| Health probes configured on load balancer | ✅ Auto-failover | ⚠️ Manual failover only |
-| Storage is geo-redundant (GRS/GZRS) | ✅ Data survives region failure | ❌ Data loss risk |
+| Check                                          | Pass                            | Fail                     |
+| ---------------------------------------------- | ------------------------------- | ------------------------ |
+| App deployed in ≥2 regions                     | ✅ Multi-region                 | ❌ Single region         |
+| Global load balancer exists (Front Door or TM) | ✅ Traffic routing              | ❌ No failover mechanism |
+| Health probes configured on load balancer      | ✅ Auto-failover                | ⚠️ Manual failover only  |
+| Storage is geo-redundant (GRS/GZRS)            | ✅ Data survives region failure | ❌ Data loss risk        |
 
 ## Multi-Region Patterns
 
@@ -183,6 +184,7 @@ resource secondaryOrigin 'Microsoft.Cdn/profiles/originGroups/origins@2024-02-01
 ## Reporting
 
 For the reliability checklist, mark the **Multi-Region** column per resource:
+
 - ✅ — resource is deployed in ≥2 regions AND fronted by Azure Front Door / Traffic Manager with health probes
 - ❌ — single region OR multi-region without an active global load balancer / health probes
 - For Front Door / Traffic Manager rows: ✅ if configured with health probes, ❌ if absent or missing health probes

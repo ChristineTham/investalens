@@ -46,7 +46,7 @@ See [SQL managed identity](https://learn.microsoft.com/en-us/azure/azure-functio
 
 ## Eval
 
-| Path | Description |
-|------|-------------|
-| [eval/summary.md](eval/summary.md) | Evaluation summary |
-| [eval/python.md](eval/python.md) | Python evaluation results |
+| Path                               | Description               |
+| ---------------------------------- | ------------------------- |
+| [eval/summary.md](eval/summary.md) | Evaluation summary        |
+| [eval/python.md](eval/python.md)   | Python evaluation results |

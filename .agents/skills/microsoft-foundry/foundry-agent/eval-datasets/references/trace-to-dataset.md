@@ -48,9 +48,9 @@ App Insights traces
 
 > 💡 **Evaluation results live in `customEvents`, not in `dependencies`.** Foundry writes eval scores to App Insights as `customEvents` with `name == "gen_ai.evaluation.result"`. Agent traces (spans) live in `dependencies`. The link between them is **`gen_ai.response.id`** — this field appears on both tables.
 
-| Table | Contains | Join Key |
-|-------|----------|----------|
-| `dependencies` | Agent traces (spans, tool calls, LLM calls) | `customDimensions["gen_ai.response.id"]` |
+| Table          | Contains                                          | Join Key                                 |
+| -------------- | ------------------------------------------------- | ---------------------------------------- |
+| `dependencies` | Agent traces (spans, tool calls, LLM calls)       | `customDimensions["gen_ai.response.id"]` |
 | `customEvents` | Evaluation results (scores, labels, explanations) | `customDimensions["gen_ai.response.id"]` |
 
 **To harvest traces with eval scores**, join `customEvents` → `dependencies` on `responseId`. The [Low-Eval Harvest](#low-eval-harvest--traces-with-poor-evaluation-scores) template below shows this pattern. For standalone eval lookups, see [Eval Correlation](../../trace/references/eval-correlation.md) (in `foundry-agent/trace/references/`).
@@ -225,13 +225,13 @@ dependencies
 
 Transform harvested traces into JSONL dataset format. Each line in the JSONL file must contain:
 
-| Field | Required | Source |
-|-------|----------|--------|
-| `query` | ✅ | User input — extract from `gen_ai.input.messages` on `invoke_agent` dependency spans |
-| `response` | Optional | Agent output — extract from `gen_ai.output.messages` on `invoke_agent` dependency spans |
-| `context` | Optional | Tool results or retrieved documents from the trace |
-| `ground_truth` | Optional | Expected correct answer (add during curation) |
-| `metadata` | Optional | Source info: `{"source": "trace", "conversationId": "...", "harvestRule": "error"}` |
+| Field          | Required | Source                                                                                  |
+| -------------- | -------- | --------------------------------------------------------------------------------------- |
+| `query`        | ✅       | User input — extract from `gen_ai.input.messages` on `invoke_agent` dependency spans    |
+| `response`     | Optional | Agent output — extract from `gen_ai.output.messages` on `invoke_agent` dependency spans |
+| `context`      | Optional | Tool results or retrieved documents from the trace                                      |
+| `ground_truth` | Optional | Expected correct answer (add during curation)                                           |
+| `metadata`     | Optional | Source info: `{"source": "trace", "conversationId": "...", "harvestRule": "error"}`     |
 
 ### Extracting Input/Output from Traces
 
@@ -272,16 +272,17 @@ Extract the `query` from the last user-role entry in `gen_ai.input.messages` and
 
 Present the harvested candidates as a table:
 
-| # | Conversation ID | Error Type | Duration | Eval Score | Query (preview) |
-|---|----------------|------------|----------|------------|----------------|
-| 1 | conv-abc-123 | TimeoutError | 12.3s | 2.0 | "How do I reset my..." |
-| 2 | conv-def-456 | None | 8.7s | 1.5 | "What's the status of..." |
-| 3 | conv-ghi-789 | ValidationError | 0.4s | 3.0 | "Can you help me with..." |
+| #   | Conversation ID | Error Type      | Duration | Eval Score | Query (preview)           |
+| --- | --------------- | --------------- | -------- | ---------- | ------------------------- |
+| 1   | conv-abc-123    | TimeoutError    | 12.3s    | 2.0        | "How do I reset my..."    |
+| 2   | conv-def-456    | None            | 8.7s     | 1.5        | "What's the status of..." |
+| 3   | conv-ghi-789    | ValidationError | 0.4s     | 3.0        | "Can you help me with..." |
 
 Ask the user:
-- *"Which candidates should I include in the dataset? (all / select by number / filter by criteria)"*
-- *"Would you like to add ground_truth reference answers for any of these?"*
-- *"What should I name this dataset version?"*
+
+- _"Which candidates should I include in the dataset? (all / select by number / filter by criteria)"_
+- _"Would you like to add ground_truth reference answers for any of these?"_
+- _"What should I name this dataset version?"_
 
 ## Step 4 — Persist Dataset (Local JSONL)
 
@@ -317,6 +318,7 @@ After persisting, update `.foundry/datasets/manifest.json` with lineage informat
 ## Next Steps
 
 After creating a dataset:
+
 - **Sync to Foundry** → Step 5 below (recommended for shared/CI use)
 - **Run evaluation** → [observe skill Step 2](../../observe/references/evaluate-step.md)
 - **Version and tag** → [Dataset Versioning](dataset-versioning.md)

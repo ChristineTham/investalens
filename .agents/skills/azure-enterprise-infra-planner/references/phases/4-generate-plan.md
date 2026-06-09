@@ -11,4 +11,5 @@ Use the user requirements and the research gathered from previous phases to assi
 > Important: Write the plan to file progressively using inline edits - never hold the full plan in a single tool-call output.
 
 ## Gate
+
 - The plan is fully written to file.

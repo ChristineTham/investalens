@@ -27,10 +27,10 @@ az containerapp env create \
 
 ## System Logs vs Application Logs
 
-| Log Table | Content | Retention |
-|-----------|---------|-----------|
-| `ContainerAppConsoleLogs_CL` | stdout/stderr from containers | Workspace default |
-| `ContainerAppSystemLogs_CL` | Platform events (scaling, restarts, image pulls) | Workspace default |
+| Log Table                    | Content                                          | Retention         |
+| ---------------------------- | ------------------------------------------------ | ----------------- |
+| `ContainerAppConsoleLogs_CL` | stdout/stderr from containers                    | Workspace default |
+| `ContainerAppSystemLogs_CL`  | Platform events (scaling, restarts, image pulls) | Workspace default |
 
 > ⚠️ **Note:** The `_CL` suffix and `_s` column suffixes apply to the **Log Analytics** destination. Environments using the newer **Azure Monitor** destination use `ContainerAppConsoleLogs` / `ContainerAppSystemLogs` (no `_CL`, no `_s` suffixes). Check your environment's log destination to use the correct table name.
 
@@ -40,14 +40,14 @@ System logs capture events outside your code—replica scheduling, health probe 
 
 Container Apps exposes these metrics without any SDK:
 
-| Metric | Description | Dimensions |
-|--------|-------------|-----------|
-| `Replicas` | Current replica count | `revision` |
-| `Requests` | HTTP request count | `statusCode`, `statusCodeCategory`, `revision`, `replica` |
-| `UsageNanoCores` | CPU usage per replica | `revision`, `replica` |
-| `WorkingSetBytes` | Memory usage per replica | `revision`, `replica` |
-| `RestartCount` | Container restart count | `revision`, `replica` |
-| `RxBytes` / `TxBytes` | Network I/O | `revision`, `replica` |
+| Metric                | Description              | Dimensions                                                |
+| --------------------- | ------------------------ | --------------------------------------------------------- |
+| `Replicas`            | Current replica count    | `revision`                                                |
+| `Requests`            | HTTP request count       | `statusCode`, `statusCodeCategory`, `revision`, `replica` |
+| `UsageNanoCores`      | CPU usage per replica    | `revision`, `replica`                                     |
+| `WorkingSetBytes`     | Memory usage per replica | `revision`, `replica`                                     |
+| `RestartCount`        | Container restart count  | `revision`, `replica`                                     |
+| `RxBytes` / `TxBytes` | Network I/O              | `revision`, `replica`                                     |
 
 > ⚠️ **Warning:** Built-in metrics cover infrastructure only. For request-level tracing, response times, and dependency tracking, add Application Insights SDK.
 
@@ -55,12 +55,12 @@ Container Apps exposes these metrics without any SDK:
 
 Set `APPLICATIONINSIGHTS_CONNECTION_STRING` as an environment variable on the container app, then add the SDK per language:
 
-| Language | Package | Init Pattern |
-|----------|---------|-------------|
-| Node.js | `@azure/monitor-opentelemetry` | Call `useAzureMonitor()` before app startup |
-| Python | `azure-monitor-opentelemetry` | Call `configure_azure_monitor()` at entry |
-| .NET | `Azure.Monitor.OpenTelemetry.AspNetCore` | `builder.Services.AddOpenTelemetry().UseAzureMonitor()` |
-| Java | Agent JAR (manual) | Set `JAVA_TOOL_OPTIONS=-javaagent:/agent/applicationinsights-agent.jar` |
+| Language | Package                                  | Init Pattern                                                            |
+| -------- | ---------------------------------------- | ----------------------------------------------------------------------- |
+| Node.js  | `@azure/monitor-opentelemetry`           | Call `useAzureMonitor()` before app startup                             |
+| Python   | `azure-monitor-opentelemetry`            | Call `configure_azure_monitor()` at entry                               |
+| .NET     | `Azure.Monitor.OpenTelemetry.AspNetCore` | `builder.Services.AddOpenTelemetry().UseAzureMonitor()`                 |
+| Java     | Agent JAR (manual)                       | Set `JAVA_TOOL_OPTIONS=-javaagent:/agent/applicationinsights-agent.jar` |
 
 ```bash
 # Store as a secret (recommended — keeps value out of az show output and portal config)
@@ -107,6 +107,7 @@ spec:
 > ⚠️ **Note:** `endpointAddress` should point to an OpenTelemetry Collector (not Application Insights directly). Configure the collector with the Azure Monitor exporter to forward traces to App Insights.
 
 Dapr generates spans for:
+
 - **Service invocation** — caller → Dapr sidecar → target sidecar → target app
 - **Pub/sub** — publisher → broker → subscriber
 - **Bindings** — input/output binding operations

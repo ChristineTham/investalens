@@ -15,12 +15,14 @@ grep -r "Aspire\.Hosting\|Aspire\.AppHost\.Sdk" . --include="*.csproj"
 ```
 
 **If Aspire is detected:**
+
 1. ⛔ **STOP** - Do NOT manually create `azure.yaml`
 2. ⛔ **STOP** - Do NOT manually create `infra/` files
 3. ✅ **USE** - `azd init --from-code -e <env-name>` instead
 4. 📖 **READ** - [aspire.md](aspire.md) and [recipes/azd/aspire.md](recipes/azd/aspire.md) for complete guidance
 
 **Why this is critical:**
+
 - Aspire AppHost auto-generates infrastructure from code
 - Manual `azure.yaml` without `services` section causes "infra\main.bicep not found" error
 - `azd init --from-code` correctly detects AppHost and generates proper configuration
@@ -31,10 +33,10 @@ grep -r "Aspire\.Hosting\|Aspire\.AppHost\.Sdk" . --include="*.csproj"
 
 After verifying the project is NOT Aspire, check for these patterns:
 
-| Pattern | Detection | Action |
-|---------|-----------|--------|
-| **Complex existing codebase** | Multiple services, existing structure | Consider `azd init --from-code` |
-| **Existing azure.yaml** | File already present | MODIFY mode - update existing config |
+| Pattern                       | Detection                             | Action                               |
+| ----------------------------- | ------------------------------------- | ------------------------------------ |
+| **Complex existing codebase** | Multiple services, existing structure | Consider `azd init --from-code`      |
+| **Existing azure.yaml**       | File already present                  | MODIFY mode - update existing config |
 
 > **CRITICAL:** After running `azd init --from-code`, you **MUST** immediately set the user-confirmed subscription with `azd env set AZURE_SUBSCRIPTION_ID <id>`. Do NOT skip this step. See [aspire.md](aspire.md) Step 3 for the complete sequence.
 
@@ -53,23 +55,23 @@ The research step loads service-specific references and invokes related skills t
 
 ## Generation Order
 
-| Order | Artifact | Notes |
-|-------|----------|-------|
-| 1 | Application config (azure.yaml) | AZD only—defines services and hosting |
-| 2 | Application code scaffolding | Entry points, health endpoints, config |
-| 3 | Dockerfiles | If containerized |
-| 4 | Infrastructure (Bicep/Terraform) | IaC templates in `./infra/` |
-| 5 | CI/CD pipelines | If requested |
+| Order | Artifact                         | Notes                                  |
+| ----- | -------------------------------- | -------------------------------------- |
+| 1     | Application config (azure.yaml)  | AZD only—defines services and hosting  |
+| 2     | Application code scaffolding     | Entry points, health endpoints, config |
+| 3     | Dockerfiles                      | If containerized                       |
+| 4     | Infrastructure (Bicep/Terraform) | IaC templates in `./infra/`            |
+| 5     | CI/CD pipelines                  | If requested                           |
 
 ## Recipe-Specific Generation
 
 Load the appropriate recipe for detailed generation steps:
 
-| Recipe | Guide |
-|--------|-------|
-| AZD | [AZD Recipe](recipes/azd/README.md) |
-| AZCLI | [AZCLI Recipe](recipes/azcli/README.md) |
-| Bicep | [Bicep Recipe](recipes/bicep/README.md) |
+| Recipe    | Guide                                           |
+| --------- | ----------------------------------------------- |
+| AZD       | [AZD Recipe](recipes/azd/README.md)             |
+| AZCLI     | [AZCLI Recipe](recipes/azcli/README.md)         |
+| Bicep     | [Bicep Recipe](recipes/bicep/README.md)         |
 | Terraform | [Terraform Recipe](recipes/terraform/README.md) |
 
 ## Common Standards
@@ -117,8 +119,8 @@ mkdir -p src/frontend/src src/api
 
 Apply language-specific production settings for containerized apps:
 
-| Runtime | Reference |
-|---------|-----------|
+| Runtime         | Reference                                |
+| --------------- | ---------------------------------------- |
 | Node.js/Express | [runtimes/nodejs.md](runtimes/nodejs.md) |
 
 ## After Generation

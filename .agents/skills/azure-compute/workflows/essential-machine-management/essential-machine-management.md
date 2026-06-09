@@ -34,12 +34,12 @@ User intent?
    └─ See "Troubleshooting" below
 ```
 
-| Signal | Reference |
-| ------ | --------- |
-| "enable EMM", "onboard subscription", "enroll VMs", "set up machine management" | [EMM Enable Flow](references/emm-enable-flow.md) |
-| User explicitly mentions "portal", "Azure portal", "portal UI" | [EMM Enable Flow (Portal)](references/emm-enable-flow-portal-guidance.md) |
-| "what is EMM", "features", "pricing", "tiers", "what does EMM include" | [EMM Overview](references/emm-overview.md) |
-| "permissions", "roles", "prerequisites", "managed identity for EMM" | [EMM Prerequisites](references/emm-prerequisites.md) |
+| Signal                                                                          | Reference                                                                 |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| "enable EMM", "onboard subscription", "enroll VMs", "set up machine management" | [EMM Enable Flow](references/emm-enable-flow.md)                          |
+| User explicitly mentions "portal", "Azure portal", "portal UI"                  | [EMM Enable Flow (Portal)](references/emm-enable-flow-portal-guidance.md) |
+| "what is EMM", "features", "pricing", "tiers", "what does EMM include"          | [EMM Overview](references/emm-overview.md)                                |
+| "permissions", "roles", "prerequisites", "managed identity for EMM"             | [EMM Prerequisites](references/emm-prerequisites.md)                      |
 
 > ⚠️ **Important:** Only route to the portal guide when the user explicitly mentions "portal". All other enable requests use the Copilot-guided flow.
 
@@ -51,13 +51,14 @@ Query the EMM resource on each subscription to check enrollment status:
 GET https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.ManagedOps/managedOps/default?api-version=2025-07-28-preview
 ```
 
-| Response | Meaning |
-| -------- | ------- |
-| `200` with `provisioningState: Succeeded` | Subscription is enrolled |
-| `200` with `provisioningState: Failed` | Enrollment attempted but failed — check error details |
-| `404` | Subscription is not enrolled |
+| Response                                  | Meaning                                               |
+| ----------------------------------------- | ----------------------------------------------------- |
+| `200` with `provisioningState: Succeeded` | Subscription is enrolled                              |
+| `200` with `provisioningState: Failed`    | Enrollment attempted but failed — check error details |
+| `404`                                     | Subscription is not enrolled                          |
 
 When enrolled, the response includes:
+
 - **SKU/tier** — e.g. Essential
 - **Enabled services** — Azure Monitor Insights, Update Manager, Change Tracking, Policy & Machine Configuration, Defender CSPM, Defender for Servers
 - **UAMI** — the user-assigned managed identity resource ID
@@ -79,9 +80,11 @@ To disable EMM for a subscription, follow the "Disable EMM (Offboard)" section i
 ## Troubleshooting
 
 For common EMM issues, refer to the official documentation:
+
 - [Troubleshoot Essential Machine Management (Preview)](https://learn.microsoft.com/en-us/azure/operations/configuration-enrollment-troubleshoot)
 
 Common issues include:
+
 - Missing role assignments (EMM Administrator, Managed Identity Operator, Resource Policy Contributor)
 - Resource provider `Microsoft.ManagedOps` not registered in the subscription
 - UAMI lacking Contributor permission on the subscription
@@ -89,10 +92,10 @@ Common issues include:
 
 ## Error Handling
 
-| Error | Cause | Remediation |
-| ----- | ----- | ----------- |
-| Permission denied during enable | User lacks required roles | Assign EMM Administrator, Managed Identity Operator, and Resource Policy Contributor roles |
-| UAMI role check fails | Managed identity lacks Contributor | Assign Contributor role to the UAMI at subscription scope |
-| RP not registered | `Microsoft.ManagedOps` not registered | Register via `Register-AzResourceProvider -ProviderNamespace "Microsoft.ManagedOps"` |
+| Error                              | Cause                                              | Remediation                                                                                                                |
+| ---------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Permission denied during enable    | User lacks required roles                          | Assign EMM Administrator, Managed Identity Operator, and Resource Policy Contributor roles                                 |
+| UAMI role check fails              | Managed identity lacks Contributor                 | Assign Contributor role to the UAMI at subscription scope                                                                  |
+| RP not registered                  | `Microsoft.ManagedOps` not registered              | Register via `Register-AzResourceProvider -ProviderNamespace "Microsoft.ManagedOps"`                                       |
 | Cross-subscription workspace error | Workspace in different sub without RP registration | Register `Microsoft.ManagedOps` in the workspace subscription and assign EMM Administrator on the workspace resource group |
-| Deployment fails | ARM template validation error | Check deployment link in browse view for detailed error; verify all prerequisites |
+| Deployment fails                   | ARM template validation error                      | Check deployment link in browse view for detailed error; verify all prerequisites                                          |

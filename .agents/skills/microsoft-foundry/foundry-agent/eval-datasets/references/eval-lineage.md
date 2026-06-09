@@ -110,13 +110,13 @@ Track lineage in `.foundry/datasets/manifest.json`:
 
 Update `.foundry/datasets/manifest.json` at each step:
 
-| Event | Fields to Update |
-|-------|-----------------|
+| Event           | Fields to Update                                               |
+| --------------- | -------------------------------------------------------------- |
 | Dataset created | Add new entry with `name`, `version`, `source`, `exampleCount` |
-| Evaluation run | Append to `evalRuns[]` with `evalId`, `runId`, `agentVersion` |
-| Comparison | Append to `comparisons[]` with `insightId`, `result` |
-| Deployment | Append to `deployments[]` with `agentVersion`, `reason` |
-| Tag change | Update `tag` field |
+| Evaluation run  | Append to `evalRuns[]` with `evalId`, `runId`, `agentVersion`  |
+| Comparison      | Append to `comparisons[]` with `insightId`, `result`           |
+| Deployment      | Append to `deployments[]` with `agentVersion`, `reason`        |
+| Tag change      | Update `tag` field                                             |
 
 > 💡 **Tip:** Store the evaluation group identifier as `evalId` in lineage/manifest records, even if the create call used the parameter name `evaluationId`.
 

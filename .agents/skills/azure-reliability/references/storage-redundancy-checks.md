@@ -6,14 +6,14 @@ Storage accounts underpin Azure Functions, Container Apps (for host storage), an
 
 ## Replication Types
 
-| Type | Zone Redundancy | Region Redundancy | Description |
-|---|---|---|---|
-| LRS | ❌ None | ❌ None | 3 copies in one datacenter. No zone or region protection. |
-| ZRS | ✅ Zone-redundant | ❌ None | 3 copies across 3 availability zones in one region. |
-| GRS | ❌ None (LRS per region) | ✅ Region-redundant | LRS in primary + LRS in secondary region. Zone failure in primary = risk. |
-| GZRS | ✅ Zone-redundant | ✅ Region-redundant | ZRS in primary region + LRS in secondary region. Best protection. |
-| RA-GRS | ❌ None (LRS per region) | ✅ Region + read | Like GRS but secondary is readable. Still LRS within each region. |
-| RA-GZRS | ✅ Zone-redundant | ✅ Region + read | GZRS + read access to secondary. Maximum redundancy. |
+| Type    | Zone Redundancy          | Region Redundancy   | Description                                                               |
+| ------- | ------------------------ | ------------------- | ------------------------------------------------------------------------- |
+| LRS     | ❌ None                  | ❌ None             | 3 copies in one datacenter. No zone or region protection.                 |
+| ZRS     | ✅ Zone-redundant        | ❌ None             | 3 copies across 3 availability zones in one region.                       |
+| GRS     | ❌ None (LRS per region) | ✅ Region-redundant | LRS in primary + LRS in secondary region. Zone failure in primary = risk. |
+| GZRS    | ✅ Zone-redundant        | ✅ Region-redundant | ZRS in primary region + LRS in secondary region. Best protection.         |
+| RA-GRS  | ❌ None (LRS per region) | ✅ Region + read    | Like GRS but secondary is readable. Still LRS within each region.         |
+| RA-GZRS | ✅ Zone-redundant        | ✅ Region + read    | GZRS + read access to secondary. Maximum redundancy.                      |
 
 ## Minimum Requirement
 
@@ -104,6 +104,7 @@ az storage account update \
 ```
 
 ⚠️ **Limitations:**
+
 - Live migration from LRS to ZRS is only supported for Standard general-purpose v2 accounts
 - Premium accounts and legacy account types require manual migration (create new ZRS account + copy data)
 - Migration can take hours to days depending on data volume
@@ -127,6 +128,7 @@ az storage account update \
 ## Reporting
 
 For the reliability checklist, mark the **ZRS Storage** column per storage account:
+
 - ✅ — SKU is `Standard_ZRS` or `Standard_GZRS`
 - ❌ (LRS) — `Standard_LRS` (no zone redundancy)
 - ❌ (GRS) — `Standard_GRS` or `Standard_RAGRS` (region-redundant but uses LRS in each region; still a zone-failure risk). Also flag this when no SKU is set in IaC at all — ARM/AVM defaults to `Standard_GRS`.

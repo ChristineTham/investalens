@@ -6,12 +6,12 @@ Add Copilot SDK AI features to an existing application.
 
 Detect the project type by scanning for indicator files:
 
-| Indicator | Language | Framework hints |
-|-----------|----------|-----------------|
-| `package.json` | Node.js | Express, Fastify, Next.js |
-| `requirements.txt` / `pyproject.toml` | Python | Flask, FastAPI, Django |
-| `go.mod` | Go | Gin, Echo, net/http |
-| `*.csproj` / `*.sln` | .NET | ASP.NET, Minimal API |
+| Indicator                             | Language | Framework hints           |
+| ------------------------------------- | -------- | ------------------------- |
+| `package.json`                        | Node.js  | Express, Fastify, Next.js |
+| `requirements.txt` / `pyproject.toml` | Python   | Flask, FastAPI, Django    |
+| `go.mod`                              | Go       | Gin, Echo, net/http       |
+| `*.csproj` / `*.sln`                  | .NET     | ASP.NET, Minimal API      |
 
 ## Study Template Patterns
 
@@ -25,11 +25,11 @@ Use `github-mcp-server-get_file_contents` with `owner: "github"`, `repo: "copilo
 
 ### 1. Add SDK dependency
 
-| Language | Package |
-|----------|---------|
-| Node.js | `@github/copilot-sdk` |
-| Python | `github-copilot-sdk` |
-| Go / .NET | See SDK repo |
+| Language  | Package               |
+| --------- | --------------------- |
+| Node.js   | `@github/copilot-sdk` |
+| Python    | `github-copilot-sdk`  |
+| Go / .NET | See SDK repo          |
 
 ### 2. Create Copilot endpoint
 
@@ -69,8 +69,8 @@ curl -s -X POST http://localhost:<port>/api/chat \
 
 ## Errors
 
-| Error | Fix |
-|-------|-----|
-| SDK not found | Verify dependency installed and import path |
+| Error              | Fix                                                         |
+| ------------------ | ----------------------------------------------------------- |
+| SDK not found      | Verify dependency installed and import path                 |
 | Auth fails locally | Run `gh auth login` then `gh auth refresh --scopes copilot` |
-| Route conflicts | Ensure endpoint path doesn't collide |
+| Route conflicts    | Ensure endpoint path doesn't collide                        |

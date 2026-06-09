@@ -45,8 +45,9 @@
 
 ```ts
 {
-  id: string // Stable identifier (e.g., "insight-001"); cited from inputs.insightsApplied
-  pattern: string // Observed fact from the tenant scan (what is true today)
-  implication: string // Recommended planning action derived from the pattern
-}[]
+  id: string; // Stable identifier (e.g., "insight-001"); cited from inputs.insightsApplied
+  pattern: string; // Observed fact from the tenant scan (what is true today)
+  implication: string; // Recommended planning action derived from the pattern
+}
+[];
 ```

@@ -11,13 +11,13 @@ Discover templates via MCP or CDN manifest where `resource == "timer"` and `lang
 
 Some templates define the schedule via an app setting reference `%TIMER_SCHEDULE%` so the cron expression is configurable without code changes. Set the `TIMER_SCHEDULE` app setting to the desired expression.
 
-| Schedule | Expression |
-|----------|------------|
-| Every 5 minutes | `0 */5 * * * *` |
-| Every hour | `0 0 * * * *` |
-| Every day at midnight | `0 0 0 * * *` |
-| Every Monday at 9am | `0 0 9 * * 1` |
-| Every 30 seconds | `*/30 * * * * *` |
+| Schedule              | Expression       |
+| --------------------- | ---------------- |
+| Every 5 minutes       | `0 */5 * * * *`  |
+| Every hour            | `0 0 * * * *`    |
+| Every day at midnight | `0 0 0 * * *`    |
+| Every Monday at 9am   | `0 0 9 * * 1`    |
+| Every 30 seconds      | `*/30 * * * * *` |
 
 > Azure uses 6-part cron expressions (with seconds). See [Azure Functions timer trigger](https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer#ncrontab-expressions) for full syntax reference.
 
@@ -35,7 +35,7 @@ Some templates define the schedule via an app setting reference `%TIMER_SCHEDULE
 
 ## Eval
 
-| Path | Description |
-|------|-------------|
-| [eval/summary.md](eval/summary.md) | Evaluation summary |
-| [eval/python.md](eval/python.md) | Python evaluation results |
+| Path                               | Description               |
+| ---------------------------------- | ------------------------- |
+| [eval/summary.md](eval/summary.md) | Evaluation summary        |
+| [eval/python.md](eval/python.md)   | Python evaluation results |

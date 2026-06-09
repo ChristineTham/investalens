@@ -185,8 +185,8 @@ const SourceCommandItem = memo(({ source, onAdd }: SourceCommandItemProps) => {
     >
       <GlobeIcon className="text-primary" />
       <div className="flex flex-col">
-        <span className="font-medium text-sm">{source.title}</span>
-        <span className="text-muted-foreground text-xs">{source.filename}</span>
+        <span className="text-sm font-medium">{source.title}</span>
+        <span className="text-xs text-muted-foreground">{source.filename}</span>
       </div>
     </PromptInputCommandItem>
   );
@@ -292,7 +292,7 @@ const SampleFilesMenu = () => {
         placeholder="Add files, folders, docs..."
       />
       <PromptInputCommandList>
-        <PromptInputCommandEmpty className="p-3 text-muted-foreground text-sm">
+        <PromptInputCommandEmpty className="p-3 text-sm text-muted-foreground">
           No results found.
         </PromptInputCommandEmpty>
         <PromptInputCommandGroup heading="Added">
@@ -386,15 +386,15 @@ const Example = () => {
               </PromptInputHoverCardTrigger>
               <PromptInputHoverCardContent className="divide-y overflow-hidden p-0">
                 <div className="space-y-2 p-3">
-                  <p className="font-medium text-muted-foreground text-sm">
+                  <p className="text-sm font-medium text-muted-foreground">
                     Attached Project Rules
                   </p>
-                  <p className="ml-4 text-muted-foreground text-sm">
+                  <p className="ml-4 text-sm text-muted-foreground">
                     Always Apply:
                   </p>
                   <p className="ml-8 text-sm">ultracite.mdc</p>
                 </div>
-                <p className="bg-sidebar px-4 py-3 text-muted-foreground text-sm">
+                <p className="bg-sidebar px-4 py-3 text-sm text-muted-foreground">
                   Click to manage
                 </p>
               </PromptInputHoverCardContent>
@@ -433,7 +433,7 @@ const Example = () => {
                     ))}
                   </PromptInputTabBody>
                 </PromptInputTab>
-                <div className="border-t px-3 pt-2 text-muted-foreground text-xs">
+                <div className="border-t px-3 pt-2 text-xs text-muted-foreground">
                   Only file paths are included
                 </div>
               </PromptInputHoverCardContent>

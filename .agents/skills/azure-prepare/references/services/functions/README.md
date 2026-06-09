@@ -7,6 +7,7 @@ Serverless compute for event-driven workloads, APIs, and scheduled tasks.
 > **NEVER synthesize Bicep or Terraform from scratch for Azure Functions.**
 >
 > You MUST follow the base + recipe composition workflow:
+>
 > 1. Load [selection.md](templates/selection.md) — decision tree for choosing base template + recipe
 > 2. Follow [composition.md](templates/recipes/composition.md) — the algorithm for fetching and composing
 >
@@ -34,25 +35,26 @@ services:
 
 ## Required Supporting Resources
 
-| Resource | Purpose |
-|----------|---------|
-| Storage Account | Function runtime state |
-| App Service Plan | Hosting (Consumption or Premium) |
-| Application Insights | Monitoring |
+| Resource             | Purpose                          |
+| -------------------- | -------------------------------- |
+| Storage Account      | Function runtime state           |
+| App Service Plan     | Hosting (Consumption or Premium) |
+| Application Insights | Monitoring                       |
 
 ## Hosting Plans
 
 **Use Flex Consumption for new deployments** (all AZD templates default to Flex).
 
-| Plan | Use Case | Scaling | VNET | Slots |
-|------|----------|---------|------|-------|
-| **Flex Consumption** ⭐ | Default for new projects | Auto, pay-per-execution | ✅ | ❌ |
-| Consumption Windows (Y1) | Legacy/maintenance, Windows-only features | Auto, scale to zero | ❌ | ✅ 1 staging slot |
-| Consumption Linux (Y1) | Legacy/maintenance | Auto, scale to zero | ❌ | ❌ |
-| Premium (EP1-EP3) | No cold starts, longer execution, slots | Auto, min instances | ✅ | ✅ 20 slots |
-| Dedicated | Predictable load, existing App Service | Manual or auto | ✅ | ✅ varies by SKU |
+| Plan                     | Use Case                                  | Scaling                 | VNET | Slots             |
+| ------------------------ | ----------------------------------------- | ----------------------- | ---- | ----------------- |
+| **Flex Consumption** ⭐  | Default for new projects                  | Auto, pay-per-execution | ✅   | ❌                |
+| Consumption Windows (Y1) | Legacy/maintenance, Windows-only features | Auto, scale to zero     | ❌   | ✅ 1 staging slot |
+| Consumption Linux (Y1)   | Legacy/maintenance                        | Auto, scale to zero     | ❌   | ❌                |
+| Premium (EP1-EP3)        | No cold starts, longer execution, slots   | Auto, min instances     | ✅   | ✅ 20 slots       |
+| Dedicated                | Predictable load, existing App Service    | Manual or auto          | ✅   | ✅ varies by SKU  |
 
 > ⚠️ **Deployment Slots Guidance:**
+>
 > - **Windows Consumption (Y1)** supports 1 staging slot — valid for existing apps or specific Windows requirements.
 >   Prefer **Elastic Premium (EP1)** or **Dedicated** for new apps requiring slots, as Consumption cold starts affect swap reliability.
 > - **Linux Consumption and Flex Consumption** do **not** support deployment slots.
@@ -67,23 +69,25 @@ services:
 > **Primary Source:** [Azure Functions Supported Languages](https://learn.microsoft.com/en-us/azure/azure-functions/supported-languages)
 >
 > Use the azure-documentation MCP tool to fetch current supported versions:
+>
 > ```yaml
 > intent: "Azure Functions supported language runtime versions"
 > learn: true
 > ```
 
 ### Version Selection Priority
+
 1. **Latest GA** — For new projects (best features, longest support window)
 2. **LTS** — For enterprise/compliance requirements
 3. **User-specified** — When explicitly requested
 
-| Language | FUNCTIONS_WORKER_RUNTIME | linuxFxVersion |
-|----------|-------------------------|----------------|
-| Node.js | `node` | `Node\|<version>` |
-| Python | `python` | `Python\|<version>` |
-| .NET | `dotnet-isolated` | `DOTNET-ISOLATED\|<version>` |
-| Java | `java` | `Java\|<version>` |
-| PowerShell | `powershell` | `PowerShell\|<version>` |
+| Language   | FUNCTIONS_WORKER_RUNTIME | linuxFxVersion               |
+| ---------- | ------------------------ | ---------------------------- |
+| Node.js    | `node`                   | `Node\|<version>`            |
+| Python     | `python`                 | `Python\|<version>`          |
+| .NET       | `dotnet-isolated`        | `DOTNET-ISOLATED\|<version>` |
+| Java       | `java`                   | `Java\|<version>`            |
+| PowerShell | `powershell`             | `PowerShell\|<version>`      |
 
 ## References
 

@@ -49,7 +49,7 @@ const AGENT_APP_ID = process.env.AGENT_CLIENT_ID!;
 async function getAgentToken(downstreamApi = "Graph"): Promise<string> {
   const url = new URL(
     `/AuthorizationHeaderUnauthenticated/${downstreamApi}`,
-    SIDECAR_URL,
+    SIDECAR_URL
   );
   url.searchParams.set("AgentIdentity", AGENT_APP_ID);
 
@@ -57,7 +57,7 @@ async function getAgentToken(downstreamApi = "Graph"): Promise<string> {
   if (!res.ok) {
     const errorText = await res.text().catch(() => "");
     throw new Error(
-      `SDK error: ${res.status}${errorText ? ` - ${errorText}` : ""}`,
+      `SDK error: ${res.status}${errorText ? ` - ${errorText}` : ""}`
     );
   }
   const data = await res.json();
@@ -97,7 +97,7 @@ def call_graph_me(user_token: str) -> dict:
 ### Docker Compose (Development)
 
 ```yaml
-version: '3.8'
+version: "3.8"
 services:
   sidecar:
     image: mcr.microsoft.com/entra-sdk/auth-sidecar:1.0.0-azurelinux3.0-distroless
@@ -142,39 +142,39 @@ spec:
     spec:
       serviceAccountName: agent-sa
       containers:
-      - name: agent
-        image: myregistry/agent:latest
-        env:
-        - name: SIDECAR_URL
-          value: "http://localhost:5000"
-      - name: sidecar
-        image: mcr.microsoft.com/entra-sdk/auth-sidecar:1.0.0-azurelinux3.0-distroless
-        ports:
-        - containerPort: 5000
-        env:
-        - name: AzureAd__TenantId
-          valueFrom:
-            configMapKeyRef:
-              name: agent-config
-              key: tenant-id
-        - name: AzureAd__ClientId
-          valueFrom:
-            configMapKeyRef:
-              name: agent-config
-              key: client-id
-        - name: AzureAd__ClientCredentials__0__SourceType
-          value: "SignedAssertionFilePath"
-        - name: Kestrel__Endpoints__Http__Url
-          value: "http://127.0.0.1:5000"
-        resources:
-          requests: { memory: "128Mi", cpu: "100m" }
-          limits: { memory: "256Mi", cpu: "250m" }
-        livenessProbe:
-          httpGet: { path: /healthz, port: 5000 }
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: { path: /healthz, port: 5000 }
-          initialDelaySeconds: 5
+        - name: agent
+          image: myregistry/agent:latest
+          env:
+            - name: SIDECAR_URL
+              value: "http://localhost:5000"
+        - name: sidecar
+          image: mcr.microsoft.com/entra-sdk/auth-sidecar:1.0.0-azurelinux3.0-distroless
+          ports:
+            - containerPort: 5000
+          env:
+            - name: AzureAd__TenantId
+              valueFrom:
+                configMapKeyRef:
+                  name: agent-config
+                  key: tenant-id
+            - name: AzureAd__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: agent-config
+                  key: client-id
+            - name: AzureAd__ClientCredentials__0__SourceType
+              value: "SignedAssertionFilePath"
+            - name: Kestrel__Endpoints__Http__Url
+              value: "http://127.0.0.1:5000"
+          resources:
+            requests: { memory: "128Mi", cpu: "100m" }
+            limits: { memory: "256Mi", cpu: "250m" }
+          livenessProbe:
+            httpGet: { path: /healthz, port: 5000 }
+            initialDelaySeconds: 10
+          readinessProbe:
+            httpGet: { path: /healthz, port: 5000 }
+            initialDelaySeconds: 5
 ```
 
 ## Security
@@ -189,11 +189,11 @@ spec:
 
 ## Troubleshooting
 
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| 404 on `/AuthorizationHeader/{name}` | `{name}` not in config | Add `DownstreamApis__{name}__BaseUrl` env var |
-| 400 `AgentUsername requires AgentIdentity` | Missing `AgentIdentity` param | Always pair user params with `AgentIdentity` |
-| 400 `mutually exclusive` | Both `AgentUsername` and `AgentUserId` | Use one or the other |
-| 401 on `/Validate` | Invalid/expired inbound token | Check token audience matches `AzureAd__ClientId` |
-| 500 token acquisition failure | Wrong creds or missing admin consent | `kubectl logs <pod> -c sidecar` |
-| Connection refused | SDK not ready or wrong URL | Verify `SIDECAR_URL` and `/healthz` |
+| Symptom                                    | Cause                                  | Fix                                              |
+| ------------------------------------------ | -------------------------------------- | ------------------------------------------------ |
+| 404 on `/AuthorizationHeader/{name}`       | `{name}` not in config                 | Add `DownstreamApis__{name}__BaseUrl` env var    |
+| 400 `AgentUsername requires AgentIdentity` | Missing `AgentIdentity` param          | Always pair user params with `AgentIdentity`     |
+| 400 `mutually exclusive`                   | Both `AgentUsername` and `AgentUserId` | Use one or the other                             |
+| 401 on `/Validate`                         | Invalid/expired inbound token          | Check token audience matches `AzureAd__ClientId` |
+| 500 token acquisition failure              | Wrong creds or missing admin consent   | `kubectl logs <pod> -c sidecar`                  |
+| Connection refused                         | SDK not ready or wrong URL             | Verify `SIDECAR_URL` and `/healthz`              |

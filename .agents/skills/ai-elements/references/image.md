@@ -64,15 +64,15 @@ const ImageDemo = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 relative size-full rounded-lg border h-[600px]">
-      <div className="flex flex-col h-full">
+    <div className="relative mx-auto size-full h-[600px] max-w-4xl rounded-lg border p-6">
+      <div className="flex h-full flex-col">
         <div className="flex-1 overflow-y-auto p-4">
           {imageData && (
             <div className="flex justify-center">
               <Image
                 {...imageData}
                 alt="Generated image"
-                className="h-[300px] aspect-square border rounded-lg"
+                className="aspect-square h-[300px] rounded-lg border"
               />
             </div>
           )}
@@ -81,7 +81,7 @@ const ImageDemo = () => {
 
         <PromptInput
           onSubmit={handleSubmit}
-          className="mt-4 w-full max-w-2xl mx-auto relative"
+          className="relative mx-auto mt-4 w-full max-w-2xl"
         >
           <PromptInputTextarea
             value={prompt}
@@ -92,7 +92,7 @@ const ImageDemo = () => {
           <PromptInputSubmit
             status={isLoading ? "submitted" : "ready"}
             disabled={!prompt.trim()}
-            className="absolute bottom-1 right-1"
+            className="absolute right-1 bottom-1"
           />
         </PromptInput>
       </div>
@@ -139,8 +139,8 @@ export async function POST(req: Request) {
 
 ### `<Image />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `alt` | `string` | - | Alternative text for the image. |
-| `className` | `string` | - | Additional CSS classes to apply to the image. |
-| `...props` | `Experimental_GeneratedImage` | - | The image data to display, as returned by the AI SDK. |
+| Prop        | Type                          | Default | Description                                           |
+| ----------- | ----------------------------- | ------- | ----------------------------------------------------- |
+| `alt`       | `string`                      | -       | Alternative text for the image.                       |
+| `className` | `string`                      | -       | Additional CSS classes to apply to the image.         |
+| `...props`  | `Experimental_GeneratedImage` | -       | The image data to display, as returned by the AI SDK. |

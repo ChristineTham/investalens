@@ -82,16 +82,18 @@ Needs autoscaling?
 
 1. Review [VM Family Guide](../../references/vm-families.md) to identify 2-3 candidate VM families that match the workload requirements
 2. **REQUIRED: verify specifications** for your chosen candidates by fetching current documentation:
+
    ```bash
    web_fetch https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/<family-category>/<series-name>
    ```
-   
+
    Examples:
    - B-series: `https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/general-purpose/b-family`
    - D-series: `https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/general-purpose/ddsv5-series`
    - GPU: `https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/nc-family`
 
 3. **If considering Spot VMs**, also fetch:
+
    ```bash
    web_fetch https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/use-spot
    ```
@@ -113,11 +115,11 @@ Query the Azure Retail Prices API — [Retail Prices API Guide](../../references
 
 If the user has an Azure subscription and region, follow the [VM Quota Validation Guide](../../references/vm-quotas.md) to check vCPU capacity for each candidate VM family. Skip this step if no subscription — add a note that quota should be checked before deployment.
 
-| Outcome | Action |
-|---|---|
-| ✅ Sufficient | Proceed to Step 6 |
-| ⚠️ Near limit (>80%) | Proceed but warn; suggest requesting increase |
-| ❌ Insufficient | Request increase, swap family, or try another region |
+| Outcome              | Action                                               |
+| -------------------- | ---------------------------------------------------- |
+| ✅ Sufficient        | Proceed to Step 6                                    |
+| ⚠️ Near limit (>80%) | Proceed but warn; suggest requesting increase        |
+| ❌ Insufficient      | Request increase, swap family, or try another region |
 
 Include a "Quota Status" column (✅/⚠️/❌) in the recommendation table.
 
@@ -137,9 +139,10 @@ Provide **2–3 options** with trade-offs:
 | Why            | Fit for the workload                            |
 | Trade-off      | What the user gives up                          |
 
-> **Tip:** Always explain *why* a family fits and what the user trades off (cost vs cores, burstable vs dedicated, single VM simplicity vs VMSS scalability, etc.).
+> **Tip:** Always explain _why_ a family fits and what the user trades off (cost vs cores, burstable vs dedicated, single VM simplicity vs VMSS scalability, etc.).
 
 For VMSS recommendations, also mention:
+
 - Recommended orchestration mode (Flexible for most new workloads)
 - Autoscale strategy (metric-based, schedule-based, or both)
 - Load balancer type (Azure Load Balancer for L4, Application Gateway for L7/TLS)

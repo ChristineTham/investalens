@@ -3,6 +3,7 @@
 ## When to Use
 
 Use this reference when:
+
 - Core single-region reliability is already in place (zone redundant compute, ZRS storage, health probes) and the user wants to go further
 - User explicitly asks for "multi-region", "global reliability", or "region failover"
 - User wants protection against a full Azure region outage
@@ -10,6 +11,7 @@ Use this reference when:
 ## Prerequisites
 
 Before enabling multi-region:
+
 1. App must already be zone-redundant in the primary region with ZRS/GZRS storage and health probes configured
 2. App should have a health endpoint (`/api/health` or similar)
 3. User must choose a secondary region (suggest paired region)
@@ -19,6 +21,7 @@ Before enabling multi-region:
 ### Step 1: Gather Information
 
 Ask the user:
+
 ```
 To set up multi-region active-passive failover, I need:
 
@@ -34,6 +37,7 @@ To set up multi-region active-passive failover, I need:
 ### Step 2: Choose Path (CLI vs IaC)
 
 Same dual-path as zone redundancy:
+
 - **Path A (Fix now):** Deploy secondary resources via CLI + create Front Door
 - **Path B (Patch IaC):** Add secondary region module + Front Door to Bicep/Terraform
 
@@ -41,15 +45,15 @@ Same dual-path as zone redundancy:
 
 ### Step 3: What Gets Created
 
-| Resource | Primary Region | Secondary Region |
-|----------|---------------|-----------------|
-| Resource Group | Existing | New (same name + `-secondary`) |
-| App Service Plan | Existing (ZR) | New (ZR, same SKU) |
-| Function App / Web App | Existing | New (same code, same config) |
-| Storage Account | Existing (ZRS) | New (ZRS) |
-| Event Hubs / other deps | Existing | Depends on service (some are global) |
-| Azure Front Door | Global (new) | — |
-| Managed Identity | Existing | New |
+| Resource                | Primary Region | Secondary Region                     |
+| ----------------------- | -------------- | ------------------------------------ |
+| Resource Group          | Existing       | New (same name + `-secondary`)       |
+| App Service Plan        | Existing (ZR)  | New (ZR, same SKU)                   |
+| Function App / Web App  | Existing       | New (same code, same config)         |
+| Storage Account         | Existing (ZRS) | New (ZRS)                            |
+| Event Hubs / other deps | Existing       | Depends on service (some are global) |
+| Azure Front Door        | Global (new)   | —                                    |
+| Managed Identity        | Existing       | New                                  |
 
 ---
 
@@ -544,12 +548,12 @@ az afd route create \
 
 Present this to the user before proceeding:
 
-| Component | Approximate Monthly Cost |
-|-----------|-------------------------|
-| Secondary Function App (FC1 Flex) | Pay-per-execution only (standby = ~$0 if idle) |
-| Secondary Storage (ZRS) | ~$0.02/GB/month (minimal if just app package) |
-| Azure Front Door (Standard) | ~$35/month base + $0.01/10K requests |
-| **Total additional cost** | **~$35-40/month** for active-passive with idle standby |
+| Component                         | Approximate Monthly Cost                               |
+| --------------------------------- | ------------------------------------------------------ |
+| Secondary Function App (FC1 Flex) | Pay-per-execution only (standby = ~$0 if idle)         |
+| Secondary Storage (ZRS)           | ~$0.02/GB/month (minimal if just app package)          |
+| Azure Front Door (Standard)       | ~$35/month base + $0.01/10K requests                   |
+| **Total additional cost**         | **~$35-40/month** for active-passive with idle standby |
 
 > **Note for Flex Consumption:** The secondary app costs near-zero when idle since Flex Consumption is pay-per-execution. This makes active-passive very cost-effective for Functions.
 
@@ -583,6 +587,7 @@ az afd origin list \
 ## Reliability Checklist Impact
 
 After multi-region is configured, the **Multi-Region** column flips to ✅ for:
+
 - Each compute resource that now has a paired deployment in the secondary region
 - The Front Door / Traffic Manager profile (with health probes enabled)
 

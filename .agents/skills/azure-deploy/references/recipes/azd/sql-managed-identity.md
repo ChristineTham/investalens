@@ -30,6 +30,7 @@ az sql db query \
 ```
 
 **PowerShell:**
+
 ```powershell
 azd env get-values | ForEach-Object {
     $name, $value = $_.Split('=', 2)
@@ -54,12 +55,12 @@ az sql db query `
 
 ## Database Roles
 
-| Role | Permissions | Use For |
-|------|------------|---------|
-| `db_datareader` | SELECT | Read-only queries |
-| `db_datawriter` | INSERT, UPDATE, DELETE | CRUD operations |
-| `db_ddladmin` | CREATE, ALTER, DROP schema | EF migrations |
-| `db_owner` | Full control | Admin (use sparingly) |
+| Role            | Permissions                | Use For               |
+| --------------- | -------------------------- | --------------------- |
+| `db_datareader` | SELECT                     | Read-only queries     |
+| `db_datawriter` | INSERT, UPDATE, DELETE     | CRUD operations       |
+| `db_ddladmin`   | CREATE, ALTER, DROP schema | EF migrations         |
+| `db_owner`      | Full control               | Admin (use sparingly) |
 
 **Standard app (read/write/migrations):** All three roles above.  
 **Read-only app:** Only `db_datareader`.
@@ -90,7 +91,7 @@ az sql db query \
   --queries "
     IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = '$SERVICE_API_NAME')
       CREATE USER [$SERVICE_API_NAME] FROM EXTERNAL PROVIDER;
-    
+
     IF NOT EXISTS (
       SELECT 1 FROM sys.database_role_members drm
       JOIN sys.database_principals r ON drm.role_principal_id = r.principal_id
@@ -98,7 +99,7 @@ az sql db query \
       WHERE r.name = 'db_datareader' AND m.name = '$SERVICE_API_NAME'
     )
       ALTER ROLE db_datareader ADD MEMBER [$SERVICE_API_NAME];
-    
+
     IF NOT EXISTS (
       SELECT 1 FROM sys.database_role_members drm
       JOIN sys.database_principals r ON drm.role_principal_id = r.principal_id
@@ -106,7 +107,7 @@ az sql db query \
       WHERE r.name = 'db_datawriter' AND m.name = '$SERVICE_API_NAME'
     )
       ALTER ROLE db_datawriter ADD MEMBER [$SERVICE_API_NAME];
-    
+
     IF NOT EXISTS (
       SELECT 1 FROM sys.database_role_members drm
       JOIN sys.database_principals r ON drm.role_principal_id = r.principal_id
@@ -182,6 +183,7 @@ az sql db query --server "$SQL_SERVER" --database "$SQL_DATABASE" \
 ```
 
 **PowerShell:**
+
 ```powershell
 azd env get-values | ForEach-Object {
     $name, $value = $_.Split('=', 2)
@@ -205,11 +207,11 @@ Expected: UserName matches `$APP_NAME`, RoleName includes `db_datareader`, `db_d
 
 ## Troubleshooting
 
-| Error | Solution |
-|-------|----------|
-| "Cannot find the user" | Verify identity exists: `az webapp identity show` or `az containerapp identity show` |
-| "Principal does not have permission" | Check you're Entra admin: `az sql server ad-admin list` |
-| "Login failed for user" | Run CREATE USER commands from this guide |
+| Error                                | Solution                                                                             |
+| ------------------------------------ | ------------------------------------------------------------------------------------ |
+| "Cannot find the user"               | Verify identity exists: `az webapp identity show` or `az containerapp identity show` |
+| "Principal does not have permission" | Check you're Entra admin: `az sql server ad-admin list`                              |
+| "Login failed for user"              | Run CREATE USER commands from this guide                                             |
 
 **Idempotent Script Pattern:**
 

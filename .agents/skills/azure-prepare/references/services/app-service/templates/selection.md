@@ -46,17 +46,17 @@ Cross-reference with [App Service overview](https://learn.microsoft.com/en-us/az
 
 ## Base Templates
 
-| Scenario | Template Reference |
-|----------|-------------------|
+| Scenario                                      | Template Reference       |
+| --------------------------------------------- | ------------------------ |
 | Full-stack web app with server-side rendering | [web-app.md](web-app.md) |
-| REST API / headless backend (default) | [web-api.md](web-api.md) |
+| REST API / headless backend (default)         | [web-api.md](web-api.md) |
 
 ## Recipe Types
 
-| Type | IaC Delta? | Examples |
-|------|-----------|----------|
+| Type            | IaC Delta?                             | Examples                 |
+| --------------- | -------------------------------------- | ------------------------ |
 | **Full recipe** | Yes — Bicep module + RBAC + networking | sql, cosmos, redis, auth |
-| **Source-only** | No — only application code patterns | health checks |
+| **Source-only** | No — only application code patterns    | health checks            |
 
 ## Critical Rules
 

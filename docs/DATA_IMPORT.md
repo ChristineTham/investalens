@@ -39,63 +39,63 @@ InvestaLens provides a column mapping interface that allows users to:
 
 #### Supported InvestaLens Fields
 
-| Field | Required | Description |
-|-------|----------|-------------|
-| Trade Date | Yes | Date the transaction occurred |
-| Instrument Code | Yes | Ticker symbol or fund identifier |
-| Quantity | Yes | Number of units traded |
-| Price | Yes | Price per unit |
-| Transaction Type | Yes | See supported types below |
-| Market Code | No | Exchange/market identifier (e.g. ASX, NYSE) |
-| Brokerage/Fees | No | Transaction costs |
-| Currency | No | Transaction currency (ISO 4217) |
-| Exchange Rate | No | FX rate if applicable |
-| Comments/Notes | No | Free-text notes |
-| Coupon Rate | No | Annual coupon rate for bonds/fixed income (%) |
-| Maturity Date | No | Maturity/expiry date for bonds and term deposits |
-| Face Value | No | Par value per unit for bonds (default $100) |
-| Payment Frequency | No | Coupon frequency (Monthly, Quarterly, Semi-Annual, Annual) |
+| Field             | Required | Description                                                |
+| ----------------- | -------- | ---------------------------------------------------------- |
+| Trade Date        | Yes      | Date the transaction occurred                              |
+| Instrument Code   | Yes      | Ticker symbol or fund identifier                           |
+| Quantity          | Yes      | Number of units traded                                     |
+| Price             | Yes      | Price per unit                                             |
+| Transaction Type  | Yes      | See supported types below                                  |
+| Market Code       | No       | Exchange/market identifier (e.g. ASX, NYSE)                |
+| Brokerage/Fees    | No       | Transaction costs                                          |
+| Currency          | No       | Transaction currency (ISO 4217)                            |
+| Exchange Rate     | No       | FX rate if applicable                                      |
+| Comments/Notes    | No       | Free-text notes                                            |
+| Coupon Rate       | No       | Annual coupon rate for bonds/fixed income (%)              |
+| Maturity Date     | No       | Maturity/expiry date for bonds and term deposits           |
+| Face Value        | No       | Par value per unit for bonds (default $100)                |
+| Payment Frequency | No       | Coupon frequency (Monthly, Quarterly, Semi-Annual, Annual) |
 
 #### Supported Transaction Types
 
-| Type | Description | Example |
-|------|-------------|--------|
-| BUY | Purchase of securities | Buying 100 shares of VAS |
-| SELL | Sale of securities | Selling 50 shares of CBA |
-| DIVIDEND | Cash dividend or distribution received | Quarterly dividend from BHP |
-| SPLIT | Share split or consolidation adjustment | 2:1 stock split |
-| INTEREST | Interest income (bonds, cash accounts, term deposits) | Monthly interest on term deposit |
-| COUPON | Bond coupon payment received | Semi-annual coupon on corporate bond |
-| MATURITY | Bond or term deposit reaching maturity (principal returned) | Bond redeemed at par on maturity date |
-| FEE | Standalone fee not attached to a trade (platform fees, admin charges) | Annual platform fee |
-| TRANSFER_IN | Securities transferred into the portfolio from another account | Broker-to-broker transfer |
-| TRANSFER_OUT | Securities transferred out of the portfolio | Moving shares to another broker |
-| RETURN_OF_CAPITAL | Capital return reducing cost base | Trust distribution (tax-deferred) |
-| ADJUSTMENT | Manual quantity or cost base adjustment | Corporate action correction |
-| MERGER_IN | Shares received from a merger/acquisition | Acquiring company shares received |
-| MERGER_OUT | Shares cancelled in a merger/acquisition | Target company shares cancelled |
-| RIGHTS_ISSUE | Shares acquired via a rights issue | Renounceable rights exercised |
-| BONUS | Bonus shares received (scrip issue) | 1-for-10 bonus issue |
+| Type              | Description                                                           | Example                               |
+| ----------------- | --------------------------------------------------------------------- | ------------------------------------- |
+| BUY               | Purchase of securities                                                | Buying 100 shares of VAS              |
+| SELL              | Sale of securities                                                    | Selling 50 shares of CBA              |
+| DIVIDEND          | Cash dividend or distribution received                                | Quarterly dividend from BHP           |
+| SPLIT             | Share split or consolidation adjustment                               | 2:1 stock split                       |
+| INTEREST          | Interest income (bonds, cash accounts, term deposits)                 | Monthly interest on term deposit      |
+| COUPON            | Bond coupon payment received                                          | Semi-annual coupon on corporate bond  |
+| MATURITY          | Bond or term deposit reaching maturity (principal returned)           | Bond redeemed at par on maturity date |
+| FEE               | Standalone fee not attached to a trade (platform fees, admin charges) | Annual platform fee                   |
+| TRANSFER_IN       | Securities transferred into the portfolio from another account        | Broker-to-broker transfer             |
+| TRANSFER_OUT      | Securities transferred out of the portfolio                           | Moving shares to another broker       |
+| RETURN_OF_CAPITAL | Capital return reducing cost base                                     | Trust distribution (tax-deferred)     |
+| ADJUSTMENT        | Manual quantity or cost base adjustment                               | Corporate action correction           |
+| MERGER_IN         | Shares received from a merger/acquisition                             | Acquiring company shares received     |
+| MERGER_OUT        | Shares cancelled in a merger/acquisition                              | Target company shares cancelled       |
+| RIGHTS_ISSUE      | Shares acquired via a rights issue                                    | Renounceable rights exercised         |
+| BONUS             | Bonus shares received (scrip issue)                                   | 1-for-10 bonus issue                  |
 
 #### Mapping Templates
 
 Users can save and share field mapping configurations for common brokers:
 
-| Broker/Platform | Region | Notes |
-|-----------------|--------|-------|
-| CommSec | Australia | Standard trade confirmation export |
-| SelfWealth | Australia | Transaction history CSV |
-| Stake | AU/US | Supports both AU and US markets |
-| Interactive Brokers | Global | Activity statement flex query |
-| Schwab | US | Transaction history export |
-| Vanguard | AU/US | Transaction history |
-| CMC Markets | Australia | Trade history export (CFD and stockbroking) |
-| CMC Invest | Australia | Investment platform transaction history |
-| Bell Direct | Australia | Trade confirmations and settlement reports |
-| nabtrade | Australia | Trade confirmations |
-| FIIG Securities | Australia | Bond and fixed income trade confirmations |
-| Sharesight | Global | Trade export (alternative to API) |
-| Custom | Any | User-defined mapping |
+| Broker/Platform     | Region    | Notes                                       |
+| ------------------- | --------- | ------------------------------------------- |
+| CommSec             | Australia | Standard trade confirmation export          |
+| SelfWealth          | Australia | Transaction history CSV                     |
+| Stake               | AU/US     | Supports both AU and US markets             |
+| Interactive Brokers | Global    | Activity statement flex query               |
+| Schwab              | US        | Transaction history export                  |
+| Vanguard            | AU/US     | Transaction history                         |
+| CMC Markets         | Australia | Trade history export (CFD and stockbroking) |
+| CMC Invest          | Australia | Investment platform transaction history     |
+| Bell Direct         | Australia | Trade confirmations and settlement reports  |
+| nabtrade            | Australia | Trade confirmations                         |
+| FIIG Securities     | Australia | Bond and fixed income trade confirmations   |
+| Sharesight          | Global    | Trade export (alternative to API)           |
+| Custom              | Any       | User-defined mapping                        |
 
 New templates can be contributed by users or added over time.
 
@@ -131,13 +131,13 @@ ImportSource → Normaliser → InvestaLens Transaction Schema → Database
 
 ### Core Entities
 
-| Entity | Description |
-|--------|-------------|
-| Portfolio | A collection of holdings representing a tax entity |
-| Transaction | A buy, sell, dividend, or other event |
-| Position/Holding | Current state of an instrument in a portfolio |
-| Security/Instrument | A tradeable asset (stock, ETF, fund, crypto) |
-| Distribution | Dividend or income payment |
+| Entity              | Description                                        |
+| ------------------- | -------------------------------------------------- |
+| Portfolio           | A collection of holdings representing a tax entity |
+| Transaction         | A buy, sell, dividend, or other event              |
+| Position/Holding    | Current state of an instrument in a portfolio      |
+| Security/Instrument | A tradeable asset (stock, ETF, fund, crypto)       |
+| Distribution        | Dividend or income payment                         |
 
 ### Import Pipeline
 
@@ -150,11 +150,11 @@ ImportSource → Normaliser → InvestaLens Transaction Schema → Database
 
 ## Sync Strategy
 
-| Method | Trigger | Scope |
-|--------|---------|-------|
-| CSV import | Manual upload | Batch of transactions |
+| Method                         | Trigger             | Scope                       |
+| ------------------------------ | ------------------- | --------------------------- |
+| CSV import                     | Manual upload       | Batch of transactions       |
 | API sync (Sharesight, brokers) | Manual or scheduled | Incremental since last sync |
-| Manual entry | User action | Single transaction |
+| Manual entry                   | User action         | Single transaction          |
 
 ## Future Import Sources
 
@@ -173,13 +173,13 @@ InvestaLens supports full data export for backup, portability, and external anal
 
 ### Export Formats
 
-| Format | Contents | Use Case |
-|--------|----------|----------|
-| CSV (Trades) | All transactions in InvestaLens standard format | Re-import into InvestaLens or other tools |
-| CSV (Holdings) | Current positions with cost base and market value | Snapshot for spreadsheet analysis |
-| CSV (Dividends) | All dividend and distribution records | Income reconciliation |
-| JSON (Full Backup) | Complete portfolio data including settings, groups, labels | Full backup and restore |
-| PDF (Reports) | Any report exported as formatted PDF | Sharing with advisers, record keeping |
+| Format             | Contents                                                   | Use Case                                  |
+| ------------------ | ---------------------------------------------------------- | ----------------------------------------- |
+| CSV (Trades)       | All transactions in InvestaLens standard format            | Re-import into InvestaLens or other tools |
+| CSV (Holdings)     | Current positions with cost base and market value          | Snapshot for spreadsheet analysis         |
+| CSV (Dividends)    | All dividend and distribution records                      | Income reconciliation                     |
+| JSON (Full Backup) | Complete portfolio data including settings, groups, labels | Full backup and restore                   |
+| PDF (Reports)      | Any report exported as formatted PDF                       | Sharing with advisers, record keeping     |
 
 ### How to Export
 
@@ -192,18 +192,18 @@ InvestaLens supports full data export for backup, portability, and external anal
 
 The exported CSV uses the same field structure as the import format, ensuring round-trip compatibility:
 
-| Column | Description |
-|--------|-------------|
-| Trade Date | ISO 8601 date |
-| Transaction Type | BUY, SELL, DIVIDEND, etc. |
-| Instrument Code | Ticker symbol |
-| Market Code | Exchange identifier |
-| Quantity | Number of units |
-| Price | Price per unit (in market currency) |
-| Brokerage | Transaction fee |
-| Currency | Trade currency (ISO 4217) |
-| Exchange Rate | FX rate applied |
-| Comments | User notes |
+| Column           | Description                         |
+| ---------------- | ----------------------------------- |
+| Trade Date       | ISO 8601 date                       |
+| Transaction Type | BUY, SELL, DIVIDEND, etc.           |
+| Instrument Code  | Ticker symbol                       |
+| Market Code      | Exchange identifier                 |
+| Quantity         | Number of units                     |
+| Price            | Price per unit (in market currency) |
+| Brokerage        | Transaction fee                     |
+| Currency         | Trade currency (ISO 4217)           |
+| Exchange Rate    | FX rate applied                     |
+| Comments         | User notes                          |
 
 ### Automated Backups
 
@@ -219,11 +219,11 @@ Configure scheduled exports via **Settings > Data Management**:
 
 ## Related Documentation
 
-| Document | Description |
-|----------|-------------|
-| [GETTING-STARTED.md](GETTING-STARTED.md) | Step-by-step import guide and portfolio setup |
-| [SHARESIGHT_API.md](SHARESIGHT_API.md) | Sharesight API endpoints, authentication, and sync |
-| [ACCOUNT.md](ACCOUNT.md) | AI Importer, portfolio settings, and share transfers |
-| [ASSETS.md](ASSETS.md) | Supported asset types, bond tracking, and custom investments |
-| [ACTIONS.md](ACTIONS.md) | How corporate actions affect imported data |
-| [API.md](API.md) | Programmatic import/export via REST API |
+| Document                                 | Description                                                  |
+| ---------------------------------------- | ------------------------------------------------------------ |
+| [GETTING-STARTED.md](GETTING-STARTED.md) | Step-by-step import guide and portfolio setup                |
+| [SHARESIGHT_API.md](SHARESIGHT_API.md)   | Sharesight API endpoints, authentication, and sync           |
+| [ACCOUNT.md](ACCOUNT.md)                 | AI Importer, portfolio settings, and share transfers         |
+| [ASSETS.md](ASSETS.md)                   | Supported asset types, bond tracking, and custom investments |
+| [ACTIONS.md](ACTIONS.md)                 | How corporate actions affect imported data                   |
+| [API.md](API.md)                         | Programmatic import/export via REST API                      |

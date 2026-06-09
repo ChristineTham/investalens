@@ -5,6 +5,7 @@ These rules apply to ALL phases of the azure-upgrade skill.
 ## Destructive Action Policy
 
 ⛔ **NEVER** perform destructive actions without explicit user confirmation via `ask_user`:
+
 - Deleting apps, services, or resource groups
 - Stopping or disabling the original app/service
 - Overwriting app settings or configuration in the new app
@@ -14,6 +15,7 @@ These rules apply to ALL phases of the azure-upgrade skill.
 ## User Confirmation Required
 
 Always use `ask_user` before:
+
 - Selecting target Azure subscription
 - Selecting target Azure region/location
 - Creating new Azure resources

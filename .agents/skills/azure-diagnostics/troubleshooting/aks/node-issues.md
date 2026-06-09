@@ -12,13 +12,13 @@ kubectl describe node <node-name>
 
 **Condition decision tree:**
 
-| Condition            | Value   | Meaning                           | Fix Path                                                      |
-| -------------------- | ------- | --------------------------------- | ------------------------------------------------------------- |
-| `Ready`              | `False` | kubelet stopped reporting         | SSH to node; if unrecoverable, consider cordon/drain/delete\* |
-| `MemoryPressure`     | `True`  | Node running out of memory        | Evict pods; scale out pool; reduce pod density                |
-| `DiskPressure`       | `True`  | OS disk or ephemeral storage full | Check logs and images; clean up or increase disk              |
+| Condition            | Value   | Meaning                           | Fix Path                                                            |
+| -------------------- | ------- | --------------------------------- | ------------------------------------------------------------------- |
+| `Ready`              | `False` | kubelet stopped reporting         | SSH to node; if unrecoverable, consider cordon/drain/delete\*       |
+| `MemoryPressure`     | `True`  | Node running out of memory        | Evict pods; scale out pool; reduce pod density                      |
+| `DiskPressure`       | `True`  | OS disk or ephemeral storage full | Check logs and images; clean up or increase disk                    |
 | `PIDPressure`        | `True`  | Too many processes                | App spawning excessive threads/processes; use IG `snapshot_process` |
-| `NetworkUnavailable` | `True`  | CNI plugin issue                  | Check CNI pods in kube-system; node network config            |
+| `NetworkUnavailable` | `True`  | CNI plugin issue                  | Check CNI pods in kube-system; node network config                  |
 
 \*Only after explicit user request for remediation and confirmation of workload impact.
 

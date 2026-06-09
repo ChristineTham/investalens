@@ -4,11 +4,11 @@ Reference for managing RBAC for Microsoft Foundry resources: user permissions, m
 
 ## Quick Reference
 
-| Property | Value |
-|----------|-------|
-| **CLI Extension** | `az role assignment`, `az ad sp` |
-| **Resource Type** | `Microsoft.CognitiveServices/accounts` |
-| **Best For** | Permission management, access auditing, CI/CD setup |
+| Property          | Value                                               |
+| ----------------- | --------------------------------------------------- |
+| **CLI Extension** | `az role assignment`, `az ad sp`                    |
+| **Resource Type** | `Microsoft.CognitiveServices/accounts`              |
+| **Best For**      | Permission management, access auditing, CI/CD setup |
 
 ## When to Use
 
@@ -21,12 +21,12 @@ Reference for managing RBAC for Microsoft Foundry resources: user permissions, m
 
 ## Foundry Built-in Roles
 
-| Role | Create Projects | Data Actions | Role Assignments |
-|------|-----------------|--------------|------------------|
-| Foundry User | No | Yes | No |
-| Foundry Project Manager | Yes | Yes | Yes (Foundry User only) |
-| Foundry Account Owner | Yes | No | Yes (Foundry User only) |
-| Foundry Owner | Yes | Yes | Yes |
+| Role                    | Create Projects | Data Actions | Role Assignments        |
+| ----------------------- | --------------- | ------------ | ----------------------- |
+| Foundry User            | No              | Yes          | No                      |
+| Foundry Project Manager | Yes             | Yes          | Yes (Foundry User only) |
+| Foundry Account Owner   | Yes             | No           | Yes (Foundry User only) |
+| Foundry Owner           | Yes             | Yes          | Yes                     |
 
 > ⚠️ **Warning:** Foundry User is auto-assigned via Portal but NOT via SDK/CLI. Automation must explicitly assign roles.
 
@@ -77,12 +77,12 @@ az role definition list --name "Foundry User" --query "[].permissions[].actions"
 
 **Permission Requirements by Action:**
 
-| Action | Required Role(s) |
-|--------|------------------|
-| Deploy models | Foundry User, Foundry Project Manager, Foundry Owner |
-| Create projects | Foundry Project Manager, Foundry Account Owner, Foundry Owner |
+| Action                   | Required Role(s)                                              |
+| ------------------------ | ------------------------------------------------------------- |
+| Deploy models            | Foundry User, Foundry Project Manager, Foundry Owner          |
+| Create projects          | Foundry Project Manager, Foundry Account Owner, Foundry Owner |
 | Assign Foundry User role | Foundry Project Manager, Foundry Account Owner, Foundry Owner |
-| Full data access | Foundry User, Foundry Project Manager, Foundry Owner |
+| Full data access         | Foundry User, Foundry Project Manager, Foundry Owner          |
 
 ### 5. Configure Managed Identity Roles
 
@@ -96,14 +96,14 @@ az role assignment create --role "<role-name>" --assignee "$PRINCIPAL_ID" --scop
 
 **Common Managed Identity Role Assignments:**
 
-| Connected Resource | Role | Purpose |
-|--------------------|------|---------|
-| Azure Storage | Storage Blob Data Reader | Read files/documents |
-| Azure Storage | Storage Blob Data Contributor | Read/write files |
-| Azure Key Vault | Key Vault Secrets User | Read secrets |
-| Azure AI Search | Search Index Data Reader | Query indexes |
-| Azure AI Search | Search Index Data Contributor | Query and modify indexes |
-| Azure Cosmos DB | Cosmos DB Account Reader | Read data |
+| Connected Resource | Role                          | Purpose                  |
+| ------------------ | ----------------------------- | ------------------------ |
+| Azure Storage      | Storage Blob Data Reader      | Read files/documents     |
+| Azure Storage      | Storage Blob Data Contributor | Read/write files         |
+| Azure Key Vault    | Key Vault Secrets User        | Read secrets             |
+| Azure AI Search    | Search Index Data Reader      | Query indexes            |
+| Azure AI Search    | Search Index Data Contributor | Query and modify indexes |
+| Azure Cosmos DB    | Cosmos DB Account Reader      | Read data                |
 
 ### 6. Create Service Principal for CI/CD
 
@@ -122,12 +122,12 @@ az role assignment create --role "Contributor" --assignee "$SP_APP_ID" --scope "
 
 > 💡 **Tip:** Use least privilege — start with `Foundry User` and add roles as needed.
 
-| CI/CD Scenario | Recommended Role | Additional Roles |
-|----------------|------------------|------------------|
-| Deploy models only | Foundry User | None |
-| Manage projects | Foundry Project Manager | None |
-| Full provisioning | Foundry Owner | Contributor (on RG) |
-| Read-only monitoring | Reader | Foundry User (for data) |
+| CI/CD Scenario       | Recommended Role        | Additional Roles        |
+| -------------------- | ----------------------- | ----------------------- |
+| Deploy models only   | Foundry User            | None                    |
+| Manage projects      | Foundry Project Manager | None                    |
+| Full provisioning    | Foundry Owner           | Contributor (on RG)     |
+| Read-only monitoring | Reader                  | Foundry User (for data) |
 
 **CI/CD Pipeline Login:**
 
@@ -138,15 +138,15 @@ az account set --subscription "<subscription-id>"
 
 ## Error Handling
 
-| Issue | Cause | Resolution |
-|-------|-------|------------|
-| "Authorization failed" when deploying | Missing Foundry User role | Assign Foundry User role at resource scope |
-| Cannot create projects | Missing Project Manager or Owner role | Assign Foundry Project Manager role |
-| "Access denied" on connected resources | Managed identity missing roles | Assign appropriate roles to MI on each resource |
-| Portal works but CLI fails | Portal auto-assigns roles, CLI doesn't | Explicitly assign Foundry User via CLI |
-| Service principal cannot access data | Wrong role or scope | Verify Foundry User is assigned at correct scope |
-| "Principal does not exist" | User/SP not found in directory | Verify the assignee email or object ID is correct |
-| Role assignment already exists | Duplicate assignment attempt | Use `az role assignment list` to verify existing assignments |
+| Issue                                  | Cause                                  | Resolution                                                   |
+| -------------------------------------- | -------------------------------------- | ------------------------------------------------------------ |
+| "Authorization failed" when deploying  | Missing Foundry User role              | Assign Foundry User role at resource scope                   |
+| Cannot create projects                 | Missing Project Manager or Owner role  | Assign Foundry Project Manager role                          |
+| "Access denied" on connected resources | Managed identity missing roles         | Assign appropriate roles to MI on each resource              |
+| Portal works but CLI fails             | Portal auto-assigns roles, CLI doesn't | Explicitly assign Foundry User via CLI                       |
+| Service principal cannot access data   | Wrong role or scope                    | Verify Foundry User is assigned at correct scope             |
+| "Principal does not exist"             | User/SP not found in directory         | Verify the assignee email or object ID is correct            |
+| Role assignment already exists         | Duplicate assignment attempt           | Use `az role assignment list` to verify existing assignments |
 
 ## Additional Resources
 

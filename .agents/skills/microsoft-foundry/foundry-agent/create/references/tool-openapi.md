@@ -8,7 +8,9 @@ Expose a REST API to the agent by attaching its OpenAPI 3.x spec. The platform p
 {
   "type": "openapi",
   "openapi": {
-    "spec": { /* inlined OpenAPI 3.x document */ },
+    "spec": {
+      /* inlined OpenAPI 3.x document */
+    },
     "auth": { "type": "anonymous" }
   }
 }

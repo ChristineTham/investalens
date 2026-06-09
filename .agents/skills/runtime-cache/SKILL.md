@@ -6,23 +6,22 @@ metadata:
   docs:
     - "https://nextjs.org/docs/app/building-your-application/caching"
   sitemap: "https://nextjs.org/sitemap.xml"
-  pathPatterns: 
-    - 'lib/cache/**'
-    - 'src/lib/cache/**'
-    - 'lib/cache.*'
-    - 'src/lib/cache.*'
+  pathPatterns:
+    - "lib/cache/**"
+    - "src/lib/cache/**"
+    - "lib/cache.*"
+    - "src/lib/cache.*"
   bashPatterns:
     - '\bnpm\s+(install|i|add)\s+[^\n]*@vercel/functions\b'
     - '\bpnpm\s+(install|i|add)\s+[^\n]*@vercel/functions\b'
     - '\bbun\s+(install|i|add)\s+[^\n]*@vercel/functions\b'
     - '\byarn\s+add\s+[^\n]*@vercel/functions\b'
 validate:
-  -
-    pattern: 'from\s+[''""](redis|ioredis)[''""]|require\s*\(\s*[''""](redis|ioredis)[''""]|new\s+Redis\('
-    message: 'Direct Redis/ioredis client detected. Use Upstash Redis (@upstash/redis) for serverless-native Redis with HTTP-based connections.'
+  - pattern: 'from\s+[''""](redis|ioredis)[''""]|require\s*\(\s*[''""](redis|ioredis)[''""]|new\s+Redis\('
+    message: "Direct Redis/ioredis client detected. Use Upstash Redis (@upstash/redis) for serverless-native Redis with HTTP-based connections."
     severity: recommended
     upgradeToSkill: vercel-storage
-    upgradeWhy: 'Replace direct Redis/ioredis with @upstash/redis for serverless-compatible HTTP-based Redis that works without persistent TCP connections.'
+    upgradeWhy: "Replace direct Redis/ioredis with @upstash/redis for serverless-compatible HTTP-based Redis that works without persistent TCP connections."
     skipIfFileContains: 'from\s+[''""]\@upstash/redis[''""]'
 retrieval:
   aliases:
@@ -41,15 +40,12 @@ retrieval:
     - key-value
     - cache
 chainTo:
-  -
-    pattern: 'from\s+[''""]@vercel/kv[''""]'
+  - pattern: 'from\s+[''""]@vercel/kv[''""]'
     targetSkill: vercel-storage
-    message: '@vercel/kv is sunset — loading Vercel Storage guidance for Upstash Redis migration.'
-  -
-    pattern: 'from\s+[''""]ioredis[''""]|new\s+Redis\('
+    message: "@vercel/kv is sunset — loading Vercel Storage guidance for Upstash Redis migration."
+  - pattern: 'from\s+[''""]ioredis[''""]|new\s+Redis\('
     targetSkill: vercel-storage
-    message: 'Direct Redis client detected — loading Vercel Storage guidance for Upstash Redis (serverless-native) integration.'
-
+    message: "Direct Redis client detected — loading Vercel Storage guidance for Upstash Redis (serverless-native) integration."
 ---
 
 # Vercel Runtime Cache API
@@ -73,34 +69,34 @@ All APIs from `@vercel/functions`:
 ### Basic Cache Operations
 
 ```ts
-import { getCache } from '@vercel/functions';
+import { getCache } from "@vercel/functions";
 
 const cache = getCache();
 
 // Store data with TTL and tags
-await cache.set('user:123', userData, {
-  ttl: 3600,                      // seconds
-  tags: ['users', 'user:123'],    // for bulk invalidation
-  name: 'user-profile',           // human-readable label for observability
+await cache.set("user:123", userData, {
+  ttl: 3600, // seconds
+  tags: ["users", "user:123"], // for bulk invalidation
+  name: "user-profile", // human-readable label for observability
 });
 
 // Retrieve cached data (returns value or undefined)
-const data = await cache.get('user:123');
+const data = await cache.get("user:123");
 
 // Delete a specific key
-await cache.delete('user:123');
+await cache.delete("user:123");
 
 // Expire all entries with a tag (propagates globally within 300ms)
-await cache.expireTag('users');
-await cache.expireTag(['users', 'user:123']); // multiple tags
+await cache.expireTag("users");
+await cache.expireTag(["users", "user:123"]); // multiple tags
 ```
 
 ### Cache Options
 
 ```ts
 const cache = getCache({
-  namespace: 'api',                    // prefix for keys
-  namespaceSeparator: ':',             // separator (default)
+  namespace: "api", // prefix for keys
+  namespaceSeparator: ":", // separator (default)
   keyHashFunction: (key) => sha256(key), // custom key hashing
 });
 ```
@@ -108,22 +104,24 @@ const cache = getCache({
 ### Full Example (Framework-Agnostic)
 
 ```ts
-import { getCache } from '@vercel/functions';
+import { getCache } from "@vercel/functions";
 
 export default {
   async fetch(request: Request) {
     const cache = getCache();
-    const cached = await cache.get('blog-posts');
+    const cached = await cache.get("blog-posts");
 
     if (cached) {
       return Response.json(cached);
     }
 
-    const posts = await fetch('https://api.example.com/posts').then(r => r.json());
+    const posts = await fetch("https://api.example.com/posts").then((r) =>
+      r.json()
+    );
 
-    await cache.set('blog-posts', posts, {
+    await cache.set("blog-posts", posts, {
       ttl: 3600,
-      tags: ['blog'],
+      tags: ["blog"],
     });
 
     return Response.json(posts);
@@ -134,11 +132,11 @@ export default {
 ### Tag Expiration from Server Action
 
 ```ts
-'use server';
-import { getCache } from '@vercel/functions';
+"use server";
+import { getCache } from "@vercel/functions";
 
 export async function invalidateBlog() {
-  await getCache().expireTag('blog');
+  await getCache().expireTag("blog");
 }
 ```
 
@@ -147,18 +145,19 @@ export async function invalidateBlog() {
 These purge across **all three cache layers** (CDN + Runtime Cache + Data Cache):
 
 ```ts
-import { invalidateByTag, dangerouslyDeleteByTag } from '@vercel/functions';
+import { invalidateByTag, dangerouslyDeleteByTag } from "@vercel/functions";
 
 // Stale-while-revalidate: serves stale, revalidates in background
-await invalidateByTag('blog-posts');
+await invalidateByTag("blog-posts");
 
 // Hard delete: next request blocks while fetching from origin (cache stampede risk)
-await dangerouslyDeleteByTag('blog-posts', {
+await dangerouslyDeleteByTag("blog-posts", {
   revalidationDeadlineSeconds: 3600,
 });
 ```
 
 **Important distinction**:
+
 - `cache.expireTag()` — operates on Runtime Cache only
 - `invalidateByTag()` / `dangerouslyDeleteByTag()` — purges CDN + Runtime + Data caches
 
@@ -172,13 +171,13 @@ const nextConfig: NextConfig = { cacheComponents: true };
 ```
 
 ```ts
-import { cacheLife, cacheTag } from 'next/cache';
+import { cacheLife, cacheTag } from "next/cache";
 
 async function getData() {
-  'use cache: remote'     // stores in Vercel Runtime Cache
-  cacheTag('example-tag')
-  cacheLife({ expire: 3600 })
-  return fetch('https://api.example.com/data').then(r => r.json());
+  "use cache: remote"; // stores in Vercel Runtime Cache
+  cacheTag("example-tag");
+  cacheLife({ expire: 3600 });
+  return fetch("https://api.example.com/data").then((r) => r.json());
 }
 ```
 
@@ -187,11 +186,11 @@ async function getData() {
 
 ### Next.js 16 Invalidation APIs
 
-| Function | Context | Behavior |
-|----------|---------|----------|
-| `updateTag(tag)` | Server Actions only | Immediate expiration, read-your-own-writes |
-| `revalidateTag(tag, 'max')` | Server Actions + Route Handlers | Stale-while-revalidate (recommended) |
-| `revalidateTag(tag, { expire: 0 })` | Route Handlers (webhooks) | Immediate expiration from external triggers |
+| Function                            | Context                         | Behavior                                    |
+| ----------------------------------- | ------------------------------- | ------------------------------------------- |
+| `updateTag(tag)`                    | Server Actions only             | Immediate expiration, read-your-own-writes  |
+| `revalidateTag(tag, 'max')`         | Server Actions + Route Handlers | Stale-while-revalidate (recommended)        |
+| `revalidateTag(tag, { expire: 0 })` | Route Handlers (webhooks)       | Immediate expiration from external triggers |
 
 **Important**: Single-argument `revalidateTag(tag)` is deprecated in Next.js 16. Always pass a `cacheLife` profile as the second argument.
 
@@ -229,29 +228,29 @@ Note: `--tag` and `--srcimg` cannot be used together.
 Add tags to CDN cached responses for later invalidation:
 
 ```ts
-import { addCacheTag } from '@vercel/functions';
+import { addCacheTag } from "@vercel/functions";
 
 // Via helper
-addCacheTag('product-123');
+addCacheTag("product-123");
 
 // Via response header
 return Response.json(product, {
   headers: {
-    'Vercel-CDN-Cache-Control': 'public, max-age=86400',
-    'Vercel-Cache-Tag': 'product-123,products',
+    "Vercel-CDN-Cache-Control": "public, max-age=86400",
+    "Vercel-Cache-Tag": "product-123,products",
   },
 });
 ```
 
 ## Limits
 
-| Property | Limit |
-|----------|-------|
-| Item size | 2 MB |
-| Tags per Runtime Cache item | 64 |
-| Tags per CDN item | 128 |
-| Max tag length | 256 bytes |
-| Tags per bulk REST API call | 16 |
+| Property                    | Limit     |
+| --------------------------- | --------- |
+| Item size                   | 2 MB      |
+| Tags per Runtime Cache item | 64        |
+| Tags per CDN item           | 128       |
+| Max tag length              | 256 bytes |
+| Tags per bulk REST API call | 16        |
 
 Tags are **case-sensitive** and **cannot contain commas**.
 

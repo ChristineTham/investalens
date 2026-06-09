@@ -5,6 +5,7 @@ Run structured experiments that compare how an agent performs across different d
 ## Experiment Structure
 
 An experiment consists of:
+
 1. **Pinned agent version** — the same agent evaluated on each dataset
 2. **Varied dataset versions** — the versions being compared
 3. **Same evaluators** — applied consistently across all runs
@@ -12,16 +13,17 @@ An experiment consists of:
 
 ## Step 1 — Define the Experiment
 
-| Parameter | Value | Example |
-|-----------|-------|---------|
-| Agent | Pinned agent version | `v3` |
-| Baseline dataset | Previous dataset version | `support-bot-prod-traces-v2` |
-| Treatment dataset(s) | New dataset version(s) | `support-bot-prod-traces-v3` |
-| Evaluators | Same set for all runs | coherence, fluency, relevance, intent_resolution, task_adherence |
+| Parameter            | Value                    | Example                                                          |
+| -------------------- | ------------------------ | ---------------------------------------------------------------- |
+| Agent                | Pinned agent version     | `v3`                                                             |
+| Baseline dataset     | Previous dataset version | `support-bot-prod-traces-v2`                                     |
+| Treatment dataset(s) | New dataset version(s)   | `support-bot-prod-traces-v3`                                     |
+| Evaluators           | Same set for all runs    | coherence, fluency, relevance, intent_resolution, task_adherence |
 
 ## Step 2 — Run Evaluations
 
 For each dataset version, run **`evaluation_agent_batch_eval_create`** with:
+
 - Same `evaluationId` (groups all runs for comparison)
 - Same `agentVersion`
 - Same `evaluatorNames`
@@ -58,29 +60,29 @@ Use **`evaluation_comparison_create`** with the baseline and treatment runs:
 
 Present results as a leaderboard table:
 
-| Evaluator | traces-v2 (baseline) | traces-v3 | Effect |
-|-----------|:---:|:---:|:---:|
-| Coherence | 4.0 | 3.6 | ⚠️ Lower |
-| Fluency | 4.5 | 4.3 | ⚠️ Lower |
-| Relevance | 3.6 | 3.2 | ⚠️ Lower |
-| Intent Resolution | 4.1 | 3.7 | ⚠️ Lower |
-| Task Adherence | 3.9 | 3.4 | ⚠️ Lower |
+| Evaluator         | traces-v2 (baseline) | traces-v3 |  Effect  |
+| ----------------- | :------------------: | :-------: | :------: |
+| Coherence         |         4.0          |    3.6    | ⚠️ Lower |
+| Fluency           |         4.5          |    4.3    | ⚠️ Lower |
+| Relevance         |         3.6          |    3.2    | ⚠️ Lower |
+| Intent Resolution |         4.1          |    3.7    | ⚠️ Lower |
+| Task Adherence    |         3.9          |    3.4    | ⚠️ Lower |
 
 ### Recommendation
 
 If scores drop uniformly across all evaluators, the new dataset is likely harder:
 
-*"Agent v3 scores dropped on traces-v3 across all evaluators. traces-v3 added 15 edge-case queries from production failures. This is expected — optimize the agent for the new failure patterns rather than reverting the dataset."*
+_"Agent v3 scores dropped on traces-v3 across all evaluators. traces-v3 added 15 edge-case queries from production failures. This is expected — optimize the agent for the new failure patterns rather than reverting the dataset."_
 
 ## Pairwise A/B Comparison
 
 For detailed pairwise analysis between exactly two dataset versions:
 
-| Evaluator | Baseline (traces-v2) | Treatment (traces-v3) | Delta | p-value | Effect |
-|-----------|:---:|:---:|:---:|:---:|:---:|
-| Coherence | 4.0 ± 0.6 | 3.6 ± 0.9 | −0.4 | 0.03 | Degraded |
-| Fluency | 4.5 ± 0.4 | 4.3 ± 0.5 | −0.2 | 0.12 | Inconclusive |
-| Relevance | 3.6 ± 0.9 | 3.2 ± 1.1 | −0.4 | 0.04 | Degraded |
+| Evaluator | Baseline (traces-v2) | Treatment (traces-v3) | Delta | p-value |    Effect    |
+| --------- | :------------------: | :-------------------: | :---: | :-----: | :----------: |
+| Coherence |      4.0 ± 0.6       |       3.6 ± 0.9       | −0.4  |  0.03   |   Degraded   |
+| Fluency   |      4.5 ± 0.4       |       4.3 ± 0.5       | −0.2  |  0.12   | Inconclusive |
+| Relevance |      3.6 ± 0.9       |       3.2 ± 1.1       | −0.4  |  0.04   |   Degraded   |
 
 > 💡 **Tip:** The `evaluation_comparison_create` result includes `pValue` and `treatmentEffect` fields. Use `pValue < 0.05` as the threshold for statistical significance.
 
@@ -88,11 +90,11 @@ For detailed pairwise analysis between exactly two dataset versions:
 
 Compare how the same agent version performs across different datasets:
 
-| Dataset | Coherence | Fluency | Relevance | Notes |
-|---------|:---------:|:-------:|:---------:|-------|
-| traces-v3 (prod) | 4.0 | 4.5 | 3.6 | Production-derived |
-| synthetic-v2 | 4.3 | 4.6 | 4.1 | May overestimate quality |
-| manual-v1 (curated) | 3.8 | 4.4 | 3.2 | Hardest test cases |
+| Dataset             | Coherence | Fluency | Relevance | Notes                    |
+| ------------------- | :-------: | :-----: | :-------: | ------------------------ |
+| traces-v3 (prod)    |    4.0    |   4.5   |    3.6    | Production-derived       |
+| synthetic-v2        |    4.3    |   4.6   |    4.1    | May overestimate quality |
+| manual-v1 (curated) |    3.8    |   4.4   |    3.2    | Hardest test cases       |
 
 > ⚠️ **Warning:** Be cautious comparing scores across datasets with different structures (e.g., production traces vs synthetic). Differences may reflect dataset difficulty, not agent quality.
 

@@ -12,27 +12,27 @@ USE FOR: analyze agent traces, search agent conversations, find failing traces, 
 
 ## Quick Reference
 
-| Property | Value |
-|----------|-------|
-| Data source | Application Insights (App Insights) |
-| Query language | KQL (Kusto Query Language) |
-| Related skills | `troubleshoot` (hosted-agent logs), `eval-datasets` (trace harvesting) |
-| Preferred query tool | `monitor_resource_log_query` (Azure MCP) - use for App Insights KQL queries |
-| OTel conventions | [GenAI Spans](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-spans/), [Agent Spans](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-agent-spans/) |
-| Local metadata | selected `.foundry/agent-metadata*.yaml` overlay/cache file |
+| Property             | Value                                                                                                                                                                  |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Data source          | Application Insights (App Insights)                                                                                                                                    |
+| Query language       | KQL (Kusto Query Language)                                                                                                                                             |
+| Related skills       | `troubleshoot` (hosted-agent logs), `eval-datasets` (trace harvesting)                                                                                                 |
+| Preferred query tool | `monitor_resource_log_query` (Azure MCP) - use for App Insights KQL queries                                                                                            |
+| OTel conventions     | [GenAI Spans](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-spans/), [Agent Spans](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-agent-spans/) |
+| Local metadata       | selected `.foundry/agent-metadata*.yaml` overlay/cache file                                                                                                            |
 
 ## Entry Points
 
-| User Intent | Start At |
-|-------------|----------|
-| "Search agent conversations" / "Find traces" | [Search Traces](references/search-traces.md) |
-| "Tell me about response ID X" / "Look up response ID" | [Search Traces - Search by Response ID](references/search-traces.md#search-by-response-id) |
-| "Why is my agent failing?" / "Find errors" | [Analyze Failures](references/analyze-failures.md) |
-| "My agent is slow" / "Latency analysis" | [Analyze Latency](references/analyze-latency.md) |
-| "Show me this conversation" / "Trace detail" | [Conversation Detail](references/conversation-detail.md) |
-| "Find eval results for response ID" / "eval scores from traces" | [Eval Correlation](references/eval-correlation.md) |
-| "What KQL do I need?" | [KQL Templates](references/kql-templates.md) |
-| "Auto-detect agent issues" / "Get automated insights" / "What's wrong with my agent?" | [Tracing Insights API](references/tracing-insights-api.md) |
+| User Intent                                                                           | Start At                                                                                   |
+| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| "Search agent conversations" / "Find traces"                                          | [Search Traces](references/search-traces.md)                                               |
+| "Tell me about response ID X" / "Look up response ID"                                 | [Search Traces - Search by Response ID](references/search-traces.md#search-by-response-id) |
+| "Why is my agent failing?" / "Find errors"                                            | [Analyze Failures](references/analyze-failures.md)                                         |
+| "My agent is slow" / "Latency analysis"                                               | [Analyze Latency](references/analyze-latency.md)                                           |
+| "Show me this conversation" / "Trace detail"                                          | [Conversation Detail](references/conversation-detail.md)                                   |
+| "Find eval results for response ID" / "eval scores from traces"                       | [Eval Correlation](references/eval-correlation.md)                                         |
+| "What KQL do I need?"                                                                 | [KQL Templates](references/kql-templates.md)                                               |
+| "Auto-detect agent issues" / "Get automated insights" / "What's wrong with my agent?" | [Tracing Insights API](references/tracing-insights-api.md)                                 |
 
 ## Before Starting — Resolve App Insights Connection
 
@@ -42,10 +42,10 @@ USE FOR: analyze agent traces, search agent conversations, find failing traces, 
 4. Confirm the selected App Insights resource and environment with the user before querying.
 5. Use **`monitor_resource_log_query`** (Azure MCP tool) to execute KQL queries against the App Insights resource. This is preferred over delegating to the `azure-kusto` skill. Pass the App Insights resource ID and the KQL query directly.
 
-| Metadata field | Purpose | Example |
-|----------------|---------|---------|
-| `environments.<env>.observability.applicationInsightsConnectionString` | App Insights connection string | `InstrumentationKey=...;IngestionEndpoint=...` |
-| `environments.<env>.observability.applicationInsightsResourceId` | ARM resource ID | `/subscriptions/.../Microsoft.Insights/components/...` |
+| Metadata field                                                         | Purpose                        | Example                                                |
+| ---------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------ |
+| `environments.<env>.observability.applicationInsightsConnectionString` | App Insights connection string | `InstrumentationKey=...;IngestionEndpoint=...`         |
+| `environments.<env>.observability.applicationInsightsResourceId`       | ARM resource ID                | `/subscriptions/.../Microsoft.Insights/components/...` |
 
 > ⚠️ **Always pass `subscription` explicitly** to Azure MCP tools like `monitor_resource_log_query` - they do not extract it from resource IDs.
 

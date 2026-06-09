@@ -31,10 +31,10 @@ az bicep build --file infra/main.bicep
 
 Choose the command based on the `targetScope` set in `main.bicep` (see [bicep-generation.md](bicep-generation.md) Bicep Conventions):
 
-| `targetScope` | When to use | Command |
-|---|---|---|
-| `resourceGroup` (default) | All resources in one resource group | `az deployment group create` |
-| `subscription` | Resources span multiple resource groups, or includes subscription-level resources (policy, RBAC, resource group creation) | `az deployment sub create` |
+| `targetScope`             | When to use                                                                                                               | Command                      |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| `resourceGroup` (default) | All resources in one resource group                                                                                       | `az deployment group create` |
+| `subscription`            | Resources span multiple resource groups, or includes subscription-level resources (policy, RBAC, resource group creation) | `az deployment sub create`   |
 
 ### Resource Group Scope
 
@@ -55,6 +55,7 @@ az deployment group create \
 ```
 
 PowerShell:
+
 ```powershell
 az deployment group create `
   --resource-group <resource-group-name> `
@@ -82,6 +83,7 @@ az deployment sub create \
 ```
 
 PowerShell:
+
 ```powershell
 az deployment sub create `
   --location <location> `
@@ -106,6 +108,7 @@ terraform apply tfplan
 ```
 
 PowerShell:
+
 ```powershell
 Set-Location infra
 terraform init
@@ -123,10 +126,10 @@ After successful deployment:
 
 ## Error Handling
 
-| Error | Action |
-|-------|--------|
-| Authentication failure | Run `az login` and retry |
-| Quota exceeded | Check limits with `mcp_azure_mcp_quota`, select different SKU or region |
-| Name conflict | Resource name already taken; append unique suffix or choose new name |
-| Region unavailable | Service not available in chosen region; select alternative |
-| Validation failure | Fix IaC syntax errors before retrying deployment |
+| Error                  | Action                                                                  |
+| ---------------------- | ----------------------------------------------------------------------- |
+| Authentication failure | Run `az login` and retry                                                |
+| Quota exceeded         | Check limits with `mcp_azure_mcp_quota`, select different SKU or region |
+| Name conflict          | Resource name already taken; append unique suffix or choose new name    |
+| Region unavailable     | Service not available in chosen region; select alternative              |
+| Validation failure     | Fix IaC syntax errors before retrying deployment                        |

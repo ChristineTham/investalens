@@ -220,7 +220,7 @@ safeguards:
   - id: safeguard-probes-configured
     policyId: b1a9997f
     severity: informational
-    enforcement: warn  # Warning-only — deployments are admitted with a kubectl warning, not denied
+    enforcement: warn # Warning-only — deployments are admitted with a kubectl warning, not denied
     category: reliability
     check: Every container should have readinessProbe + livenessProbe (recommended best practice)
     fix: Add probes (app-specific — HTTP/TCP/exec/gRPC) — recommended, not required for migration
@@ -500,4 +500,3 @@ mutations:
     policyId: implicit
     target: containers
     effect: "Sets resources.requests+limits defaults cpu=500m, memory=2Gi. Minimums cpu=100m, memory=100Mi. If only limits set, requests=limits. If requests > limits, requests capped at limits (QoS fix)."
-

@@ -4,7 +4,7 @@
 
 ## Step 1 - Clarify Requirements
 
-Clarify the user's requirements until you can confidently describe what they want to build. Do NOT proceed to Step 2 until all critical gaps are resolved. Stay focused on *what* the user needs — do not make architectural decisions or propose specific services yet.
+Clarify the user's requirements until you can confidently describe what they want to build. Do NOT proceed to Step 2 until all critical gaps are resolved. Stay focused on _what_ the user needs — do not make architectural decisions or propose specific services yet.
 
 1. Extract what's explicitly stated in the user's prompt: workload purpose, traffic expectations, data storage needs, security requirements, and budget constraints.
 2. Identify gaps across: workload purpose, data/storage needs, networking requirements, security/compliance constraints, availability expectations, environments, expected scale, and budget. A gap is **critical** if it would fundamentally change the scope of the infrastructure.

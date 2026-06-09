@@ -73,7 +73,11 @@ export async function generatePerformanceReport(
       frankingCredits: tx.frankingCredits,
     }));
 
-    const perf = calculateHoldingPerformance(txData, priceData, input.dateRange);
+    const perf = calculateHoldingPerformance(
+      txData,
+      priceData,
+      input.dateRange
+    );
     perf.holdingId = holding.id;
     perf.instrumentCode = holding.instrument.code;
 

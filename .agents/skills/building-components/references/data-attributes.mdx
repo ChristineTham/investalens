@@ -58,7 +58,7 @@ const Dialog = ({ className, ...props }: DialogProps) => {
 Now consumers can style the component based on state from the outside:
 
 ```tsx title="app.tsx"
-<Dialog className="data-[state=open]:opacity-100 data-[state=closed]:opacity-0" />
+<Dialog className="data-[state=closed]:opacity-0 data-[state=open]:opacity-100" />
 ```
 
 ### Benefits of this approach
@@ -106,7 +106,7 @@ Tailwind supports arbitrary variants, making data attribute styling elegant:
     "data-[state=open]:animate-in data-[state=open]:fade-in",
     "data-[state=closed]:animate-out data-[state=closed]:fade-out",
     // Multiple attributes
-    "data-[state=open][data-side=top]:slide-in-from-top-2",
+    "data-[state=open][data-side=top]:slide-in-from-top-2"
   )}
 />
 ```
@@ -144,8 +144,8 @@ import * as Dialog from "@radix-ui/react-dialog";
   <Dialog.Trigger />
   <Dialog.Portal>
     {/* Radix automatically adds data-state="open" | "closed" */}
-    <Dialog.Overlay className="data-[state=open]:animate-in data-[state=closed]:animate-out" />
-    <Dialog.Content className="data-[state=open]:fade-in data-[state=closed]:fade-out" />
+    <Dialog.Overlay className="data-[state=closed]:animate-out data-[state=open]:animate-in" />
+    <Dialog.Content className="data-[state=closed]:fade-out data-[state=open]:fade-in" />
   </Dialog.Portal>
 </Dialog.Root>;
 ```
@@ -195,7 +195,7 @@ function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
         // Target specific child slots
         "has-[>[data-slot=checkbox-group]]:gap-3",
         "has-[>[data-slot=radio-group]]:gap-3",
-        className,
+        className
       )}
       {...props}
     />
@@ -239,7 +239,7 @@ function Form({ className, ...props }: React.ComponentProps<"form">) {
         "has-[>[data-slot=inline-fields]]:space-y-2",
         // Style based on slot states
         "has-[[data-slot=submit-button][data-loading=true]]:opacity-50",
-        className,
+        className
       )}
       {...props}
     />
@@ -263,7 +263,7 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
         "[&_[data-slot=card-title]]:text-lg [&_[data-slot=card-title]]:font-semibold",
         "[&_[data-slot=card-description]]:text-sm [&_[data-slot=card-description]]:text-muted-foreground",
         "[&_[data-slot=card-footer]]:mt-4 [&_[data-slot=card-footer]]:border-t [&_[data-slot=card-footer]]:pt-4",
-        className,
+        className
       )}
       {...props}
     />
@@ -378,7 +378,7 @@ const Button = ({
         // Variant styles via props
         buttonVariants({ variant, size }),
         // Additional state styling allowed via className
-        className,
+        className
       )}
       disabled={disabled}
       {...props}

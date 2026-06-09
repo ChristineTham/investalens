@@ -4,12 +4,12 @@ Operational tasks for running Container Apps in production: restart, exec, logs,
 
 ## Restart and Lifecycle
 
-| Action | Command |
-|--------|---------|
-| Restart active revision | `az containerapp revision restart -n $APP -g $RG --revision $REV` |
-| Scale to zero (stop) | `az containerapp update -n $APP -g $RG --min-replicas 0 --max-replicas <current-max>` |
+| Action                   | Command                                                                                            |
+| ------------------------ | -------------------------------------------------------------------------------------------------- |
+| Restart active revision  | `az containerapp revision restart -n $APP -g $RG --revision $REV`                                  |
+| Scale to zero (stop)     | `az containerapp update -n $APP -g $RG --min-replicas 0 --max-replicas <current-max>`              |
 | Resume (restore scaling) | `az containerapp update -n $APP -g $RG --min-replicas <previous-min> --max-replicas <current-max>` |
-| List replicas | `az containerapp replica list -n $APP -g $RG --revision $REV` |
+| List replicas            | `az containerapp replica list -n $APP -g $RG --revision $REV`                                      |
 
 > 💡 **Tip:** Restarting a revision replaces all running replicas gracefully. No new revision is created.
 
@@ -133,19 +133,19 @@ az containerapp secret set -n $APP -g $RG \
 
 ## Health Monitoring
 
-| Check | How |
-|-------|-----|
-| Revision health | `az containerapp revision list -n $APP -g $RG -o table` |
-| Replica status | `az containerapp replica list -n $APP -g $RG --revision $REV` |
-| System logs | `az containerapp logs show -n $APP -g $RG --type system` |
-| Metrics | Azure Monitor → Container Apps → Requests, Replicas, CPU, Memory |
+| Check           | How                                                              |
+| --------------- | ---------------------------------------------------------------- |
+| Revision health | `az containerapp revision list -n $APP -g $RG -o table`          |
+| Replica status  | `az containerapp replica list -n $APP -g $RG --revision $REV`    |
+| System logs     | `az containerapp logs show -n $APP -g $RG --type system`         |
+| Metrics         | Azure Monitor → Container Apps → Requests, Replicas, CPU, Memory |
 
 ## Common Troubleshooting
 
-| Symptom | Likely Cause | Remediation |
-|---------|-------------|-------------|
-| Replica crash loop | App startup failure | Check console logs; exec into container |
-| 0 replicas running | Scale-to-zero + no traffic | Set `minReplicas: 1` or send a request |
+| Symptom              | Likely Cause                       | Remediation                                                                                         |
+| -------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Replica crash loop   | App startup failure                | Check console logs; exec into container                                                             |
+| 0 replicas running   | Scale-to-zero + no traffic         | Set `minReplicas: 1` or send a request                                                              |
 | Env var not updating | Old revision still serving traffic | Verify the latest revision exists, then update ingress traffic weights or route to `latestRevision` |
-| Secret value stale | Key Vault ref not refreshed | Create or verify the refreshed revision, then shift traffic to that revision |
-| High memory/CPU | Resource limits too low | Update `resources.cpu` / `resources.memory` |
+| Secret value stale   | Key Vault ref not refreshed        | Create or verify the refreshed revision, then shift traffic to that revision                        |
+| High memory/CPU      | Resource limits too low            | Update `resources.cpu` / `resources.memory`                                                         |

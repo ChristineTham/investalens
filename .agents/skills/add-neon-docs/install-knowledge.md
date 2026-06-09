@@ -21,6 +21,7 @@
 Read the skill metadata file to get the reference URLs.
 
 The metadata file is bundled with this skill at:
+
 ```
 skill-knowledge-map.json
 ```
@@ -30,6 +31,7 @@ Use the Read tool to read the local file, then parse the JSON content.
 Extract the metadata for the current `SKILL_NAME` from the JSON.
 
 Store this information - you'll need:
+
 - `displayName`: Human-readable skill name
 - `files`: Array of .mdc files (each with `url`, `filename`, `description`)
 
@@ -46,6 +48,7 @@ Check in this priority order:
 ### 2.1 Check for CLAUDE.md (most common)
 
 Use the Glob tool to search for `CLAUDE.md` in the current working directory:
+
 ```
 pattern: "CLAUDE.md"
 ```
@@ -55,6 +58,7 @@ pattern: "CLAUDE.md"
 ### 2.2 Check for AGENTS.md (custom AI docs)
 
 Use the Glob tool to search for `AGENTS.md`:
+
 ```
 pattern: "AGENTS.md"
 ```
@@ -64,6 +68,7 @@ pattern: "AGENTS.md"
 ### 2.3 Check for Cursor rules file
 
 Use the Glob tool to search for Cursor rules files:
+
 ```
 pattern: ".cursor/README.md"
 pattern: ".cursor/rules.md"
@@ -72,6 +77,7 @@ pattern: ".cursor/rules.md"
 **If found**: Target is `.cursor/README.md` or `.cursor/rules.md`
 
 ### 2.4 No file found
+
 If none of the above exist, set target as: "Will create `CLAUDE.md`"
 
 **Store the detection result** for use in Step 3.
@@ -129,16 +135,20 @@ Combine all references into a section:
 Read the target file and check if it already has a "## Resources & References" section.
 
 **If section exists:**
+
 - Use the Edit tool to append new references to that section
 - Add the new links after existing content in that section
 - Ensure proper spacing (blank line between entries)
 
 **If section doesn't exist:**
+
 - Append the entire section to the end of the file
 - Add two blank lines before the section for proper spacing
 
 **If target file doesn't exist yet:**
+
 - Use the Write tool to create a new file with:
+
   ```markdown
   # Project AI Documentation
 
@@ -152,6 +162,7 @@ Read the target file and check if it already has a "## Resources & References" s
 **IMPORTANT**: Use relative paths only when calling Write/Edit tools.
 
 Examples:
+
 - ✅ Correct: `file_path: "CLAUDE.md"`
 - ✅ Correct: `file_path: ".cursor/rules.md"`
 - ❌ Wrong: `file_path: "/absolute/path/to/CLAUDE.md"`
@@ -179,6 +190,7 @@ ${list each reference with title and URL}
 ---
 
 Your AI assistant can now reference these Neon best practices in future conversations by following the URLs. The documentation includes:
+
 - Connection patterns and configuration
 - Best practices and gotchas
 - Code examples and templates
@@ -198,16 +210,19 @@ ${end if}
 ## Error Handling
 
 ### If metadata file cannot be read
+
 - Log a clear error message
 - Suggest checking internet connection
 - Exit workflow
 
 ### If write permissions denied
+
 - Inform user about permission issue
 - Suggest running with appropriate permissions
 - Provide manual instructions for adding links
 
 ### If target file is locked or unavailable
+
 - Inform user of the issue
 - Suggest closing editors or checking file permissions
 - Provide the reference links for manual addition
@@ -224,6 +239,7 @@ As Claude, you can test this workflow by:
 4. Adding references to test locations
 
 Verify:
+
 - [ ] Metadata loads correctly
 - [ ] File detection works for multiple project types
 - [ ] Permission prompt is clear

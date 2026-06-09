@@ -6,10 +6,10 @@ Zone redundancy distributes compute instances across availability zones within a
 
 This file covers **platform-level discovery and concepts**. For service-specific assessment queries, configuration commands, and IaC patches, see:
 
-| Service | Reference |
-|---|---|
+| Service           | Reference                                                                  |
+| ----------------- | -------------------------------------------------------------------------- |
 | Azure App Service | [services/app-service/reliability.md](services/app-service/reliability.md) |
-| Azure Functions | [services/functions/reliability.md](services/functions/reliability.md) |
+| Azure Functions   | [services/functions/reliability.md](services/functions/reliability.md)     |
 
 > Azure Container Apps deep-dive references are planned for a future version of this skill. The discovery query below still surfaces those resources — just don't dispatch to a per-service reference for them yet.
 
@@ -31,6 +31,7 @@ Resources
 ```
 
 For each row in the result, dispatch to the matching service reference:
+
 - `microsoft.web/serverfarms` with `kind contains 'functionapp'` → Functions reference
 - `microsoft.web/serverfarms` (other kinds) → App Service reference
 - `microsoft.app/managedenvironments` → _planned (Container Apps)_ — surface in the discovery summary, do not deep-dive

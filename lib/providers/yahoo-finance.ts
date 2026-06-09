@@ -121,7 +121,13 @@ export const yahooFinance: MarketDataProvider = {
       const quotes = data.quotes || [];
 
       let results: InstrumentSearchResult[] = quotes.map(
-        (q: { symbol: string; shortname?: string; longname?: string; exchange: string; quoteType: string }) => ({
+        (q: {
+          symbol: string;
+          shortname?: string;
+          longname?: string;
+          exchange: string;
+          quoteType: string;
+        }) => ({
           code: q.symbol.replace(/\..+$/, ""),
           name: q.shortname || q.longname || q.symbol,
           exchange: q.exchange,

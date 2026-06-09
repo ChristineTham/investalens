@@ -4,9 +4,9 @@ Revisions are immutable snapshots of a Container App version. Use them for blue/
 
 ## Revision Modes
 
-| Mode | Behavior | Use Case |
-|------|----------|----------|
-| `Single` | New revision replaces old immediately | Simple apps, dev/test |
+| Mode       | Behavior                                                     | Use Case                      |
+| ---------- | ------------------------------------------------------------ | ----------------------------- |
+| `Single`   | New revision replaces old immediately                        | Simple apps, dev/test         |
 | `Multiple` | Multiple revisions run simultaneously with traffic splitting | Production blue/green, canary |
 
 ## Setting Revision Mode (Bicep)
@@ -58,10 +58,10 @@ az containerapp ingress traffic set -n $APP -g $RG \
 Gradually shift traffic to validate the new revision under load:
 
 | Phase | Current | Canary | Duration |
-|-------|---------|--------|----------|
-| 1 | 90% | 10% | 15 min |
-| 2 | 50% | 50% | 30 min |
-| 3 | 0% | 100% | — |
+| ----- | ------- | ------ | -------- |
+| 1     | 90%     | 10%    | 15 min   |
+| 2     | 50%     | 50%    | 30 min   |
+| 3     | 0%      | 100%   | —        |
 
 ```bash
 # List revisions to identify current stable and new canary
@@ -111,13 +111,13 @@ az containerapp ingress traffic set -n $APP -g $RG \
 
 ## Revision Lifecycle
 
-| Action | Command |
-|--------|---------|
-| List revisions | `az containerapp revision list -n $APP -g $RG` |
-| Show revision details | `az containerapp revision show -n $APP -g $RG --revision $REV` |
-| Activate a revision | `az containerapp revision activate -n $APP -g $RG --revision $REV` |
+| Action                | Command                                                              |
+| --------------------- | -------------------------------------------------------------------- |
+| List revisions        | `az containerapp revision list -n $APP -g $RG`                       |
+| Show revision details | `az containerapp revision show -n $APP -g $RG --revision $REV`       |
+| Activate a revision   | `az containerapp revision activate -n $APP -g $RG --revision $REV`   |
 | Deactivate a revision | `az containerapp revision deactivate -n $APP -g $RG --revision $REV` |
-| Restart a revision | `az containerapp revision restart -n $APP -g $RG --revision $REV` |
+| Restart a revision    | `az containerapp revision restart -n $APP -g $RG --revision $REV`    |
 
 > ⚠️ **Warning:** Deactivated revisions cannot receive traffic. Reactivate before routing traffic to them.
 
@@ -149,9 +149,9 @@ resource "azurerm_container_app" "app" {
 
 ## Recommendations
 
-| Scenario | Revision Mode | Traffic Strategy |
-|----------|---------------|------------------|
-| Dev/Test | Single | N/A — auto-replace |
-| Prod API | Multiple | Blue/green with instant swap |
-| High-risk change | Multiple | Canary (10% → 50% → 100%) |
-| Feature flags | Multiple | Label-based routing |
+| Scenario         | Revision Mode | Traffic Strategy             |
+| ---------------- | ------------- | ---------------------------- |
+| Dev/Test         | Single        | N/A — auto-replace           |
+| Prod API         | Multiple      | Blue/green with instant swap |
+| High-risk change | Multiple      | Canary (10% → 50% → 100%)    |
+| Feature flags    | Multiple      | Label-based routing          |

@@ -12,14 +12,14 @@ Deploy to Azure using Terraform.
 
 ## Workflow
 
-| Step | Task | Command |
-|------|------|---------|
-| 1 | **[Pre-deploy checklist](../../pre-deploy-checklist.md)** | Confirm subscription/location with user |
-| 2 | Select workspace | `terraform workspace select <env>` |
-| 3 | Apply | `terraform apply tfplan` |
-| 4 | Get outputs | `terraform output` |
-| 5 | Deploy app | Service-specific commands |
-| 6 | **Report** | Present deployed endpoint URLs to the user — see [Verification](verify.md) |
+| Step | Task                                                      | Command                                                                    |
+| ---- | --------------------------------------------------------- | -------------------------------------------------------------------------- |
+| 1    | **[Pre-deploy checklist](../../pre-deploy-checklist.md)** | Confirm subscription/location with user                                    |
+| 2    | Select workspace                                          | `terraform workspace select <env>`                                         |
+| 3    | Apply                                                     | `terraform apply tfplan`                                                   |
+| 4    | Get outputs                                               | `terraform output`                                                         |
+| 5    | Deploy app                                                | Service-specific commands                                                  |
+| 6    | **Report**                                                | Present deployed endpoint URLs to the user — see [Verification](verify.md) |
 
 ## Deployment Commands
 
@@ -91,6 +91,7 @@ az containerapp update \
 ```
 
 **PowerShell:**
+
 ```powershell
 $AcrName = terraform output -raw acr_name
 $AcrServer = terraform output -raw acr_login_server

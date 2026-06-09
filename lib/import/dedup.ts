@@ -68,6 +68,8 @@ function buildKey(
   type: string
 ): string {
   const dateStr =
-    date instanceof Date ? date.toISOString().split("T")[0] : String(date).split("T")[0];
+    date instanceof Date
+      ? date.toISOString().split("T")[0]
+      : String(date).split("T")[0];
   return `${code.toUpperCase()}|${dateStr}|${quantity}|${price}|${type}`;
 }
