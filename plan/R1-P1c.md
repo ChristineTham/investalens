@@ -24,7 +24,7 @@ Invoke these skills for best-practice guidance during this phase:
 
 ## Task 1: Performance Calculation Engine
 
-**File: `src/lib/calculations/performance.ts`**
+**File: `lib/calculations/performance.ts`**
 
 Implement money-weighted return (MWR) calculation:
 - Calculate total return for a holding over any date range
@@ -39,7 +39,7 @@ function calculatePortfolioPerformance(holdings: HoldingWithTransactions[], pric
 function annualiseReturn(totalReturn: number, days: number): number;
 ```
 
-**File: `src/lib/calculations/position.ts`**
+**File: `lib/calculations/position.ts`**
 
 Calculate current position state from transactions:
 - Running quantity (sum of buys minus sells, adjusted for splits)
@@ -48,7 +48,7 @@ Calculate current position state from transactions:
 - Market value (quantity × current price)
 - Unrealised gain/loss
 
-**File: `src/lib/calculations/parcels.ts`**
+**File: `lib/calculations/parcels.ts`**
 
 Track individual buy parcels for CGT:
 - Each BUY creates a parcel: { date, quantity, costBase, remainingQuantity }
@@ -61,7 +61,7 @@ Track individual buy parcels for CGT:
 
 ## Task 2: Performance Report
 
-**File: `src/lib/reports/performance-report.ts`**
+**File: `lib/reports/performance-report.ts`**
 
 Generate the Performance Report:
 - Date range selection (preset: 1M, 3M, 6M, YTD, 1Y, 3Y, 5Y, Since Inception, Custom)
@@ -71,7 +71,7 @@ Generate the Performance Report:
 - Group subtotals and portfolio total
 - Annualised return percentage
 
-**File: `src/app/(dashboard)/reports/performance/page.tsx`**
+**File: `app/(dashboard)/reports/performance/page.tsx`**
 
 Report UI:
 - Date range picker
@@ -86,35 +86,35 @@ Report UI:
 
 ## Task 3: Additional Reports
 
-**File: `src/lib/reports/contribution-report.ts`**
+**File: `lib/reports/contribution-report.ts`**
 
 Contribution Analysis — how each holding drives overall portfolio return.
 
-**File: `src/lib/reports/multi-period-report.ts`**
+**File: `lib/reports/multi-period-report.ts`**
 
 Compare performance across up to 5 periods (financial years, calendar years, custom).
 
-**File: `src/lib/reports/sold-securities-report.ts`**
+**File: `lib/reports/sold-securities-report.ts`**
 
 Realised gains/losses on closed positions within a date range.
 
-**File: `src/lib/reports/future-income-report.ts`**
+**File: `lib/reports/future-income-report.ts`**
 
 Projected dividends based on current holdings and historical payment patterns. Statuses: Announced, Pending, Paid (Confirmed/Unconfirmed), Estimated.
 
-**File: `src/lib/reports/calendar-report.ts`**
+**File: `lib/reports/calendar-report.ts`**
 
 Month-by-month dividend calendar from Future Income data.
 
-**File: `src/lib/reports/diversity-report.ts`**
+**File: `lib/reports/diversity-report.ts`**
 
 Current portfolio weights grouped by dimension. Pie chart data output.
 
-**File: `src/lib/reports/drawdown-report.ts`**
+**File: `lib/reports/drawdown-report.ts`**
 
 Maximum drawdown and RoMaD per holding. Four-quadrant scatter data.
 
-**File: `src/lib/reports/historical-cost-report.ts`**
+**File: `lib/reports/historical-cost-report.ts`**
 
 Opening/closing cost base for accounting entities.
 
@@ -122,7 +122,7 @@ Opening/closing cost base for accounting entities.
 
 ## Task 4: Report Pages (UI)
 
-Create pages under `src/app/(dashboard)/reports/`:
+Create pages under `app/(dashboard)/reports/`:
 - `contribution/page.tsx`
 - `multi-period/page.tsx`
 - `sold-securities/page.tsx`
@@ -143,7 +143,7 @@ Each page follows the pattern:
 
 ## Task 5: Tax — Taxable Income Report
 
-**File: `src/lib/reports/tax/taxable-income.ts`**
+**File: `lib/reports/tax/taxable-income.ts`**
 
 Calculate taxable income for a financial year:
 - Group income: Local Non-Trust, Local Trust, Foreign
@@ -155,7 +155,7 @@ Calculate taxable income for a financial year:
 
 ## Task 6: Tax — Capital Gains Tax Report
 
-**File: `src/lib/reports/tax/cgt-report.ts`**
+**File: `lib/reports/tax/cgt-report.ts`**
 
 Full CGT calculation per ATO rules:
 1. Get all SELL transactions in the financial year
@@ -172,7 +172,7 @@ Output includes:
 - Sale allocation method comparison ("Optimise" — run all methods, show which minimises tax)
 - Lock-in functionality (save method choice per financial year)
 
-**File: `src/lib/reports/tax/cgt-parcel-matcher.ts`**
+**File: `lib/reports/tax/cgt-parcel-matcher.ts`**
 
 Implement all 5 sale allocation methods:
 - FIFO: oldest parcels sold first
@@ -185,7 +185,7 @@ Implement all 5 sale allocation methods:
 
 ## Task 7: Tax — Unrealised CGT Report
 
-**File: `src/lib/reports/tax/unrealised-cgt.ts`**
+**File: `lib/reports/tax/unrealised-cgt.ts`**
 
 Hypothetical CGT if all positions sold today:
 - Short-term unrealised gains
@@ -198,7 +198,7 @@ Hypothetical CGT if all positions sold today:
 
 ## Task 8: Tax UI Pages
 
-**Files under `src/app/(dashboard)/tax/`:**
+**Files under `app/(dashboard)/tax/`:**
 - `page.tsx` — Tax summary dashboard (financial year selector, key figures)
 - `taxable-income/page.tsx` — Full taxable income report
 - `cgt/page.tsx` — CGT report with breakdown tabs
@@ -209,23 +209,23 @@ Hypothetical CGT if all positions sold today:
 
 ## Task 9: Chart Components
 
-**File: `src/components/charts/portfolio-growth.tsx`**
+**File: `components/charts/portfolio-growth.tsx`**
 
 Line chart (Recharts) showing portfolio value over time vs benchmark.
 
-**File: `src/components/charts/annual-returns-bar.tsx`**
+**File: `components/charts/annual-returns-bar.tsx`**
 
 Bar chart showing annual returns per year (grouped by portfolio vs benchmark).
 
-**File: `src/components/charts/diversity-pie.tsx`**
+**File: `components/charts/diversity-pie.tsx`**
 
 Pie/donut chart for asset allocation.
 
-**File: `src/components/charts/drawdown-chart.tsx`**
+**File: `components/charts/drawdown-chart.tsx`**
 
 Area chart showing drawdown periods.
 
-**File: `src/components/charts/drawdown-scatter.tsx`**
+**File: `components/charts/drawdown-scatter.tsx`**
 
 Scatter plot (4 quadrants) for MDD vs Return.
 

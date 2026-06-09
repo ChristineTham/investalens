@@ -86,7 +86,7 @@ class handler(BaseHTTPRequestHandler):
         success_response(self, response)
 ```
 
-**File: `src/lib/services/factor-data.ts`**
+**File: `lib/services/factor-data.ts`**
 
 Fetch Fama-French factor data:
 - Source: Kenneth French's data library (public CSV)
@@ -288,7 +288,7 @@ class handler(BaseHTTPRequestHandler):
 
 ## Task 5: Factor Analysis UI
 
-**File: `src/app/(dashboard)/analytics/factors/page.tsx`**
+**File: `app/(dashboard)/analytics/factors/page.tsx`**
 
 Factor analysis page:
 - Model type selector (Fama-French 3-Factor, PCA, Custom)
@@ -301,7 +301,7 @@ Factor analysis page:
 
 ## Task 6: Tactical Allocation UI
 
-**File: `src/app/(dashboard)/analytics/tactical/page.tsx`**
+**File: `app/(dashboard)/analytics/tactical/page.tsx`**
 
 Tactical page:
 - Strategy selector (Momentum, Mean Reversion, Risk-Adjusted Momentum, Vol Targeting)
@@ -314,7 +314,7 @@ Tactical page:
 
 ## Task 7: Stress Testing UI
 
-**File: `src/app/(dashboard)/analytics/stress-test/page.tsx`**
+**File: `app/(dashboard)/analytics/stress-test/page.tsx`**
 
 Stress testing page:
 - Tab 1: Historical Scenarios — table showing portfolio impact per crisis
@@ -322,7 +322,7 @@ Stress testing page:
 - Tab 3: Factor Stress — shock a factor (market, rates, commodity), see propagation
 - Waterfall chart showing contribution of each asset to total loss
 
-**File: `src/components/charts/waterfall.tsx`**
+**File: `components/charts/waterfall.tsx`**
 
 Waterfall chart for stress test impact breakdown.
 
@@ -330,7 +330,7 @@ Waterfall chart for stress test impact breakdown.
 
 ## Task 8: Model Selection UI
 
-**File: `src/app/(dashboard)/analytics/model-selection/page.tsx`**
+**File: `app/(dashboard)/analytics/model-selection/page.tsx`**
 
 Model comparison page:
 - CV method selector (Walk-Forward, Combinatorial Purged)

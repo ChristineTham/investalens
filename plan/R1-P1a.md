@@ -406,7 +406,7 @@ model WatchlistItem {
 
 ## Task 2: NextAuth Configuration
 
-**File: `src/lib/auth.ts`**
+**File: `lib/auth.ts`**
 
 ```typescript
 import NextAuth from "next-auth";
@@ -470,7 +470,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 });
 ```
 
-**File: `src/app/api/auth/[...nextauth]/route.ts`**
+**File: `app/api/auth/[...nextauth]/route.ts`**
 
 ```typescript
 import { handlers } from "@/lib/auth";
@@ -478,7 +478,7 @@ import { handlers } from "@/lib/auth";
 export const { GET, POST } = handlers;
 ```
 
-**File: `src/types/next-auth.d.ts`**
+**File: `types/next-auth.d.ts`**
 
 ```typescript
 import { DefaultSession } from "next-auth";
@@ -496,7 +496,7 @@ declare module "next-auth" {
 
 ## Task 3: Zod Validators
 
-**File: `src/lib/validators/portfolio.ts`**
+**File: `lib/validators/portfolio.ts`**
 
 ```typescript
 import { z } from "zod";
@@ -517,7 +517,7 @@ export type CreatePortfolioInput = z.infer<typeof createPortfolioSchema>;
 export type UpdatePortfolioInput = z.infer<typeof updatePortfolioSchema>;
 ```
 
-**File: `src/lib/validators/transaction.ts`**
+**File: `lib/validators/transaction.ts`**
 
 ```typescript
 import { z } from "zod";
@@ -549,7 +549,7 @@ export const createTransactionSchema = z.object({
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>;
 ```
 
-**File: `src/lib/validators/holding.ts`**
+**File: `lib/validators/holding.ts`**
 
 ```typescript
 import { z } from "zod";
@@ -585,7 +585,7 @@ export type CreateHoldingInput = z.infer<typeof createHoldingSchema>;
 
 ## Task 4: Server Actions for Portfolio CRUD
 
-**File: `src/lib/actions/portfolio.ts`**
+**File: `lib/actions/portfolio.ts`**
 
 ```typescript
 "use server";
@@ -680,7 +680,7 @@ export async function deletePortfolio(id: string) {
 }
 ```
 
-**File: `src/lib/actions/transaction.ts`**
+**File: `lib/actions/transaction.ts`**
 
 ```typescript
 "use server";
@@ -750,7 +750,7 @@ export async function deleteTransaction(id: string) {
 }
 ```
 
-**File: `src/lib/actions/holding.ts`**
+**File: `lib/actions/holding.ts`**
 
 ```typescript
 "use server";
@@ -823,39 +823,39 @@ export async function deleteHolding(holdingId: string) {
 
 ## Task 5: UI Shell — Layout and Navigation
 
-**File: `src/components/layout/sidebar.tsx`**
+**File: `components/layout/sidebar.tsx`**
 
 Create a sidebar navigation with links to: Dashboard, Portfolio, Reports, Tax, Tools, Analytics, Settings. Use lucide-react icons.
 
-**File: `src/components/layout/header.tsx`**
+**File: `components/layout/header.tsx`**
 
 Create a top header with: portfolio selector dropdown, user avatar/menu, theme toggle.
 
-**File: `src/app/(dashboard)/layout.tsx`**
+**File: `app/(dashboard)/layout.tsx`**
 
 Wrap all authenticated pages with the sidebar + header layout. Check auth session — redirect to /login if unauthenticated.
 
-**File: `src/app/(auth)/login/page.tsx`**
+**File: `app/(auth)/login/page.tsx`**
 
 Login form with email/password + Google OAuth button. Use react-hook-form + zod validation.
 
-**File: `src/app/(auth)/register/page.tsx`**
+**File: `app/(auth)/register/page.tsx`**
 
 Registration form: name, email, password, confirm password. Call a server action to create the user with hashed password.
 
-**File: `src/app/(dashboard)/portfolio/page.tsx`**
+**File: `app/(dashboard)/portfolio/page.tsx`**
 
 Portfolio list page showing all user portfolios with name, holdings count, and quick stats.
 
-**File: `src/app/(dashboard)/portfolio/[id]/page.tsx`**
+**File: `app/(dashboard)/portfolio/[id]/page.tsx`**
 
 Single portfolio view: holdings table with instrument code, name, quantity, current value, gain/loss, and action buttons.
 
-**File: `src/app/(dashboard)/portfolio/[id]/holdings/[holdingId]/page.tsx`**
+**File: `app/(dashboard)/portfolio/[id]/holdings/[holdingId]/page.tsx`**
 
 Individual holding page: summary, trade history table, add transaction form.
 
-**File: `src/app/(dashboard)/settings/page.tsx`**
+**File: `app/(dashboard)/settings/page.tsx`**
 
 Portfolio settings: name, tax entity type, sale allocation method, financial year end.
 
@@ -865,7 +865,7 @@ Portfolio settings: name, tax entity type, sale allocation method, financial yea
 
 Create these shadcn/ui components manually (copy the source code — no npx command):
 
-**Files to create in `src/components/ui/`:**
+**Files to create in `components/ui/`:**
 - `button.tsx`
 - `input.tsx`
 - `label.tsx`
@@ -905,7 +905,7 @@ Each component follows the standard shadcn/ui `new-york` style pattern: uses `@/
 
 ## Task 7: Auth Actions
 
-**File: `src/lib/actions/auth.ts`**
+**File: `lib/actions/auth.ts`**
 
 ```typescript
 "use server";

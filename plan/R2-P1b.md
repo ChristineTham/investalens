@@ -256,7 +256,7 @@ class handler(BaseHTTPRequestHandler):
 
 ## Task 5: Optimisation UI
 
-**File: `src/app/(dashboard)/analytics/optimize/page.tsx`**
+**File: `app/(dashboard)/analytics/optimize/page.tsx`**
 
 Optimisation page:
 - Portfolio selector
@@ -275,7 +275,7 @@ Optimisation page:
   - Metrics comparison (current vs optimal)
   - Trades needed to rebalance
 
-**File: `src/app/(dashboard)/analytics/frontier/page.tsx`**
+**File: `app/(dashboard)/analytics/frontier/page.tsx`**
 
 Efficient Frontier page:
 - Interactive scatter plot (risk on X, return on Y)
@@ -285,7 +285,7 @@ Efficient Frontier page:
 - Current portfolio plotted (diamond)
 - Click on frontier point to see detailed allocation
 
-**File: `src/app/(dashboard)/analytics/black-litterman/page.tsx`**
+**File: `app/(dashboard)/analytics/black-litterman/page.tsx`**
 
 Black-Litterman page:
 - Views editor:
@@ -303,7 +303,7 @@ Black-Litterman page:
 
 ## Task 6: Chart Components
 
-**File: `src/components/charts/efficient-frontier.tsx`**
+**File: `components/charts/efficient-frontier.tsx`**
 
 Interactive scatter + line chart:
 - D3.js for the frontier curve
@@ -311,11 +311,11 @@ Interactive scatter + line chart:
 - Tooltip on hover showing weights
 - Click handler for point selection
 
-**File: `src/components/charts/weight-comparison.tsx`**
+**File: `components/charts/weight-comparison.tsx`**
 
 Horizontal bar chart comparing current vs recommended weights.
 
-**File: `src/components/charts/dendrogram.tsx`**
+**File: `components/charts/dendrogram.tsx`**
 
 Dendrogram visualisation for HRP (shows asset clustering).
 

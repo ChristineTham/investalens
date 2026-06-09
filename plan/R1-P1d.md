@@ -25,7 +25,7 @@ Invoke these skills for best-practice guidance during this phase:
 
 ## Task 1: Custom Groups & Labels
 
-**File: `src/lib/actions/groups.ts`**
+**File: `lib/actions/groups.ts`**
 
 Server actions:
 - `createCustomGroup(name)` — create group with empty categories
@@ -35,7 +35,7 @@ Server actions:
 - `deleteGroup(groupId)`
 - `getGroups()` — return all groups with categories and assignments
 
-**File: `src/lib/actions/labels.ts`**
+**File: `lib/actions/labels.ts`**
 
 Server actions:
 - `createLabel(name)` — create label
@@ -44,14 +44,14 @@ Server actions:
 - `deleteLabel(labelId)`
 - `getLabels()` — all labels with holding counts
 
-**File: `src/app/(dashboard)/settings/groups/page.tsx`**
+**File: `app/(dashboard)/settings/groups/page.tsx`**
 
 Drag-and-drop UI for managing custom groups:
 - Create/rename/delete groups
 - Create/rename/delete categories within groups
 - Drag instruments from "Ungrouped" into categories
 
-**File: `src/app/(dashboard)/settings/labels/page.tsx`**
+**File: `app/(dashboard)/settings/labels/page.tsx`**
 
 Label management: create labels, assign to holdings via checkboxes.
 
@@ -59,7 +59,7 @@ Label management: create labels, assign to holdings via checkboxes.
 
 ## Task 2: Portfolio Sharing
 
-**File: `src/lib/actions/sharing.ts`**
+**File: `lib/actions/sharing.ts`**
 
 - `sharePortfolio(portfolioId, email, accessLevel)` — create PortfolioShare
 - `updateShareAccess(shareId, accessLevel)` — change access level
@@ -71,7 +71,7 @@ Middleware check: in all portfolio server actions, verify access via:
 async function verifyPortfolioAccess(portfolioId: string, requiredLevel: "read" | "write" | "admin")
 ```
 
-**File: `src/app/(dashboard)/settings/sharing/page.tsx`**
+**File: `app/(dashboard)/settings/sharing/page.tsx`**
 
 Share management UI: list shared users, invite new, change access level, remove.
 
@@ -79,7 +79,7 @@ Share management UI: list shared users, invite new, change access level, remove.
 
 ## Task 3: Consolidated View
 
-**File: `src/app/(dashboard)/portfolio/consolidated/page.tsx`**
+**File: `app/(dashboard)/portfolio/consolidated/page.tsx`**
 
 Aggregate view across all user portfolios:
 - Combined holdings table (deduplicate same instrument across portfolios)
@@ -91,7 +91,7 @@ Aggregate view across all user portfolios:
 
 ## Task 4: Corporate Actions
 
-**File: `src/lib/actions/corporate-actions.ts`**
+**File: `lib/actions/corporate-actions.ts`**
 
 Handle corporate events:
 - `recordSplit(holdingId, ratio, date)` — create SPLIT transaction adjusting quantity
@@ -102,7 +102,7 @@ Handle corporate events:
 - `recordRightsIssue(holdingId, quantity, price, date)` — RIGHTS_ISSUE as buy
 - `recordDemerger(holdingId, newInstrumentCode, costBaseAllocation, date)` — RETURN_OF_CAPITAL + new BUY
 
-**File: `src/app/(dashboard)/portfolio/[id]/holdings/[holdingId]/actions/page.tsx`**
+**File: `app/(dashboard)/portfolio/[id]/holdings/[holdingId]/actions/page.tsx`**
 
 Corporate actions recording UI: select action type, enter parameters, preview impact, confirm.
 
@@ -110,14 +110,14 @@ Corporate actions recording UI: select action type, enter parameters, preview im
 
 ## Task 5: Cash Accounts
 
-**File: `src/lib/actions/cash-accounts.ts`**
+**File: `lib/actions/cash-accounts.ts`**
 
 - `createCashAccount(portfolioId, name, currency)`
 - `addCashTransaction(accountId, type, amount, date, description)`
 - `getCashAccount(id)` — with transactions
 - `syncTradesWithCash(portfolioId)` — auto-generate cash flows from trade settlements
 
-**File: `src/app/(dashboard)/portfolio/[id]/cash/page.tsx`**
+**File: `app/(dashboard)/portfolio/[id]/cash/page.tsx`**
 
 Cash account management: list accounts, transaction history, add/edit transactions.
 
@@ -125,7 +125,7 @@ Cash account management: list accounts, transaction history, add/edit transactio
 
 ## Task 6: Bond & Fixed Income Tracking
 
-**File: `src/lib/calculations/bond-analytics.ts`**
+**File: `lib/calculations/bond-analytics.ts`**
 
 Calculate bond portfolio metrics:
 - `calculateYTM(faceValue, couponRate, price, yearsToMaturity)` — yield to maturity
@@ -136,7 +136,7 @@ Calculate bond portfolio metrics:
 - `getCreditQualityBreakdown(holdings)` — distribution by credit rating
 - `calculateWeightedAverageMaturity(holdings, prices)` — WAM
 
-**File: `src/app/(dashboard)/portfolio/[id]/bonds/page.tsx`**
+**File: `app/(dashboard)/portfolio/[id]/bonds/page.tsx`**
 
 Bond dashboard:
 - Summary cards: Portfolio YTM, WAM, Modified Duration
@@ -145,7 +145,7 @@ Bond dashboard:
 - Credit quality pie chart
 - Holdings table with bond-specific columns
 
-**File: `src/lib/services/maturity-alerts.ts`**
+**File: `lib/services/maturity-alerts.ts`**
 
 Check for bonds maturing within configurable window (30/60/90 days). Flag on dashboard.
 
@@ -153,14 +153,14 @@ Check for bonds maturing within configurable window (30/60/90 days). Flag on das
 
 ## Task 7: Watchlist
 
-**File: `src/lib/actions/watchlist.ts`**
+**File: `lib/actions/watchlist.ts`**
 
 - `addToWatchlist(instrumentCode, marketCode, notes?)`
 - `removeFromWatchlist(itemId)`
 - `updateWatchlistItem(itemId, { notes, alertAbove, alertBelow })`
 - `getWatchlist()` — with current prices
 
-**File: `src/app/(dashboard)/tools/watchlist/page.tsx`**
+**File: `app/(dashboard)/tools/watchlist/page.tsx`**
 
 Watchlist page:
 - Table: Symbol, Name, Price, Change %, 1W/1M/YTD/1Y performance, Notes
@@ -173,11 +173,11 @@ Watchlist page:
 
 ## Task 8: Public REST API
 
-**File: `src/app/api/v1/auth/token/route.ts`**
+**File: `app/api/v1/auth/token/route.ts`**
 
 Token verification middleware. All `/api/v1/` routes require Bearer token.
 
-**File: `src/lib/api/middleware.ts`**
+**File: `lib/api/middleware.ts`**
 
 ```typescript
 export async function authenticateApiRequest(request: Request): Promise<{ userId: string; scope: string } | null> {
@@ -192,11 +192,11 @@ export async function authenticateApiRequest(request: Request): Promise<{ userId
 }
 ```
 
-**File: `src/lib/api/rate-limit.ts`**
+**File: `lib/api/rate-limit.ts`**
 
 Simple in-memory rate limiter (100 req/min per token). Use Vercel Runtime Cache API for distributed rate limiting.
 
-**API Route Files (`src/app/api/v1/`):**
+**API Route Files (`app/api/v1/`):**
 
 | Endpoint | File | Methods |
 |----------|------|---------|
@@ -225,7 +225,7 @@ Each route:
 
 ## Task 9: Data Export
 
-**File: `src/lib/export/csv-export.ts`**
+**File: `lib/export/csv-export.ts`**
 
 Export functions:
 - `exportTrades(portfolioId, dateRange)` — All transactions as CSV
@@ -233,7 +233,7 @@ Export functions:
 - `exportDividends(portfolioId, dateRange)` — Dividend/distribution records
 - `exportFullBackup(portfolioId)` — JSON with all data (holdings, transactions, settings)
 
-**File: `src/app/(dashboard)/settings/export/page.tsx`**
+**File: `app/(dashboard)/settings/export/page.tsx`**
 
 Export UI: select format (CSV Trades / CSV Holdings / CSV Dividends / JSON Backup), date range, download button.
 
@@ -241,7 +241,7 @@ Export UI: select format (CSV Trades / CSV Holdings / CSV Dividends / JSON Backu
 
 ## Task 10: Dashboard
 
-**File: `src/app/(dashboard)/page.tsx`**
+**File: `app/(dashboard)/page.tsx`**
 
 Main dashboard showing:
 - Total portfolio value (card)
@@ -257,7 +257,7 @@ Main dashboard showing:
 
 ## Task 11: DRP Recording
 
-**File: `src/lib/actions/drp.ts`**
+**File: `lib/actions/drp.ts`**
 
 - `recordDRP(holdingId, dividendTxId, sharesReceived, pricePerShare)` — creates a BUY transaction linked to the dividend
 - `enableDRP(holdingId)` / `disableDRP(holdingId)` — toggle flag

@@ -23,7 +23,7 @@ Invoke these skills for best-practice guidance during this phase:
 
 ## Task 1: AI Importer (Gemini / Antigravity SDK)
 
-**File: `src/app/api/ai-import/route.ts`**
+**File: `app/api/ai-import/route.ts`**
 
 Use Vercel AI SDK with Google Gemini to parse unstructured financial statements. This runs in the **TypeScript layer** (not Python):
 
@@ -68,7 +68,7 @@ ${content}`,
 
 > **Note:** The AI importer uses the Vercel AI SDK (`ai` + `@ai-sdk/google`) from the TypeScript layer with structured output (Zod schema). `google-antigravity` exists but is an agent framework (not a doc parser) — see `docs/KNOWLEDGE.md` for details.
 
-**File: `src/lib/actions/ai-import.ts`**
+**File: `lib/actions/ai-import.ts`**
 
 Server action for AI import:
 1. Accept file upload (PDF, image, text)
@@ -77,7 +77,7 @@ Server action for AI import:
 4. Return parsed transactions for user review
 5. User confirms/edits, then standard import pipeline handles the rest
 
-**File: `src/app/(dashboard)/portfolio/[id]/import/ai/page.tsx`**
+**File: `app/(dashboard)/portfolio/[id]/import/ai/page.tsx`**
 
 AI Import UI:
 - Upload zone (PDF, PNG, JPG, TXT)
@@ -91,7 +91,7 @@ AI Import UI:
 
 ## Task 2: FIRE Calculator
 
-**File: `src/lib/calculations/fire.ts`**
+**File: `lib/calculations/fire.ts`**
 
 Financial Independence, Retire Early calculator:
 
@@ -137,7 +137,7 @@ interface FIREResult {
 function calculateFIRE(input: FIREInput): FIREResult;
 ```
 
-**File: `src/app/(dashboard)/tools/fire/page.tsx`**
+**File: `app/(dashboard)/tools/fire/page.tsx`**
 
 FIRE Calculator page:
 - Input form (all FIRE parameters with sensible defaults)
@@ -156,7 +156,7 @@ FIRE Calculator page:
 
 ## Task 3: Portfolio X-ray (ETF Look-through)
 
-**File: `src/lib/services/etf-xray.ts`**
+**File: `lib/services/etf-xray.ts`**
 
 Decompose ETF holdings to show underlying exposure:
 
@@ -181,7 +181,7 @@ async function xrayPortfolio(holdings: HoldingWithInstrument[]): Promise<XrayRes
 
 Data source: ETF composition from provider websites (scrape top holdings) or store in DB.
 
-**File: `src/app/(dashboard)/tools/xray/page.tsx`**
+**File: `app/(dashboard)/tools/xray/page.tsx`**
 
 X-ray page:
 - Auto-detect ETFs in portfolio
@@ -194,7 +194,7 @@ X-ray page:
 
 ## Task 4: Share Checker
 
-**File: `src/lib/services/share-checker.ts`**
+**File: `lib/services/share-checker.ts`**
 
 Detect potential issues in portfolio:
 ```typescript
@@ -214,7 +214,7 @@ Checks:
 - Missing cost base
 - Unusual transaction patterns
 
-**File: `src/app/(dashboard)/tools/checker/page.tsx`**
+**File: `app/(dashboard)/tools/checker/page.tsx`**
 
 Share Checker page: list of findings with severity badges and fix suggestions.
 
@@ -222,7 +222,7 @@ Share Checker page: list of findings with severity badges and fix suggestions.
 
 ## Task 5: Market Sentiment Dashboard
 
-**File: `src/lib/services/market-sentiment.ts`**
+**File: `lib/services/market-sentiment.ts`**
 
 Aggregate market indicators:
 ```typescript
@@ -244,7 +244,7 @@ interface SentimentData {
 
 Source data from Yahoo Finance (^AXJO for ASX200, ^VIX for volatility).
 
-**File: `src/app/(dashboard)/tools/sentiment/page.tsx`**
+**File: `app/(dashboard)/tools/sentiment/page.tsx`**
 
 Market Sentiment page:
 - Fear/Greed gauge (0-100 dial)
@@ -257,7 +257,7 @@ Market Sentiment page:
 
 ## Task 6: AI Chat Assistant (Stretch)
 
-**File: `src/app/(dashboard)/tools/assistant/page.tsx`**
+**File: `app/(dashboard)/tools/assistant/page.tsx`**
 
 Optional AI assistant using Vercel AI SDK + Gemini:
 - Chat interface
@@ -267,7 +267,7 @@ Optional AI assistant using Vercel AI SDK + Gemini:
 - Uses function calling to fetch portfolio data
 
 ```typescript
-// src/app/api/chat/route.ts
+// app/api/chat/route.ts
 import { streamText } from "ai";
 import { google } from "@ai-sdk/google";
 

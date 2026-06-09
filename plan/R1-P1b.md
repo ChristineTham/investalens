@@ -22,7 +22,7 @@ Invoke these skills for best-practice guidance during this phase:
 
 ## Task 1: CSV Parser & Upload
 
-**File: `src/lib/import/csv-parser.ts`**
+**File: `lib/import/csv-parser.ts`**
 
 Create a CSV parsing utility using `papaparse`:
 - Accept a `File` or string content
@@ -30,7 +30,7 @@ Create a CSV parsing utility using `papaparse`:
 - Return typed rows with headers
 - Handle encoding issues (UTF-8, UTF-8 BOM, Latin-1)
 
-**File: `src/lib/import/types.ts`**
+**File: `lib/import/types.ts`**
 
 Define interfaces:
 ```typescript
@@ -88,7 +88,7 @@ interface ImportResult {
 
 ## Task 2: Field Mapping Engine
 
-**File: `src/lib/import/mapper.ts`**
+**File: `lib/import/mapper.ts`**
 
 Implement the mapping logic:
 - Take raw CSV rows + FieldMapping config
@@ -109,7 +109,7 @@ Implement the mapping logic:
 
 ## Task 3: Deduplication Engine
 
-**File: `src/lib/import/dedup.ts`**
+**File: `lib/import/dedup.ts`**
 
 Detect potential duplicate transactions:
 - Match on: instrumentCode + tradeDate + quantity + price + transactionType
@@ -120,7 +120,7 @@ Detect potential duplicate transactions:
 
 ## Task 4: Broker Templates
 
-**File: `src/lib/import/templates.ts`**
+**File: `lib/import/templates.ts`**
 
 Pre-built mapping configurations for Australian brokers:
 
@@ -149,7 +149,7 @@ Fill in realistic column names for each broker based on their known CSV export f
 
 ## Task 5: Import Pipeline (Server Action)
 
-**File: `src/lib/actions/import.ts`**
+**File: `lib/actions/import.ts`**
 
 Server action that orchestrates the full import:
 
@@ -169,7 +169,7 @@ Server action that orchestrates the full import:
 
 ## Task 6: Import UI
 
-**File: `src/app/(dashboard)/portfolio/[id]/import/page.tsx`**
+**File: `app/(dashboard)/portfolio/[id]/import/page.tsx`**
 
 Multi-step import wizard:
 1. **Upload** — File dropzone (react-dropzone), select import type (Individual trades / Opening balances)
@@ -178,11 +178,11 @@ Multi-step import wizard:
 4. **Review** — Show parsed transactions in a table. Highlight errors and duplicates in red/yellow. Allow inline editing of rejected rows.
 5. **Import** — Confirm button. Show progress. Display summary (imported/rejected/duplicates).
 
-**File: `src/components/forms/field-mapper.tsx`**
+**File: `components/forms/field-mapper.tsx`**
 
 A dropdown-based UI for mapping CSV columns to InvestaLens fields. Show "skip" option for unneeded columns.
 
-**File: `src/components/forms/import-review-table.tsx`**
+**File: `components/forms/import-review-table.tsx`**
 
 Table showing parsed transactions before import. Colour-coded status column (valid/error/duplicate).
 
@@ -190,7 +190,7 @@ Table showing parsed transactions before import. Colour-coded status column (val
 
 ## Task 7: Market Data Provider
 
-**File: `src/lib/providers/market-data.ts`**
+**File: `lib/providers/market-data.ts`**
 
 Define the provider interface:
 
@@ -220,7 +220,7 @@ interface PricePoint {
 }
 ```
 
-**File: `src/lib/providers/yahoo-finance.ts`**
+**File: `lib/providers/yahoo-finance.ts`**
 
 Implement Yahoo Finance provider:
 - Use Yahoo Finance API v8 endpoints (public, no key required)
@@ -229,7 +229,7 @@ Implement Yahoo Finance provider:
 - Handle rate limiting (delay between requests)
 - Parse OHLCV response into PricePoint[]
 
-**File: `src/lib/providers/instrument-search.ts`**
+**File: `lib/providers/instrument-search.ts`**
 
 Search endpoint:
 - `GET https://query2.finance.yahoo.com/v1/finance/search?q={query}`
@@ -240,14 +240,14 @@ Search endpoint:
 
 ## Task 8: Price Fetching Service
 
-**File: `src/lib/services/price-service.ts`**
+**File: `lib/services/price-service.ts`**
 
 - Fetch prices for instruments missing today's price
 - Batch requests (max 5 concurrent)
 - Store in Price table
 - Background job: `fetchMissingPrices(portfolioId)` — called after login / on portfolio view
 
-**File: `src/app/api/cron/prices/route.ts`**
+**File: `app/api/cron/prices/route.ts`**
 
 Vercel cron endpoint (configured in vercel.json) to fetch daily prices for all active instruments:
 - Run at market close (6 PM AEST for ASX)
@@ -267,7 +267,7 @@ Add to `vercel.json`:
 
 ## Task 9: Instrument Search UI
 
-**File: `src/components/forms/instrument-search.tsx`**
+**File: `components/forms/instrument-search.tsx`**
 
 Autocomplete search component:
 - Debounced input (300ms)

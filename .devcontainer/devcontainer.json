@@ -1,0 +1,29 @@
+{
+  "name": "InvestaLens Dev",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": { "version": "3.12" },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "postCreateCommand": "pnpm install && npx prisma generate && uv sync",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "prisma.prisma",
+        "bradlc.vscode-tailwindcss",
+        "ms-python.python"
+      ],
+      "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "[prisma]": { "editor.defaultFormatter": "Prisma.prisma" }
+      }
+    }
+  },
+  "forwardPorts": [3000, 5432],
+  "portsAttributes": {
+    "3000": { "label": "Next.js Dev", "onAutoForward": "openBrowser" }
+  }
+}

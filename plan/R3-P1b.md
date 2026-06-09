@@ -21,7 +21,7 @@ Invoke these skills for best-practice guidance during this phase:
 
 ## Task 1: International Broker Templates
 
-**File: `src/lib/import/templates.ts`** (extend)
+**File: `lib/import/templates.ts`** (extend)
 
 Add international broker CSV mappings:
 
@@ -138,7 +138,7 @@ saxo: {
 
 ## Task 2: Market Code Detection
 
-**File: `src/lib/import/market-detector.ts`**
+**File: `lib/import/market-detector.ts`**
 
 Auto-detect market from ticker symbols:
 ```typescript
@@ -155,7 +155,7 @@ function detectMarket(symbol: string, hints?: { currency?: string; venue?: strin
 
 ## Task 3: Withholding Tax Tracking
 
-**File: `src/lib/calculations/withholding-tax.ts`**
+**File: `lib/calculations/withholding-tax.ts`**
 
 Track foreign withholding tax:
 ```typescript
@@ -186,7 +186,7 @@ function calculateWithholdingTax(
 ): { withheld: number; net: number; foreignTaxCredit: number };
 ```
 
-**File: `src/lib/reports/tax/foreign-income.ts`**
+**File: `lib/reports/tax/foreign-income.ts`**
 
 Foreign Income Report:
 - Group by source country
@@ -198,7 +198,7 @@ Foreign Income Report:
 
 ## Task 4: International Tax Considerations
 
-**File: `src/lib/reports/tax/international-cgt.ts`**
+**File: `lib/reports/tax/international-cgt.ts`**
 
 Extend CGT for international holdings:
 - Cost base in AUD at purchase date FX rate
@@ -213,7 +213,7 @@ Extend CGT for international holdings:
 
 ## Task 5: Global Corporate Actions
 
-**File: `src/lib/actions/corporate-actions.ts`** (extend)
+**File: `lib/actions/corporate-actions.ts`** (extend)
 
 Additional corporate actions for international markets:
 - `recordADRConversion(holdingId, localShares, adrRatio)` — ADR ↔ ordinary shares
@@ -229,7 +229,7 @@ Currency handling for corporate actions:
 
 ## Task 6: International ETF Exposure
 
-**File: `src/lib/data/etf-holdings.ts`** (extend)
+**File: `lib/data/etf-holdings.ts`** (extend)
 
 Add international ETF composition data:
 ```typescript
@@ -259,7 +259,7 @@ Update all report pages to:
 - Indicate FX rate used
 - Allow temporary switch to different display currency
 
-**File: `src/components/ui/currency-display.tsx`**
+**File: `components/ui/currency-display.tsx`**
 
 Component that formats values with currency symbol and optional conversion tooltip.
 
@@ -267,7 +267,7 @@ Component that formats values with currency symbol and optional conversion toolt
 
 ## Task 8: Multi-Currency Import Handling
 
-**File: `src/lib/import/currency-import.ts`**
+**File: `lib/import/currency-import.ts`**
 
 During import:
 - If transaction has explicit currency + FX rate → use as provided

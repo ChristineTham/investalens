@@ -257,7 +257,7 @@ from skfolio.prior import (
 
 ## Task 6: Monte Carlo UI
 
-**File: `src/app/(dashboard)/analytics/monte-carlo/page.tsx`**
+**File: `app/(dashboard)/analytics/monte-carlo/page.tsx`**
 
 Monte Carlo simulation page:
 - Method selector (Bootstrap, Parametric, Copula-based)
@@ -274,11 +274,11 @@ Monte Carlo simulation page:
   - Statistics table (mean, median, VaR, CVaR, prob of loss)
   - Scenario analysis: probability of reaching target value
 
-**File: `src/components/charts/fan-chart.tsx`**
+**File: `components/charts/fan-chart.tsx`**
 
 Area chart showing percentile bands (5th, 25th, 50th, 75th, 95th).
 
-**File: `src/components/charts/histogram.tsx`**
+**File: `components/charts/histogram.tsx`**
 
 Histogram with overlaid density curve for final values distribution.
 
@@ -286,7 +286,7 @@ Histogram with overlaid density curve for final values distribution.
 
 ## Task 7: Estimation Methods UI
 
-**File: `src/app/(dashboard)/analytics/estimation/page.tsx`**
+**File: `app/(dashboard)/analytics/estimation/page.tsx`**
 
 Estimation methods comparison page:
 - Select return estimator (5 methods)
@@ -295,7 +295,7 @@ Estimation methods comparison page:
 - Show correlation heatmap
 - Compare how different estimators change optimal weights
 
-**File: `src/components/charts/correlation-heatmap.tsx`**
+**File: `components/charts/correlation-heatmap.tsx`**
 
 D3.js heatmap showing asset-asset correlations. Color scale from -1 (red) to +1 (blue).
 

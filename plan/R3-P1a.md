@@ -25,7 +25,7 @@ Invoke these skills for best-practice guidance during this phase:
 
 ## Task 1: Exchange Registry
 
-**File: `src/lib/data/exchanges.ts`**
+**File: `lib/data/exchanges.ts`**
 
 Define supported exchanges:
 ```typescript
@@ -59,7 +59,7 @@ export const EXCHANGES: Record<string, Exchange> = {
 
 ## Task 2: FX Rate Provider
 
-**File: `src/lib/providers/fx-rates.ts`**
+**File: `lib/providers/fx-rates.ts`**
 
 Open Exchange Rates integration:
 ```typescript
@@ -97,7 +97,7 @@ class OpenExchangeRatesProvider implements FXProvider {
 }
 ```
 
-**File: `src/app/api/cron/fx-rates/route.ts`**
+**File: `app/api/cron/fx-rates/route.ts`**
 
 Daily FX rate fetcher:
 - Fetch latest rates for all currencies in use
@@ -108,7 +108,7 @@ Daily FX rate fetcher:
 
 ## Task 3: Multi-Currency Valuation
 
-**File: `src/lib/calculations/currency.ts`**
+**File: `lib/calculations/currency.ts`**
 
 Currency conversion utilities:
 ```typescript
@@ -126,7 +126,7 @@ function calculateCurrencyGain(
 async function getTransactionFxRate(transaction: Transaction, reportingCurrency: string): Promise<number>;
 ```
 
-**File: `src/lib/calculations/multi-currency-performance.ts`**
+**File: `lib/calculations/multi-currency-performance.ts`**
 
 Extend performance calculations:
 ```typescript
@@ -142,7 +142,7 @@ interface MultiCurrencyPerformance {
 
 ## Task 4: Update Yahoo Finance Provider
 
-**File: `src/lib/providers/yahoo-finance.ts`** (modify)
+**File: `lib/providers/yahoo-finance.ts`** (modify)
 
 Update to support international tickers:
 ```typescript
@@ -163,7 +163,7 @@ Handle special cases:
 
 ## Task 5: Multi-Currency Valuation Report
 
-**File: `src/lib/reports/multi-currency-report.ts`**
+**File: `lib/reports/multi-currency-report.ts`**
 
 Multi-Currency Valuation Report:
 - Show each holding's value in both local and reporting currency
@@ -202,7 +202,7 @@ model ExchangeRate {
 
 ## Task 7: Currency Settings UI
 
-**File: `src/app/(dashboard)/settings/currencies/page.tsx`**
+**File: `app/(dashboard)/settings/currencies/page.tsx`**
 
 Currency settings:
 - Default reporting currency for new portfolios
@@ -216,7 +216,7 @@ Currency settings:
 
 ## Task 8: Update Price Fetching
 
-**File: `src/lib/services/price-service.ts`** (modify)
+**File: `lib/services/price-service.ts`** (modify)
 
 Update to handle multi-market:
 - Fetch prices for instruments across all exchanges

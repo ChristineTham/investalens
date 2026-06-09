@@ -65,7 +65,7 @@ def portfolio_weights_to_series(data: dict) -> pd.Series:
     return pd.Series(data["weights"], index=data["assets"])
 ```
 
-**File: `src/lib/services/analytics-client.ts`**
+**File: `lib/services/analytics-client.ts`**
 
 TypeScript client for calling Python functions:
 ```typescript
@@ -93,7 +93,7 @@ export class AnalyticsClient {
 }
 ```
 
-**File: `src/lib/services/analytics-data.ts`**
+**File: `lib/services/analytics-data.ts`**
 
 Prepare data for Python functions:
 ```typescript
@@ -180,7 +180,7 @@ class handler(BaseHTTPRequestHandler):
             error_response(self, 500, str(e))
 ```
 
-**File: `src/lib/actions/backtest.ts`**
+**File: `lib/actions/backtest.ts`**
 
 Server action that orchestrates backtesting:
 ```typescript
@@ -193,7 +193,7 @@ export async function runBacktest(portfolioId: string, config: BacktestConfig) {
 }
 ```
 
-**File: `src/app/(dashboard)/analytics/backtest/page.tsx`**
+**File: `app/(dashboard)/analytics/backtest/page.tsx`**
 
 Backtesting UI:
 - Strategy selector (Equal Weight, Mean-Variance, Risk Parity, HRP, Min Variance, Max Sharpe)
@@ -220,7 +220,7 @@ Run multiple strategies simultaneously for comparison:
 - Return metrics for each
 - Include statistical significance tests (paired t-test on returns)
 
-**File: `src/app/(dashboard)/analytics/backtest/compare/page.tsx`**
+**File: `app/(dashboard)/analytics/backtest/compare/page.tsx`**
 
 Side-by-side comparison table + overlaid equity curves.
 
