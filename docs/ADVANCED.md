@@ -4,21 +4,21 @@
 
 > **Implementation Status (R1 MVP)**
 >
-> | Feature | Status |
-> |---------|--------|
-> | Portfolio Backtesting | ⏳ To be Implemented (R2) |
-> | Monte Carlo Simulation | ⏳ To be Implemented (R2) |
+> | Feature                                 | Status                    |
+> | --------------------------------------- | ------------------------- |
+> | Portfolio Backtesting                   | ⏳ To be Implemented (R2) |
+> | Monte Carlo Simulation                  | ⏳ To be Implemented (R2) |
 > | Portfolio Optimisation (20+ strategies) | ⏳ To be Implemented (R2) |
-> | Efficient Frontier | ⏳ To be Implemented (R2) |
-> | Black-Litterman Model | ⏳ To be Implemented (R2) |
-> | Estimation Methods | ⏳ To be Implemented (R2) |
-> | Model Validation & Selection | ⏳ To be Implemented (R2) |
-> | Factor Analysis | ⏳ To be Implemented (R2) |
-> | Tactical Asset Allocation | ⏳ To be Implemented (R2) |
-> | Scenario & Stress Testing | ⏳ To be Implemented (R2) |
-> | Capital Market Expectations | ⏳ To be Implemented (R2) |
+> | Efficient Frontier                      | ⏳ To be Implemented (R2) |
+> | Black-Litterman Model                   | ⏳ To be Implemented (R2) |
+> | Estimation Methods                      | ⏳ To be Implemented (R2) |
+> | Model Validation & Selection            | ⏳ To be Implemented (R2) |
+> | Factor Analysis                         | ⏳ To be Implemented (R2) |
+> | Tactical Asset Allocation               | ⏳ To be Implemented (R2) |
+> | Scenario & Stress Testing               | ⏳ To be Implemented (R2) |
+> | Capital Market Expectations             | ⏳ To be Implemented (R2) |
 >
-> *All Advanced Analytics features are planned for Release 2 (R2). The Python analytics backend (`api/analytics/`) and placeholder page (`/analytics`) are scaffolded.*
+> _All Advanced Analytics features are planned for Release 2 (R2). The Python analytics backend (`api/analytics/`) and placeholder page (`/analytics`) are scaffolded._
 
 ## Overview
 

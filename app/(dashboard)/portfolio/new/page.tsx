@@ -20,7 +20,9 @@ export default function NewPortfolioPage() {
     try {
       await createPortfolio({ name, taxResidency, taxEntityType });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create portfolio");
+      setError(
+        err instanceof Error ? err.message : "Failed to create portfolio"
+      );
       setLoading(false);
     }
   }
@@ -51,7 +53,7 @@ export default function NewPortfolioPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             placeholder="e.g. My ASX Portfolio"
           />
         </div>

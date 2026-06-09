@@ -19,15 +19,15 @@ A comprehensive portfolio tracker and optimiser for Australian investors. Track 
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | Next.js 16 (App Router, RSC, Server Actions) |
-| UI | shadcn/ui (Base UI primitives), Tailwind CSS v4, Recharts |
-| Database | PostgreSQL (Neon Serverless) via Prisma ORM 7 |
-| Auth | NextAuth.js v5 (JWT sessions) |
-| Language | TypeScript 5 + Python 3.12 (analytics backend) |
-| Deployment | Vercel (free tier compatible) |
-| Design | Rosely design system (warm cream/pink palette) |
+| Layer      | Technology                                                |
+| ---------- | --------------------------------------------------------- |
+| Framework  | Next.js 16 (App Router, RSC, Server Actions)              |
+| UI         | shadcn/ui (Base UI primitives), Tailwind CSS v4, Recharts |
+| Database   | PostgreSQL (Neon Serverless) via Prisma ORM 7             |
+| Auth       | NextAuth.js v5 (JWT sessions)                             |
+| Language   | TypeScript 5 + Python 3.12 (analytics backend)            |
+| Deployment | Vercel (free tier compatible)                             |
+| Design     | Rosely design system (warm cream/pink palette)            |
 
 ## Getting Started
 
@@ -131,18 +131,19 @@ git push origin main
 
 In Vercel project settings → Environment Variables, add:
 
-| Variable | Value | Required |
-|----------|-------|----------|
-| `DATABASE_URL` | Your Neon connection string (pooled) | ✅ |
-| `AUTH_SECRET` | Random 32+ char string (`openssl rand -hex 32`) | ✅ |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID | Optional |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | Optional |
-| `CRON_SECRET` | Secret for cron endpoint auth | Optional |
-| `NEXT_PUBLIC_APP_URL` | Your Vercel deployment URL | Optional |
+| Variable               | Value                                           | Required |
+| ---------------------- | ----------------------------------------------- | -------- |
+| `DATABASE_URL`         | Your Neon connection string (pooled)            | ✅       |
+| `AUTH_SECRET`          | Random 32+ char string (`openssl rand -hex 32`) | ✅       |
+| `GOOGLE_CLIENT_ID`     | Google OAuth client ID                          | Optional |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                      | Optional |
+| `CRON_SECRET`          | Secret for cron endpoint auth                   | Optional |
+| `NEXT_PUBLIC_APP_URL`  | Your Vercel deployment URL                      | Optional |
 
 ### 4. Deploy
 
 Click **Deploy**. Vercel will:
+
 - Install dependencies via pnpm
 - Generate Prisma client
 - Build the Next.js app
@@ -166,21 +167,22 @@ DATABASE_URL="postgresql://..." npx prisma migrate deploy
 ### Vercel Configuration
 
 The project includes `vercel.json` with:
+
 - Python function config (60s timeout for analytics)
 - Cron schedule: `/api/cron/prices` at 08:00 UTC Mon–Fri
 
 ## Scripts
 
-| Command | Purpose |
-|---------|---------|
-| `pnpm run dev` | Start development server |
-| `pnpm run build` | Production build |
-| `pnpm run lint` | ESLint check |
-| `npx tsc --noEmit` | TypeScript type check |
-| `npx prisma generate` | Generate Prisma client |
-| `npx prisma migrate dev` | Create/apply migrations |
-| `npx prisma db seed` | Seed test data |
-| `npx prisma studio` | Visual database browser |
+| Command                  | Purpose                  |
+| ------------------------ | ------------------------ |
+| `pnpm run dev`           | Start development server |
+| `pnpm run build`         | Production build         |
+| `pnpm run lint`          | ESLint check             |
+| `npx tsc --noEmit`       | TypeScript type check    |
+| `npx prisma generate`    | Generate Prisma client   |
+| `npx prisma migrate dev` | Create/apply migrations  |
+| `npx prisma db seed`     | Seed test data           |
+| `npx prisma studio`      | Visual database browser  |
 
 ## Documentation
 

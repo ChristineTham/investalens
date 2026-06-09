@@ -4,19 +4,19 @@
 
 > **Implementation Status (R1 MVP)**
 >
-> | Feature | Status |
-> |---------|--------|
-> | Taxable Income Report | ✅ Implemented |
-> | CGT Report (5 allocation methods, discount) | ✅ Implemented |
-> | CGT parcel matcher (optimiser) | ✅ Implemented |
-> | Unrealised CGT Report | ✅ Implemented |
-> | AMIT components (schema field) | ✅ Schema ready, ⏳ full processing To be Implemented |
-> | Stapled securities | ⏳ To be Implemented |
-> | Foreign exchange rates for CGT | ⏳ To be Implemented (R3) |
-> | Lock-in (save method per FY) | ⏳ To be Implemented |
-> | Tax planning strategies UI | ⏳ To be Implemented |
-> | Xero Integration | ⏳ To be Implemented |
-> | Division 296 (SMSF) | ⏳ To be Implemented |
+> | Feature                                     | Status                                                |
+> | ------------------------------------------- | ----------------------------------------------------- |
+> | Taxable Income Report                       | ✅ Implemented                                        |
+> | CGT Report (5 allocation methods, discount) | ✅ Implemented                                        |
+> | CGT parcel matcher (optimiser)              | ✅ Implemented                                        |
+> | Unrealised CGT Report                       | ✅ Implemented                                        |
+> | AMIT components (schema field)              | ✅ Schema ready, ⏳ full processing To be Implemented |
+> | Stapled securities                          | ⏳ To be Implemented                                  |
+> | Foreign exchange rates for CGT              | ⏳ To be Implemented (R3)                             |
+> | Lock-in (save method per FY)                | ⏳ To be Implemented                                  |
+> | Tax planning strategies UI                  | ⏳ To be Implemented                                  |
+> | Xero Integration                            | ⏳ To be Implemented                                  |
+> | Division 296 (SMSF)                         | ⏳ To be Implemented                                  |
 
 ## Overview
 

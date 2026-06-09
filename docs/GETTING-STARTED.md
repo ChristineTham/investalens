@@ -4,19 +4,19 @@
 
 > **Implementation Status (R1 MVP)**
 >
-> | Feature | Status |
-> |---------|--------|
-> | Account registration & login | ✅ Implemented |
-> | Google OAuth | ✅ Implemented (requires config) |
-> | Create/manage portfolios | ✅ Implemented |
-> | Add holdings via instrument search | ✅ Implemented |
-> | Manual transaction entry | ✅ Implemented |
-> | CSV import with field mapping | ✅ Implemented |
-> | DRP recording | ✅ Implemented (server action) |
-> | Labels | ✅ Implemented |
-> | Performance calculation (MWR) | ✅ Implemented |
-> | Broker API sync | ⏳ To be Implemented (R4) |
-> | Auto portfolio creation on signup | ⏳ To be Implemented |
+> | Feature                            | Status                           |
+> | ---------------------------------- | -------------------------------- |
+> | Account registration & login       | ✅ Implemented                   |
+> | Google OAuth                       | ✅ Implemented (requires config) |
+> | Create/manage portfolios           | ✅ Implemented                   |
+> | Add holdings via instrument search | ✅ Implemented                   |
+> | Manual transaction entry           | ✅ Implemented                   |
+> | CSV import with field mapping      | ✅ Implemented                   |
+> | DRP recording                      | ✅ Implemented (server action)   |
+> | Labels                             | ✅ Implemented                   |
+> | Performance calculation (MWR)      | ✅ Implemented                   |
+> | Broker API sync                    | ⏳ To be Implemented (R4)        |
+> | Auto portfolio creation on signup  | ⏳ To be Implemented             |
 
 This guide walks you through setting up your InvestaLens portfolio and importing your investments.
 

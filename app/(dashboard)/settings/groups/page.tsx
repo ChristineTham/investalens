@@ -20,11 +20,17 @@ export default async function GroupsPage() {
       ) : (
         <div className="space-y-4">
           {groups.map((group) => (
-            <div key={group.id} className="rounded-lg border border-border bg-card p-4">
+            <div
+              key={group.id}
+              className="rounded-lg border border-border bg-card p-4"
+            >
               <h3 className="font-medium">{group.name}</h3>
               <div className="mt-2 space-y-1">
                 {group.categories.map((cat) => (
-                  <div key={cat.id} className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div
+                    key={cat.id}
+                    className="flex items-center gap-2 text-sm text-muted-foreground"
+                  >
                     <span className="font-medium">{cat.name}</span>
                     <span>({cat.holdings.length} instruments)</span>
                   </div>

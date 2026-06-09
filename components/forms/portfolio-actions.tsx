@@ -9,7 +9,10 @@ interface PortfolioActionsProps {
   currentName: string;
 }
 
-export function PortfolioActions({ portfolioId, currentName }: PortfolioActionsProps) {
+export function PortfolioActions({
+  portfolioId,
+  currentName,
+}: PortfolioActionsProps) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(currentName);
   const [loading, setLoading] = useState(false);

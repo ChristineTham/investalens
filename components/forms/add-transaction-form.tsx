@@ -8,7 +8,10 @@ interface AddTransactionFormProps {
   currency: string;
 }
 
-export function AddTransactionForm({ holdingId, currency }: AddTransactionFormProps) {
+export function AddTransactionForm({
+  holdingId,
+  currency,
+}: AddTransactionFormProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -33,7 +36,9 @@ export function AddTransactionForm({ holdingId, currency }: AddTransactionFormPr
       setOpen(false);
       window.location.reload();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add transaction");
+      setError(
+        err instanceof Error ? err.message : "Failed to add transaction"
+      );
       setLoading(false);
     }
   }
@@ -50,7 +55,10 @@ export function AddTransactionForm({ holdingId, currency }: AddTransactionFormPr
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border border-border bg-card p-4 space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 rounded-lg border border-border bg-card p-4"
+    >
       <h3 className="font-medium">Add Transaction</h3>
 
       {error && (
@@ -61,7 +69,9 @@ export function AddTransactionForm({ holdingId, currency }: AddTransactionFormPr
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         <div className="space-y-1">
-          <label htmlFor="transactionType" className="text-xs font-medium">Type</label>
+          <label htmlFor="transactionType" className="text-xs font-medium">
+            Type
+          </label>
           <select
             id="transactionType"
             name="transactionType"
@@ -81,7 +91,9 @@ export function AddTransactionForm({ holdingId, currency }: AddTransactionFormPr
           </select>
         </div>
         <div className="space-y-1">
-          <label htmlFor="tradeDate" className="text-xs font-medium">Date</label>
+          <label htmlFor="tradeDate" className="text-xs font-medium">
+            Date
+          </label>
           <input
             id="tradeDate"
             name="tradeDate"
@@ -92,7 +104,9 @@ export function AddTransactionForm({ holdingId, currency }: AddTransactionFormPr
           />
         </div>
         <div className="space-y-1">
-          <label htmlFor="quantity" className="text-xs font-medium">Quantity</label>
+          <label htmlFor="quantity" className="text-xs font-medium">
+            Quantity
+          </label>
           <input
             id="quantity"
             name="quantity"
@@ -103,7 +117,9 @@ export function AddTransactionForm({ holdingId, currency }: AddTransactionFormPr
           />
         </div>
         <div className="space-y-1">
-          <label htmlFor="price" className="text-xs font-medium">Price</label>
+          <label htmlFor="price" className="text-xs font-medium">
+            Price
+          </label>
           <input
             id="price"
             name="price"
@@ -115,7 +131,9 @@ export function AddTransactionForm({ holdingId, currency }: AddTransactionFormPr
           />
         </div>
         <div className="space-y-1">
-          <label htmlFor="brokerage" className="text-xs font-medium">Brokerage</label>
+          <label htmlFor="brokerage" className="text-xs font-medium">
+            Brokerage
+          </label>
           <input
             id="brokerage"
             name="brokerage"

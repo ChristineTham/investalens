@@ -34,17 +34,29 @@ export default async function DiversityReportPage() {
         <table className="w-full">
           <thead className="bg-muted/50">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Group</th>
-              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Value</th>
-              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Weight %</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                Group
+              </th>
+              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                Value
+              </th>
+              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                Weight %
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {items.map((item) => (
               <tr key={item.label} className="hover:bg-accent/50">
-                <td className="px-4 py-3 font-medium capitalize">{item.label}</td>
-                <td className="px-4 py-3 text-right text-sm">{formatCurrency(item.value)}</td>
-                <td className="px-4 py-3 text-right text-sm">{formatPercent(item.percent)}</td>
+                <td className="px-4 py-3 font-medium capitalize">
+                  {item.label}
+                </td>
+                <td className="px-4 py-3 text-right text-sm">
+                  {formatCurrency(item.value)}
+                </td>
+                <td className="px-4 py-3 text-right text-sm">
+                  {formatPercent(item.percent)}
+                </td>
               </tr>
             ))}
           </tbody>

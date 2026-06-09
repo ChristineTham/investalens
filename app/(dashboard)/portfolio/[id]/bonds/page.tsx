@@ -27,7 +27,9 @@ export default async function BondsPage({
       instrument: {
         code: h.instrument.code,
         maturityDate: h.instrument.maturityDate,
-        faceValue: h.instrument.faceValue ? Number(h.instrument.faceValue) : null,
+        faceValue: h.instrument.faceValue
+          ? Number(h.instrument.faceValue)
+          : null,
       },
     }))
   );
@@ -40,32 +42,52 @@ export default async function BondsPage({
       </p>
 
       {holdings.length === 0 ? (
-        <p className="text-muted-foreground">No bond holdings in this portfolio.</p>
+        <p className="text-muted-foreground">
+          No bond holdings in this portfolio.
+        </p>
       ) : (
         <>
           <div className="overflow-hidden rounded-lg border border-border">
             <table className="w-full">
               <thead className="bg-muted/50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Code</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Name</th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Coupon</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Maturity</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Rating</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                    Code
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                    Name
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                    Coupon
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                    Maturity
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                    Rating
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {holdings.map((h) => (
                   <tr key={h.id} className="hover:bg-accent/50">
-                    <td className="px-4 py-3 font-medium">{h.instrument.code}</td>
+                    <td className="px-4 py-3 font-medium">
+                      {h.instrument.code}
+                    </td>
                     <td className="px-4 py-3 text-sm">{h.instrument.name}</td>
                     <td className="px-4 py-3 text-right text-sm">
-                      {h.instrument.couponRate ? `${(Number(h.instrument.couponRate) * 100).toFixed(2)}%` : "—"}
+                      {h.instrument.couponRate
+                        ? `${(Number(h.instrument.couponRate) * 100).toFixed(2)}%`
+                        : "—"}
                     </td>
                     <td className="px-4 py-3 text-sm">
-                      {h.instrument.maturityDate ? formatDate(h.instrument.maturityDate) : "—"}
+                      {h.instrument.maturityDate
+                        ? formatDate(h.instrument.maturityDate)
+                        : "—"}
                     </td>
-                    <td className="px-4 py-3 text-sm">{h.instrument.creditRating || "—"}</td>
+                    <td className="px-4 py-3 text-sm">
+                      {h.instrument.creditRating || "—"}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -77,10 +99,14 @@ export default async function BondsPage({
               <h2 className="text-lg font-medium">Maturity Ladder</h2>
               <div className="mt-4 space-y-2">
                 {maturityLadder.map((item) => (
-                  <div key={item.instrumentCode} className="flex items-center justify-between text-sm">
+                  <div
+                    key={item.instrumentCode}
+                    className="flex items-center justify-between text-sm"
+                  >
                     <span className="font-medium">{item.instrumentCode}</span>
                     <span className="text-muted-foreground">
-                      {formatDate(item.maturityDate)} ({item.daysToMaturity} days)
+                      {formatDate(item.maturityDate)} ({item.daysToMaturity}{" "}
+                      days)
                     </span>
                   </div>
                 ))}

@@ -40,10 +40,19 @@ export default function CorporateActionsPage({
           await recordBonus(holdingId, Number(value1), new Date(date));
           break;
         case "roc":
-          await recordReturnOfCapital(holdingId, Number(value1), new Date(date));
+          await recordReturnOfCapital(
+            holdingId,
+            Number(value1),
+            new Date(date)
+          );
           break;
         case "rights":
-          await recordRightsIssue(holdingId, Number(value1), Number(value2), new Date(date));
+          await recordRightsIssue(
+            holdingId,
+            Number(value1),
+            Number(value2),
+            new Date(date)
+          );
           break;
       }
       setMessage("Corporate action recorded successfully.");
@@ -76,7 +85,9 @@ export default function CorporateActionsPage({
         )}
 
         <div className="space-y-2">
-          <label htmlFor="actionType" className="text-sm font-medium">Action Type</label>
+          <label htmlFor="actionType" className="text-sm font-medium">
+            Action Type
+          </label>
           <select
             id="actionType"
             value={actionType}
@@ -91,7 +102,9 @@ export default function CorporateActionsPage({
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="date" className="text-sm font-medium">Date</label>
+          <label htmlFor="date" className="text-sm font-medium">
+            Date
+          </label>
           <input
             id="date"
             type="date"

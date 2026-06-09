@@ -4,17 +4,17 @@
 
 > **Implementation Status (R1 MVP)**
 >
-> | Feature | Status |
-> |---------|--------|
-> | Equities (ASX and 60+ exchanges via Yahoo Finance) | ✅ Implemented |
-> | ETFs and managed funds | ✅ Implemented |
-> | Bonds / fixed interest (with coupon, maturity, YTM) | ✅ Implemented |
-> | Custom investments | ✅ Implemented (schema supports) |
-> | Instrument search (Yahoo Finance) | ✅ Implemented |
-> | Cryptocurrencies | ✅ Implemented (via Yahoo Finance) |
-> | Net Worth & Liabilities | ⏳ To be Implemented (R4) |
-> | Property tracking | ⏳ To be Implemented |
-> | Multi-currency pricing | ⏳ To be Implemented (R3) |
+> | Feature                                             | Status                             |
+> | --------------------------------------------------- | ---------------------------------- |
+> | Equities (ASX and 60+ exchanges via Yahoo Finance)  | ✅ Implemented                     |
+> | ETFs and managed funds                              | ✅ Implemented                     |
+> | Bonds / fixed interest (with coupon, maturity, YTM) | ✅ Implemented                     |
+> | Custom investments                                  | ✅ Implemented (schema supports)   |
+> | Instrument search (Yahoo Finance)                   | ✅ Implemented                     |
+> | Cryptocurrencies                                    | ✅ Implemented (via Yahoo Finance) |
+> | Net Worth & Liabilities                             | ⏳ To be Implemented (R4)          |
+> | Property tracking                                   | ⏳ To be Implemented               |
+> | Multi-currency pricing                              | ⏳ To be Implemented (R3)          |
 
 ## Overview
 

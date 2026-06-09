@@ -22,15 +22,21 @@ export default async function LabelsPage() {
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Label</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Holdings</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                  Label
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                  Holdings
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {labels.map((label) => (
                 <tr key={label.id} className="hover:bg-accent/50">
                   <td className="px-4 py-3 font-medium">{label.name}</td>
-                  <td className="px-4 py-3 text-right text-sm text-muted-foreground">{label._count.holdings}</td>
+                  <td className="px-4 py-3 text-right text-sm text-muted-foreground">
+                    {label._count.holdings}
+                  </td>
                 </tr>
               ))}
             </tbody>

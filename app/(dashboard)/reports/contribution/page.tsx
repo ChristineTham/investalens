@@ -41,17 +41,27 @@ export default async function ContributionReportPage() {
         <table className="w-full">
           <thead className="bg-muted/50">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Code</th>
-              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Total Return</th>
-              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Contribution %</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                Code
+              </th>
+              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                Total Return
+              </th>
+              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                Contribution %
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {items.map((item) => (
               <tr key={item.holdingId} className="hover:bg-accent/50">
                 <td className="px-4 py-3 font-medium">{item.instrumentCode}</td>
-                <td className="px-4 py-3 text-right text-sm">{formatCurrency(item.totalReturn)}</td>
-                <td className="px-4 py-3 text-right text-sm">{formatPercent(item.contributionPercent)}</td>
+                <td className="px-4 py-3 text-right text-sm">
+                  {formatCurrency(item.totalReturn)}
+                </td>
+                <td className="px-4 py-3 text-right text-sm">
+                  {formatPercent(item.contributionPercent)}
+                </td>
               </tr>
             ))}
           </tbody>

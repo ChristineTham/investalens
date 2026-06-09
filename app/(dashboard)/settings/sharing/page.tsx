@@ -13,7 +13,12 @@ export default async function SharingPage() {
 
   const sharedWithMe = await db.portfolioShare.findMany({
     where: { email: session.user.email! },
-    include: { portfolio: { select: { name: true }, include: { user: { select: { name: true, email: true } } } } },
+    include: {
+      portfolio: {
+        select: { name: true },
+        include: { user: { select: { name: true, email: true } } },
+      },
+    },
   });
 
   return (
@@ -26,16 +31,25 @@ export default async function SharingPage() {
       <div className="rounded-lg border border-border bg-card p-6">
         <h2 className="text-lg font-medium">Shared by you</h2>
         {shares.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">You haven&apos;t shared any portfolios.</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            You haven&apos;t shared any portfolios.
+          </p>
         ) : (
           <div className="mt-4 space-y-2">
             {shares.map((s) => (
-              <div key={s.id} className="flex items-center justify-between rounded-md border border-border p-3">
+              <div
+                key={s.id}
+                className="flex items-center justify-between rounded-md border border-border p-3"
+              >
                 <div>
                   <p className="text-sm font-medium">{s.email}</p>
-                  <p className="text-xs text-muted-foreground">{s.portfolio.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {s.portfolio.name}
+                  </p>
                 </div>
-                <span className="rounded-full bg-muted px-2 py-1 text-xs capitalize">{s.accessLevel}</span>
+                <span className="rounded-full bg-muted px-2 py-1 text-xs capitalize">
+                  {s.accessLevel}
+                </span>
               </div>
             ))}
           </div>
@@ -45,16 +59,25 @@ export default async function SharingPage() {
       <div className="rounded-lg border border-border bg-card p-6">
         <h2 className="text-lg font-medium">Shared with you</h2>
         {sharedWithMe.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">No portfolios shared with you.</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            No portfolios shared with you.
+          </p>
         ) : (
           <div className="mt-4 space-y-2">
             {sharedWithMe.map((s) => (
-              <div key={s.id} className="flex items-center justify-between rounded-md border border-border p-3">
+              <div
+                key={s.id}
+                className="flex items-center justify-between rounded-md border border-border p-3"
+              >
                 <div>
                   <p className="text-sm font-medium">{s.portfolio.name}</p>
-                  <p className="text-xs text-muted-foreground">From: {s.portfolio.user.email}</p>
+                  <p className="text-xs text-muted-foreground">
+                    From: {s.portfolio.user.email}
+                  </p>
                 </div>
-                <span className="rounded-full bg-muted px-2 py-1 text-xs capitalize">{s.accessLevel}</span>
+                <span className="rounded-full bg-muted px-2 py-1 text-xs capitalize">
+                  {s.accessLevel}
+                </span>
               </div>
             ))}
           </div>

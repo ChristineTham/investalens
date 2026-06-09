@@ -4,24 +4,24 @@
 
 > **Implementation Status (R1 MVP)**
 >
-> | Feature | Status |
-> |---------|--------|
-> | Bearer token authentication | ✅ Implemented |
-> | Rate limiting (100 req/min) | ✅ Implemented |
-> | GET/POST /api/v1/portfolios | ✅ Implemented |
-> | GET/PATCH/DELETE /api/v1/portfolios/[id] | ✅ Implemented |
-> | GET /api/v1/market/search | ✅ Implemented |
-> | JSON response format | ✅ Implemented |
-> | Token scope checking (read/write/admin) | ✅ Implemented |
-> | Holdings endpoints | ⏳ To be Implemented |
-> | Transactions endpoints | ⏳ To be Implemented |
-> | Reports endpoints | ⏳ To be Implemented |
-> | Import/Export endpoints | ⏳ To be Implemented |
-> | Watchlist endpoints | ⏳ To be Implemented |
-> | Market quote endpoint | ⏳ To be Implemented |
-> | Webhooks | ⏳ To be Implemented (R4) |
-> | SDKs | ⏳ To be Implemented |
-> | Token management UI | ⏳ To be Implemented |
+> | Feature                                  | Status                    |
+> | ---------------------------------------- | ------------------------- |
+> | Bearer token authentication              | ✅ Implemented            |
+> | Rate limiting (100 req/min)              | ✅ Implemented            |
+> | GET/POST /api/v1/portfolios              | ✅ Implemented            |
+> | GET/PATCH/DELETE /api/v1/portfolios/[id] | ✅ Implemented            |
+> | GET /api/v1/market/search                | ✅ Implemented            |
+> | JSON response format                     | ✅ Implemented            |
+> | Token scope checking (read/write/admin)  | ✅ Implemented            |
+> | Holdings endpoints                       | ⏳ To be Implemented      |
+> | Transactions endpoints                   | ⏳ To be Implemented      |
+> | Reports endpoints                        | ⏳ To be Implemented      |
+> | Import/Export endpoints                  | ⏳ To be Implemented      |
+> | Watchlist endpoints                      | ⏳ To be Implemented      |
+> | Market quote endpoint                    | ⏳ To be Implemented      |
+> | Webhooks                                 | ⏳ To be Implemented (R4) |
+> | SDKs                                     | ⏳ To be Implemented      |
+> | Token management UI                      | ⏳ To be Implemented      |
 
 ## Overview
 

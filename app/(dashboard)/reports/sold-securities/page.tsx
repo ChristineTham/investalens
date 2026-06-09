@@ -45,19 +45,35 @@ export default async function SoldSecuritiesPage() {
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Code</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Date</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Qty</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Proceeds</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                  Code
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                  Date
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                  Qty
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                  Proceeds
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {items.map((item, i) => (
                 <tr key={i} className="hover:bg-accent/50">
-                  <td className="px-4 py-3 font-medium">{item.instrumentCode}</td>
-                  <td className="px-4 py-3 text-sm">{formatDate(item.tradeDate)}</td>
-                  <td className="px-4 py-3 text-right text-sm">{item.quantity.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-right text-sm">{formatCurrency(item.proceeds)}</td>
+                  <td className="px-4 py-3 font-medium">
+                    {item.instrumentCode}
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    {formatDate(item.tradeDate)}
+                  </td>
+                  <td className="px-4 py-3 text-right text-sm">
+                    {item.quantity.toLocaleString()}
+                  </td>
+                  <td className="px-4 py-3 text-right text-sm">
+                    {formatCurrency(item.proceeds)}
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -26,10 +26,17 @@ export default async function CashPage({
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {accounts.map((account) => (
-            <div key={account.id} className="rounded-lg border border-border bg-card p-4">
+            <div
+              key={account.id}
+              className="rounded-lg border border-border bg-card p-4"
+            >
               <h3 className="font-medium">{account.name}</h3>
-              <p className="mt-1 text-2xl font-bold">{formatCurrency(Number(account.balance), account.currency)}</p>
-              <p className="text-sm text-muted-foreground">{account.currency}</p>
+              <p className="mt-1 text-2xl font-bold">
+                {formatCurrency(Number(account.balance), account.currency)}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {account.currency}
+              </p>
             </div>
           ))}
         </div>

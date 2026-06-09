@@ -57,7 +57,9 @@ export default async function SettingsPage() {
         >
           <FolderTree className="h-5 w-5 text-primary" />
           <h3 className="mt-2 font-medium">Custom Groups</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Organise instruments into groups</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Organise instruments into groups
+          </p>
         </Link>
         <Link
           href="/settings/labels"
@@ -65,7 +67,9 @@ export default async function SettingsPage() {
         >
           <Tag className="h-5 w-5 text-primary" />
           <h3 className="mt-2 font-medium">Labels</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Tag and filter holdings</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Tag and filter holdings
+          </p>
         </Link>
         <Link
           href="/settings/sharing"
@@ -73,7 +77,9 @@ export default async function SettingsPage() {
         >
           <Users className="h-5 w-5 text-primary" />
           <h3 className="mt-2 font-medium">Sharing</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Share portfolios with others</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Share portfolios with others
+          </p>
         </Link>
         <Link
           href="/settings/export"
@@ -81,7 +87,9 @@ export default async function SettingsPage() {
         >
           <Download className="h-5 w-5 text-primary" />
           <h3 className="mt-2 font-medium">Export</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Download your data</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Download your data
+          </p>
         </Link>
         <Link
           href="/settings/api-tokens"
@@ -89,7 +97,9 @@ export default async function SettingsPage() {
         >
           <Key className="h-5 w-5 text-primary" />
           <h3 className="mt-2 font-medium">API Tokens</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Manage API access</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Manage API access
+          </p>
         </Link>
       </div>
     </div>

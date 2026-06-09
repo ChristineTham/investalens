@@ -76,7 +76,10 @@ export default async function HoldingDetailPage({
       <div>
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-medium">Transaction History</h2>
-          <AddTransactionForm holdingId={holdingId} currency={holding.instrument.currency} />
+          <AddTransactionForm
+            holdingId={holdingId}
+            currency={holding.instrument.currency}
+          />
         </div>
         {transactions.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">

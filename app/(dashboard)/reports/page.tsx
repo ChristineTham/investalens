@@ -1,16 +1,56 @@
 import Link from "next/link";
 
 const reports = [
-  { href: "/reports/performance", title: "Performance", desc: "Returns by holding with grouping and date ranges" },
-  { href: "/reports/contribution", title: "Contribution Analysis", desc: "How each holding drives portfolio return" },
-  { href: "/reports/multi-period", title: "Multi-Period", desc: "Compare performance across time periods" },
-  { href: "/reports/sold-securities", title: "Sold Securities", desc: "Realised gains and losses" },
-  { href: "/reports/future-income", title: "Future Income", desc: "Projected dividends and distributions" },
-  { href: "/reports/calendar", title: "Dividend Calendar", desc: "Month-by-month payment schedule" },
-  { href: "/reports/diversity", title: "Diversity", desc: "Portfolio allocation breakdown" },
-  { href: "/reports/drawdown", title: "Drawdown Risk", desc: "Maximum drawdown and RoMaD analysis" },
-  { href: "/reports/historical-cost", title: "Historical Cost", desc: "Opening/closing cost base" },
-  { href: "/reports/all-trades", title: "All Trades", desc: "Complete transaction history" },
+  {
+    href: "/reports/performance",
+    title: "Performance",
+    desc: "Returns by holding with grouping and date ranges",
+  },
+  {
+    href: "/reports/contribution",
+    title: "Contribution Analysis",
+    desc: "How each holding drives portfolio return",
+  },
+  {
+    href: "/reports/multi-period",
+    title: "Multi-Period",
+    desc: "Compare performance across time periods",
+  },
+  {
+    href: "/reports/sold-securities",
+    title: "Sold Securities",
+    desc: "Realised gains and losses",
+  },
+  {
+    href: "/reports/future-income",
+    title: "Future Income",
+    desc: "Projected dividends and distributions",
+  },
+  {
+    href: "/reports/calendar",
+    title: "Dividend Calendar",
+    desc: "Month-by-month payment schedule",
+  },
+  {
+    href: "/reports/diversity",
+    title: "Diversity",
+    desc: "Portfolio allocation breakdown",
+  },
+  {
+    href: "/reports/drawdown",
+    title: "Drawdown Risk",
+    desc: "Maximum drawdown and RoMaD analysis",
+  },
+  {
+    href: "/reports/historical-cost",
+    title: "Historical Cost",
+    desc: "Opening/closing cost base",
+  },
+  {
+    href: "/reports/all-trades",
+    title: "All Trades",
+    desc: "Complete transaction history",
+  },
 ];
 
 export default function ReportsPage() {

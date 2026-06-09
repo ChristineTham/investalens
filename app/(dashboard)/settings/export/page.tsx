@@ -3,9 +3,10 @@
 import { Download } from "lucide-react";
 
 export default function ExportPage() {
-
   async function handleExport(type: string) {
-    alert(`Export ${type} — requires a portfolio ID. Use the API endpoint or implement portfolio selector.`);
+    alert(
+      `Export ${type} — requires a portfolio ID. Use the API endpoint or implement portfolio selector.`
+    );
   }
 
   return (
@@ -23,7 +24,9 @@ export default function ExportPage() {
           <Download className="h-5 w-5 text-primary" />
           <div>
             <h3 className="font-medium">Export Trades (CSV)</h3>
-            <p className="text-sm text-muted-foreground">All transactions with dates, prices, and brokerage</p>
+            <p className="text-sm text-muted-foreground">
+              All transactions with dates, prices, and brokerage
+            </p>
           </div>
         </button>
         <button
@@ -33,7 +36,9 @@ export default function ExportPage() {
           <Download className="h-5 w-5 text-primary" />
           <div>
             <h3 className="font-medium">Export Holdings (CSV)</h3>
-            <p className="text-sm text-muted-foreground">Current positions with cost base</p>
+            <p className="text-sm text-muted-foreground">
+              Current positions with cost base
+            </p>
           </div>
         </button>
         <button
@@ -43,7 +48,9 @@ export default function ExportPage() {
           <Download className="h-5 w-5 text-primary" />
           <div>
             <h3 className="font-medium">Export Dividends (CSV)</h3>
-            <p className="text-sm text-muted-foreground">Dividend and distribution records</p>
+            <p className="text-sm text-muted-foreground">
+              Dividend and distribution records
+            </p>
           </div>
         </button>
         <button
@@ -53,7 +60,9 @@ export default function ExportPage() {
           <Download className="h-5 w-5 text-primary" />
           <div>
             <h3 className="font-medium">Full Backup (JSON)</h3>
-            <p className="text-sm text-muted-foreground">Complete portfolio data including all settings</p>
+            <p className="text-sm text-muted-foreground">
+              Complete portfolio data including all settings
+            </p>
           </div>
         </button>
       </div>

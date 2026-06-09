@@ -53,21 +53,37 @@ export default async function WatchlistPage() {
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Code</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Name</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Market</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Notes</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                  Code
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                  Name
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                  Market
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                  Notes
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {items.map((item) => {
-                const inst = instruments.find((i) => i.id === item.instrumentId);
+                const inst = instruments.find(
+                  (i) => i.id === item.instrumentId
+                );
                 return (
                   <tr key={item.id} className="hover:bg-accent/50">
-                    <td className="px-4 py-3 font-medium">{inst?.code || "—"}</td>
+                    <td className="px-4 py-3 font-medium">
+                      {inst?.code || "—"}
+                    </td>
                     <td className="px-4 py-3 text-sm">{inst?.name || "—"}</td>
-                    <td className="px-4 py-3 text-sm">{inst?.marketCode || "—"}</td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">{item.notes || "—"}</td>
+                    <td className="px-4 py-3 text-sm">
+                      {inst?.marketCode || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                      {item.notes || "—"}
+                    </td>
                   </tr>
                 );
               })}

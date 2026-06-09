@@ -3,7 +3,9 @@ import Link from "next/link";
 export default function DashboardNotFound() {
   return (
     <div className="flex flex-col items-center justify-center p-12">
-      <h2 className="font-serif text-xl font-bold text-foreground">Not Found</h2>
+      <h2 className="font-serif text-xl font-bold text-foreground">
+        Not Found
+      </h2>
       <p className="mt-2 text-sm text-muted-foreground">
         The page you&apos;re looking for doesn&apos;t exist.
       </p>

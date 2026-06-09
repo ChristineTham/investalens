@@ -1,7 +1,11 @@
 import Link from "next/link";
 
 const tools = [
-  { href: "/tools/watchlist", title: "Watchlist", desc: "Track instruments with price alerts" },
+  {
+    href: "/tools/watchlist",
+    title: "Watchlist",
+    desc: "Track instruments with price alerts",
+  },
 ];
 
 export default function ToolsPage() {

@@ -34,23 +34,33 @@ export default async function UnrealisedCgtPage() {
       <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-sm text-muted-foreground">Short-term Gains</p>
-          <p className="text-lg font-bold">{formatCurrency(report.shortTermGains)}</p>
+          <p className="text-lg font-bold">
+            {formatCurrency(report.shortTermGains)}
+          </p>
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-sm text-muted-foreground">Long-term Gains</p>
-          <p className="text-lg font-bold">{formatCurrency(report.longTermGains)}</p>
+          <p className="text-lg font-bold">
+            {formatCurrency(report.longTermGains)}
+          </p>
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-sm text-muted-foreground">Losses</p>
-          <p className="text-lg font-bold text-destructive">{formatCurrency(report.unrealisedLosses)}</p>
+          <p className="text-lg font-bold text-destructive">
+            {formatCurrency(report.unrealisedLosses)}
+          </p>
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-sm text-muted-foreground">CGT Discount</p>
-          <p className="text-lg font-bold">{formatCurrency(report.cgtDiscount)}</p>
+          <p className="text-lg font-bold">
+            {formatCurrency(report.cgtDiscount)}
+          </p>
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-sm text-muted-foreground">Net Hypothetical</p>
-          <p className="text-lg font-bold">{formatCurrency(report.netHypotheticalGain)}</p>
+          <p className="text-lg font-bold">
+            {formatCurrency(report.netHypotheticalGain)}
+          </p>
         </div>
       </div>
 
@@ -59,23 +69,47 @@ export default async function UnrealisedCgtPage() {
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Code</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Qty</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Cost Base</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Market Value</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Unrealised</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Term</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                  Code
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                  Qty
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                  Cost Base
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                  Market Value
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                  Unrealised
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                  Term
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {report.items.map((item) => (
                 <tr key={item.instrumentCode} className="hover:bg-accent/50">
-                  <td className="px-4 py-3 font-medium">{item.instrumentCode}</td>
-                  <td className="px-4 py-3 text-right text-sm">{item.quantity.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-right text-sm">{formatCurrency(item.costBase)}</td>
-                  <td className="px-4 py-3 text-right text-sm">{formatCurrency(item.marketValue)}</td>
-                  <td className="px-4 py-3 text-right text-sm">{formatCurrency(item.unrealisedGain)}</td>
-                  <td className="px-4 py-3 text-sm">{item.isLongTerm ? "Long" : "Short"}</td>
+                  <td className="px-4 py-3 font-medium">
+                    {item.instrumentCode}
+                  </td>
+                  <td className="px-4 py-3 text-right text-sm">
+                    {item.quantity.toLocaleString()}
+                  </td>
+                  <td className="px-4 py-3 text-right text-sm">
+                    {formatCurrency(item.costBase)}
+                  </td>
+                  <td className="px-4 py-3 text-right text-sm">
+                    {formatCurrency(item.marketValue)}
+                  </td>
+                  <td className="px-4 py-3 text-right text-sm">
+                    {formatCurrency(item.unrealisedGain)}
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    {item.isLongTerm ? "Long" : "Short"}
+                  </td>
                 </tr>
               ))}
             </tbody>
