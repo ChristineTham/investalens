@@ -7,6 +7,8 @@ datasource db {
   provider = "postgresql"
 }
 
+// ─── AUTH ────────────────────────────────────────────────────────────────────
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -17,8 +19,10 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts Account[]
-  sessions Session[]
+  accounts   Account[]
+  sessions   Session[]
+  portfolios Portfolio[]
+  apiTokens  ApiToken[]
 }
 
 model Account {
@@ -56,4 +60,304 @@ model VerificationToken {
   expires    DateTime
 
   @@id([identifier, token])
+}
+
+model ApiToken {
+  id        String    @id @default(cuid())
+  userId    String
+  name      String
+  tokenHash String    @unique
+  scope     String    @default("read")
+  expiresAt DateTime?
+  lastUsed  DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── PORTFOLIO ───────────────────────────────────────────────────────────────
+
+model Portfolio {
+  id                   String   @id @default(cuid())
+  userId               String
+  name                 String
+  taxResidency         String   @default("AU")
+  baseCurrency         String   @default("AUD")
+  financialYearEnd     Int      @default(6)
+  performanceMethod    String   @default("compound")
+  taxEntityType        String   @default("individual")
+  saleAllocationMethod String   @default("fifo")
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  holdings     Holding[]
+  cashAccounts CashAccount[]
+  shares       PortfolioShare[]
+  importJobs   ImportJob[]
+
+  @@index([userId])
+}
+
+model PortfolioShare {
+  id          String   @id @default(cuid())
+  portfolioId String
+  email       String
+  accessLevel String   @default("read")
+  createdAt   DateTime @default(now())
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, email])
+}
+
+// ─── HOLDINGS & TRANSACTIONS ─────────────────────────────────────────────────
+
+model Holding {
+  id           String   @id @default(cuid())
+  portfolioId  String
+  instrumentId String
+  isCustom     Boolean  @default(false)
+  drpEnabled   Boolean  @default(false)
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  portfolio    Portfolio      @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  instrument   Instrument     @relation(fields: [instrumentId], references: [id])
+  transactions Transaction[]
+  labels       HoldingLabel[]
+
+  @@unique([portfolioId, instrumentId])
+  @@index([portfolioId])
+}
+
+model Instrument {
+  id               String    @id @default(cuid())
+  code             String
+  marketCode       String
+  name             String
+  instrumentType   String    @default("equity")
+  country          String?
+  sector           String?
+  industry         String?
+  currency         String    @default("AUD")
+  faceValue        Decimal?  @db.Decimal(18, 6)
+  couponRate       Decimal?  @db.Decimal(8, 4)
+  paymentFrequency String?
+  maturityDate     DateTime?
+  creditRating     String?
+  isCustom         Boolean   @default(false)
+  createdByUserId  String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  holdings Holding[]
+  prices   Price[]
+
+  @@unique([code, marketCode])
+  @@index([code])
+}
+
+model Transaction {
+  id              String   @id @default(cuid())
+  holdingId       String
+  transactionType String
+  tradeDate       DateTime
+  quantity        Decimal  @db.Decimal(18, 6)
+  price           Decimal  @db.Decimal(18, 6)
+  brokerage       Decimal  @default(0) @db.Decimal(18, 2)
+  exchangeRate    Decimal  @default(1) @db.Decimal(18, 6)
+  currency        String   @default("AUD")
+  comments        String?
+  frankedAmount   Decimal? @db.Decimal(18, 2)
+  unfrankedAmount Decimal? @db.Decimal(18, 2)
+  frankingCredits Decimal? @db.Decimal(18, 2)
+  taxDeferred     Decimal? @db.Decimal(18, 2)
+  foreignTax      Decimal? @db.Decimal(18, 2)
+  amitComponents  Json?
+  importJobId     String?
+  sourceId        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  holding   Holding    @relation(fields: [holdingId], references: [id], onDelete: Cascade)
+  importJob ImportJob? @relation(fields: [importJobId], references: [id])
+
+  @@index([holdingId, tradeDate])
+  @@index([holdingId, transactionType])
+}
+
+// ─── MARKET DATA ─────────────────────────────────────────────────────────────
+
+model Price {
+  id            String   @id @default(cuid())
+  instrumentId  String
+  date          DateTime @db.Date
+  open          Decimal? @db.Decimal(18, 6)
+  high          Decimal? @db.Decimal(18, 6)
+  low           Decimal? @db.Decimal(18, 6)
+  close         Decimal  @db.Decimal(18, 6)
+  volume        BigInt?
+  adjustedClose Decimal? @db.Decimal(18, 6)
+
+  instrument Instrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+
+  @@unique([instrumentId, date])
+  @@index([instrumentId, date])
+}
+
+model ExchangeRate {
+  id           String   @id @default(cuid())
+  fromCurrency String
+  toCurrency   String
+  date         DateTime @db.Date
+  rate         Decimal  @db.Decimal(18, 6)
+
+  @@unique([fromCurrency, toCurrency, date])
+  @@index([fromCurrency, toCurrency, date])
+}
+
+// ─── IMPORT ──────────────────────────────────────────────────────────────────
+
+model ImportJob {
+  id              String    @id @default(cuid())
+  portfolioId     String
+  source          String
+  status          String    @default("pending")
+  fileName        String?
+  mappingTemplate String?
+  totalRows       Int       @default(0)
+  importedRows    Int       @default(0)
+  rejectedRows    Int       @default(0)
+  errors          Json?
+  createdAt       DateTime  @default(now())
+  completedAt     DateTime?
+
+  portfolio    Portfolio     @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@index([portfolioId])
+}
+
+model MappingTemplate {
+  id         String   @id @default(cuid())
+  userId     String
+  name       String
+  broker     String?
+  mapping    Json
+  dateFormat String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// ─── ORGANISATION ────────────────────────────────────────────────────────────
+
+model CustomGroup {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  createdAt DateTime @default(now())
+
+  categories CustomGroupCategory[]
+
+  @@index([userId])
+}
+
+model CustomGroupCategory {
+  id       String @id @default(cuid())
+  groupId  String
+  name     String
+  holdings CustomGroupAssignment[]
+
+  group CustomGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+}
+
+model CustomGroupAssignment {
+  id           String @id @default(cuid())
+  categoryId   String
+  instrumentId String
+
+  category CustomGroupCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, instrumentId])
+}
+
+model Label {
+  id     String @id @default(cuid())
+  userId String
+  name   String
+
+  holdings HoldingLabel[]
+
+  @@unique([userId, name])
+}
+
+model HoldingLabel {
+  holdingId String
+  labelId   String
+
+  holding Holding @relation(fields: [holdingId], references: [id], onDelete: Cascade)
+  label   Label   @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([holdingId, labelId])
+}
+
+// ─── CASH ACCOUNTS ───────────────────────────────────────────────────────────
+
+model CashAccount {
+  id          String   @id @default(cuid())
+  portfolioId String
+  name        String
+  currency    String   @default("AUD")
+  balance     Decimal  @default(0) @db.Decimal(18, 2)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  portfolio    Portfolio          @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  transactions CashTransaction[]
+
+  @@index([portfolioId])
+}
+
+model CashTransaction {
+  id            String   @id @default(cuid())
+  cashAccountId String
+  type          String
+  amount        Decimal  @db.Decimal(18, 2)
+  date          DateTime
+  description   String?
+  createdAt     DateTime @default(now())
+
+  cashAccount CashAccount @relation(fields: [cashAccountId], references: [id], onDelete: Cascade)
+
+  @@index([cashAccountId, date])
+}
+
+// ─── WATCHLIST ───────────────────────────────────────────────────────────────
+
+model Watchlist {
+  id     String @id @default(cuid())
+  userId String
+  name   String @default("Default")
+
+  items WatchlistItem[]
+
+  @@index([userId])
+}
+
+model WatchlistItem {
+  id           String   @id @default(cuid())
+  watchlistId  String
+  instrumentId String
+  notes        String?
+  alertAbove   Decimal? @db.Decimal(18, 6)
+  alertBelow   Decimal? @db.Decimal(18, 6)
+  addedAt      DateTime @default(now())
+
+  watchlist Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+
+  @@unique([watchlistId, instrumentId])
 }
