@@ -1,5 +1,4 @@
 import type {
-  FieldMapping,
   ImportConfig,
   ParsedTransaction,
   RawCsvRow,

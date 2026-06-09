@@ -1,5 +1,10 @@
 # R1-P1b: Import Engine & Market Data
 
+## Status
+
+- Completed: 2026-06-09
+- Completion note: CSV parser, field mapper, dedup engine, 9 broker templates, import pipeline server action, 5-step import wizard UI, Yahoo Finance provider, price service, cron endpoint, instrument search autocomplete — all implemented and lint-clean.
+
 ## Objective
 
 Build the CSV import engine with custom field mapping, broker templates, validation/deduplication pipeline, and the market data fetching system (Yahoo Finance for ASX).
