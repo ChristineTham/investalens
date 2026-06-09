@@ -1,5 +1,10 @@
 # R1-P1a: Foundation — Schema, Auth, CRUD, UI Shell
 
+## Status
+
+- Completed: 2026-06-09
+- Completion note: Full Prisma schema (22 models), NextAuth v5 config, Zod validators, CRUD server actions, UI shell (sidebar, header, auth pages, portfolio pages), 17 shadcn/ui components installed, database migrated.
+
 ## Objective
 
 Build the core database schema, authentication system, portfolio/holding/transaction CRUD operations, and the application UI shell (navigation, layouts, basic pages).

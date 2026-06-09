@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { getPortfolio } from "@/lib/actions/portfolio";
-import { formatCurrency } from "@/lib/utils";
 import { ArrowLeft, Plus } from "lucide-react";
 
 export default async function PortfolioDetailPage({
