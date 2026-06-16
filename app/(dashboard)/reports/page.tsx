@@ -1,4 +1,9 @@
 import Link from "next/link";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { redirect } from "next/navigation";
+import { PortfolioSelector } from "@/components/reports/portfolio-selector";
+import { Suspense } from "react";
 
 const reports = [
   {
@@ -53,20 +58,49 @@ const reports = [
   },
 ];
 
-export default function ReportsPage() {
+export default async function ReportsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ portfolio?: string }>;
+}) {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
+
+  const params = await searchParams;
+
+  const portfolios = await db.portfolio.findMany({
+    where: { userId: session.user.id },
+    select: { id: true, name: true },
+  });
+
+  const selectedPortfolioId = params.portfolio || null;
+  const portfolioParam = selectedPortfolioId
+    ? `?portfolio=${selectedPortfolioId}`
+    : "";
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-serif text-2xl font-bold">Reports</h1>
-        <p className="text-sm text-muted-foreground">
-          Portfolio performance, income, and analysis reports.
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="font-serif text-2xl font-bold">Reports</h1>
+          <p className="text-sm text-muted-foreground">
+            Portfolio performance, income, and analysis reports.
+          </p>
+        </div>
+        {portfolios.length > 0 && (
+          <Suspense>
+            <PortfolioSelector
+              portfolios={portfolios}
+              selectedId={selectedPortfolioId}
+            />
+          </Suspense>
+        )}
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         {reports.map((r) => (
           <Link
             key={r.href}
-            href={r.href}
+            href={`${r.href}${portfolioParam}`}
             className="rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent"
           >
             <h3 className="font-medium">{r.title}</h3>

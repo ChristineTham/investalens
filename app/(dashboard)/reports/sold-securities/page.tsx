@@ -3,10 +3,18 @@ import { db } from "@/lib/db";
 import { generateSoldSecuritiesReport } from "@/lib/reports/sold-securities-report";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { redirect } from "next/navigation";
+import { PortfolioSelector } from "@/components/reports/portfolio-selector";
+import { Suspense } from "react";
 
-export default async function SoldSecuritiesPage() {
+export default async function SoldSecuritiesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ portfolio?: string }>;
+}) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
+
+  const params = await searchParams;
 
   const portfolios = await db.portfolio.findMany({
     where: { userId: session.user.id },
@@ -22,21 +30,58 @@ export default async function SoldSecuritiesPage() {
     );
   }
 
+  const selectedPortfolioId = params.portfolio || null;
   const now = new Date();
   const oneYearAgo = new Date(now);
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-  const items = await generateSoldSecuritiesReport(portfolios[0].id, {
-    from: oneYearAgo,
-    to: now,
-  });
+  let items: Awaited<ReturnType<typeof generateSoldSecuritiesReport>>;
+
+  if (selectedPortfolioId) {
+    items = await generateSoldSecuritiesReport(selectedPortfolioId, {
+      from: oneYearAgo,
+      to: now,
+    });
+  } else {
+    const allItems: Awaited<ReturnType<typeof generateSoldSecuritiesReport>> =
+      [];
+    for (const p of portfolios) {
+      const r = await generateSoldSecuritiesReport(p.id, {
+        from: oneYearAgo,
+        to: now,
+      });
+      allItems.push(...r);
+    }
+    items = allItems.sort(
+      (a, b) =>
+        new Date(b.tradeDate).getTime() - new Date(a.tradeDate).getTime()
+    );
+  }
+
+  const totalProceeds = items.reduce((s, i) => s + i.proceeds, 0);
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-2xl font-bold">Sold Securities</h1>
-      <p className="text-sm text-muted-foreground">
-        Realised gains and losses on closed positions.
-      </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="font-serif text-2xl font-bold">Sold Securities</h1>
+          <p className="text-sm text-muted-foreground">
+            Realised gains and losses on closed positions (past 12 months).
+          </p>
+        </div>
+        <Suspense>
+          <PortfolioSelector
+            portfolios={portfolios}
+            selectedId={selectedPortfolioId}
+          />
+        </Suspense>
+      </div>
+
+      {/* Summary */}
+      <div className="rounded-lg border border-border bg-card p-4">
+        <p className="text-sm text-muted-foreground">Total Proceeds</p>
+        <p className="text-lg font-bold">{formatCurrency(totalProceeds)}</p>
+      </div>
 
       {items.length === 0 ? (
         <p className="text-muted-foreground">No sales in the past 12 months.</p>

@@ -3,6 +3,12 @@ import { db } from "@/lib/db";
 import { generatePerformanceReport } from "@/lib/reports/performance-report";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import { redirect } from "next/navigation";
+import { PortfolioSelector } from "@/components/reports/portfolio-selector";
+import { Suspense } from "react";
+import type {
+  HoldingPerformance,
+  PortfolioPerformance,
+} from "@/lib/calculations/performance";
 
 export default async function PerformanceReportPage({
   searchParams,
@@ -14,7 +20,6 @@ export default async function PerformanceReportPage({
 
   const params = await searchParams;
 
-  // Get user's portfolios for selector
   const portfolios = await db.portfolio.findMany({
     where: { userId: session.user.id },
     select: { id: true, name: true },
@@ -29,21 +34,69 @@ export default async function PerformanceReportPage({
     );
   }
 
-  const portfolioId = params.portfolio || portfolios[0].id;
+  const selectedPortfolioId = params.portfolio || null;
   const now = new Date();
   const oneYearAgo = new Date(now);
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-  const report = await generatePerformanceReport({
-    portfolioId,
-    dateRange: { from: oneYearAgo, to: now },
-    groupBy: "none",
-    openOnly: true,
-  });
+  // Generate report for selected portfolio or all portfolios
+  let report: { portfolio: PortfolioPerformance };
+
+  if (selectedPortfolioId) {
+    report = await generatePerformanceReport({
+      portfolioId: selectedPortfolioId,
+      dateRange: { from: oneYearAgo, to: now },
+      groupBy: "none",
+      openOnly: true,
+    });
+  } else {
+    // Consolidated: merge all portfolios
+    const allHoldings: HoldingPerformance[] = [];
+    for (const p of portfolios) {
+      const r = await generatePerformanceReport({
+        portfolioId: p.id,
+        dateRange: { from: oneYearAgo, to: now },
+        groupBy: "none",
+        openOnly: true,
+      });
+      allHoldings.push(...r.portfolio.holdings);
+    }
+    const totalCostBase = allHoldings.reduce((s, h) => s + h.costBase, 0);
+    const totalMarketValue = allHoldings.reduce(
+      (s, h) => s + h.marketValue,
+      0
+    );
+    const totalReturn = allHoldings.reduce((s, h) => s + h.totalReturn, 0);
+    report = {
+      portfolio: {
+        totalCostBase,
+        totalMarketValue,
+        totalReturn,
+        totalReturnPercent:
+          totalCostBase > 0 ? (totalReturn / totalCostBase) * 100 : 0,
+        annualisedReturn: 0,
+        dividendIncome: allHoldings.reduce(
+          (s, h) => s + h.dividendIncome,
+          0
+        ),
+        capitalGains: allHoldings.reduce((s, h) => s + h.capitalGain, 0),
+        currencyGains: allHoldings.reduce((s, h) => s + h.currencyGain, 0),
+        holdings: allHoldings,
+      },
+    };
+  }
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-2xl font-bold">Performance Report</h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="font-serif text-2xl font-bold">Performance Report</h1>
+        <Suspense>
+          <PortfolioSelector
+            portfolios={portfolios}
+            selectedId={selectedPortfolioId}
+          />
+        </Suspense>
+      </div>
 
       {/* Summary */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

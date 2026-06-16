@@ -3,10 +3,18 @@ import { db } from "@/lib/db";
 import { generateFutureIncomeReport } from "@/lib/reports/future-income-report";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { redirect } from "next/navigation";
+import { PortfolioSelector } from "@/components/reports/portfolio-selector";
+import { Suspense } from "react";
 
-export default async function FutureIncomePage() {
+export default async function FutureIncomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ portfolio?: string }>;
+}) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
+
+  const params = await searchParams;
 
   const portfolios = await db.portfolio.findMany({
     where: { userId: session.user.id },
@@ -22,14 +30,56 @@ export default async function FutureIncomePage() {
     );
   }
 
-  const items = await generateFutureIncomeReport(portfolios[0].id);
+  const selectedPortfolioId = params.portfolio || null;
+
+  let items: Awaited<ReturnType<typeof generateFutureIncomeReport>>;
+
+  if (selectedPortfolioId) {
+    items = await generateFutureIncomeReport(selectedPortfolioId);
+  } else {
+    const allItems: Awaited<ReturnType<typeof generateFutureIncomeReport>> = [];
+    for (const p of portfolios) {
+      const r = await generateFutureIncomeReport(p.id);
+      allItems.push(...r);
+    }
+    items = allItems;
+  }
+
+  const totalEstimated = items.reduce((s, i) => s + i.estimatedAmount, 0);
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-2xl font-bold">Future Income</h1>
-      <p className="text-sm text-muted-foreground">
-        Projected dividends and income based on current holdings.
-      </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="font-serif text-2xl font-bold">Future Income</h1>
+          <p className="text-sm text-muted-foreground">
+            Projected dividends and income based on current holdings.
+          </p>
+        </div>
+        <Suspense>
+          <PortfolioSelector
+            portfolios={portfolios}
+            selectedId={selectedPortfolioId}
+          />
+        </Suspense>
+      </div>
+
+      {/* Summary card */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="rounded-lg border border-border bg-card p-4">
+          <p className="text-sm text-muted-foreground">
+            Total Estimated Annual Income
+          </p>
+          <p className="text-lg font-bold">{formatCurrency(totalEstimated)}</p>
+        </div>
+        <div className="rounded-lg border border-border bg-card p-4">
+          <p className="text-sm text-muted-foreground">
+            Income-Producing Holdings
+          </p>
+          <p className="text-lg font-bold">{items.length}</p>
+        </div>
+      </div>
+
       {items.length === 0 ? (
         <p className="text-muted-foreground">
           No income history to estimate from.
