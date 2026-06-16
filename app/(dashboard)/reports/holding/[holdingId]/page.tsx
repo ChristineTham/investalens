@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { formatCurrency, formatDate, formatPercent } from "@/lib/utils";
 import { redirect } from "next/navigation";
-import { PortfolioGrowthChart } from "@/components/charts/portfolio-growth";
+import { HoldingChartSection } from "@/components/charts/holding-chart-section";
 import { calculatePosition } from "@/lib/calculations/position";
 import Link from "next/link";
 
@@ -39,15 +39,9 @@ export default async function HoldingDetailPage({
     );
   }
 
-  // Get price history
-  const oneYearAgo = new Date();
-  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-
+  // Get ALL price history (not just 1 year — chart has its own time range selector)
   const prices = await db.price.findMany({
-    where: {
-      instrumentId: holding.instrumentId,
-      date: { gte: oneYearAgo },
-    },
+    where: { instrumentId: holding.instrumentId },
     orderBy: { date: "asc" },
   });
 
@@ -66,22 +60,43 @@ export default async function HoldingDetailPage({
   const latestPrice = prices.length > 0 ? Number(prices[prices.length - 1].close) : 0;
   const position = calculatePosition(txData, latestPrice);
 
-  // Prepare chart data
-  const chartData = prices.map((p) => ({
+  // Prepare chart data with OHLCV
+  const chartPrices = prices.map((p) => ({
     date: formatDate(p.date, "iso"),
-    portfolio: Number(p.close),
+    open: Number(p.open || p.close),
+    high: Number(p.high || p.close),
+    low: Number(p.low || p.close),
+    close: Number(p.close),
+    volume: Number(p.volume || 0),
   }));
 
-  // Transaction summary
-  const buys = holding.transactions.filter((t) => t.transactionType === "BUY");
-  const sells = holding.transactions.filter((t) => t.transactionType === "SELL");
-  const dividends = holding.transactions.filter(
-    (t) => t.transactionType === "DIVIDEND"
-  );
-  const totalDividends = dividends.reduce(
-    (s, t) => s + Number(t.quantity) * Number(t.price),
+  // Dividend markers for the chart
+  const dividendMarkers = dividends.map((d) => ({
+    date: formatDate(d.tradeDate, "iso"),
+    amount: Number(d.quantity) * Number(d.price),
+  }));
+
+  // Performance stats
+  const totalInvested = buys.reduce(
+    (s, t) => s + Number(t.quantity) * Number(t.price) + Number(t.brokerage),
     0
   );
+  const totalSoldProceeds = sells.reduce(
+    (s, t) => s + Number(t.quantity) * Number(t.price) - Number(t.brokerage),
+    0
+  );
+  const totalReturn =
+    position.marketValue + totalSoldProceeds + totalDividends - totalInvested;
+  const totalReturnPercent =
+    totalInvested > 0 ? (totalReturn / totalInvested) * 100 : 0;
+
+  // Holding period
+  const firstBuy = buys.length > 0 ? buys[0].tradeDate : null;
+  const holdingDays = firstBuy
+    ? Math.floor(
+        (Date.now() - new Date(firstBuy).getTime()) / (1000 * 60 * 60 * 24)
+      )
+    : 0;
 
   return (
     <div className="space-y-6">
@@ -93,17 +108,23 @@ export default async function HoldingDetailPage({
           </Link>{" "}
           → {holding.portfolio.name}
         </p>
-        <h1 className="font-serif text-2xl font-bold">
-          {holding.instrument.code} — {holding.instrument.name}
-        </h1>
+        <div className="flex items-center gap-3">
+          <h1 className="font-serif text-2xl font-bold">
+            {holding.instrument.code}
+          </h1>
+          <span className="text-lg text-muted-foreground">
+            {holding.instrument.name}
+          </span>
+        </div>
         <p className="text-sm text-muted-foreground">
           {holding.instrument.marketCode} · {holding.instrument.instrumentType}
           {holding.instrument.sector && ` · ${holding.instrument.sector}`}
+          {firstBuy && ` · Held ${holdingDays} days`}
         </p>
       </div>
 
       {/* Position Summary */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-6">
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">Quantity</p>
           <p className="text-lg font-bold">
@@ -117,7 +138,7 @@ export default async function HoldingDetailPage({
           </p>
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Market Price</p>
+          <p className="text-xs text-muted-foreground">Last Price</p>
           <p className="text-lg font-bold">{formatCurrency(latestPrice)}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
@@ -127,53 +148,63 @@ export default async function HoldingDetailPage({
           </p>
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Unrealised Gain</p>
+          <p className="text-xs text-muted-foreground">Unrealised</p>
           <p
             className={`text-lg font-bold ${position.unrealisedGain < 0 ? "text-destructive" : "text-rosely-teal"}`}
           >
-            {formatCurrency(position.unrealisedGain)} (
-            {formatPercent(position.unrealisedGainPercent)})
+            {formatCurrency(position.unrealisedGain)}
+          </p>
+          <p
+            className={`text-xs ${position.unrealisedGainPercent < 0 ? "text-destructive" : "text-rosely-teal"}`}
+          >
+            {formatPercent(position.unrealisedGainPercent)}
+          </p>
+        </div>
+        <div className="rounded-lg border border-border bg-card p-4">
+          <p className="text-xs text-muted-foreground">Total Return</p>
+          <p
+            className={`text-lg font-bold ${totalReturn < 0 ? "text-destructive" : "text-rosely-teal"}`}
+          >
+            {formatCurrency(totalReturn)}
+          </p>
+          <p
+            className={`text-xs ${totalReturnPercent < 0 ? "text-destructive" : "text-rosely-teal"}`}
+          >
+            {formatPercent(totalReturnPercent)}
           </p>
         </div>
       </div>
 
-      {/* Price Chart */}
-      <div className="rounded-lg border border-border p-4">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-medium text-muted-foreground">
-            Price History (1 Year)
-          </h2>
-          <span className="text-xs text-muted-foreground">
-            {prices.length} data points
-          </span>
-        </div>
-        {chartData.length > 0 ? (
-          <PortfolioGrowthChart data={chartData} showBenchmark={false} />
-        ) : (
-          <div className="flex h-[300px] items-center justify-center text-muted-foreground">
-            <p>No price data available. Run the price cron job to populate.</p>
-          </div>
-        )}
-      </div>
+      {/* Interactive Price Chart with Time Range, MA, Volume */}
+      <HoldingChartSection
+        allPrices={chartPrices}
+        dividends={dividendMarkers}
+      />
 
-      {/* Income & Activity Summary */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      {/* Income & Activity */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
         <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Total Cost Base</p>
+          <p className="text-xs text-muted-foreground">Cost Base</p>
           <p className="text-lg font-bold">
             {formatCurrency(position.totalCostBase)}
           </p>
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Dividends Received</p>
+          <p className="text-xs text-muted-foreground">Dividends</p>
           <p className="text-lg font-bold">{formatCurrency(totalDividends)}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Buy Transactions</p>
+          <p className="text-xs text-muted-foreground">Sale Proceeds</p>
+          <p className="text-lg font-bold">
+            {formatCurrency(totalSoldProceeds)}
+          </p>
+        </div>
+        <div className="rounded-lg border border-border bg-card p-4">
+          <p className="text-xs text-muted-foreground">Buys</p>
           <p className="text-lg font-bold">{buys.length}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Sell Transactions</p>
+          <p className="text-xs text-muted-foreground">Sells</p>
           <p className="text-lg font-bold">{sells.length}</p>
         </div>
       </div>

@@ -55,14 +55,15 @@ Based on research of Sharesight, Morningstar, and Yahoo Finance report features.
 ## Phase 2: Drill-Down Holding Detail
 
 ### `/reports/holding/[holdingId]` page
-- Price chart (OHLC or Line, selectable)
-- Time range selector (1D/1W/1M/3M/6M/1Y/5Y/Max)
-- Volume bars below price chart
-- Dividend markers on chart
-- Moving averages (20-day, 50-day, 200-day)
-- Performance summary cards
-- Transaction history overlay
-- Compare with benchmark toggle
+- [x] Price chart (Line with OHLC data)
+- [x] Time range selector (1W/1M/3M/6M/1Y/3Y/5Y/Max)
+- [x] Volume bars below price chart
+- [x] Dividend markers on chart (dashed green reference lines)
+- [x] Moving averages (20-day, 50-day, 200-day) with toggle chips
+- [x] Performance summary cards (qty, avg cost, market value, unrealised, total return)
+- [x] Transaction history table
+- [x] Brush/zoom control on chart timeline
+- [x] Period stats bar (open/close/change%/high/low/avg volume)
 
 ---
 
