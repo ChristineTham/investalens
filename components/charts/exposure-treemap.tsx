@@ -11,6 +11,7 @@ interface ExposureData {
   size: number;
   color?: string;
   children?: ExposureData[];
+  [key: string]: unknown;
 }
 
 interface ExposureTreemapProps {
