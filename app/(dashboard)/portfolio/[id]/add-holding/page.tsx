@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { addHolding } from "@/lib/actions/holding";
 import { InstrumentSearch } from "@/components/forms/instrument-search";
 import type { InstrumentSearchResult } from "@/lib/providers/market-data";
@@ -18,9 +18,9 @@ export default function AddHoldingPage({
   const [error, setError] = useState("");
 
   // Resolve params
-  useState(() => {
+  useEffect(() => {
     params.then((p) => setPortfolioId(p.id));
-  });
+  }, [params]);
 
   async function handleAdd() {
     if (!selected || !portfolioId) return;

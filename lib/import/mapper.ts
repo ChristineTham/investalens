@@ -44,8 +44,32 @@ export function mapRows(
       getField(row, config.mapping.quantity),
       config.decimalSeparator
     );
-    if (quantity === null || quantity === 0)
+
+    const rawType = getField(row, config.mapping.transactionType);
+    const transactionType = mapTransactionType(
+      rawType,
+      config.transactionTypeMap
+    );
+
+    // Allow zero quantity for non-purchase/sale transaction types
+    const zeroQuantityAllowed = [
+      "DIVIDEND",
+      "INTEREST",
+      "COUPON",
+      "RETURN_OF_CAPITAL",
+      "BONUS",
+      "FEE",
+      "ADJUSTMENT",
+      "MATURITY",
+    ].includes(transactionType || "");
+
+    if (quantity === null) {
+      rowErrors.push("Invalid quantity");
+    } else if (quantity === 0 && !zeroQuantityAllowed) {
       rowErrors.push("Invalid or zero quantity");
+    } else if (quantity < 0) {
+      rowErrors.push("Quantity cannot be negative");
+    }
 
     const price = parseNumber(
       getField(row, config.mapping.price),
@@ -53,11 +77,6 @@ export function mapRows(
     );
     if (price === null || price < 0) rowErrors.push("Invalid price");
 
-    const rawType = getField(row, config.mapping.transactionType);
-    const transactionType = mapTransactionType(
-      rawType,
-      config.transactionTypeMap
-    );
     if (!transactionType)
       rowErrors.push(`Unknown transaction type: "${rawType}"`);
 

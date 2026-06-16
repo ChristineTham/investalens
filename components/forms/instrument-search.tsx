@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { searchInstruments } from "@/lib/providers/instrument-search";
+import { searchInstrumentsAction } from "@/lib/actions/search";
 import type { InstrumentSearchResult } from "@/lib/providers/market-data";
 import { Search } from "lucide-react";
 
@@ -20,6 +20,7 @@ export function InstrumentSearch({
   const [results, setResults] = useState<InstrumentSearchResult[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -32,10 +33,19 @@ export function InstrumentSearch({
 
     timeoutRef.current = setTimeout(async () => {
       setLoading(true);
-      const instruments = await searchInstruments(query, market);
-      setResults(instruments);
-      setIsOpen(instruments.length > 0);
-      setLoading(false);
+      setError(null);
+      try {
+        const instruments = await searchInstrumentsAction(query, market);
+        setResults(instruments);
+        setIsOpen(instruments.length > 0);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Search failed";
+        setError(message);
+        setResults([]);
+        setIsOpen(false);
+      } finally {
+        setLoading(false);
+      }
     }, 300);
 
     return () => {
@@ -72,6 +82,7 @@ export function InstrumentSearch({
           onChange={(e) => {
             const val = e.target.value;
             setQuery(val);
+            setError(null);
             if (val.length < 1) {
               setResults([]);
               setIsOpen(false);
@@ -87,6 +98,12 @@ export function InstrumentSearch({
           </div>
         )}
       </div>
+
+      {error && (
+        <div className="mt-2 rounded-md border border-destructive/50 bg-destructive/10 p-2 text-xs text-destructive">
+          {error}
+        </div>
+      )}
 
       {isOpen && (
         <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-md">
