@@ -4,6 +4,7 @@ import type {
   PricePoint,
   InstrumentSearchResult,
 } from "./market-data";
+import { yahooRateLimiter } from "./rate-limiter";
 
 function toYahooSymbol(code: string, market: string): string {
   const marketSuffix: Record<string, string> = {
@@ -24,12 +25,16 @@ async function fetchWithRetry(
   delay = 1000
 ): Promise<Response> {
   for (let i = 0; i <= retries; i++) {
+    // Acquire rate limiter token before each request
+    await yahooRateLimiter.acquire();
+
     const res = await fetch(url, {
       headers: { "User-Agent": "InvestaLens/1.0" },
     });
     if (res.ok) return res;
     if (res.status === 429 && i < retries) {
-      await new Promise((r) => setTimeout(r, delay * (i + 1)));
+      // Exponential backoff on 429
+      await new Promise((r) => setTimeout(r, delay * Math.pow(2, i)));
       continue;
     }
     if (!res.ok) throw new Error(`Yahoo Finance API error: ${res.status}`);
