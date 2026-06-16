@@ -11,7 +11,7 @@ interface SharePortfolioFormProps {
 export function SharePortfolioForm({ portfolios }: SharePortfolioFormProps) {
   const [portfolioId, setPortfolioId] = useState(portfolios[0]?.id || "");
   const [email, setEmail] = useState("");
-  const [accessLevel, setAccessLevel] = useState("read");
+  const [accessLevel, setAccessLevel] = useState<"read" | "write" | "admin">("read");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -61,7 +61,7 @@ export function SharePortfolioForm({ portfolios }: SharePortfolioFormProps) {
         />
         <select
           value={accessLevel}
-          onChange={(e) => setAccessLevel(e.target.value)}
+          onChange={(e) => setAccessLevel(e.target.value as "read" | "write" | "admin")}
           aria-label="Access level"
           className="flex h-9 rounded-md border border-input bg-background px-2 text-sm"
         >
