@@ -4,6 +4,7 @@ import { generateDiversityReport } from "@/lib/reports/diversity-report";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { PortfolioSelector } from "@/components/reports/portfolio-selector";
+import { DiversityPieChart } from "@/components/charts/diversity-pie";
 import { Suspense } from "react";
 
 export default async function DiversityReportPage({
@@ -82,7 +83,16 @@ export default async function DiversityReportPage({
       {items.length === 0 ? (
         <p className="text-muted-foreground">No holdings found.</p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border">
+        <>
+          {/* Diversity Pie Chart */}
+          <div className="rounded-lg border border-border p-4">
+            <h2 className="mb-4 text-sm font-medium text-muted-foreground">
+              Allocation by {groupBy}
+            </h2>
+            <DiversityPieChart data={items} />
+          </div>
+
+          <div className="overflow-hidden rounded-lg border border-border">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>
@@ -114,6 +124,7 @@ export default async function DiversityReportPage({
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );

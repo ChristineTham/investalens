@@ -4,6 +4,7 @@ import { generateDrawdownReport } from "@/lib/reports/drawdown-report";
 import { formatPercent } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { PortfolioSelector } from "@/components/reports/portfolio-selector";
+import { DrawdownScatter } from "@/components/charts/drawdown-scatter";
 import { Suspense } from "react";
 
 export default async function DrawdownReportPage({
@@ -105,7 +106,26 @@ export default async function DrawdownReportPage({
           by the daily cron job.
         </p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border">
+        <>
+          {/* Drawdown Scatter Plot — Return vs Max Drawdown */}
+          <div className="rounded-lg border border-border p-4">
+            <h2 className="mb-2 text-sm font-medium text-muted-foreground">
+              Risk vs Return (Scatter)
+            </h2>
+            <p className="mb-4 text-xs text-muted-foreground">
+              Upper-left = best (high return, low drawdown). Lower-right = worst.
+              Bubble size indicates holding value.
+            </p>
+            <DrawdownScatter
+              data={items.map((i) => ({
+                name: i.instrumentCode,
+                maxDrawdown: i.maxDrawdownPercent,
+                totalReturn: i.totalReturn,
+              }))}
+            />
+          </div>
+
+          <div className="overflow-hidden rounded-lg border border-border">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>
@@ -148,6 +168,7 @@ export default async function DrawdownReportPage({
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );

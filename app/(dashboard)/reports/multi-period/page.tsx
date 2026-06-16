@@ -4,6 +4,7 @@ import { generateMultiPeriodReport } from "@/lib/reports/multi-period-report";
 import { formatPercent } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { PortfolioSelector } from "@/components/reports/portfolio-selector";
+import { MultiPeriodBarChart } from "@/components/charts/multi-period-bar";
 import { Suspense } from "react";
 
 export default async function MultiPeriodReportPage({
@@ -112,7 +113,25 @@ export default async function MultiPeriodReportPage({
           daily cron job.
         </p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border">
+        <>
+          {/* Multi-Period Bar Chart */}
+          <div className="rounded-lg border border-border p-4">
+            <h2 className="mb-4 text-sm font-medium text-muted-foreground">
+              Return Comparison by Period
+            </h2>
+            <MultiPeriodBarChart
+              data={rows.map((r) => {
+                const obj: Record<string, string | number> = { name: r.instrumentCode };
+                r.periods.forEach((p) => {
+                  obj[p.label] = Number(p.returnPercent.toFixed(2));
+                });
+                return obj;
+              })}
+              periods={periods.map((p) => p.label)}
+            />
+          </div>
+
+          <div className="overflow-hidden rounded-lg border border-border">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>
@@ -152,6 +171,7 @@ export default async function MultiPeriodReportPage({
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );

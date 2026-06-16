@@ -4,6 +4,7 @@ import { generateContributionReport } from "@/lib/reports/contribution-report";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { PortfolioSelector } from "@/components/reports/portfolio-selector";
+import { ContributionBarChart } from "@/components/charts/contribution-bar";
 import { Suspense } from "react";
 
 export default async function ContributionReportPage({
@@ -81,7 +82,21 @@ export default async function ContributionReportPage({
       {items.length === 0 ? (
         <p className="text-muted-foreground">No holdings found.</p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border">
+        <>
+          {/* Contribution Chart */}
+          <div className="rounded-lg border border-border p-4">
+            <h2 className="mb-4 text-sm font-medium text-muted-foreground">
+              Contribution by Holding
+            </h2>
+            <ContributionBarChart
+              data={items.map((item) => ({
+                name: item.instrumentCode,
+                contribution: item.contributionPercent,
+              }))}
+            />
+          </div>
+
+          <div className="overflow-hidden rounded-lg border border-border">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>
@@ -113,6 +128,7 @@ export default async function ContributionReportPage({
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );

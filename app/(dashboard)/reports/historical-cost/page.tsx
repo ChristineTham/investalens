@@ -4,6 +4,7 @@ import { generateHistoricalCostReport } from "@/lib/reports/historical-cost-repo
 import { formatCurrency } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { PortfolioSelector } from "@/components/reports/portfolio-selector";
+import { HistoricalCostChart } from "@/components/charts/historical-cost-chart";
 import { Suspense } from "react";
 
 export default async function HistoricalCostPage({
@@ -112,7 +113,24 @@ export default async function HistoricalCostPage({
       {items.length === 0 ? (
         <p className="text-muted-foreground">No holdings found.</p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border">
+        <>
+          {/* Cost Base Chart */}
+          <div className="rounded-lg border border-border p-4">
+            <h2 className="mb-4 text-sm font-medium text-muted-foreground">
+              Cost Base by Holding
+            </h2>
+            <HistoricalCostChart
+              data={items.slice(0, 10).map((item) => ({
+                name: item.instrumentCode,
+                opening: item.openingCostBase,
+                purchases: item.purchases,
+                sales: item.sales,
+                closing: item.closingCostBase,
+              }))}
+            />
+          </div>
+
+          <div className="overflow-hidden rounded-lg border border-border">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>
@@ -181,6 +199,7 @@ export default async function HistoricalCostPage({
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );

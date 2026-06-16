@@ -23,6 +23,7 @@ const ROUTE_LABELS: Record<string, string> = {
   calendar: "Dividend Calendar",
   drawdown: "Drawdown Risk",
   "historical-cost": "Historical Cost",
+  holding: "Holding Detail",
   // Tax sub-pages
   "taxable-income": "Taxable Income",
   cgt: "Capital Gains Tax",

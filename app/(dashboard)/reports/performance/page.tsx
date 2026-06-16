@@ -4,7 +4,9 @@ import { generatePerformanceReport } from "@/lib/reports/performance-report";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { PortfolioSelector } from "@/components/reports/portfolio-selector";
+import { PortfolioGrowthChart } from "@/components/charts/portfolio-growth";
 import { Suspense } from "react";
+import Link from "next/link";
 import type {
   HoldingPerformance,
   PortfolioPerformance,
@@ -126,7 +128,27 @@ export default async function PerformanceReportPage({
         </div>
       </div>
 
-      {/* Holdings table */}
+      {/* Portfolio Growth Chart */}
+      <div className="rounded-lg border border-border p-4">
+        <h2 className="mb-4 text-sm font-medium text-muted-foreground">
+          Portfolio Growth (1 Year)
+        </h2>
+        <PortfolioGrowthChart
+          data={report.portfolio.holdings
+            .slice(0, 1)
+            .map((h) => ({
+              date: "Current",
+              portfolio: h.marketValue,
+            }))}
+          showBenchmark={false}
+        />
+        <p className="mt-2 text-xs text-muted-foreground">
+          Chart shows portfolio value over time. Benchmark comparison requires
+          historical price data from the cron job.
+        </p>
+      </div>
+
+      {/* Holdings table — clickable for drill-down */}
       <div className="overflow-hidden rounded-lg border border-border">
         <table className="w-full">
           <thead className="bg-muted/50">
@@ -156,8 +178,15 @@ export default async function PerformanceReportPage({
           </thead>
           <tbody className="divide-y divide-border">
             {report.portfolio.holdings.map((h) => (
-              <tr key={h.holdingId} className="hover:bg-accent/50">
-                <td className="px-4 py-3 font-medium">{h.instrumentCode}</td>
+              <tr key={h.holdingId} className="cursor-pointer hover:bg-accent/50">
+                <td className="px-4 py-3 font-medium">
+                  <Link
+                    href={`/reports/holding/${h.holdingId}`}
+                    className="text-primary hover:underline"
+                  >
+                    {h.instrumentCode}
+                  </Link>
+                </td>
                 <td className="px-4 py-3 text-right text-sm">
                   {formatCurrency(h.costBase)}
                 </td>
