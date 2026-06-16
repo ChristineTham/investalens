@@ -67,11 +67,13 @@ export function AddCashTransactionForm({ accountId }: { accountId: string }) {
     if (!amount) return;
     setLoading(true);
     try {
-      await addCashTransaction(accountId, {
-        type,
-        amount: Number(amount),
-        description: description || undefined,
-      });
+      await addCashTransaction(
+        accountId,
+        type.toLowerCase(),
+        Number(amount),
+        new Date(),
+        description || undefined
+      );
       setOpen(false);
       setAmount("");
       setDescription("");
