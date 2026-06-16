@@ -24,12 +24,13 @@ The Rosely palette consists of sixteen core colours divided into four functional
 
 Used for backgrounds, text, and structural elements where neutral grounding is needed.
 
-| Swatch | Name          | Hex       | CSS Variable | Tailwind Token | Typical Use            |
-| ------ | ------------- | --------- | ------------ | -------------- | ---------------------- |
-|        | Black Beauty  | `#27272a` | `--rosely0`  | `rosely-night` | Primary text, headings |
-|        | Granite Gray  | `#615f5f` | `--rosely1`  | `rosely-dusk`  | Secondary text, labels |
-|        | Opal Gray     | `#a49e9e` | `--rosely3`  | `rosely-mist`  | Placeholder, captions  |
-|        | Sugar Swizzle | `#f4eee8` | `--rosely6`  | `rosely-cream` | Page/card backgrounds  |
+| Swatch | Name          | Hex       | CSS Variable | Tailwind Token | Typical Use                      |
+| ------ | ------------- | --------- | ------------ | -------------- | -------------------------------- |
+|        | White         | `#ffffff` | —            | `white`        | Main content & card backgrounds  |
+|        | Black Beauty  | `#27272a` | `--rosely0`  | `rosely-night` | Primary text, headings           |
+|        | Granite Gray  | `#615f5f` | `--rosely1`  | `rosely-dusk`  | Secondary text, labels           |
+|        | Opal Gray     | `#a49e9e` | `--rosely3`  | `rosely-mist`  | Placeholder, captions            |
+|        | Sugar Swizzle | `#f4eee8` | `--rosely6`  | `rosely-cream` | Sidebar/header chrome, muted bg  |
 
 ### Pinks (Gentle Romance & Warmth)
 
@@ -137,46 +138,61 @@ src/components/
 shadcn/ui uses CSS custom properties for theming. Map Rosely tokens to shadcn/ui's expected variables in `globals.css`:
 
 ```css
-@layer base {
-  :root {
-    --background: var(--rosely6); /* Sugar Swizzle — cream background */
-    --foreground: var(--rosely0); /* Black Beauty — primary text */
-    --card: var(--rosely6);
-    --card-foreground: var(--rosely0);
-    --primary: var(--rosely2); /* Grapeade — primary actions */
-    --primary-foreground: var(--rosely6);
-    --secondary: var(--rosely5); /* Heavenly Pink — secondary surfaces */
-    --secondary-foreground: var(--rosely0);
-    --muted: var(--rosely5);
-    --muted-foreground: var(--rosely1); /* Granite Gray */
-    --accent: var(--rosely5);
-    --accent-foreground: var(--rosely0);
-    --destructive: var(--rosely11); /* Raspberry Sorbet — errors */
-    --border: var(--rosely4); /* Rose Quartz — borders */
-    --input: var(--rosely4);
-    --ring: var(--rosely8); /* Lupine — focus ring */
-  }
+:root {
+  --background: #ffffff;           /* White — clean main content area */
+  --foreground: var(--rosely0);    /* Black Beauty — primary text */
+  --card: #ffffff;                 /* White cards for clean look */
+  --card-foreground: var(--rosely0);
+  --popover: #ffffff;
+  --popover-foreground: var(--rosely0);
+  --primary: var(--rosely5);       /* Heavenly Pink — buttons & interactive */
+  --primary-foreground: var(--rosely0);
+  --secondary: var(--rosely4);     /* Rose Quartz — secondary buttons/dropdowns */
+  --secondary-foreground: var(--rosely0);
+  --muted: var(--rosely6);         /* Sugar Swizzle — muted backgrounds only */
+  --muted-foreground: var(--rosely1); /* Granite Gray */
+  --accent: var(--rosely5);        /* Heavenly Pink — hover states */
+  --accent-foreground: var(--rosely0);
+  --destructive: var(--rosely11);  /* Raspberry Sorbet — errors */
+  --border: var(--rosely4);        /* Rose Quartz — borders */
+  --input: var(--rosely4);
+  --ring: var(--rosely8);          /* Lupine — focus ring */
+}
 
-  .dark {
-    --background: var(--rosely0);
-    --foreground: var(--rosely6);
-    --card: var(--rosely0);
-    --card-foreground: var(--rosely6);
-    --primary: var(--rosely8);
-    --primary-foreground: var(--rosely0);
-    --secondary: var(--rosely1);
-    --secondary-foreground: var(--rosely6);
-    --muted: var(--rosely1);
-    --muted-foreground: var(--rosely3);
-    --accent: var(--rosely1);
-    --accent-foreground: var(--rosely6);
-    --destructive: var(--rosely11);
-    --border: var(--rosely1);
-    --input: var(--rosely1);
-    --ring: var(--rosely8);
-  }
+.dark {
+  --background: #1a1a1d;           /* Very dark — main content */
+  --foreground: var(--rosely6);
+  --card: var(--rosely0);
+  --card-foreground: var(--rosely6);
+  --popover: var(--rosely0);
+  --popover-foreground: var(--rosely6);
+  --primary: var(--rosely12);      /* Morning Glory — dark pink buttons */
+  --primary-foreground: var(--rosely0);
+  --secondary: var(--rosely9);     /* Dusty Rose — secondary interactive */
+  --secondary-foreground: var(--rosely6);
+  --muted: var(--rosely1);
+  --muted-foreground: var(--rosely3);
+  --accent: var(--rosely9);        /* Dusty Rose — hover */
+  --accent-foreground: var(--rosely6);
+  --destructive: var(--rosely11);
+  --border: var(--rosely1);
+  --input: var(--rosely1);
+  --ring: var(--rosely8);
 }
 ```
+
+### Background Usage Guidelines
+
+| Surface | Light Mode | Dark Mode | Token |
+|---------|------------|-----------|-------|
+| Main content area | White `#ffffff` | Very dark `#1a1a1d` | `bg-background` |
+| Cards & panels | White `#ffffff` | Black Beauty | `bg-card` |
+| Sidebar & header (chrome) | Sugar Swizzle | Black Beauty | `bg-rosely-cream` / `dark:bg-rosely-night` |
+| Buttons & interactive | Heavenly Pink | Morning Glory | `bg-primary` |
+| Dropdowns & selects | Rose Quartz | Dusty Rose | `bg-secondary` |
+| Muted/subtle areas | Sugar Swizzle | Granite Gray | `bg-muted` |
+
+> **Rule:** Sugar Swizzle (`rosely-cream`) is reserved for shell chrome (sidebar, header) and muted backgrounds only. Main content and cards use pure white for a clean, modern feel.
 
 ### Usage Examples
 

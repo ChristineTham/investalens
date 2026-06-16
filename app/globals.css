@@ -22,17 +22,17 @@
   --rosely15: #919bc9;
 
   /* shadcn/ui semantic tokens — light mode (default) */
-  --background: var(--rosely6);
+  --background: #ffffff;
   --foreground: var(--rosely0);
-  --card: var(--rosely6);
+  --card: #ffffff;
   --card-foreground: var(--rosely0);
-  --popover: var(--rosely6);
+  --popover: #ffffff;
   --popover-foreground: var(--rosely0);
-  --primary: var(--rosely2);
-  --primary-foreground: var(--rosely6);
-  --secondary: var(--rosely5);
+  --primary: var(--rosely5);
+  --primary-foreground: var(--rosely0);
+  --secondary: var(--rosely4);
   --secondary-foreground: var(--rosely0);
-  --muted: var(--rosely5);
+  --muted: var(--rosely6);
   --muted-foreground: var(--rosely1);
   --accent: var(--rosely5);
   --accent-foreground: var(--rosely0);
@@ -50,19 +50,19 @@
 }
 
 .dark {
-  --background: var(--rosely0);
+  --background: #1a1a1d;
   --foreground: var(--rosely6);
   --card: var(--rosely0);
   --card-foreground: var(--rosely6);
   --popover: var(--rosely0);
   --popover-foreground: var(--rosely6);
-  --primary: var(--rosely8);
+  --primary: var(--rosely12);
   --primary-foreground: var(--rosely0);
-  --secondary: var(--rosely1);
+  --secondary: var(--rosely9);
   --secondary-foreground: var(--rosely6);
   --muted: var(--rosely1);
   --muted-foreground: var(--rosely3);
-  --accent: var(--rosely1);
+  --accent: var(--rosely9);
   --accent-foreground: var(--rosely6);
   --destructive: var(--rosely11);
   --border: var(--rosely1);

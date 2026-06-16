@@ -8,7 +8,7 @@ export function Header() {
   const { data: session } = useSession();
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-border bg-card px-6">
+    <header className="flex h-14 items-center justify-between border-b border-border bg-rosely-cream dark:bg-rosely-night px-6">
       <div className="flex items-center gap-4">
         <h2 className="text-sm font-medium text-muted-foreground">
           Portfolio Tracker & Optimiser
