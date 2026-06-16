@@ -19,6 +19,7 @@ export default function CorporateActionsPage({
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [value1, setValue1] = useState("");
   const [value2, setValue2] = useState("");
+  const [value3, setValue3] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -58,8 +59,9 @@ export default function CorporateActionsPage({
         case "merger":
           await recordMerger(
             holdingId,
-            Number(value1),
-            Number(value2),
+            value1, // target instrument code
+            value2, // target market code
+            Number(value3),
             new Date(date)
           );
           break;
@@ -72,12 +74,12 @@ export default function CorporateActionsPage({
     }
   }
 
-  const actionLabels: Record<string, { label1: string; label2?: string }> = {
+  const actionLabels: Record<string, { label1: string; label2?: string; label3?: string }> = {
     split: { label1: "Split Ratio (e.g. 2 for 2:1)" },
     bonus: { label1: "Bonus Shares Quantity" },
     roc: { label1: "Amount Per Share" },
     rights: { label1: "Quantity", label2: "Price Per Share" },
-    merger: { label1: "New Shares Received", label2: "Value Per New Share" },
+    merger: { label1: "Target Instrument Code", label2: "Target Market (e.g. ASX)", label3: "New Shares Received" },
   };
 
   return (
@@ -131,7 +133,7 @@ export default function CorporateActionsPage({
           </label>
           <input
             id="value1"
-            type="number"
+            type={actionType === "merger" ? "text" : "number"}
             step="any"
             value={value1}
             onChange={(e) => setValue1(e.target.value)}
@@ -147,10 +149,27 @@ export default function CorporateActionsPage({
             </label>
             <input
               id="value2"
-              type="number"
+              type={actionType === "merger" ? "text" : "number"}
               step="any"
               value={value2}
               onChange={(e) => setValue2(e.target.value)}
+              required
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            />
+          </div>
+        )}
+
+        {actionLabels[actionType]?.label3 && (
+          <div className="space-y-2">
+            <label htmlFor="value3" className="text-sm font-medium">
+              {actionLabels[actionType].label3}
+            </label>
+            <input
+              id="value3"
+              type="number"
+              step="any"
+              value={value3}
+              onChange={(e) => setValue3(e.target.value)}
               required
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             />
