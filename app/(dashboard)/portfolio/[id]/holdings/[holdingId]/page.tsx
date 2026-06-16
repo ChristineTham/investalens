@@ -2,10 +2,12 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getTransactions } from "@/lib/actions/transaction";
-import { formatCurrency, formatDate } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 import { redirect } from "next/navigation";
 import { AddTransactionForm } from "@/components/forms/add-transaction-form";
+import { TransactionRow } from "@/components/forms/transaction-row";
+import { DeleteHoldingButton } from "@/components/forms/delete-holding-button";
+import { DrpToggle } from "@/components/forms/drp-toggle";
 
 export default async function HoldingDetailPage({
   params,
@@ -30,21 +32,28 @@ export default async function HoldingDetailPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Link
-          href={`/portfolio/${id}`}
-          className="rounded-md p-2 hover:bg-accent"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Link>
-        <div>
-          <h1 className="font-serif text-2xl font-bold">
-            {holding.instrument.code}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {holding.instrument.name} · {holding.instrument.marketCode}
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link
+            href={`/portfolio/${id}`}
+            className="rounded-md p-2 hover:bg-accent"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+          <div>
+            <h1 className="font-serif text-2xl font-bold">
+              {holding.instrument.code}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {holding.instrument.name} · {holding.instrument.marketCode}
+            </p>
+          </div>
         </div>
+        <DeleteHoldingButton
+          holdingId={holdingId}
+          portfolioId={id}
+          instrumentCode={holding.instrument.code}
+        />
       </div>
 
       <div className="rounded-lg border border-border bg-card p-6">
@@ -62,9 +71,12 @@ export default async function HoldingDetailPage({
           </div>
           <div>
             <p className="text-sm text-muted-foreground">DRP</p>
-            <p className="font-medium">
-              {holding.drpEnabled ? "Enabled" : "Disabled"}
-            </p>
+            <div className="mt-1 flex items-center gap-2">
+              <DrpToggle holdingId={holdingId} enabled={holding.drpEnabled} />
+              <span className="text-sm text-muted-foreground">
+                {holding.drpEnabled ? "Enabled" : "Disabled"}
+              </span>
+            </div>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Transactions</p>
@@ -105,33 +117,18 @@ export default async function HoldingDetailPage({
                   <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
                     Brokerage
                   </th>
+                  <th className="w-20 px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {transactions.map((tx) => (
-                  <tr key={tx.id} className="hover:bg-accent/50">
-                    <td className="px-4 py-3 text-sm">
-                      {formatDate(tx.tradeDate)}
-                    </td>
-                    <td className="px-4 py-3 text-sm font-medium">
-                      {tx.transactionType}
-                    </td>
-                    <td className="px-4 py-3 text-right text-sm">
-                      {Number(tx.quantity).toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3 text-right text-sm">
-                      {formatCurrency(
-                        Number(tx.price),
-                        holding.instrument.currency
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right text-sm text-muted-foreground">
-                      {formatCurrency(
-                        Number(tx.brokerage),
-                        holding.instrument.currency
-                      )}
-                    </td>
-                  </tr>
+                  <TransactionRow
+                    key={tx.id}
+                    transaction={tx}
+                    currency={holding.instrument.currency}
+                  />
                 ))}
               </tbody>
             </table>

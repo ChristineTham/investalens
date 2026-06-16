@@ -1,10 +1,19 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
+import {
+  SharePortfolioForm,
+  RemoveShareButton,
+} from "@/components/forms/sharing-forms";
 
 export default async function SharingPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
+
+  const portfolios = await db.portfolio.findMany({
+    where: { userId: session.user.id },
+    select: { id: true, name: true },
+  });
 
   const shares = await db.portfolioShare.findMany({
     where: { portfolio: { userId: session.user.id } },
@@ -15,8 +24,7 @@ export default async function SharingPage() {
     where: { email: session.user.email! },
     include: {
       portfolio: {
-        select: { name: true },
-        include: { user: { select: { name: true, email: true } } },
+        select: { name: true, user: { select: { name: true, email: true } } },
       },
     },
   });
@@ -28,6 +36,15 @@ export default async function SharingPage() {
         Share portfolios with other users and manage access levels.
       </p>
 
+      {/* Share form */}
+      {portfolios.length > 0 && (
+        <div className="rounded-lg border border-border bg-card p-4">
+          <h2 className="mb-3 text-sm font-medium">Share a Portfolio</h2>
+          <SharePortfolioForm portfolios={portfolios} />
+        </div>
+      )}
+
+      {/* Shared by you */}
       <div className="rounded-lg border border-border bg-card p-6">
         <h2 className="text-lg font-medium">Shared by you</h2>
         {shares.length === 0 ? (
@@ -47,15 +64,19 @@ export default async function SharingPage() {
                     {s.portfolio.name}
                   </p>
                 </div>
-                <span className="rounded-full bg-muted px-2 py-1 text-xs capitalize">
-                  {s.accessLevel}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-muted px-2 py-1 text-xs capitalize">
+                    {s.accessLevel}
+                  </span>
+                  <RemoveShareButton shareId={s.id} />
+                </div>
               </div>
             ))}
           </div>
         )}
       </div>
 
+      {/* Shared with you */}
       <div className="rounded-lg border border-border bg-card p-6">
         <h2 className="text-lg font-medium">Shared with you</h2>
         {sharedWithMe.length === 0 ? (

@@ -62,3 +62,42 @@ export async function deleteTransaction(id: string) {
   await db.transaction.delete({ where: { id } });
   revalidatePath(`/portfolio/${tx.holding.portfolioId}`);
 }
+
+export async function updateTransaction(
+  id: string,
+  input: {
+    transactionType?: string;
+    tradeDate?: string;
+    quantity?: number;
+    price?: number;
+    brokerage?: number;
+    comments?: string;
+  }
+) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const tx = await db.transaction.findFirst({
+    where: { id },
+    include: { holding: { include: { portfolio: true } } },
+  });
+
+  if (!tx || tx.holding.portfolio.userId !== session.user.id) {
+    throw new Error("Not found");
+  }
+
+  const updated = await db.transaction.update({
+    where: { id },
+    data: {
+      ...(input.transactionType && { transactionType: input.transactionType }),
+      ...(input.tradeDate && { tradeDate: new Date(input.tradeDate) }),
+      ...(input.quantity !== undefined && { quantity: input.quantity }),
+      ...(input.price !== undefined && { price: input.price }),
+      ...(input.brokerage !== undefined && { brokerage: input.brokerage }),
+      ...(input.comments !== undefined && { comments: input.comments }),
+    },
+  });
+
+  revalidatePath(`/portfolio/${tx.holding.portfolioId}`);
+  return updated;
+}

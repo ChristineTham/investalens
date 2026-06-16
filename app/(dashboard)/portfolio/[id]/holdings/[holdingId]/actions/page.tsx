@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   recordSplit,
   recordBonus,
   recordReturnOfCapital,
   recordRightsIssue,
+  recordMerger,
 } from "@/lib/actions/corporate-actions";
 
 export default function CorporateActionsPage({
@@ -22,9 +23,9 @@ export default function CorporateActionsPage({
   const [message, setMessage] = useState("");
 
   // Resolve params
-  useState(() => {
+  useEffect(() => {
     params.then((p) => setHoldingId(p.holdingId));
-  });
+  }, [params]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,6 +55,14 @@ export default function CorporateActionsPage({
             new Date(date)
           );
           break;
+        case "merger":
+          await recordMerger(
+            holdingId,
+            Number(value1),
+            Number(value2),
+            new Date(date)
+          );
+          break;
       }
       setMessage("Corporate action recorded successfully.");
     } catch (err) {
@@ -68,6 +77,7 @@ export default function CorporateActionsPage({
     bonus: { label1: "Bonus Shares Quantity" },
     roc: { label1: "Amount Per Share" },
     rights: { label1: "Quantity", label2: "Price Per Share" },
+    merger: { label1: "New Shares Received", label2: "Value Per New Share" },
   };
 
   return (
@@ -98,6 +108,7 @@ export default function CorporateActionsPage({
             <option value="bonus">Bonus Issue</option>
             <option value="roc">Return of Capital</option>
             <option value="rights">Rights Issue</option>
+            <option value="merger">Merger / Acquisition</option>
           </select>
         </div>
 

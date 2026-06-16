@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { getLabels } from "@/lib/actions/labels";
 import { redirect } from "next/navigation";
+import { CreateLabelForm, DeleteLabelButton } from "@/components/forms/label-forms";
 
 export default async function LabelsPage() {
   const session = await auth();
@@ -10,10 +11,16 @@ export default async function LabelsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-2xl font-bold">Labels</h1>
-      <p className="text-sm text-muted-foreground">
-        Create labels to tag and filter holdings.
-      </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="font-serif text-2xl font-bold">Labels</h1>
+          <p className="text-sm text-muted-foreground">
+            Create labels to tag and filter holdings.
+          </p>
+        </div>
+      </div>
+
+      <CreateLabelForm />
 
       {labels.length === 0 ? (
         <p className="text-muted-foreground">No labels yet.</p>
@@ -28,6 +35,7 @@ export default async function LabelsPage() {
                 <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
                   Holdings
                 </th>
+                <th className="w-16 px-4 py-3"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -36,6 +44,9 @@ export default async function LabelsPage() {
                   <td className="px-4 py-3 font-medium">{label.name}</td>
                   <td className="px-4 py-3 text-right text-sm text-muted-foreground">
                     {label._count.holdings}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <DeleteLabelButton labelId={label.id} />
                   </td>
                 </tr>
               ))}

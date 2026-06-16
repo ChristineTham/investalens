@@ -2,6 +2,10 @@ import { auth } from "@/lib/auth";
 import { getCashAccounts } from "@/lib/actions/cash-accounts";
 import { formatCurrency } from "@/lib/utils";
 import { redirect } from "next/navigation";
+import {
+  CreateCashAccountForm,
+  AddCashTransactionForm,
+} from "@/components/forms/cash-forms";
 
 export default async function CashPage({
   params,
@@ -16,10 +20,14 @@ export default async function CashPage({
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-2xl font-bold">Cash Accounts</h1>
-      <p className="text-sm text-muted-foreground">
-        Manage cash accounts linked to this portfolio.
-      </p>
+      <div>
+        <h1 className="font-serif text-2xl font-bold">Cash Accounts</h1>
+        <p className="text-sm text-muted-foreground">
+          Manage cash accounts linked to this portfolio.
+        </p>
+      </div>
+
+      <CreateCashAccountForm portfolioId={id} />
 
       {accounts.length === 0 ? (
         <p className="text-muted-foreground">No cash accounts yet.</p>
@@ -37,6 +45,7 @@ export default async function CashPage({
               <p className="text-sm text-muted-foreground">
                 {account.currency}
               </p>
+              <AddCashTransactionForm accountId={account.id} />
             </div>
           ))}
         </div>

@@ -1,6 +1,11 @@
 import { auth } from "@/lib/auth";
 import { getGroups } from "@/lib/actions/groups";
 import { redirect } from "next/navigation";
+import {
+  CreateGroupForm,
+  AddCategoryForm,
+  DeleteGroupButton,
+} from "@/components/forms/group-forms";
 
 export default async function GroupsPage() {
   const session = await auth();
@@ -10,10 +15,16 @@ export default async function GroupsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-2xl font-bold">Custom Groups</h1>
-      <p className="text-sm text-muted-foreground">
-        Organise instruments into custom groups and categories.
-      </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="font-serif text-2xl font-bold">Custom Groups</h1>
+          <p className="text-sm text-muted-foreground">
+            Organise instruments into custom groups and categories.
+          </p>
+        </div>
+      </div>
+
+      <CreateGroupForm />
 
       {groups.length === 0 ? (
         <p className="text-muted-foreground">No custom groups yet.</p>
@@ -24,7 +35,10 @@ export default async function GroupsPage() {
               key={group.id}
               className="rounded-lg border border-border bg-card p-4"
             >
-              <h3 className="font-medium">{group.name}</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="font-medium">{group.name}</h3>
+                <DeleteGroupButton groupId={group.id} />
+              </div>
               <div className="mt-2 space-y-1">
                 {group.categories.map((cat) => (
                   <div
@@ -36,9 +50,12 @@ export default async function GroupsPage() {
                   </div>
                 ))}
                 {group.categories.length === 0 && (
-                  <p className="text-sm text-muted-foreground">No categories</p>
+                  <p className="text-sm text-muted-foreground">
+                    No categories yet
+                  </p>
                 )}
               </div>
+              <AddCategoryForm groupId={group.id} />
             </div>
           ))}
         </div>
