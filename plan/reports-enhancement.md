@@ -67,10 +67,40 @@ Based on research of Sharesight, Morningstar, and Yahoo Finance report features.
 
 ---
 
-## Phase 3: Future Enhancements (Not This Sprint)
-- Exposure Report (geographic/sector treemap)
-- Risk metrics (Sharpe, Sortino, Beta, Alpha)
-- Monte Carlo simulation
-- What-if scenario analysis
-- Export to PDF/CSV
-- Saved report configurations
+## Phase 3: Advanced Analytics & Export
+
+### `/analytics/exposure` — Exposure Report
+- [x] Treemap visualization (sector/country/type/market)
+- [x] Group-by selector (clickable chips)
+- [x] Portfolio selector
+- [x] Breakdown table with values and weights
+
+### `/analytics/risk` — Risk Metrics
+- [x] Sharpe Ratio, Sortino Ratio
+- [x] Beta, Alpha (Jensen's)
+- [x] Annualised Return, Volatility
+- [x] Max Drawdown
+- [x] Information Ratio, Tracking Error
+- [x] Interpretation guide
+
+### `/analytics/monte-carlo` — Monte Carlo Simulation
+- [x] Configurable parameters (value, return, volatility, years, contributions)
+- [x] 1000-simulation projection
+- [x] Fan chart (5th/25th/50th/75th/95th percentiles)
+- [x] Probability of loss and doubling
+- [x] Outcome distribution summary
+
+### `/analytics/what-if` — What-If Scenarios
+- [x] Preset scenarios (Crash -30%, Correction -10%, Rally +15%, GFC -50%)
+- [x] Custom market move input
+- [x] Beta-weighted per-holding impact calculation
+- [x] Editable holdings table (add/remove)
+- [x] P&L summary cards
+
+### Export (Settings)
+- [x] Portfolio selector
+- [x] Export Trades (CSV)
+- [x] Export Holdings (CSV)
+- [x] Export Dividends (CSV)
+- [x] Full Backup (JSON)
+- [x] Browser file download trigger

@@ -45,6 +45,11 @@ const ROUTE_LABELS: Record<string, string> = {
   "api-tokens": "API Tokens",
   // Tools sub-pages
   watchlist: "Watchlist",
+  // Analytics sub-pages
+  risk: "Risk Metrics",
+  "monte-carlo": "Monte Carlo",
+  "what-if": "What-If Scenarios",
+  exposure: "Exposure",
 };
 
 function getLabel(segment: string): string {
