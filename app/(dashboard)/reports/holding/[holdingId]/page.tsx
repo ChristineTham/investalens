@@ -60,6 +60,17 @@ export default async function HoldingDetailPage({
   const latestPrice = prices.length > 0 ? Number(prices[prices.length - 1].close) : 0;
   const position = calculatePosition(txData, latestPrice);
 
+  // Transaction summary
+  const buys = holding.transactions.filter((t) => t.transactionType === "BUY");
+  const sells = holding.transactions.filter((t) => t.transactionType === "SELL");
+  const dividends = holding.transactions.filter(
+    (t) => t.transactionType === "DIVIDEND"
+  );
+  const totalDividends = dividends.reduce(
+    (s, t) => s + Number(t.quantity) * Number(t.price),
+    0
+  );
+
   // Prepare chart data with OHLCV
   const chartPrices = prices.map((p) => ({
     date: formatDate(p.date, "iso"),
