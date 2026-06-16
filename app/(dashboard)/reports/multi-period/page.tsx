@@ -121,7 +121,7 @@ export default async function MultiPeriodReportPage({
             </h2>
             <MultiPeriodBarChart
               data={rows.map((r) => {
-                const obj: Record<string, string | number> = { name: r.instrumentCode };
+                const obj: { name: string; [key: string]: string | number } = { name: r.instrumentCode };
                 r.periods.forEach((p) => {
                   obj[p.label] = Number(p.returnPercent.toFixed(2));
                 });
