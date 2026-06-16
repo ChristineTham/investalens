@@ -1,16 +1,28 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { generateCgtReport } from "@/lib/reports/tax/cgt-report";
+import {
+  generateCgtReport,
+  type CgtItem,
+  type CgtSummary,
+} from "@/lib/reports/tax/cgt-report";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { redirect } from "next/navigation";
+import { TaxFilter } from "@/components/reports/tax-filter";
+import { Suspense } from "react";
 
-export default async function CgtPage() {
+export default async function CgtPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ portfolio?: string; year?: string }>;
+}) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
+  const params = await searchParams;
+
   const portfolios = await db.portfolio.findMany({
     where: { userId: session.user.id },
-    select: { id: true, name: true },
+    select: { id: true, name: true, financialYearEnd: true },
   });
 
   if (portfolios.length === 0) {
@@ -22,54 +34,187 @@ export default async function CgtPage() {
     );
   }
 
-  const currentFY =
-    new Date().getMonth() >= 6
-      ? new Date().getFullYear() + 1
-      : new Date().getFullYear();
+  const selectedPortfolioId = params.portfolio || null;
+  const fyEndMonth = selectedPortfolioId
+    ? portfolios.find((p) => p.id === selectedPortfolioId)?.financialYearEnd ?? 6
+    : 6;
 
-  const report = await generateCgtReport(portfolios[0].id, currentFY);
+  const now = new Date();
+  const currentFY =
+    fyEndMonth === 12
+      ? now.getFullYear()
+      : now.getMonth() >= fyEndMonth
+        ? now.getFullYear() + 1
+        : now.getFullYear();
+  const selectedYear = params.year ? parseInt(params.year, 10) : currentFY;
+  const availableYears = Array.from({ length: 5 }, (_, i) => currentFY - i);
+
+  // Generate CGT report
+  let items: CgtItem[] = [];
+  let summary: Pick<
+    CgtSummary,
+    | "shortTermGains"
+    | "longTermGains"
+    | "totalLosses"
+    | "cgtDiscount"
+    | "netCapitalGain"
+    | "method"
+    | "financialYear"
+  >;
+
+  if (selectedPortfolioId) {
+    const report = await generateCgtReport(selectedPortfolioId, selectedYear);
+    items = report.items;
+    summary = report;
+  } else {
+    // Consolidated across all portfolios
+    const allItems: CgtItem[] = [];
+    let lastFY = "";
+    let lastMethod = "fifo";
+    for (const p of portfolios) {
+      const report = await generateCgtReport(p.id, selectedYear);
+      allItems.push(...report.items);
+      lastFY = report.financialYear;
+      lastMethod = report.method;
+    }
+    items = allItems.sort(
+      (a, b) =>
+        new Date(a.saleDate).getTime() - new Date(b.saleDate).getTime()
+    );
+
+    const shortTermGains = items
+      .filter((i) => !i.isLongTerm && i.gain > 0)
+      .reduce((s, i) => s + i.gain, 0);
+    const longTermGains = items
+      .filter((i) => i.isLongTerm && i.gain > 0)
+      .reduce((s, i) => s + i.gain, 0);
+    const totalLosses = items
+      .filter((i) => i.gain < 0)
+      .reduce((s, i) => s + Math.abs(i.gain), 0);
+    const cgtDiscount = items
+      .filter((i) => i.isLongTerm && i.gain > 0)
+      .reduce((s, i) => s + (i.gain - i.discountedGain), 0);
+    const netCapitalGain = Math.max(
+      0,
+      shortTermGains + longTermGains - cgtDiscount - totalLosses
+    );
+
+    summary = {
+      shortTermGains,
+      longTermGains,
+      totalLosses,
+      cgtDiscount,
+      netCapitalGain,
+      method: lastMethod as CgtSummary["method"],
+      financialYear: lastFY,
+    };
+  }
+
+  // ATO CGT calculation steps
+  const totalGains = summary.shortTermGains + summary.longTermGains;
+  const gainsAfterLosses = Math.max(0, totalGains - summary.totalLosses);
+  const netAfterDiscount = Math.max(0, gainsAfterLosses - summary.cgtDiscount);
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-2xl font-bold">Capital Gains Tax</h1>
-      <p className="text-sm text-muted-foreground">
-        {report.financialYear} · Method: {report.method.toUpperCase()}
-      </p>
-
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-        <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-sm text-muted-foreground">Short-term Gains</p>
-          <p className="text-lg font-bold">
-            {formatCurrency(report.shortTermGains)}
-          </p>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-sm text-muted-foreground">Long-term Gains</p>
-          <p className="text-lg font-bold">
-            {formatCurrency(report.longTermGains)}
-          </p>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-sm text-muted-foreground">Losses</p>
-          <p className="text-lg font-bold text-destructive">
-            {formatCurrency(report.totalLosses)}
-          </p>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-sm text-muted-foreground">CGT Discount</p>
-          <p className="text-lg font-bold">
-            {formatCurrency(report.cgtDiscount)}
-          </p>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-sm text-muted-foreground">Net Capital Gain</p>
-          <p className="text-lg font-bold">
-            {formatCurrency(report.netCapitalGain)}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="font-serif text-2xl font-bold">Capital Gains Tax</h1>
+          <p className="text-sm text-muted-foreground">
+            {summary.financialYear} — Parcel allocation:{" "}
+            {summary.method.toUpperCase()}
           </p>
         </div>
       </div>
 
-      {report.items.length > 0 && (
+      <Suspense>
+        <TaxFilter
+          portfolios={portfolios}
+          selectedPortfolioId={selectedPortfolioId}
+          selectedYear={selectedYear}
+          availableYears={availableYears}
+        />
+      </Suspense>
+
+      {/* ATO CGT Summary — mirrors Schedule 18 */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+        <div className="rounded-lg border border-border bg-card p-4">
+          <p className="text-xs text-muted-foreground">Total Gains</p>
+          <p className="text-lg font-bold">{formatCurrency(totalGains)}</p>
+        </div>
+        <div className="rounded-lg border border-border bg-card p-4">
+          <p className="text-xs text-muted-foreground">Short-term</p>
+          <p className="text-lg font-bold">
+            {formatCurrency(summary.shortTermGains)}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            held &lt;12 months
+          </p>
+        </div>
+        <div className="rounded-lg border border-border bg-card p-4">
+          <p className="text-xs text-muted-foreground">Long-term</p>
+          <p className="text-lg font-bold">
+            {formatCurrency(summary.longTermGains)}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            held ≥12 months
+          </p>
+        </div>
+        <div className="rounded-lg border border-border bg-card p-4">
+          <p className="text-xs text-muted-foreground">Capital Losses</p>
+          <p className="text-lg font-bold text-destructive">
+            -{formatCurrency(summary.totalLosses)}
+          </p>
+        </div>
+        <div className="rounded-lg border border-border bg-card p-4">
+          <p className="text-xs text-muted-foreground">50% CGT Discount</p>
+          <p className="text-lg font-bold">
+            -{formatCurrency(summary.cgtDiscount)}
+          </p>
+        </div>
+        <div className="rounded-lg border border-border bg-card p-4 ring-2 ring-primary/20">
+          <p className="text-xs font-medium text-primary">
+            Net Capital Gain
+          </p>
+          <p className="text-lg font-bold">{formatCurrency(netAfterDiscount)}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            assessable amount
+          </p>
+        </div>
+      </div>
+
+      {/* ATO calculation steps */}
+      <div className="rounded-lg border border-border bg-muted/30 p-4">
+        <h3 className="text-sm font-medium">
+          CGT Calculation (ATO Method)
+        </h3>
+        <ol className="mt-2 space-y-1 text-xs text-muted-foreground">
+          <li>
+            1. Total capital gains: {formatCurrency(totalGains)}
+          </li>
+          <li>
+            2. Less capital losses: -{formatCurrency(summary.totalLosses)}
+          </li>
+          <li>
+            3. Net gains after losses: {formatCurrency(gainsAfterLosses)}
+          </li>
+          <li>
+            4. Less 50% CGT discount (on long-term gains only): -
+            {formatCurrency(summary.cgtDiscount)}
+          </li>
+          <li className="font-medium text-foreground">
+            5. Net capital gain (Item 18 tax return):{" "}
+            {formatCurrency(netAfterDiscount)}
+          </li>
+        </ol>
+      </div>
+
+      {/* Detail table */}
+      {items.length === 0 ? (
+        <p className="text-muted-foreground">
+          No asset sales in this tax year.
+        </p>
+      ) : (
         <div className="overflow-hidden rounded-lg border border-border">
           <table className="w-full">
             <thead className="bg-muted/50">
@@ -92,13 +237,16 @@ export default async function CgtPage() {
                 <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
                   Gain/Loss
                 </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                  Discounted
+                </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
                   Term
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {report.items.map((item, i) => (
+              {items.map((item, i) => (
                 <tr key={i} className="hover:bg-accent/50">
                   <td className="px-4 py-3 font-medium">
                     {item.instrumentCode}
@@ -115,18 +263,72 @@ export default async function CgtPage() {
                   <td className="px-4 py-3 text-right text-sm">
                     {formatCurrency(item.costBase)}
                   </td>
-                  <td className="px-4 py-3 text-right text-sm">
+                  <td
+                    className={`px-4 py-3 text-right text-sm ${item.gain < 0 ? "text-destructive" : ""}`}
+                  >
                     {formatCurrency(item.gain)}
                   </td>
+                  <td className="px-4 py-3 text-right text-sm">
+                    {formatCurrency(item.discountedGain)}
+                  </td>
                   <td className="px-4 py-3 text-sm">
-                    {item.isLongTerm ? "Long" : "Short"}
+                    {item.isLongTerm ? "Long (≥12m)" : "Short (<12m)"}
                   </td>
                 </tr>
               ))}
+              {/* Totals */}
+              <tr className="bg-muted/30 font-medium">
+                <td className="px-4 py-3" colSpan={3}>
+                  Total ({items.length} disposal
+                  {items.length !== 1 ? "s" : ""})
+                </td>
+                <td className="px-4 py-3 text-right text-sm">
+                  {formatCurrency(
+                    items.reduce((s, i) => s + i.proceeds, 0)
+                  )}
+                </td>
+                <td className="px-4 py-3 text-right text-sm">
+                  {formatCurrency(
+                    items.reduce((s, i) => s + i.costBase, 0)
+                  )}
+                </td>
+                <td className="px-4 py-3 text-right text-sm">
+                  {formatCurrency(items.reduce((s, i) => s + i.gain, 0))}
+                </td>
+                <td className="px-4 py-3 text-right text-sm">
+                  {formatCurrency(
+                    items.reduce((s, i) => s + i.discountedGain, 0)
+                  )}
+                </td>
+                <td className="px-4 py-3"></td>
+              </tr>
             </tbody>
           </table>
         </div>
       )}
+
+      {/* Tax return guidance */}
+      <div className="rounded-lg border border-border bg-muted/30 p-4">
+        <h3 className="text-sm font-medium">ATO Tax Return Mapping</h3>
+        <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+          <li>
+            <strong>Item 18 (Capital gains):</strong>{" "}
+            {formatCurrency(netAfterDiscount)}
+          </li>
+          <li>
+            <strong>Label A (Total current year capital gains):</strong>{" "}
+            {formatCurrency(totalGains)}
+          </li>
+          <li>
+            <strong>Label H (Net capital gain):</strong>{" "}
+            {formatCurrency(netAfterDiscount)}
+          </li>
+          <li>
+            <strong>Label V (Total current year capital losses):</strong>{" "}
+            {formatCurrency(summary.totalLosses)}
+          </li>
+        </ul>
+      </div>
     </div>
   );
 }
