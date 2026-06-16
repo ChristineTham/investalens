@@ -51,7 +51,7 @@ export function ContributionBarChart({ data }: ContributionBarChartProps) {
             border: "1px solid var(--border)",
             borderRadius: "var(--radius)",
           }}
-          formatter={(value: number) => [`${value.toFixed(2)}%`, "Contribution"]}
+          formatter={(value) => [`${Number(value).toFixed(2)}%`, "Contribution"]}
         />
         <ReferenceLine x={0} stroke="var(--muted-foreground)" />
         <Bar dataKey="contribution" radius={[0, 4, 4, 0]}>

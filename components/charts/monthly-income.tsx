@@ -43,8 +43,8 @@ export function MonthlyIncomeChart({ data }: MonthlyIncomeChartProps) {
             border: "1px solid var(--border)",
             borderRadius: "var(--radius)",
           }}
-          formatter={(value: number) => [
-            `$${value.toFixed(2)}`,
+          formatter={(value) => [
+            `$${Number(value).toFixed(2)}`,
             "Income",
           ]}
         />

@@ -56,9 +56,9 @@ export function MultiPeriodBarChart({
             border: "1px solid var(--border)",
             borderRadius: "var(--radius)",
           }}
-          formatter={(value: number, name: string) => [
-            `${value.toFixed(2)}%`,
-            name,
+          formatter={(value, name) => [
+            `${Number(value).toFixed(2)}%`,
+            String(name),
           ]}
         />
         <Legend />
