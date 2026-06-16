@@ -12,14 +12,16 @@ export default async function WatchlistPage() {
 
   const watchlist = await db.watchlist.findFirst({
     where: { userId: session.user.id },
-    include: {
-      items: {
-        include: { instrument: true },
-      },
-    },
+    include: { items: true },
   });
 
   const items = watchlist?.items || [];
+
+  // Fetch instrument details for watchlist items
+  const instrumentIds = items.map((i) => i.instrumentId);
+  const instruments = instrumentIds.length > 0
+    ? await db.instrument.findMany({ where: { id: { in: instrumentIds } } })
+    : [];
 
   return (
     <div className="space-y-6">
@@ -60,25 +62,28 @@ export default async function WatchlistPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {items.map((item) => (
-                <tr key={item.id} className="hover:bg-accent/50">
-                  <td className="px-4 py-3 font-medium">
-                    {item.instrument?.code || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-sm">
-                    {item.instrument?.name || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-sm">
-                    {item.instrument?.marketCode || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">
-                    {item.notes || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <RemoveFromWatchlistButton itemId={item.id} />
-                  </td>
-                </tr>
-              ))}
+              {items.map((item) => {
+                const inst = instruments.find((i) => i.id === item.instrumentId);
+                return (
+                  <tr key={item.id} className="hover:bg-accent/50">
+                    <td className="px-4 py-3 font-medium">
+                      {inst?.code || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      {inst?.name || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      {inst?.marketCode || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                      {item.notes || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <RemoveFromWatchlistButton itemId={item.id} />
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
