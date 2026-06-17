@@ -204,12 +204,12 @@ shadcn/ui uses CSS custom properties for theming. Map Rosely tokens to shadcn/ui
 |---------|------------|-----------|-------|
 | Main content area | White `#ffffff` | Very dark `#1a1a1d` | `bg-background` |
 | Cards & panels | White `#ffffff` | Black Beauty | `bg-card` |
-| Sidebar & header (chrome) | Sugar Swizzle | Black Beauty | `bg-rosely-cream` / `dark:bg-rosely-night` |
+| Sidebar & header (chrome) | Sidebar: Rose Quartz, Header: Sugar Swizzle | Black Beauty | Sidebar: `bg-rosely-blush` / Header: `bg-rosely-cream`, both `dark:bg-rosely-night` |
 | Buttons & interactive | Radiant Orchid `#a855a0` | Morning Glory | `bg-primary` |
 | Dropdowns & selects | Rose Quartz | Dusty Rose | `bg-secondary` |
 | Muted/subtle areas | Sugar Swizzle | Granite Gray | `bg-muted` |
 
-> **Rule:** Sugar Swizzle (`rosely-cream`) is reserved for shell chrome (sidebar, header) and muted backgrounds only. Main content and cards use pure white for a clean, modern feel.
+> **Rule:** Sugar Swizzle (`rosely-cream`) is reserved for header chrome and muted backgrounds. Rose Quartz (`rosely-blush`) is used for the sidebar. Main content and cards use pure white for a clean, modern feel. Sidebar nav items use `text-foreground` (not `text-muted-foreground`) to maintain WCAG AA contrast against the Rose Quartz background.
 
 ### Usage Examples
 
