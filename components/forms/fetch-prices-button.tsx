@@ -50,7 +50,7 @@ export function FetchPricesButton() {
 
       {result && (
         <div className="mt-3 rounded-md border border-border bg-muted/50 p-3 text-sm">
-          <p className="font-medium text-rosely-teal">
+          <p className="font-medium text-success">
             Fetched {result.fetched} price records for {result.total} instruments
           </p>
           {result.failed > 0 && (

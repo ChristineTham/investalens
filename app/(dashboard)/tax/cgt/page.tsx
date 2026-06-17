@@ -162,7 +162,7 @@ export default async function CgtPage({
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">Capital Losses</p>
-          <p className="text-lg font-bold text-destructive">
+          <p className="text-lg font-bold text-loss">
             -{formatCurrency(summary.totalLosses)}
           </p>
         </div>
@@ -264,7 +264,7 @@ export default async function CgtPage({
                     {formatCurrency(item.costBase)}
                   </td>
                   <td
-                    className={`px-4 py-3 text-right text-sm ${item.gain < 0 ? "text-destructive" : ""}`}
+                    className={`px-4 py-3 text-right text-sm ${item.gain < 0 ? "text-loss" : ""}`}
                   >
                     {formatCurrency(item.gain)}
                   </td>

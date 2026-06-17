@@ -186,7 +186,7 @@ export default function MonteCarloPage() {
               <p className="text-xs text-muted-foreground">
                 Probability of 2x
               </p>
-              <p className="text-lg font-bold text-rosely-teal">
+              <p className="text-lg font-bold text-success">
                 {(result.probabilityOfDoubling * 100).toFixed(1)}%
               </p>
               <p className="text-xs text-muted-foreground">

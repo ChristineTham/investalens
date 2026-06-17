@@ -120,7 +120,7 @@ export function HoldingChartSection({
           </span>
           <span
             className={
-              stats.change >= 0 ? "text-rosely-teal" : "text-destructive"
+              stats.change >= 0 ? "text-gain" : "text-loss"
             }
           >
             {stats.change >= 0 ? "+" : ""}${stats.change.toFixed(2)} (

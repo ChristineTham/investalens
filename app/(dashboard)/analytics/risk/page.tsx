@@ -206,9 +206,9 @@ function MetricCard({
       <p
         className={`text-lg font-bold ${
           positive === true
-            ? "text-rosely-teal"
+            ? "text-gain"
             : positive === false
-              ? "text-destructive"
+              ? "text-loss"
               : ""
         }`}
       >

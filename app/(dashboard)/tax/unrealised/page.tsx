@@ -123,7 +123,7 @@ export default async function UnrealisedCgtPage({
             Total Unrealised Gain
           </p>
           <p
-            className={`text-lg font-bold ${totalUnrealised < 0 ? "text-destructive" : ""}`}
+            className={`text-lg font-bold ${totalUnrealised < 0 ? "text-loss" : ""}`}
           >
             {formatCurrency(totalUnrealised)}
           </p>
@@ -150,7 +150,7 @@ export default async function UnrealisedCgtPage({
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">Unrealised Losses</p>
-          <p className="text-lg font-bold text-destructive">
+          <p className="text-lg font-bold text-loss">
             -{formatCurrency(unrealisedLosses)}
           </p>
         </div>
@@ -231,7 +231,7 @@ export default async function UnrealisedCgtPage({
                       {formatCurrency(item.marketValue)}
                     </td>
                     <td
-                      className={`px-4 py-3 text-right text-sm ${item.unrealisedGain < 0 ? "text-destructive" : ""}`}
+                      className={`px-4 py-3 text-right text-sm ${item.unrealisedGain < 0 ? "text-loss" : ""}`}
                     >
                       {formatCurrency(item.unrealisedGain)}
                     </td>

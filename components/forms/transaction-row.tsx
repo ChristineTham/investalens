@@ -135,7 +135,7 @@ export function TransactionRow({ transaction: tx, currency }: TransactionRowProp
             <button
               onClick={handleSave}
               disabled={saving}
-              className="rounded p-1 text-rosely-teal hover:bg-accent"
+              className="rounded p-1 text-success hover:bg-accent"
               title="Save"
             >
               <Check className="h-4 w-4" />

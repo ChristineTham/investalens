@@ -130,7 +130,7 @@ export default function WhatIfPage() {
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">Market Move</p>
           <p
-            className={`text-lg font-bold ${marketMove >= 0 ? "text-rosely-teal" : "text-destructive"}`}
+            className={`text-lg font-bold ${marketMove >= 0 ? "text-gain" : "text-loss"}`}
           >
             {marketMove >= 0 ? "+" : ""}
             {marketMove}%
@@ -143,7 +143,7 @@ export default function WhatIfPage() {
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">P&L Impact</p>
           <p
-            className={`text-lg font-bold ${totalChange >= 0 ? "text-rosely-teal" : "text-destructive"}`}
+            className={`text-lg font-bold ${totalChange >= 0 ? "text-gain" : "text-loss"}`}
           >
             {formatCurrency(totalChange)} ({formatPercent(totalChangePercent)})
           </p>
@@ -185,7 +185,7 @@ export default function WhatIfPage() {
                 </td>
                 <td className="px-4 py-3 text-right text-sm">{h.beta.toFixed(1)}</td>
                 <td
-                  className={`px-4 py-3 text-right text-sm ${h.holdingMove >= 0 ? "text-rosely-teal" : "text-destructive"}`}
+                  className={`px-4 py-3 text-right text-sm ${h.holdingMove >= 0 ? "text-gain" : "text-loss"}`}
                 >
                   {h.holdingMove >= 0 ? "+" : ""}
                   {h.holdingMove.toFixed(1)}%
@@ -194,7 +194,7 @@ export default function WhatIfPage() {
                   {formatCurrency(h.newValue)}
                 </td>
                 <td
-                  className={`px-4 py-3 text-right text-sm ${h.change >= 0 ? "text-rosely-teal" : "text-destructive"}`}
+                  className={`px-4 py-3 text-right text-sm ${h.change >= 0 ? "text-gain" : "text-loss"}`}
                 >
                   {formatCurrency(h.change)}
                 </td>

@@ -3,6 +3,7 @@
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import { LogOut, User } from "lucide-react";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 export function Header() {
   const { data: session } = useSession();
@@ -15,6 +16,7 @@ export function Header() {
         </h2>
       </div>
       <div className="flex items-center gap-3">
+        <ThemeToggle />
         {session?.user && (
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">

@@ -28,8 +28,8 @@
   --card-foreground: var(--rosely0);
   --popover: #ffffff;
   --popover-foreground: var(--rosely0);
-  --primary: var(--rosely5);
-  --primary-foreground: var(--rosely0);
+  --primary: #a855a0;
+  --primary-foreground: #ffffff;
   --secondary: var(--rosely4);
   --secondary-foreground: var(--rosely0);
   --muted: var(--rosely6);
@@ -42,11 +42,13 @@
   --ring: var(--rosely8);
   --radius: 0.625rem;
 
-  /* Financial status colours */
-  --success: var(--rosely14);
-  --warning: var(--rosely13);
-  --gain: var(--rosely14);
+  /* Financial status colours — WCAG AA 4.5:1 on white */
+  --success: #18815e;
+  --warning: #826f16;
+  --gain: #18815e;
   --loss: var(--rosely11);
+
+  color-scheme: light;
 }
 
 .dark {
@@ -64,10 +66,18 @@
   --muted-foreground: var(--rosely3);
   --accent: var(--rosely9);
   --accent-foreground: var(--rosely6);
-  --destructive: var(--rosely11);
+  --destructive: var(--rosely12);
   --border: var(--rosely1);
   --input: var(--rosely1);
   --ring: var(--rosely8);
+
+  /* Financial status colours — originals pass AA on dark bg */
+  --success: var(--rosely14);
+  --warning: var(--rosely13);
+  --gain: var(--rosely14);
+  --loss: var(--rosely12);
+
+  color-scheme: dark;
 }
 
 @theme inline {

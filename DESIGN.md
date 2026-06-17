@@ -68,8 +68,9 @@ Semantic colours used for status indicators, alerts, and health reporting.
 ### Usage Rules
 
 - **Always use Rosely tokens** — never raw hex values or arbitrary Tailwind values like `text-[#27272a]`
-- **Dark mode** — implement via Tailwind `dark:` variants using the same Rosely tokens with adjusted mappings
+- **Dark mode** — implemented via `next-themes` with `attribute="class"`. The `.dark` class on `<html>` activates dark mode tokens in `globals.css`
 - **Opacity modifiers** — use Tailwind's `/` syntax for transparent variants (e.g., `bg-rosely-teal/20`)
+- **Contrast (WCAG AA)** — all text must meet 4.5:1 contrast ratio against its background (3:1 for large/bold text). Do not use palette colours directly as text on white/dark backgrounds unless they pass AA. Use semantic tokens (`text-gain`, `text-loss`, `text-success`, `text-warning`) for financial and status values — these auto-adapt between light and dark mode
 
 ## 3. Typography
 
@@ -88,7 +89,7 @@ Fonts are loaded via `next/font/google` in `src/app/layout.tsx` for automatic se
 | H1       | `text-2xl font-bold text-rosely-night`    | Page titles                     |
 | H2       | `text-xl font-semibold text-rosely-night` | Section headings                |
 | H3       | `text-lg font-medium text-rosely-night`   | Subsection headings             |
-| Subtitle | `text-sm text-rosely-mist`                | Descriptive text below headings |
+| Subtitle | `text-sm text-muted-foreground`             | Descriptive text below headings |
 
 ## 4. Component Architecture: shadcn/ui
 
@@ -145,18 +146,26 @@ shadcn/ui uses CSS custom properties for theming. Map Rosely tokens to shadcn/ui
   --card-foreground: var(--rosely0);
   --popover: #ffffff;
   --popover-foreground: var(--rosely0);
-  --primary: var(--rosely5);       /* Heavenly Pink — buttons & interactive */
-  --primary-foreground: var(--rosely0);
+  --primary: #a855a0;            /* Radiant Orchid (darkened for AA) — buttons, interactive, links (4.69:1 on white) */
+  --primary-foreground: #ffffff;   /* White text on orchid buttons */
   --secondary: var(--rosely4);     /* Rose Quartz — secondary buttons/dropdowns */
   --secondary-foreground: var(--rosely0);
   --muted: var(--rosely6);         /* Sugar Swizzle — muted backgrounds only */
-  --muted-foreground: var(--rosely1); /* Granite Gray */
+  --muted-foreground: var(--rosely1); /* Granite Gray — readable secondary text */
   --accent: var(--rosely5);        /* Heavenly Pink — hover states */
   --accent-foreground: var(--rosely0);
   --destructive: var(--rosely11);  /* Raspberry Sorbet — errors */
   --border: var(--rosely4);        /* Rose Quartz — borders */
   --input: var(--rosely4);
   --ring: var(--rosely8);          /* Lupine — focus ring */
+
+  /* Financial status — WCAG AA 4.5:1 on white */
+  --success: #18815e;              /* Dark teal */
+  --warning: #826f16;              /* Dark gold */
+  --gain: #18815e;                 /* Dark teal (positive values) */
+  --loss: var(--rosely11);         /* Raspberry Sorbet (negative values) */
+
+  color-scheme: light;
 }
 
 .dark {
@@ -174,10 +183,18 @@ shadcn/ui uses CSS custom properties for theming. Map Rosely tokens to shadcn/ui
   --muted-foreground: var(--rosely3);
   --accent: var(--rosely9);        /* Dusty Rose — hover */
   --accent-foreground: var(--rosely6);
-  --destructive: var(--rosely11);
+  --destructive: var(--rosely12);  /* Morning Glory — brighter for dark bg contrast */
   --border: var(--rosely1);
   --input: var(--rosely1);
   --ring: var(--rosely8);
+
+  /* Financial status — originals pass AA on dark backgrounds */
+  --success: var(--rosely14);      /* Spearmint */
+  --warning: var(--rosely13);      /* Meadowlark */
+  --gain: var(--rosely14);         /* Spearmint */
+  --loss: var(--rosely12);         /* Morning Glory */
+
+  color-scheme: dark;
 }
 ```
 
@@ -188,7 +205,7 @@ shadcn/ui uses CSS custom properties for theming. Map Rosely tokens to shadcn/ui
 | Main content area | White `#ffffff` | Very dark `#1a1a1d` | `bg-background` |
 | Cards & panels | White `#ffffff` | Black Beauty | `bg-card` |
 | Sidebar & header (chrome) | Sugar Swizzle | Black Beauty | `bg-rosely-cream` / `dark:bg-rosely-night` |
-| Buttons & interactive | Heavenly Pink | Morning Glory | `bg-primary` |
+| Buttons & interactive | Radiant Orchid `#a855a0` | Morning Glory | `bg-primary` |
 | Dropdowns & selects | Rose Quartz | Dusty Rose | `bg-secondary` |
 | Muted/subtle areas | Sugar Swizzle | Granite Gray | `bg-muted` |
 
@@ -209,7 +226,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
     <CardTitle>Application Portfolio</CardTitle>
   </CardHeader>
   <CardContent>
-    <p className="text-rosely-mist">12 applications across 5 capabilities</p>
+    <p className="text-muted-foreground">12 applications across 5 capabilities</p>
   </CardContent>
 </Card>
 
@@ -261,28 +278,48 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 ```tsx
 <h1 className="text-2xl font-bold text-rosely-night">Title</h1>
-<p className="text-sm text-rosely-mist mt-1">Subtitle</p>
+<p className="text-sm text-muted-foreground mt-1">Subtitle</p>
 ```
 
 **Status badge:**
 
 ```tsx
-<span className="inline-flex items-center rounded-full bg-rosely-teal/20 px-2.5 py-0.5 text-xs font-medium text-rosely-teal">
+<span className="inline-flex items-center rounded-full bg-success/20 px-2.5 py-0.5 text-xs font-medium text-success">
   Active
 </span>
 ```
 
-## 6. Health Status Colours
+## 6. Financial & Status Colours
 
-VantageMap uses a consistent colour mapping for entity health status across all views. Use the `healthColour` and `healthBg` helpers from `@/lib/data` — do not hardcode status colours.
+Use **semantic tokens** for financial values and status indicators — never raw palette tokens. These adapt automatically between light and dark mode to maintain WCAG AA contrast.
 
-| Status    | Colour Token      | Background              | Text                   |
-| --------- | ----------------- | ----------------------- | ---------------------- |
-| Excellent | `rosely-teal`     | `bg-rosely-teal/20`     | `text-rosely-teal`     |
-| Good      | `rosely-teal`     | `bg-rosely-teal/10`     | `text-rosely-teal`     |
-| Adequate  | `rosely-golden`   | `bg-rosely-golden/20`   | `text-rosely-golden`   |
-| At Risk   | `rosely-flamingo` | `bg-rosely-flamingo/20` | `text-rosely-flamingo` |
-| Critical  | `rosely-rose`     | `bg-rosely-rose/20`     | `text-rosely-rose`     |
+### Financial Values
+
+| Meaning        | Text Token     | Background         | Light Mode  | Dark Mode   |
+| -------------- | -------------- | ------------------ | ----------- | ----------- |
+| Gain / profit  | `text-gain`    | `bg-gain/20`       | `#18815e`   | `#64bfa4`   |
+| Loss / deficit | `text-loss`    | `bg-loss/20`       | `#d2386c`   | `#ec809e`   |
+| Success        | `text-success` | `bg-success/20`    | `#18815e`   | `#64bfa4`   |
+| Warning        | `text-warning` | `bg-warning/20`    | `#826f16`   | `#eada4f`   |
+| Error          | `text-destructive` | `bg-destructive/10` | `#d2386c` | `#ec809e` |
+
+### Usage Pattern
+
+```tsx
+// Financial gain/loss — conditional colouring
+<span className={value >= 0 ? "text-gain" : "text-loss"}>
+  {formatCurrency(value)}
+</span>
+
+// Status badge with tinted background
+<span className="inline-flex items-center rounded-full bg-success/20 px-2.5 py-0.5 text-xs font-medium text-success">
+  Active
+</span>
+```
+
+### Legacy Palette Colours
+
+Raw palette tokens (`text-rosely-teal`, `text-rosely-golden`, etc.) fail WCAG AA contrast on white backgrounds. **Do not use them for text.** They remain available for decorative backgrounds with opacity (e.g., `bg-rosely-teal/20`).
 
 ## 7. Motion & Animation
 
@@ -291,7 +328,7 @@ Rosely uses motion purposefully to guide focus and add professional polish witho
 ### Transitions
 
 - **Smooth state changes:** Hover, focus, and active states use CSS transitions (200–300ms) for `color`, `background-color`, `border-color`, `box-shadow`, and `transform`.
-- **Utility class:** Apply `transition-all` or `transition-colors` on interactive elements.
+- **Utility class:** Apply `transition-colors` or list specific properties (`transition-[color,background-color,border-color,box-shadow]`). **Never use `transition-all`** — always list properties explicitly.
 - **Tactile depth:** Interactive cards use `hover:-translate-y-0.5 hover:shadow-md` for subtle lift.
 
 ### Entrance Animations
@@ -333,8 +370,26 @@ Rosely meets **WCAG 2.1 Level AA** standards.
 - All text meets WCAG AA contrast ratios: at least 4.5:1 for normal text, 3:1 for large text.
 - Never use colour as the sole indicator of meaning — always provide text labels or icons alongside colour status indicators.
 - The low-contrast aesthetic applies to decorative surfaces, not to text legibility.
+- **Light mode**: Use semantic tokens (`text-gain`, `text-loss`, `text-success`, `text-warning`) for status text — raw palette tokens like `text-rosely-teal` (#64bfa4, 2.2:1) and `text-rosely-golden` (#eada4f, 1.4:1) fail AA on white.
+- **Dark mode**: Semantic tokens auto-switch to lighter palette values that pass AA on dark backgrounds.
+- **Primary token**: `--primary` is `#a855a0` (Radiant Orchid, darkened for AA, 4.69:1 on white) in light mode — safe for `text-primary` on white/cream backgrounds. Note: the raw palette token `rosely-plum` (#b565a7) only achieves 3.9:1 and fails AA for normal text. Do not use `text-rosely-mist` (#a49e9e, 2.6:1) for readable text — use `text-muted-foreground` instead.
 
 ### shadcn/ui Accessibility
 
 - shadcn/ui Base UI components include built-in ARIA patterns, keyboard navigation, and focus management.
 - Do not override or remove accessibility attributes when customising components.
+
+## 9. Theme Toggle
+
+The app supports three theme modes via `next-themes`: **Light**, **Dark**, and **System** (auto). The toggle is located in the dashboard header.
+
+### Setup
+
+- `ThemeProvider` from `next-themes` wraps the app at the root layout level with `attribute="class"`, `defaultTheme="system"`, and `enableSystem`
+- `suppressHydrationWarning` on `<html>` prevents hydration mismatch warnings
+- `color-scheme: light` / `color-scheme: dark` is set in `globals.css` on `:root` / `.dark` respectively, ensuring native form controls and scrollbars match the theme
+- `disableTransitionOnChange` prevents flash-of-wrong-theme during transitions
+
+### Component
+
+The `ThemeToggle` component (`components/layout/theme-toggle.tsx`) renders a Sun/Moon icon button with a dropdown menu offering Light, Dark, and System options. It is placed in the `Header` component alongside user controls.

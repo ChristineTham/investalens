@@ -161,12 +161,12 @@ export default async function HoldingDetailPage({
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">Unrealised</p>
           <p
-            className={`text-lg font-bold ${position.unrealisedGain < 0 ? "text-destructive" : "text-rosely-teal"}`}
+            className={`text-lg font-bold ${position.unrealisedGain < 0 ? "text-loss" : "text-gain"}`}
           >
             {formatCurrency(position.unrealisedGain)}
           </p>
           <p
-            className={`text-xs ${position.unrealisedGainPercent < 0 ? "text-destructive" : "text-rosely-teal"}`}
+            className={`text-xs ${position.unrealisedGainPercent < 0 ? "text-loss" : "text-gain"}`}
           >
             {formatPercent(position.unrealisedGainPercent)}
           </p>
@@ -174,12 +174,12 @@ export default async function HoldingDetailPage({
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">Total Return</p>
           <p
-            className={`text-lg font-bold ${totalReturn < 0 ? "text-destructive" : "text-rosely-teal"}`}
+            className={`text-lg font-bold ${totalReturn < 0 ? "text-loss" : "text-gain"}`}
           >
             {formatCurrency(totalReturn)}
           </p>
           <p
-            className={`text-xs ${totalReturnPercent < 0 ? "text-destructive" : "text-rosely-teal"}`}
+            className={`text-xs ${totalReturnPercent < 0 ? "text-loss" : "text-gain"}`}
           >
             {formatPercent(totalReturnPercent)}
           </p>
