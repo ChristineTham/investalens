@@ -1,79 +1,174 @@
-# R2-P1a: Python Infrastructure & Backtesting
+# R2-P1a: Analytics Data Layer & Python Infrastructure
 
 ## Objective
 
-Set up the Python serverless function infrastructure on Vercel and implement the backtesting engine using skfolio.
+Build the foundational data services that all analytics tools depend on: portfolio time series, benchmark data, the TypeScript ↔ Python bridge, caching strategy, and shared Python utilities.
 
 ## Prerequisites
 
-- R1 complete
-- Reference: `docs/ADVANCED.md` (Backtesting section)
+- R2-P0 complete (packages installed, benchmarks seeded, pipeline verified)
+- Reference: `docs/ADVANCED.md`, `docs/ARCHITECTURE.md`
 
 ## Recommended Skills
 
-Invoke these skills for best-practice guidance during this phase:
-
 - **next-best-practices** — API route handlers for Python function proxying
-- **runtime-cache** — Caching expensive backtest results (Vercel Runtime Cache API)
-- **vercel-react-best-practices** — Chart component performance, lazy loading
+- **runtime-cache** — Vercel Runtime Cache API for expensive computation results
 - **env-vars** — Python function environment configuration
-
-> **Note:** Python/skfolio backtesting logic is domain-specific (quantitative finance). No general skills cover portfolio optimisation or walk-forward analysis. Follow the plan details.
 
 ---
 
-## Task 1: Python Function Infrastructure
+## Task 1: Analytics Data Service
 
-**Python dependencies** are managed via `pyproject.toml` (from `uv add` in R0-P0). Vercel reads `pyproject.toml` directly — no `requirements.txt` needed.
+**File: `lib/services/analytics-data.ts`**
 
-Ensure these are in `pyproject.toml` (added via `uv add` in R0-P0):
+The core data service that feeds ALL analytics tools. Every other R2 page depends on this.
 
-- `skfolio`, `scipy`, `numpy`, `pandas`, `statsmodels`
+```typescript
+interface TimeSeriesResult {
+  dates: string[];       // ISO date strings
+  values: number[];      // Portfolio value per day
+  returns: number[];     // Daily simple returns
+  cumReturns: number[];  // Cumulative returns from start
+}
 
-> **Note:** `google-antigravity` is a real package (`uv add google-antigravity`) but it's an AI **agent framework** (autonomous file reading, command execution, code editing), NOT a document parsing library. For structured extraction of financial statements, the Vercel AI SDK (`ai` + `@ai-sdk/google`) with `generateObject` + Zod schemas is the correct choice — runs in the TypeScript layer with no compiled binary dependency.
+interface ReturnsMatrix {
+  dates: string[];
+  assets: string[];           // Instrument codes
+  returns: number[][];        // [date_idx][asset_idx]
+  weights: number[];          // Current portfolio weights
+  prices: Record<string, number[]>; // Raw prices per asset
+}
+
+export async function getPortfolioTimeSeries(
+  portfolioId: string,
+  dateRange: "1Y" | "3Y" | "5Y" | "10Y" | "MAX"
+): Promise<TimeSeriesResult>;
+
+export async function getHoldingTimeSeries(
+  holdingId: string,
+  dateRange: "1Y" | "3Y" | "5Y" | "10Y" | "MAX"
+): Promise<TimeSeriesResult>;
+
+export async function getBenchmarkTimeSeries(
+  benchmarkCode: string,
+  dateRange: "1Y" | "3Y" | "5Y" | "10Y" | "MAX"
+): Promise<TimeSeriesResult>;
+
+export async function getPortfolioReturnsMatrix(
+  portfolioId: string,
+  dateRange: "1Y" | "3Y" | "5Y" | "10Y" | "MAX"
+): Promise<ReturnsMatrix>;
+```
+
+**Implementation notes:**
+- Portfolio value = Σ(quantity × price) per day for each holding
+- Handle corporate actions (splits adjust historical quantity)
+- Handle missing price days (forward-fill from last known)
+- Time-weighted returns (TWR) for portfolio-level performance
+- Cache results per `(portfolioId, dateRange)` for 1 hour
+- Invalidate on new transaction or price update
+
+---
+
+## Task 2: Benchmark Data Service
+
+**File: `lib/services/benchmark-data.ts`**
+
+Real benchmark data instead of hardcoded rates.
+
+```typescript
+export const BENCHMARKS = {
+  "^AXJO": { name: "S&P/ASX 200", market: "ASX", type: "equity" },
+  "^AXJOA": { name: "S&P/ASX 200 Accum.", market: "ASX", type: "equity-tr" },
+  "^GSPC": { name: "S&P 500", market: "US", type: "equity" },
+  "^MSCI": { name: "MSCI World", market: "GLOBAL", type: "equity" },
+  "CASH": { name: "AUD Cash Rate (RBA)", market: "AU", type: "cash" },
+} as const;
+
+export async function getBenchmarkReturns(
+  code: string,
+  startDate: Date,
+  endDate: Date
+): Promise<{ dates: string[]; returns: number[] }>;
+
+export async function getRiskFreeRate(): Promise<number>;
+// Returns annualised AUD cash rate (currently ~4.35%)
+```
+
+Benchmark prices stored in the same `Price` table as regular instruments. The daily cron job extends to fetch benchmark prices.
+
+---
+
+## Task 3: Python Function Utilities
+
+**File: `api/utils/__init__.py`** — empty package marker
 
 **File: `api/utils/response.py`**
 
-Shared utility for FastAPI-based Python functions:
-
 ```python
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import JSONResponse
 
 def create_app() -> FastAPI:
     """Create a FastAPI app for a Vercel serverless function."""
     return FastAPI()
 
 def error_response(status: int, message: str):
+    """Raise HTTP error with JSON detail."""
     raise HTTPException(status_code=status, detail=message)
 ```
 
 **File: `api/utils/transforms.py`**
 
-Data transformation utilities:
-
 ```python
 import pandas as pd
 import numpy as np
+from typing import Any
 
 def json_to_returns_df(data: dict) -> pd.DataFrame:
-    """Convert JSON price history to returns DataFrame."""
-    prices = pd.DataFrame(data["prices"])
-    prices["date"] = pd.to_datetime(prices["date"])
-    prices = prices.set_index("date").sort_index()
-    returns = prices.pct_change().dropna()
-    return returns
+    """Convert JSON returns matrix to pandas DataFrame.
 
-def portfolio_weights_to_series(data: dict) -> pd.Series:
-    """Convert JSON weights to pandas Series."""
-    return pd.Series(data["weights"], index=data["assets"])
+    Expected input:
+    { "dates": [...], "assets": [...], "returns": [[...], ...] }
+    """
+    df = pd.DataFrame(
+        data["returns"],
+        index=pd.to_datetime(data["dates"]),
+        columns=data["assets"]
+    )
+    return df.sort_index()
+
+def json_to_prices_df(data: dict) -> pd.DataFrame:
+    """Convert JSON prices to pandas DataFrame."""
+    prices = data.get("prices", {})
+    df = pd.DataFrame(prices, index=pd.to_datetime(data["dates"]))
+    return df.sort_index()
+
+def make_serializable(obj: Any) -> Any:
+    """Recursively convert numpy types to Python natives for JSON."""
+    if isinstance(obj, (np.integer,)):
+        return int(obj)
+    elif isinstance(obj, (np.floating,)):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, pd.Timestamp):
+        return obj.isoformat()
+    elif isinstance(obj, dict):
+        return {k: make_serializable(v) for k, v in obj.items()}
+    elif isinstance(obj, (list, tuple)):
+        return [make_serializable(v) for v in obj]
+    return obj
 ```
+
+---
+
+## Task 4: TypeScript Analytics Client
 
 **File: `lib/services/analytics-client.ts`**
 
-TypeScript client for calling Python functions:
-
 ```typescript
+import { getPortfolioReturnsMatrix } from "./analytics-data";
+
 export class AnalyticsClient {
   private baseUrl: string;
 
@@ -84,198 +179,134 @@ export class AnalyticsClient {
   }
 
   async callFunction<T>(endpoint: string, data: unknown): Promise<T> {
-    const response = await fetch(`${this.baseUrl}/api/python/${endpoint}`, {
+    const response = await fetch(`${this.baseUrl}/api/analytics/${endpoint}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || "Analytics function failed");
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.detail || `Analytics function failed: ${response.status}`);
     }
     return response.json();
   }
+
+  async runAnalysis<T>(
+    endpoint: string,
+    portfolioId: string,
+    dateRange: "1Y" | "3Y" | "5Y" | "10Y" | "MAX",
+    config: Record<string, unknown> = {}
+  ): Promise<T> {
+    const matrix = await getPortfolioReturnsMatrix(portfolioId, dateRange);
+    return this.callFunction<T>(endpoint, { ...matrix, config });
+  }
 }
+
+export const analyticsClient = new AnalyticsClient();
 ```
 
-**File: `lib/services/analytics-data.ts`**
+---
 
-Prepare data for Python functions:
+## Task 5: Caching Layer
+
+**File: `lib/services/analytics-cache.ts`**
 
 ```typescript
-export async function prepareReturnsData(
-  portfolioId: string,
-  startDate: Date,
-  endDate: Date
-) {
-  // Fetch all holdings with price history
-  // Transform to { prices: [{date, asset1, asset2, ...}], assets: string[] }
-}
-
-export async function preparePortfolioData(portfolioId: string) {
-  // Fetch current weights, constraints, benchmark
-  // Return formatted for Python consumption
-}
+export const CACHE_TTL = {
+  timeSeries: 3600,        // 1 hour
+  benchmark: 86400,        // 24 hours
+  riskMetrics: 3600,       // 1 hour
+  backtest: 604800,        // 7 days
+  optimization: 86400,     // 24 hours
+  monteCarlo: 0,           // Session-only (parameter-dependent)
+  factorData: 2592000,     // 30 days
+  frontier: 86400,         // 24 hours
+} as const;
 ```
 
 ---
 
-## Task 2: Backtesting Engine
+## Task 6: Shared Calculation Modules
 
-**File: `api/python/backtest.py`**
-
-```python
-from http.server import BaseHTTPRequestHandler
-from skfolio import Portfolio, Population
-from skfolio.optimization import MeanRisk, EqualWeighted
-from skfolio.model_selection import WalkForward, CombinatorialPurgedCV
-import pandas as pd
-import numpy as np
-from utils.response import success_response, error_response, parse_body
-from utils.transforms import json_to_returns_df
-
-class handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        try:
-            data = parse_body(self)
-            returns = json_to_returns_df(data)
-
-            config = data.get("config", {})
-            strategy = config.get("strategy", "equal_weighted")
-            rebalance_freq = config.get("rebalanceFrequency", "quarterly")
-            start_date = config.get("startDate")
-            end_date = config.get("endDate")
-            benchmark_weights = config.get("benchmarkWeights")
-
-            # Build optimisation model based on strategy
-            if strategy == "equal_weighted":
-                model = EqualWeighted()
-            elif strategy == "mean_variance":
-                model = MeanRisk()
-            # ... more strategies
-
-            # Run walk-forward backtest
-            cv = WalkForward(
-                train_size=252,  # 1 year training
-                test_size=63,    # 1 quarter test
-            )
-
-            # Fit and predict
-            population = Population([])
-            for train_idx, test_idx in cv.split(returns):
-                train_returns = returns.iloc[train_idx]
-                test_returns = returns.iloc[test_idx]
-                model.fit(train_returns)
-                portfolio = model.predict(test_returns)
-                population.append(portfolio)
-
-            # Calculate metrics
-            result = {
-                "annualizedReturn": float(population.mean()),
-                "annualizedVolatility": float(population.annualized_volatility()),
-                "sharpeRatio": float(population.sharpe_ratio()),
-                "maxDrawdown": float(population.max_drawdown()),
-                "calmarRatio": float(population.calmar_ratio()),
-                "sortinoRatio": float(population.sortino_ratio()),
-                "cvar95": float(population.cvar(alpha=0.05)),
-                "weights": population[-1].weights.tolist(),
-                "assets": returns.columns.tolist(),
-                "equityCurve": population.cumulative_returns().tolist(),
-                "dates": [d.isoformat() for d in returns.index[len(returns) - len(population.cumulative_returns()):]],
-                "rebalanceDates": [d.isoformat() for d in cv.test_dates()],
-            }
-
-            success_response(self, result)
-        except Exception as e:
-            error_response(self, 500, str(e))
-```
-
-**File: `lib/actions/backtest.ts`**
-
-Server action that orchestrates backtesting:
+**File: `lib/calculations/rolling-metrics.ts`**
 
 ```typescript
-export async function runBacktest(portfolioId: string, config: BacktestConfig) {
-  const returnsData = await prepareReturnsData(
-    portfolioId,
-    config.startDate,
-    config.endDate
-  );
-  const client = new AnalyticsClient();
-  const result = await client.callFunction("backtest", {
-    ...returnsData,
-    config,
-  });
-  // Cache result via Vercel Runtime Cache API
-  return result;
-}
+export function rollingMetric(
+  returns: number[],
+  benchmarkReturns: number[],
+  windowSize: number,
+  metric: "sharpe" | "sortino" | "beta" | "alpha" | "tracking_error"
+): { dates: string[]; values: number[] };
 ```
 
-**File: `app/(dashboard)/analytics/backtest/page.tsx`**
+**File: `lib/calculations/drawdown.ts`**
 
-Backtesting UI:
+```typescript
+export interface DrawdownEpisode {
+  start: string;
+  trough: string;
+  recovery: string | null;
+  depth: number;
+  duration: number;
+  recoveryDays: number | null;
+}
 
-- Strategy selector (Equal Weight, Mean-Variance, Risk Parity, HRP, Min Variance, Max Sharpe)
-- Date range (start/end)
-- Rebalancing frequency (monthly, quarterly, annually)
-- Benchmark selector (equal-weight, market-cap, custom)
-- Run button
-- Results:
-  - Equity curve chart (portfolio vs benchmark)
-  - Metrics table (return, volatility, Sharpe, max DD, Calmar, Sortino, CVaR)
-  - Drawdown chart
-  - Rolling Sharpe ratio chart
-  - Weight allocation over time (stacked area chart)
-  - Rebalance dates marked on chart
+export function detectDrawdowns(cumReturns: number[], dates: string[], threshold?: number): DrawdownEpisode[];
+export function drawdownSeries(cumReturns: number[]): number[];
+```
 
----
+**File: `lib/calculations/benchmark.ts`**
 
-## Task 3: Backtest Comparison
-
-**File: `api/python/backtest_compare.py`**
-
-Run multiple strategies simultaneously for comparison:
-
-- Accept array of strategy configs
-- Return metrics for each
-- Include statistical significance tests (paired t-test on returns)
-
-**File: `app/(dashboard)/analytics/backtest/compare/page.tsx`**
-
-Side-by-side comparison table + overlaid equity curves.
+```typescript
+export function upsideCapture(returns: number[], benchReturns: number[]): number;
+export function downsideCapture(returns: number[], benchReturns: number[]): number;
+export function trackingError(returns: number[], benchReturns: number[]): number;
+export function informationRatio(returns: number[], benchReturns: number[]): number;
+export function activeReturn(returns: number[], benchReturns: number[]): number;
+```
 
 ---
 
-## Task 4: Walk-Forward Analysis
+## Task 7: Shared UI Components
 
-**File: `api/python/walk_forward.py`**
-
-Detailed walk-forward with train/test visualization:
-
-- Show in-sample vs out-of-sample performance per window
-- Detect overfitting (large gap between IS and OOS)
-- Return per-window breakdown
+| Component | File | Used By |
+|-----------|------|---------|
+| Portfolio selector | `components/analytics/portfolio-selector.tsx` | All analytics pages |
+| Benchmark selector | `components/analytics/benchmark-selector.tsx` | Risk, Backtest, Tactical |
+| Date range selector | `components/analytics/date-range-selector.tsx` | All analytics pages |
+| Metric card | `components/analytics/metric-card.tsx` | Risk, Backtest, FIRE |
 
 ---
 
 ## Deliverables Checklist
 
-- [ ] Python function infrastructure (utils, response helpers, transforms)
-- [ ] TypeScript analytics client (fetch wrapper with error handling)
-- [ ] Data preparation service (DB → Python input format)
-- [ ] Backtesting endpoint (WalkForward with multiple strategies)
-- [ ] Backtesting UI (config form + results visualisation)
-- [ ] Strategy comparison endpoint
-- [ ] Walk-forward analysis endpoint
-- [ ] Result caching (Vercel Runtime Cache API)
-- [ ] Equity curve chart component
-- [ ] Drawdown chart component
+- [ ] `lib/services/analytics-data.ts` — Portfolio time series, returns matrix
+- [ ] `lib/services/benchmark-data.ts` — Benchmark fetcher + constants
+- [ ] `lib/services/analytics-client.ts` — Python function caller
+- [ ] `lib/services/analytics-cache.ts` — TTL-based caching
+- [ ] `api/utils/response.py` — FastAPI helpers
+- [ ] `api/utils/transforms.py` — JSON ↔ pandas conversion
+- [ ] `lib/calculations/rolling-metrics.ts`
+- [ ] `lib/calculations/drawdown.ts`
+- [ ] `lib/calculations/benchmark.ts`
+- [ ] `components/analytics/portfolio-selector.tsx`
+- [ ] `components/analytics/benchmark-selector.tsx`
+- [ ] `components/analytics/date-range-selector.tsx`
+- [ ] `components/analytics/metric-card.tsx`
+- [ ] Extend cron job to fetch benchmark prices daily
+
+## Performance Targets
+
+| Operation | Target | Strategy |
+|-----------|--------|----------|
+| Portfolio time series (1Y) | < 200ms | DB query + cache |
+| Returns matrix (5Y, 10 assets) | < 500ms | DB query + transform |
+| Benchmark time series | < 100ms | Pre-fetched, cached 24h |
 
 ## Notes for the Agent
 
-- Python functions must be self-contained (import only from utils/ or installed packages)
-- skfolio handles most of the heavy lifting — use its API directly
-- All numeric results must be JSON-serializable (convert numpy types to Python floats)
-- Cache expensive backtest results for 1 hour (use portfolio hash as key)
-- Vercel free tier: 10s timeout — warn user if backtest may exceed this
-- For development, Python functions run via `vercel dev` locally
+- All Python functions use FastAPI (not `BaseHTTPRequestHandler`) — Vercel auto-detects `app`
+- The `api/analytics/` directory is the canonical path for Python endpoints
+- Portfolio time series must handle partial data (new holdings don't have full history)
+- Forward-fill missing prices (weekends, holidays) — don't interpolate
+- Benchmark prices use the same `Price` table (keyed by instrumentId + date)

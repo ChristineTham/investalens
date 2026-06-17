@@ -1,8 +1,16 @@
-# Analytics Implementation Plan — Full Functionality
+# Analytics Implementation Plan — OBSOLETE
 
-> **Scope**: Implement complete `/analytics` section with production-quality features
-> **Reference**: `docs/ADVANCED.md`, `docs/TOOLS.md`, `docs/ARCHITECTURE.md`, `plan/R2-overview.md`
-> **Benchmark**: Portfolio Visualizer, Sharesight, Testfolio
+> **STATUS: OBSOLETE** — This document has been superseded. All content has been merged into:
+> - `plan/R2-overview.md` — Architecture, route map, caching, performance targets
+> - `plan/R2-P0.md` — Codespaces environment setup (packages, benchmarks, verification)
+> - `plan/R2-P1a.md` — Data layer, Python infrastructure, shared components
+> - `plan/R2-P1b.md` — Risk enhancement, backtesting, model selection
+> - `plan/R2-P1c.md` — Optimisation, frontier, Black-Litterman, estimation methods
+> - `plan/R2-P1d.md` — Monte Carlo, FIRE calculator, stress testing
+> - `plan/R2-P1e.md` — Factors, correlations, tactical, ETF X-ray, AI tools
+> - `plan/R2-P2.md` — Validation in Codespaces
+>
+> **Do not use this file for implementation guidance.** Use the R2-P* files above.
 
 ---
 

@@ -1,371 +1,357 @@
-# R2-P1d: Factor Analysis, Tactical Allocation & Stress Testing
+# R2-P1d: Monte Carlo, FIRE Calculator & Stress Testing
 
 ## Objective
 
-Implement factor models (Fama-French and custom), tactical allocation strategies, stress testing (historical and custom scenarios), and model cross-validation.
+Implement advanced Monte Carlo simulation (bootstrap, parametric, copula), distribution fitting, the FIRE retirement calculator, and comprehensive stress testing (historical scenarios, custom shocks, conditional).
 
 ## Prerequisites
 
-- R2-P1c complete (estimation methods, distributions)
-- Reference: `docs/ADVANCED.md` (Factor Analysis, Tactical Allocation, Stress Testing, Model Validation)
+- R2-P1c complete (optimisation, frontier, estimation methods working)
+- Reference: `docs/ADVANCED.md` (Monte Carlo, Distributions, Stress Testing), `docs/TOOLS.md` (FIRE)
 
 ## Recommended Skills
 
-Invoke these skills for best-practice guidance during this phase:
-
-- **vercel-react-best-practices** — Heatmap and waterfall chart performance
-- **vercel-composition-patterns** — Tab-based stress test UI composition
-
-> **Note:** Factor analysis (Fama-French, PCA), tactical allocation, stress testing, and cross-validation are pure quantitative finance/data science domain. No general skills apply.
+- **vercel-react-best-practices** — Fan chart, histogram, gauge component performance
+- **runtime-cache** — Cache MC simulation results
+- **ai-sdk** — (not needed here, but reference for R2-P1e)
 
 ---
 
-## Task 1: Factor Analysis
+## Task 1: Advanced Monte Carlo (Python)
 
-**File: `api/python/factor_analysis.py`**
+**File: `api/analytics/monte_carlo.py`**
 
 ```python
-from http.server import BaseHTTPRequestHandler
-from skfolio.prior import FactorModel
+from fastapi import FastAPI, Request
+import numpy as np
 import pandas as pd
-import numpy as np
-import statsmodels.api as sm
-from utils.response import success_response, error_response, parse_body
-from utils.transforms import json_to_returns_df
+from utils.transforms import json_to_returns_df, make_serializable
+from utils.response import create_app
 
-class handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        data = parse_body(self)
-        returns = json_to_returns_df(data)
-        factors = pd.DataFrame(data.get("factors", {}))
-        config = data.get("config", {})
+app = create_app()
 
-        model_type = config.get("type", "fama_french")  # fama_french | pca | custom
+@app.post("/api/analytics/monte_carlo")
+async def monte_carlo(request: Request):
+    data = await request.json()
+    returns = json_to_returns_df(data)
+    config = data.get("config", {})
 
-        if model_type == "fama_french":
-            # Regress each asset against Fama-French factors (MKT, SMB, HML)
-            # factors DataFrame should have columns: Mkt-RF, SMB, HML, RF
-            results = {}
-            for col in returns.columns:
-                y = returns[col] - factors["RF"]
-                X = sm.add_constant(factors[["Mkt-RF", "SMB", "HML"]])
-                model = sm.OLS(y, X).fit()
-                results[col] = {
-                    "alpha": float(model.params["const"]),
-                    "betas": {
-                        "market": float(model.params["Mkt-RF"]),
-                        "size": float(model.params["SMB"]),
-                        "value": float(model.params["HML"]),
-                    },
-                    "r_squared": float(model.rsquared),
-                    "residual_std": float(model.resid.std()),
-                }
+    method = config.get("method", "bootstrap")
+    n_simulations = min(config.get("nSimulations", 1000), 10000)
+    horizon_days = config.get("horizonDays", 252)
+    weights = np.array(config.get("weights", [1.0 / len(returns.columns)] * len(returns.columns)))
+    initial_value = config.get("initialValue", 100000)
 
-            response = {
-                "assets": results,
-                "factorReturns": {
-                    "market": float(factors["Mkt-RF"].mean() * 252),
-                    "size": float(factors["SMB"].mean() * 252),
-                    "value": float(factors["HML"].mean() * 252),
-                },
-            }
+    # Withdrawal modelling (optional)
+    annual_withdrawal = config.get("annualWithdrawal", 0)
+    daily_withdrawal = annual_withdrawal / 252
 
-        elif model_type == "pca":
-            # PCA-based factor decomposition
-            from sklearn.decomposition import PCA
-            n_components = config.get("nFactors", 3)
-            pca = PCA(n_components=n_components)
-            pca.fit(returns)
+    if method == "bootstrap":
+        # Resample historical returns with replacement
+        simulated_paths = []
+        for _ in range(n_simulations):
+            sampled_idx = np.random.choice(len(returns), size=horizon_days, replace=True)
+            sim_returns = returns.iloc[sampled_idx].values @ weights
+            path = [initial_value]
+            for r in sim_returns:
+                path.append(path[-1] * (1 + r) - daily_withdrawal)
+            simulated_paths.append(path[1:])
 
-            response = {
-                "explainedVariance": pca.explained_variance_ratio_.tolist(),
-                "cumulativeVariance": np.cumsum(pca.explained_variance_ratio_).tolist(),
-                "loadings": pca.components_.tolist(),
-                "assets": returns.columns.tolist(),
-            }
+    elif method == "parametric":
+        # Multivariate normal
+        mu = returns.mean().values
+        cov = returns.cov().values
+        simulated_paths = []
+        for _ in range(n_simulations):
+            sim_asset_returns = np.random.multivariate_normal(mu, cov, size=horizon_days)
+            sim_returns = sim_asset_returns @ weights
+            path = [initial_value]
+            for r in sim_returns:
+                path.append(path[-1] * (1 + r) - daily_withdrawal)
+            simulated_paths.append(path[1:])
 
-        success_response(self, response)
-```
+    elif method == "copula":
+        # Student-t copula for tail dependencies
+        from scipy.stats import t as student_t
+        # Fit marginals + copula, sample joint distribution
+        # (simplified: use multivariate-t)
+        nu = 5  # degrees of freedom
+        mu = returns.mean().values
+        cov = returns.cov().values
+        simulated_paths = []
+        for _ in range(n_simulations):
+            # Multivariate t-distribution
+            chi2 = np.random.chisquare(nu, size=horizon_days)
+            z = np.random.multivariate_normal(np.zeros(len(mu)), cov, size=horizon_days)
+            sim_asset_returns = mu + z / np.sqrt(chi2[:, None] / nu)
+            sim_returns = sim_asset_returns @ weights
+            path = [initial_value]
+            for r in sim_returns:
+                path.append(path[-1] * (1 + r) - daily_withdrawal)
+            simulated_paths.append(path[1:])
 
-**File: `lib/services/factor-data.ts`**
+    # Statistics
+    final_values = [path[-1] for path in simulated_paths]
+    percentiles = [5, 10, 25, 50, 75, 90, 95]
 
-Fetch Fama-French factor data:
-
-- Source: Kenneth French's data library (public CSV)
-- Download and parse monthly/daily factor returns
-- Cache locally for 24 hours
-- Map Australian equivalents where available
-
----
-
-## Task 2: Tactical Allocation
-
-**File: `api/python/tactical.py`**
-
-Implement tactical allocation strategies:
-
-```python
-class handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        data = parse_body(self)
-        returns = json_to_returns_df(data)
-        config = data.get("config", {})
-
-        strategy = config.get("strategy", "momentum")
-        lookback = config.get("lookbackDays", 252)
-
-        if strategy == "momentum":
-            # Cross-sectional momentum: overweight recent winners
-            momentum_scores = returns.iloc[-lookback:].sum()
-            weights = momentum_scores / momentum_scores.sum()
-            weights = weights.clip(lower=0)  # Long only
-            weights = weights / weights.sum()
-
-            signal = {
-                "scores": dict(zip(returns.columns.tolist(), momentum_scores.tolist())),
-                "weights": dict(zip(returns.columns.tolist(), weights.tolist())),
-                "description": f"12-month momentum ranking",
-            }
-
-        elif strategy == "mean_reversion":
-            # Short-term mean reversion: overweight recent losers
-            short_lookback = config.get("shortLookback", 21)
-            recent_returns = returns.iloc[-short_lookback:].sum()
-            # Invert: losers get higher weight
-            scores = -recent_returns
-            weights = (scores - scores.min()) / (scores.max() - scores.min())
-            weights = weights / weights.sum()
-
-            signal = {
-                "scores": dict(zip(returns.columns.tolist(), scores.tolist())),
-                "weights": dict(zip(returns.columns.tolist(), weights.tolist())),
-                "description": f"{short_lookback}-day mean reversion",
-            }
-
-        elif strategy == "risk_adjusted_momentum":
-            # Momentum divided by volatility
-            mom = returns.iloc[-lookback:].sum()
-            vol = returns.iloc[-lookback:].std() * np.sqrt(252)
-            scores = mom / vol
-            weights = scores.clip(lower=0)
-            weights = weights / weights.sum()
-
-            signal = {
-                "scores": dict(zip(returns.columns.tolist(), scores.tolist())),
-                "weights": dict(zip(returns.columns.tolist(), weights.tolist())),
-                "description": "Risk-adjusted momentum (Sharpe ranking)",
-            }
-
-        elif strategy == "volatility_targeting":
-            # Inverse volatility weighting
-            vol = returns.iloc[-lookback:].std() * np.sqrt(252)
-            weights = (1 / vol) / (1 / vol).sum()
-
-            signal = {
-                "scores": dict(zip(returns.columns.tolist(), (1/vol).tolist())),
-                "weights": dict(zip(returns.columns.tolist(), weights.tolist())),
-                "description": "Inverse volatility (vol targeting)",
-            }
-
-        success_response(self, signal)
+    result = {
+        "paths": [p for p in simulated_paths[:100]],  # First 100 for vis
+        "statistics": {
+            "mean": float(np.mean(final_values)),
+            "median": float(np.median(final_values)),
+            "std": float(np.std(final_values)),
+            "min": float(np.min(final_values)),
+            "max": float(np.max(final_values)),
+            "percentiles": {str(p): float(np.percentile(final_values, p)) for p in percentiles},
+            "probLoss": float(np.mean(np.array(final_values) < initial_value)),
+            "probRuin": float(np.mean(np.array(final_values) <= 0)),
+            "var95": float(np.percentile(final_values, 5)),
+            "cvar95": float(np.mean([v for v in final_values if v <= np.percentile(final_values, 5)])),
+        },
+        "fanChart": {
+            "dates": list(range(horizon_days)),
+            "p5": np.percentile(simulated_paths, 5, axis=0).tolist(),
+            "p25": np.percentile(simulated_paths, 25, axis=0).tolist(),
+            "p50": np.percentile(simulated_paths, 50, axis=0).tolist(),
+            "p75": np.percentile(simulated_paths, 75, axis=0).tolist(),
+            "p95": np.percentile(simulated_paths, 95, axis=0).tolist(),
+        },
+        "histogram": {
+            "bins": np.histogram(final_values, bins=50)[1].tolist(),
+            "counts": np.histogram(final_values, bins=50)[0].tolist(),
+        },
+    }
+    return make_serializable(result)
 ```
 
 ---
 
-## Task 3: Stress Testing
+## Task 2: Distribution Fitting (Python)
 
-**File: `api/python/stress_test.py`**
+**File: `api/analytics/fit_distribution.py`**
 
-```python
-class handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        data = parse_body(self)
-        returns = json_to_returns_df(data)
-        weights = np.array(data["weights"])
-        config = data.get("config", {})
+Fit univariate distributions to asset/portfolio returns:
 
-        test_type = config.get("type", "historical")
+- Normal, Student-t, Skew-Normal, Johnson SU
+- Return: parameters, KS test, AIC/BIC, best fit recommendation
+- Used by MC page to show which distribution best fits the data
 
-        if test_type == "historical":
-            # Apply historical crisis scenarios
-            scenarios = {
-                "GFC 2008": {"start": "2008-09-01", "end": "2009-03-31"},
-                "COVID March 2020": {"start": "2020-02-20", "end": "2020-03-23"},
-                "Dot-com 2000": {"start": "2000-03-10", "end": "2002-10-09"},
-                "Flash Crash 2010": {"start": "2010-05-06", "end": "2010-05-06"},
-                "China Selloff 2015": {"start": "2015-08-18", "end": "2015-08-25"},
-                "Rate Hike 2022": {"start": "2022-01-01", "end": "2022-06-30"},
-            }
+**File: `api/analytics/fit_copula.py`**
 
-            results = {}
-            for name, period in scenarios.items():
-                mask = (returns.index >= period["start"]) & (returns.index <= period["end"])
-                if mask.any():
-                    scenario_returns = returns.loc[mask]
-                    portfolio_return = (scenario_returns.values @ weights).sum()
-                    max_dd = calculate_max_drawdown(scenario_returns.values @ weights)
-                    results[name] = {
-                        "return": float(portfolio_return),
-                        "maxDrawdown": float(max_dd),
-                        "worstDay": float((scenario_returns.values @ weights).min()),
-                        "days": int(mask.sum()),
-                    }
+Fit copula models to joint returns:
 
-            success_response(self, {"scenarios": results})
+- Gaussian, Student-t, Clayton, Gumbel, Frank
+- Return: copula parameters, tail dependence coefficients, goodness-of-fit
 
-        elif test_type == "custom":
-            # User-defined shocks
-            shocks = config.get("shocks", {})  # {"CBA": -0.20, "BHP": -0.30, ...}
-            shocked_returns = np.array([shocks.get(col, 0.0) for col in returns.columns])
-            portfolio_impact = float(np.dot(weights, shocked_returns))
+---
 
-            success_response(self, {
-                "portfolioImpact": portfolio_impact,
-                "assetImpacts": dict(zip(returns.columns.tolist(), (weights * shocked_returns).tolist())),
-            })
+## Task 3: FIRE Calculator (TypeScript)
 
-        elif test_type == "conditional":
-            # If factor X drops by Y%, what happens to portfolio?
-            factor_shock = config.get("factorShock", {"factor": "market", "magnitude": -0.10})
-            # Calculate beta to factor for each asset
-            # Apply conditional expected return given factor shock
-            # ...
-            pass
+**File: `lib/calculations/fire.ts`**
+
+```typescript
+interface FIREInput {
+  currentAge: number;
+  retirementAge: number;
+  currentPortfolioValue: number;
+  annualContribution: number;
+  contributionGrowthRate: number;
+  expectedReturnRate: number;
+  inflationRate: number;
+  annualExpenses: number;
+  expenseGrowthRate: number;
+  withdrawalRate: number;          // typically 4%
+  superBalance?: number;
+  superAccessAge?: number;         // typically 60 in AU
+}
+
+interface FIREResult {
+  fireNumber: number;              // expenses / withdrawal rate
+  yearsToFIRE: number;
+  fireAge: number;
+  projectedPortfolioAtRetirement: number;
+  safeWithdrawalAmount: number;
+  coastFIRENumber: number;         // stop contributing, let growth do the work
+  yearByYearProjection: Array<{
+    age: number;
+    year: number;
+    contributions: number;
+    investmentGrowth: number;
+    portfolioValue: number;
+    expenses: number;
+    surplus: number;
+  }>;
+  scenarios: {
+    pessimistic: { fireAge: number; successRate: number };
+    baseline: { fireAge: number; successRate: number };
+    optimistic: { fireAge: number; successRate: number };
+  };
+}
+
+export function calculateFIRE(input: FIREInput): FIREResult;
+```
+
+Pure TypeScript — no Python dependency. Scenarios use ±2% return adjustment.
+
+---
+
+## Task 4: Stress Testing (Python)
+
+**File: `api/analytics/stress_test.py`**
+
+Three modes:
+
+### Historical Scenarios
+Apply real crisis returns to user's current portfolio:
+
+| Scenario | Period | Characteristics |
+|----------|--------|-----------------|
+| GFC | Sep 2008 – Mar 2009 | Credit crisis, −50% equities |
+| COVID-19 | Feb – Mar 2020 | Fast crash, fast recovery |
+| Dot-com | Mar 2000 – Oct 2002 | Tech collapse |
+| 2022 Rate Shock | Jan – Oct 2022 | Stocks + bonds fall together |
+| 1987 Black Monday | Oct 1987 | Single-day 22% crash |
+| Asian Crisis | 1997–1998 | EM currency collapse |
+
+For each: portfolio return, max drawdown, worst day, duration.
+
+### Custom Shocks
+User-defined per-asset shocks (e.g. "CBA −20%, BHP −30%"):
+- Apply shock vector to current weights
+- Return portfolio impact + per-asset contribution
+
+### Conditional / Factor Stress
+"If market drops 10%, what happens to my portfolio?"
+- Calculate beta to factor for each asset
+- Apply conditional expected return given factor shock
+- Return probability-weighted impact
+
+---
+
+## Task 5: Enhanced Monte Carlo UI
+
+**File: `app/(dashboard)/analytics/monte-carlo/page.tsx`** (rewrite)
+
+Upgrade from standalone calculator to portfolio-integrated tool:
+
+```
+/analytics/monte-carlo
+├── Config Panel:
+│   ├── Simulation method (Bootstrap, Parametric, Copula)
+│   ├── Number of simulations (100–10,000)
+│   ├── Horizon (1Y, 3Y, 5Y, 10Y, 20Y, 30Y)
+│   ├── Initial value (auto-filled from portfolio)
+│   ├── Withdrawal settings (none, fixed, % of balance, guardrails)
+│   ├── Inflation adjustment toggle
+│   └── [Run Simulation] button
+├── Results:
+│   ├── Fan chart (confidence bands: 5th, 25th, 50th, 75th, 95th percentile)
+│   ├── Statistics card (mean, median, VaR, CVaR, P(loss), P(ruin))
+│   ├── Return distribution histogram (+ fitted distribution overlay)
+│   ├── Percentile table at milestones (5Y, 10Y, 20Y, 30Y)
+│   ├── Success rate gauge (% of scenarios surviving)
+│   └── Sensitivity table (success rate vs different withdrawal amounts)
+└── Link: "Run Monte Carlo for FIRE" → pre-fills FIRE params
 ```
 
 ---
 
-## Task 4: Cross-Validation & Model Selection
+## Task 6: FIRE Calculator UI
 
-**File: `api/python/cross_validate.py`**
+**File: `app/(dashboard)/tools/fire/page.tsx`**
 
-```python
-from skfolio.model_selection import (
-    WalkForward,
-    CombinatorialPurgedCV,
-    cross_val_predict,
-)
-from skfolio.optimization import MeanRisk, HierarchicalRiskParity, EqualWeighted
-import numpy as np
-
-class handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        data = parse_body(self)
-        returns = json_to_returns_df(data)
-        config = data.get("config", {})
-
-        cv_method = config.get("method", "walk_forward")
-
-        models = {
-            "equal_weighted": EqualWeighted(),
-            "mean_variance": MeanRisk(),
-            "hrp": HierarchicalRiskParity(),
-        }
-
-        if cv_method == "walk_forward":
-            cv = WalkForward(train_size=252, test_size=63)
-        elif cv_method == "combinatorial_purged":
-            cv = CombinatorialPurgedCV(n_folds=5, n_test_folds=2)
-
-        results = {}
-        for name, model in models.items():
-            pred = cross_val_predict(model, returns, cv=cv)
-            results[name] = {
-                "annualizedReturn": float(pred.mean() * 252),
-                "annualizedVolatility": float(pred.std() * np.sqrt(252)),
-                "sharpeRatio": float(pred.mean() / pred.std() * np.sqrt(252)),
-                "maxDrawdown": float(calculate_max_drawdown(pred)),
-            }
-
-        # Rank models
-        ranked = sorted(results.items(), key=lambda x: x[1]["sharpeRatio"], reverse=True)
-
-        success_response(self, {
-            "results": results,
-            "ranking": [{"model": name, **metrics} for name, metrics in ranked],
-            "bestModel": ranked[0][0],
-        })
 ```
-
----
-
-## Task 5: Factor Analysis UI
-
-**File: `app/(dashboard)/analytics/factors/page.tsx`**
-
-Factor analysis page:
-
-- Model type selector (Fama-French 3-Factor, PCA, Custom)
-- For Fama-French: show factor exposures per asset (table + radar chart)
-- For PCA: scree plot + loading heatmap
-- Factor contribution to portfolio risk (pie chart)
-- Alpha (excess return) per asset
-
----
-
-## Task 6: Tactical Allocation UI
-
-**File: `app/(dashboard)/analytics/tactical/page.tsx`**
-
-Tactical page:
-
-- Strategy selector (Momentum, Mean Reversion, Risk-Adjusted Momentum, Vol Targeting)
-- Lookback period slider
-- Signal scores ranked (bar chart)
-- Recommended weights vs current
-- Historical strategy backtest (link to backtest page with pre-filled config)
+/tools/fire
+├── Input Form:
+│   ├── Current age, retirement age
+│   ├── Portfolio value (auto-filled)
+│   ├── Annual contribution (+ growth rate slider)
+│   ├── Expected return (auto from portfolio history, editable)
+│   ├── Annual expenses (+ growth rate)
+│   ├── Withdrawal rate (default 4%, slider)
+│   ├── Inflation assumption
+│   ├── Super balance + access age (AU-specific toggle)
+│   └── [Calculate] button
+├── Results:
+│   ├── FIRE Number (big card)
+│   ├── Years to FIRE / FIRE Age
+│   ├── Coast FIRE number
+│   ├── Projection chart (accumulation + drawdown phases)
+│   ├── Scenario comparison (pessimistic / baseline / optimistic)
+│   ├── "Run Monte Carlo" button → calls MC with FIRE params
+│   └── Sensitivity: ±1% return / ±1% savings effect on timeline
+└── Super inclusion toggle (Australian retirement)
+```
 
 ---
 
 ## Task 7: Stress Testing UI
 
-**File: `app/(dashboard)/analytics/stress-test/page.tsx`**
+**File: `app/(dashboard)/analytics/what-if/page.tsx`** (rewrite — rename to stress testing)
 
-Stress testing page:
+Upgrade current what-if page to comprehensive stress testing:
 
-- Tab 1: Historical Scenarios — table showing portfolio impact per crisis
-- Tab 2: Custom Shocks — input shock % per asset, see portfolio impact
-- Tab 3: Factor Stress — shock a factor (market, rates, commodity), see propagation
-- Waterfall chart showing contribution of each asset to total loss
-
-**File: `components/charts/waterfall.tsx`**
-
-Waterfall chart for stress test impact breakdown.
+```
+/analytics/what-if (Stress Testing)
+├── Tab 1: Historical Scenarios
+│   ├── Table: portfolio impact per crisis period
+│   ├── Worst scenario highlighted
+│   └── Per-asset contribution waterfall chart
+├── Tab 2: Custom Shocks
+│   ├── Shock input per asset (% slider or input)
+│   ├── Portfolio impact summary
+│   └── Waterfall chart (which assets contribute most)
+├── Tab 3: Factor Stress
+│   ├── Factor selector (Market, Rates, Commodity, Currency)
+│   ├── Shock magnitude slider (−5% to −30%)
+│   └── Conditional portfolio impact + confidence interval
+└── Export (CSV)
+```
 
 ---
 
-## Task 8: Model Selection UI
+## Task 8: Chart Components
 
-**File: `app/(dashboard)/analytics/model-selection/page.tsx`**
+**File: `components/charts/fan-chart.tsx`**
 
-Model comparison page:
+Reusable fan chart (percentile bands as stacked areas). Used by Monte Carlo + FIRE.
 
-- CV method selector (Walk-Forward, Combinatorial Purged)
-- Strategy checkboxes (which models to compare)
-- Results table ranked by chosen metric (Sharpe, return, risk)
-- Box plots of out-of-sample returns per model
-- Recommended model badge
+**File: `components/charts/scenario-waterfall.tsx`**
+
+Waterfall chart for stress test impact breakdown (per-asset contribution to loss).
 
 ---
 
 ## Deliverables Checklist
 
-- [ ] Factor analysis endpoint (Fama-French + PCA)
-- [ ] Fama-French data fetcher/cacher
-- [ ] Tactical allocation endpoint (4 strategies)
-- [ ] Stress testing endpoint (historical + custom + conditional)
-- [ ] Cross-validation endpoint (2 CV methods, 3+ models)
-- [ ] Factor analysis UI (exposures, radar chart, PCA scree plot)
-- [ ] Tactical allocation UI (signals, weights comparison)
-- [ ] Stress testing UI (3 tabs, waterfall chart)
-- [ ] Model selection UI (ranking table, box plots)
-- [ ] Waterfall chart component
+- [ ] Monte Carlo endpoint (bootstrap, parametric, copula + withdrawal modelling)
+- [ ] Distribution fitting endpoint (4 univariate + best-fit selection)
+- [ ] Copula fitting endpoint (5 types + tail dependence)
+- [ ] FIRE Calculator (`lib/calculations/fire.ts` — pure TypeScript)
+- [ ] Stress testing endpoint (historical, custom, conditional)
+- [ ] Enhanced Monte Carlo UI (portfolio-integrated, fan chart, histogram)
+- [ ] FIRE Calculator UI (projection chart, scenarios, Monte Carlo link)
+- [ ] Stress testing UI (3 tabs: historical, custom, factor)
+- [ ] Fan chart component (reusable)
+- [ ] Scenario waterfall chart component
+- [ ] Distribution comparison chart
+
+## Performance Targets
+
+| Operation | Target | Strategy |
+|-----------|--------|----------|
+| MC 1,000 sims | < 3s | Python |
+| MC 10,000 sims | < 10s | Python, warn on free tier |
+| FIRE calculation | < 50ms | TypeScript, client-side OK |
+| Stress test (6 scenarios) | < 2s | Python |
+| Distribution fitting | < 2s | Python |
 
 ## Notes for the Agent
 
-- Fama-French factors for Australia: use Ken French's "Asia Pacific ex Japan" dataset
-- PCA: use n_components that explains >80% variance (typically 3-5)
-- Tactical strategies are long-only for now (no shorting in R2)
-- Stress test historical scenarios require sufficient price history — skip scenarios where data doesn't exist
-- Cross-validation must use purged CV (no data leakage between train/test)
-- Factor beta heatmap: rows=assets, columns=factors, colour=beta value
+- Monte Carlo: limit to 10,000 sims on free tier (10s timeout)
+- Fan chart: render 5 percentile bands as stacked areas (not individual paths)
+- Copula MC is most realistic for tail risk but slowest — default to bootstrap
+- FIRE is pure TS — no Python needed, can run client-side for instant feedback
+- Stress test: use beta × market move as approximation when full historical data unavailable
+- Withdrawal modelling: daily withdrawal = annual / 252
+- P(ruin) = % of paths that hit zero — key metric for retirement planning

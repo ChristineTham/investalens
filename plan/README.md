@@ -39,13 +39,15 @@ P1 may be broken into subphases (P1a, P1b, ...) for manageability.
 
 ### R2 — Advanced Analytics
 
-- [R2-overview.md](R2-overview.md) — Scope and feature list
-- [R2-P1a.md](R2-P1a.md) — Python infrastructure & backtesting
-- [R2-P1b.md](R2-P1b.md) — Optimisation & efficient frontier
-- [R2-P1c.md](R2-P1c.md) — Monte Carlo, estimation & distributions
-- [R2-P1d.md](R2-P1d.md) — Factor analysis, tactical, stress testing
-- [R2-P1e.md](R2-P1e.md) — AI Importer, FIRE, X-ray, research tools
+- [R2-overview.md](R2-overview.md) — Scope, architecture, route map, performance targets
+- [R2-P0.md](R2-P0.md) — Codespaces setup (packages, benchmarks, pipeline verification)
+- [R2-P1a.md](R2-P1a.md) — Data layer, Python infrastructure, shared components
+- [R2-P1b.md](R2-P1b.md) — Risk enhancement & backtesting
+- [R2-P1c.md](R2-P1c.md) — Optimisation, efficient frontier, Black-Litterman, estimation
+- [R2-P1d.md](R2-P1d.md) — Monte Carlo, FIRE calculator, stress testing
+- [R2-P1e.md](R2-P1e.md) — Factor analysis, correlations, tactical, ETF X-ray, AI tools
 - [R2-P2.md](R2-P2.md) — Advanced analytics validation
+- ~~[analytics-implementation.md](analytics-implementation.md)~~ — OBSOLETE (merged into R2-P* files)
 
 ### R3 — Global Markets
 

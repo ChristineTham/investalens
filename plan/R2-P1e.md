@@ -1,32 +1,181 @@
-# R2-P1e: AI Features, FIRE Calculator, X-ray & Tools
+# R2-P1e: Factor Analysis, Correlations, Tactical, Exposure & AI Tools
 
 ## Objective
 
-Implement AI-powered features (Gemini/Antigravity SDK for statement parsing), FIRE calculator, Portfolio X-ray (ETF look-through), Share Checker, and Market Sentiment dashboard.
+Implement factor models (Fama-French, PCA), correlation analysis, tactical allocation strategies, ETF X-ray / exposure analysis, Share Checker, AI Importer (Gemini), Market Sentiment dashboard, and AI Chat assistant.
 
 ## Prerequisites
 
-- R2-P1d complete (all analytics endpoints working)
-- Reference: `docs/ADVANCED.md` (AI Features), `docs/TOOLS.md`
+- R2-P1d complete (Monte Carlo, FIRE, stress testing working)
+- Reference: `docs/ADVANCED.md` (Factors, Tactical), `docs/TOOLS.md` (AI, X-ray, Sentiment)
 
 ## Recommended Skills
 
-Invoke these skills for best-practice guidance during this phase:
-
 - **ai-sdk** — Vercel AI SDK for Gemini chat interface, structured output, streaming
 - **building-components** — Custom chat UI components with Base UI primitives
-- **vercel-react-best-practices** — FIRE calculator chart, market sentiment UI
+- **vercel-react-best-practices** — Heatmap, treemap, gauge component performance
 - **next-best-practices** — Streaming route for AI chat, server actions
-
-> **Note:** FIRE calculations, ETF decomposition, and market sentiment aggregation are domain-specific. Use `ai-sdk` for Gemini/Antigravity integration patterns. Build chat UI with Base UI + shadcn patterns (no AI Elements — that requires Radix).
 
 ---
 
-## Task 1: AI Importer (Gemini / Antigravity SDK)
+## Task 1: Factor Analysis (Python)
+
+**File: `api/analytics/factor_analysis.py`**
+
+```python
+from fastapi import FastAPI, Request
+import pandas as pd
+import numpy as np
+import statsmodels.api as sm
+from sklearn.decomposition import PCA
+from utils.transforms import json_to_returns_df, make_serializable
+from utils.response import create_app
+
+app = create_app()
+
+@app.post("/api/analytics/factor_analysis")
+async def factor_analysis(request: Request):
+    data = await request.json()
+    returns = json_to_returns_df(data)
+    factors = pd.DataFrame(data.get("factors", {}))
+    config = data.get("config", {})
+    model_type = config.get("type", "fama_french")
+
+    if model_type == "fama_french":
+        # Regress each asset against Fama-French factors
+        results = {}
+        for col in returns.columns:
+            y = returns[col] - factors["RF"]
+            X = sm.add_constant(factors[["Mkt-RF", "SMB", "HML"]])
+            model = sm.OLS(y, X).fit()
+            results[col] = {
+                "alpha": float(model.params["const"]),
+                "betas": {
+                    "market": float(model.params["Mkt-RF"]),
+                    "size": float(model.params["SMB"]),
+                    "value": float(model.params["HML"]),
+                },
+                "r_squared": float(model.rsquared),
+                "t_stats": {k: float(v) for k, v in model.tvalues.items()},
+            }
+        return make_serializable({"assets": results})
+
+    elif model_type == "pca":
+        n_components = config.get("nFactors", 5)
+        pca = PCA(n_components=n_components)
+        pca.fit(returns)
+        return make_serializable({
+            "explainedVariance": pca.explained_variance_ratio_.tolist(),
+            "cumulativeVariance": np.cumsum(pca.explained_variance_ratio_).tolist(),
+            "loadings": pca.components_.tolist(),
+            "assets": returns.columns.tolist(),
+        })
+```
+
+**File: `lib/services/factor-data.ts`**
+
+Fetch Fama-French factor data from Kenneth French's data library (public CSVs). Cache for 30 days.
+
+---
+
+## Task 2: Correlation Analysis (TypeScript + Python)
+
+**File: `api/analytics/correlations.py`**
+
+```python
+# Compute:
+# 1. Full correlation matrix (pairwise Pearson)
+# 2. Rolling correlation between any pair (configurable window)
+# 3. Hierarchical clustering (dendrogram data)
+# 4. Crisis vs normal correlations (correlations during drawdowns vs rest)
+```
+
+Mostly a thin wrapper — correlations are fast to compute from the returns matrix.
+
+---
+
+## Task 3: Tactical Allocation (Python)
+
+**File: `api/analytics/tactical.py`**
+
+Strategies:
+
+| Strategy | Signal | Logic |
+|----------|--------|-------|
+| Momentum | 12-month return | Overweight recent winners |
+| Mean Reversion | 21-day return | Overweight recent losers |
+| Risk-Adjusted Momentum | Return / Volatility | Sharpe ranking |
+| Volatility Targeting | Inverse vol | 1/σ weighting |
+| MA Crossover | SMA(50) vs SMA(200) | Golden/death cross signal |
+| Dual Momentum | Absolute + Relative | Hold top if > cash |
+
+Return: signal scores, recommended weights, signal chart data, description.
+
+---
+
+## Task 4: ETF X-ray & Exposure Analysis
+
+**File: `lib/services/etf-xray.ts`**
+
+Decompose ETF holdings to show underlying exposure:
+
+```typescript
+interface XrayResult {
+  topHoldings: Array<{ name: string; totalWeight: number; sources: string[] }>;
+  sectorExposure: Record<string, number>;
+  countryExposure: Record<string, number>;
+  overlap: Array<{ stock: string; etfs: string[]; combinedWeight: number }>;
+  concentrationAlerts: Array<{ stock: string; totalExposure: number; threshold: number }>;
+}
+
+async function xrayPortfolio(holdings: HoldingWithInstrument[]): Promise<XrayResult>;
+```
+
+**Data**: Hardcode top holdings for common AU ETFs initially (VAS, VGS, IOZ, A200, VDHG, IVV). Store in DB or JSON file. Refresh monthly.
+
+**File: `app/(dashboard)/analytics/exposure/page.tsx`** (enhance existing)
+
+Upgrade from basic grouping to:
+- ETF look-through (underlying holdings revealed)
+- Overlap detection (same stock in multiple ETFs)
+- Concentration risk alerts (e.g. "8% total AAPL exposure via 3 ETFs")
+- True sector/country/asset-type exposure (direct + indirect)
+- Treemap with drill-down capability
+
+---
+
+## Task 5: Share Checker
+
+**File: `lib/services/share-checker.ts`**
+
+```typescript
+interface CheckResult {
+  duplicates: Array<{ holding1: string; holding2: string; similarity: string }>;
+  concentration: Array<{ holding: string; weight: number; threshold: number }>;
+  staleData: Array<{ holding: string; lastPriceDate: Date; daysSinceUpdate: number }>;
+  missingData: Array<{ holding: string; issue: string }>;
+  anomalies: Array<{ holding: string; description: string }>;
+}
+```
+
+Checks:
+- Same instrument across multiple portfolios (intentional?)
+- Single-holding concentration > 20%
+- Stale prices (> 5 business days old)
+- Missing cost base
+- Unusual transaction patterns (large buys/sells)
+
+**File: `app/(dashboard)/tools/checker/page.tsx`**
+
+List of findings with severity badges + fix suggestions.
+
+---
+
+## Task 6: AI Importer (Gemini / Vercel AI SDK)
 
 **File: `app/api/ai-import/route.ts`**
 
-Use Vercel AI SDK with Google Gemini to parse unstructured financial statements. This runs in the **TypeScript layer** (not Python):
+Use Vercel AI SDK with Google Gemini to parse unstructured financial documents:
 
 ```typescript
 import { generateObject } from "ai";
@@ -36,16 +185,8 @@ import { z } from "zod";
 const TransactionSchema = z.object({
   tradeDate: z.string().describe("ISO 8601 date"),
   instrumentCode: z.string().describe("Ticker symbol"),
-  marketCode: z.string().describe("Exchange code, e.g. ASX"),
-  transactionType: z.enum([
-    "BUY",
-    "SELL",
-    "DIVIDEND",
-    "INTEREST",
-    "COUPON",
-    "FEE",
-    "DRP",
-  ]),
+  marketCode: z.string().describe("Exchange code"),
+  transactionType: z.enum(["BUY", "SELL", "DIVIDEND", "INTEREST", "COUPON", "FEE", "DRP"]),
   quantity: z.number(),
   price: z.number().describe("Price per unit"),
   brokerage: z.number().default(0),
@@ -60,238 +201,60 @@ const ImportResultSchema = z.object({
 
 export async function POST(request: Request) {
   const { content, documentType } = await request.json();
-
   const { object } = await generateObject({
     model: google("gemini-2.5-flash"),
     schema: ImportResultSchema,
     prompt: `You are a financial document parser.
 Document type: ${documentType}
-Extract all transactions from the following document content.
-
-${content}`,
+Extract all transactions from this content:\n\n${content}`,
   });
-
   return Response.json(object);
 }
 ```
 
-> **Note:** The AI importer uses the Vercel AI SDK (`ai` + `@ai-sdk/google`) from the TypeScript layer with structured output (Zod schema). `google-antigravity` exists but is an agent framework (not a doc parser) — see `docs/KNOWLEDGE.md` for details.
-
-**File: `lib/actions/ai-import.ts`**
-
-Server action for AI import:
-
-1. Accept file upload (PDF, image, text)
-2. Extract text content (use pdf-parse for PDFs, or send image directly)
-3. Call the TypeScript AI route handler (not Python)
-4. Return parsed transactions for user review
-5. User confirms/edits, then standard import pipeline handles the rest
-
 **File: `app/(dashboard)/portfolio/[id]/import/ai/page.tsx`**
 
 AI Import UI:
-
 - Upload zone (PDF, PNG, JPG, TXT)
 - Document type selector (Broker Statement, Dividend Statement, Tax Statement, Contract Note)
 - "Parse with AI" button
-- Review extracted transactions (editable table)
-- Confidence indicators per field
+- Review extracted transactions (editable table with confidence indicators)
 - Confirm & Import button
+- Graceful "unavailable" message if `GOOGLE_GENERATIVE_AI_API_KEY` not set
 
 ---
 
-## Task 2: FIRE Calculator
-
-**File: `lib/calculations/fire.ts`**
-
-Financial Independence, Retire Early calculator:
-
-```typescript
-interface FIREInput {
-  currentAge: number;
-  retirementAge: number;
-  currentPortfolioValue: number;
-  annualContribution: number;
-  contributionGrowthRate: number; // annual increase in contributions
-  expectedReturnRate: number; // from portfolio analytics
-  inflationRate: number;
-  annualExpenses: number;
-  expenseGrowthRate: number;
-  withdrawalRate: number; // typically 4%
-  superBalance?: number;
-  superAccessAge?: number; // typically 60 in AU
-}
-
-interface FIREResult {
-  fireNumber: number; // expenses / withdrawal rate
-  yearsToFIRE: number;
-  fireAge: number;
-  projectedPortfolioAtRetirement: number;
-  safeWithdrawalAmount: number;
-  yearByYearProjection: Array<{
-    age: number;
-    year: number;
-    contributions: number;
-    investmentGrowth: number;
-    portfolioValue: number;
-    expenses: number;
-    surplus: number;
-  }>;
-  scenarios: {
-    pessimistic: { fireAge: number; successRate: number }; // -2% return
-    baseline: { fireAge: number; successRate: number };
-    optimistic: { fireAge: number; successRate: number }; // +2% return
-  };
-  monteCarloProbability?: number; // if MC simulation run
-}
-
-function calculateFIRE(input: FIREInput): FIREResult;
-```
-
-**File: `app/(dashboard)/tools/fire/page.tsx`**
-
-FIRE Calculator page:
-
-- Input form (all FIRE parameters with sensible defaults)
-- Auto-fill portfolio value from actual data
-- Auto-fill expected return from historical performance
-- Results:
-  - FIRE number (big card)
-  - Years to FIRE / FIRE age
-  - Projection chart (portfolio growth over time)
-  - Expense vs withdrawal comparison
-  - Scenario comparison (pessimistic/baseline/optimistic)
-  - "Run Monte Carlo" button → calls MC endpoint with FIRE parameters
-  - Super balance inclusion toggle (for Australian retirement)
-
----
-
-## Task 3: Portfolio X-ray (ETF Look-through)
-
-**File: `lib/services/etf-xray.ts`**
-
-Decompose ETF holdings to show underlying exposure:
-
-```typescript
-interface ETFHolding {
-  code: string;
-  name: string;
-  weight: number;
-  sector?: string;
-  country?: string;
-}
-
-interface XrayResult {
-  topHoldings: Array<{ name: string; totalWeight: number; sources: string[] }>;
-  sectorExposure: Record<string, number>;
-  countryExposure: Record<string, number>;
-  overlap: Array<{ stock: string; etfs: string[]; combinedWeight: number }>;
-}
-
-async function xrayPortfolio(
-  holdings: HoldingWithInstrument[]
-): Promise<XrayResult>;
-```
-
-Data source: ETF composition from provider websites (scrape top holdings) or store in DB.
-
-**File: `app/(dashboard)/tools/xray/page.tsx`**
-
-X-ray page:
-
-- Auto-detect ETFs in portfolio
-- Show combined underlying holdings (top 20)
-- Overlap detection (same stock held in multiple ETFs)
-- Sector/country exposure (stacked bar chart)
-- Concentration risk warnings
-
----
-
-## Task 4: Share Checker
-
-**File: `lib/services/share-checker.ts`**
-
-Detect potential issues in portfolio:
-
-```typescript
-interface CheckResult {
-  duplicates: Array<{ holding1: string; holding2: string; similarity: string }>;
-  concentration: Array<{ holding: string; weight: number; threshold: number }>;
-  staleData: Array<{
-    holding: string;
-    lastPriceDate: Date;
-    daysSinceUpdate: number;
-  }>;
-  missingData: Array<{ holding: string; issue: string }>;
-  anomalies: Array<{ holding: string; description: string }>;
-}
-```
-
-Checks:
-
-- Same instrument in multiple portfolios (intended?)
-- Concentration risk (>20% in one holding)
-- Stale prices (>5 days old, excluding weekends)
-- Missing cost base
-- Unusual transaction patterns
-
-**File: `app/(dashboard)/tools/checker/page.tsx`**
-
-Share Checker page: list of findings with severity badges and fix suggestions.
-
----
-
-## Task 5: Market Sentiment Dashboard
+## Task 7: Market Sentiment Dashboard
 
 **File: `lib/services/market-sentiment.ts`**
 
-Aggregate market indicators:
-
 ```typescript
 interface SentimentData {
-  fearGreedIndex: number; // 0-100
+  fearGreedIndex: number;          // 0-100 (derived from indicators)
   vixLevel: number;
-  marketBreadth: number; // % stocks above 200-day MA
+  marketBreadth: number;           // % stocks above 200-day MA
   putCallRatio: number;
   sectorHeatmap: Record<string, number>; // sector → daily return
-  asxSummary: {
-    open: number;
-    close: number;
-    change: number;
-    changePercent: number;
-    volume: number;
-  };
+  asxSummary: { open: number; close: number; change: number; changePercent: number; volume: number };
 }
 ```
 
-Source data from Yahoo Finance (^AXJO for ASX200, ^VIX for volatility).
+Source: Yahoo Finance (^AXJO, ^VIX). Respect rate limits (5 req/sec).
 
 **File: `app/(dashboard)/tools/sentiment/page.tsx`**
 
-Market Sentiment page:
-
-- Fear/Greed gauge (0-100 dial)
-- ASX200 intraday chart
-- Sector heatmap (treemap with green/red blocks)
+- Fear/Greed gauge (0–100 dial chart)
+- ASX200 intraday summary
+- Sector heatmap (treemap, green/red)
 - Key market indicators table
-- News headlines (optional, from RSS)
 
 ---
 
-## Task 6: AI Chat Assistant (Stretch)
+## Task 8: AI Chat Assistant (Stretch Goal)
 
-**File: `app/(dashboard)/tools/assistant/page.tsx`**
-
-Optional AI assistant using Vercel AI SDK + Gemini:
-
-- Chat interface
-- Can answer questions about the portfolio
-- Suggests optimisation actions
-- Explains report results
-- Uses function calling to fetch portfolio data
+**File: `app/api/chat/route.ts`**
 
 ```typescript
-// app/api/chat/route.ts
 import { streamText } from "ai";
 import { google } from "@ai-sdk/google";
 
@@ -299,36 +262,86 @@ export async function POST(req: Request) {
   const { messages } = await req.json();
   const result = streamText({
     model: google("gemini-2.0-flash"),
-    system: "You are a helpful portfolio analysis assistant...",
+    system: "You are a helpful portfolio analysis assistant for InvestaLens...",
     messages,
   });
   return result.toDataStreamResponse();
 }
 ```
 
+**File: `app/(dashboard)/tools/assistant/page.tsx`**
+
+Basic chat interface:
+- Message list
+- Input with send button
+- Can answer portfolio questions
+- Suggests optimisation actions
+- Explains report results
+
+---
+
+## Task 9: Factor & Correlation UI Pages
+
+**File: `app/(dashboard)/analytics/factors/page.tsx`**
+
+- Model type selector (Fama-French, PCA)
+- Factor exposures per asset (table + bar chart)
+- PCA: scree plot + loading heatmap
+- Alpha (excess return) per asset
+
+**File: `app/(dashboard)/analytics/correlations/page.tsx`**
+
+- Correlation matrix heatmap (clickable cells)
+- Rolling correlation chart (select any pair)
+- Hierarchical clustering dendrogram
+- Period selector (1Y, 3Y, 5Y)
+
+**File: `app/(dashboard)/analytics/tactical/page.tsx`**
+
+- Strategy selector (Momentum, Mean Reversion, Vol Target, MA Crossover)
+- Lookback period slider
+- Signal scores (ranked bar chart)
+- Recommended vs current weights
+- "Backtest this strategy" link
+
 ---
 
 ## Deliverables Checklist
 
-- [ ] AI Importer TypeScript endpoint (Vercel AI SDK + Gemini)
-- [ ] AI Import server action (file upload + text extraction)
+- [ ] Factor analysis endpoint (Fama-French regression + PCA)
+- [ ] Factor data service (Kenneth French library fetch + cache)
+- [ ] Correlation analysis endpoint (matrix, rolling, clustering)
+- [ ] Tactical allocation endpoint (6 strategies)
+- [ ] ETF X-ray service (look-through, overlap detection)
+- [ ] Enhanced exposure page (treemap + X-ray)
+- [ ] Share Checker service (5+ check types)
+- [ ] Share Checker UI page
+- [ ] AI Import route (Vercel AI SDK + Gemini + Zod schema)
 - [ ] AI Import UI (upload, parse, review, confirm)
-- [ ] FIRE Calculator (TypeScript, full projection)
-- [ ] FIRE Calculator UI with charts
-- [ ] ETF X-ray service (look-through decomposition)
-- [ ] X-ray UI with overlap detection
-- [ ] Share Checker (5+ check types)
-- [ ] Share Checker UI with findings
-- [ ] Market Sentiment service (Yahoo Finance data)
-- [ ] Market Sentiment dashboard (gauge, heatmap, chart)
-- [ ] AI Chat assistant (stretch, Vercel AI SDK + Gemini)
+- [ ] Market Sentiment service
+- [ ] Market Sentiment dashboard (gauge, heatmap)
+- [ ] Factor analysis UI page
+- [ ] Correlations UI page (heatmap + rolling)
+- [ ] Tactical allocation UI page
+- [ ] AI Chat assistant (stretch — basic chat UI + streaming)
+
+## Performance Targets
+
+| Operation | Target | Strategy |
+|-----------|--------|----------|
+| Factor regression (10 assets) | < 2s | Python |
+| Correlation matrix (20 assets) | < 1s | Python (or TypeScript) |
+| Tactical signals | < 1s | Python |
+| AI Import parse | < 10s | Gemini API (external) |
+| Market sentiment fetch | < 3s | Yahoo Finance (external) |
 
 ## Notes for the Agent
 
-- Vercel AI SDK Google provider requires `GOOGLE_GENERATIVE_AI_API_KEY` in environment
-- AI Import should gracefully degrade if API key not configured (show "unavailable" message)
-- FIRE Calculator is pure TypeScript — no Python dependency
-- ETF top holdings data: hardcode for common AU ETFs (VAS, VGS, IOZ, A200, VDHG) initially
-- Share Checker runs on every portfolio view (lightweight) — cache results
-- Market Sentiment: respect Yahoo Finance rate limits (5 req/sec)
-- AI Chat is a stretch goal — implement basic UI first, can enhance later
+- AI features require `GOOGLE_GENERATIVE_AI_API_KEY` — gracefully degrade if absent
+- ETF holdings: hardcode common AU ETFs initially (VAS, VGS, IOZ, A200, VDHG)
+- Factor data: Kenneth French library is free public CSV — download monthly
+- Share Checker is lightweight — can run on every portfolio page load (cache results)
+- Market Sentiment: respect Yahoo Finance rate limits
+- AI Chat is a stretch goal — implement basic UI first, enhance later
+- Tactical allocation page should link to backtest page with pre-filled strategy config
+- Correlations are fast to compute — can be done in TypeScript if Python overhead unwanted
