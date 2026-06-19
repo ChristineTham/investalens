@@ -2,12 +2,11 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 config({ path: ".env" });
 
-const { db } = await import("../lib/db");
-const { fetchHistoricalPrices } = await import("../lib/services/price-service");
-
 const DEFAULT_YEARS = 5;
 
 async function main() {
+  const { db } = await import("../lib/db");
+  const { fetchHistoricalPrices } = await import("../lib/services/price-service");
   const yearsArg = process.argv.find((a) => a.startsWith("--years="));
   const years = yearsArg ? parseInt(yearsArg.split("=")[1], 10) : DEFAULT_YEARS;
 
@@ -113,11 +112,12 @@ async function main() {
     const count = await db.price.count({ where: { instrumentId: b.id } });
     console.log(`  ${b.code.padEnd(10)} ${count.toString().padStart(5)} prices`);
   }
+
+  await db.$disconnect();
 }
 
 main()
   .catch((e) => {
     console.error(e);
     process.exit(1);
-  })
-  .finally(() => db.$disconnect());
+  });

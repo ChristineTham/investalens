@@ -1,7 +1,6 @@
 import { config } from "dotenv";
 config({ path: ".env.local" });
 config({ path: ".env" });
-const { db } = await import("../lib/db");
 
 const BENCHMARKS = [
   { code: "^AXJO", marketCode: "ASX", name: "S&P/ASX 200", instrumentType: "INDEX", currency: "AUD", country: "AU" },
@@ -18,6 +17,7 @@ const RETIRED = [
 ];
 
 async function main() {
+  const { db } = await import("../lib/db");
   console.log("Seeding benchmark instruments...");
 
   for (const benchmark of BENCHMARKS) {
@@ -42,6 +42,7 @@ async function main() {
   }
 
   console.log(`\nDone — ${BENCHMARKS.length} benchmark instruments seeded.`);
+  await db.$disconnect();
 }
 
 main()

@@ -1,11 +1,11 @@
 import { config } from "dotenv";
 config({ path: ".env.local" });
 config({ path: ".env" });
-const { db } = await import("../lib/db");
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 
 async function main() {
+  const { db } = await import("../lib/db");
   // Create test user
   const passwordHash = await bcrypt.hash("TestPass123!", 12);
   const user = await db.user.upsert({

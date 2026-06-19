@@ -2,14 +2,14 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 config({ path: ".env" });
 
-const { db } = await import("../lib/db");
-const {
-  getPortfolioTimeSeries,
-  getBenchmarkTimeSeries,
-  getPortfolioReturnsMatrix,
-} = await import("../lib/services/analytics-data");
-
 async function main() {
+  const { db } = await import("../lib/db");
+  const {
+    getPortfolioTimeSeries,
+    getBenchmarkTimeSeries,
+    getPortfolioReturnsMatrix,
+  } = await import("../lib/services/analytics-data");
+
   console.log("=== Analytics Data Pipeline Verification ===\n");
 
   // 1. Find a portfolio with holdings
@@ -108,11 +108,12 @@ async function main() {
   }
 
   console.log("\n=== Verification Complete ===");
+
+  await db.$disconnect();
 }
 
 main()
   .catch((e) => {
     console.error(e);
     process.exit(1);
-  })
-  .finally(() => db.$disconnect());
+  });
