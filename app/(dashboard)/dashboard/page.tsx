@@ -28,10 +28,6 @@ export default async function DashboardPage() {
   });
 
   // Calculate portfolio summaries
-  let totalValue = 0;
-  let totalCost = 0;
-  let totalHoldings = 0;
-
   const portfolioSummaries = await Promise.all(
     portfolios.map(async (portfolio) => {
       let portfolioValue = 0;
@@ -60,10 +56,6 @@ export default async function DashboardPage() {
         portfolioCost += position.totalCostBase;
       }
 
-      totalValue += portfolioValue;
-      totalCost += portfolioCost;
-      totalHoldings += portfolio.holdings.length;
-
       return {
         id: portfolio.id,
         name: portfolio.name,
@@ -78,6 +70,10 @@ export default async function DashboardPage() {
       };
     })
   );
+
+  const totalValue = portfolioSummaries.reduce((sum, p) => sum + p.marketValue, 0);
+  const totalCost = portfolioSummaries.reduce((sum, p) => sum + p.marketValue - p.gainLoss, 0);
+  const totalHoldings = portfolioSummaries.reduce((sum, p) => sum + p.holdingCount, 0);
 
   // Recent transactions (last 10 across all portfolios)
   const recentTransactions = await db.transaction.findMany({
