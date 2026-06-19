@@ -2,7 +2,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getTransactions } from "@/lib/actions/transaction";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, GitMerge } from "lucide-react";
 import { redirect } from "next/navigation";
 import { AddTransactionForm } from "@/components/forms/add-transaction-form";
 import { TransactionRow } from "@/components/forms/transaction-row";
@@ -49,11 +49,20 @@ export default async function HoldingDetailPage({
             </p>
           </div>
         </div>
-        <DeleteHoldingButton
-          holdingId={holdingId}
-          portfolioId={id}
-          instrumentCode={holding.instrument.code}
-        />
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/portfolio/${id}/holdings/${holdingId}/actions`}
+            className="inline-flex items-center gap-2 rounded-md border border-input px-3 py-2 text-sm font-medium hover:bg-accent"
+          >
+            <GitMerge className="h-4 w-4" />
+            Corporate Actions
+          </Link>
+          <DeleteHoldingButton
+            holdingId={holdingId}
+            portfolioId={id}
+            instrumentCode={holding.instrument.code}
+          />
+        </div>
       </div>
 
       <div className="rounded-lg border border-border bg-card p-6">

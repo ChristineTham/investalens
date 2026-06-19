@@ -15,7 +15,7 @@ A comprehensive portfolio tracker and optimiser for Australian investors. Track 
 - **Organisation** — Custom groups, labels, consolidated view
 - **Watchlist** — Track potential investments
 - **Data Export** — CSV (trades, holdings, dividends) + JSON backup
-- **REST API** — Bearer token auth, rate limiting, portfolio/market endpoints
+- **REST API** — Bearer token auth, rate limiting, full CRUD (portfolios, holdings, transactions, performance, diversity, import/export, market quote, token management)
 
 ## Features (R2 Analytics)
 
@@ -68,13 +68,13 @@ cp .env.example .env.local
 # Edit .env.local with your DATABASE_URL and AUTH_SECRET
 
 # Generate Prisma client
-npx prisma generate
+pnpm exec prisma generate
 
 # Run migrations
-npx prisma migrate dev
+pnpm exec prisma migrate dev
 
 # Seed test data
-npx prisma db seed
+pnpm exec prisma db seed
 
 # Start dev server
 pnpm run dev
@@ -87,7 +87,7 @@ Open [http://localhost:3000](http://localhost:3000). Login with seeded user: `te
 The project includes a devcontainer configuration. Open in Codespaces and run:
 
 ```bash
-pnpm install && npx prisma generate && npx prisma migrate dev && npx prisma db seed
+pnpm install && pnpm exec prisma generate && pnpm exec prisma migrate dev && pnpm exec prisma db seed
 pnpm run dev
 ```
 
@@ -97,16 +97,18 @@ pnpm run dev
 app/                    # Next.js App Router pages
   (auth)/               # Login, register (unauthenticated)
   (dashboard)/          # All authenticated pages
-    portfolio/          # Portfolio CRUD, holdings, import
+    dashboard/          # Summary dashboard (total value, gain/loss, recent activity)
+    portfolio/          # Portfolio CRUD, holdings, import, bonds, cash
     reports/            # 10 report pages
     tax/                # Tax reports (taxable income, CGT, unrealised)
     tools/              # Watchlist, FIRE, Share Checker, Sentiment, AI Assistant
     settings/           # Groups, labels, sharing, export, API tokens
-    analytics/          # Advanced analytics (risk, backtest, optimize, frontier, etc.)
+    analytics/          # 13 analytics tools (risk, backtest, optimize, frontier, etc.)
   api/                  # API routes
     auth/               # NextAuth.js handlers
     cron/               # Price fetching cron
-    v1/                 # Public REST API + AI endpoints
+    v1/                 # Public REST API (portfolios, holdings, transactions, market, auth)
+  help/                 # Public help/documentation pages
 api/                    # Python FastAPI analytics (Vercel Services)
   analytics/            # Optimize, backtest, frontier, Monte Carlo, stress test, etc.
   utils/                # Python helpers (transforms, response)
@@ -115,15 +117,16 @@ components/
   charts/               # Recharts + custom chart components (15)
   analytics/            # Analytics UI components (selectors, metric cards)
   forms/                # Import wizard, transaction form, etc.
-  layout/               # Sidebar, header
+  layout/               # Sidebar, header, breadcrumbs
 lib/
-  actions/              # Server actions (auth, portfolio, holdings, etc.)
+  actions/              # Server actions (auth, portfolio, holdings, transactions, etc.)
   calculations/         # Performance, position, parcels, bond analytics, risk, drawdown, FIRE
   constants/            # Shared constants (benchmarks)
+  data/                 # Static data (exchange registry)
   reports/              # Report generators (performance, tax, etc.)
   import/               # CSV parser, mapper, dedup, broker templates
-  providers/            # Yahoo Finance, instrument search
-  services/             # Price, analytics data, benchmark, ETF X-ray, share checker, sentiment
+  providers/            # Yahoo Finance, instrument search, FX rates
+  services/             # Price, analytics data, benchmark, ETF X-ray, share checker, sentiment, factor data
   export/               # CSV/JSON export functions
   api/                  # API middleware, rate limiting
   validators/           # Zod schemas
@@ -180,7 +183,7 @@ After first deploy, run migrations against your production database:
 
 ```bash
 # Set DATABASE_URL to your production Neon connection string
-DATABASE_URL="postgresql://..." npx prisma migrate deploy
+DATABASE_URL="postgresql://..." pnpm exec prisma migrate deploy
 ```
 
 ### 6. Verify
@@ -199,16 +202,16 @@ The project includes `vercel.json` with:
 
 ## Scripts
 
-| Command                  | Purpose                  |
-| ------------------------ | ------------------------ |
-| `pnpm run dev`           | Start development server |
-| `pnpm run build`         | Production build         |
-| `pnpm run lint`          | ESLint check             |
-| `npx tsc --noEmit`       | TypeScript type check    |
-| `npx prisma generate`    | Generate Prisma client   |
-| `npx prisma migrate dev` | Create/apply migrations  |
-| `npx prisma db seed`     | Seed test data           |
-| `npx prisma studio`      | Visual database browser  |
+| Command                       | Purpose                  |
+| ----------------------------- | ------------------------ |
+| `pnpm run dev`                | Start development server |
+| `pnpm run build`              | Production build         |
+| `pnpm run lint`               | ESLint check             |
+| `pnpm exec tsc --noEmit`      | TypeScript type check    |
+| `pnpm exec prisma generate`   | Generate Prisma client   |
+| `pnpm exec prisma migrate dev`| Create/apply migrations  |
+| `pnpm exec prisma db seed`    | Seed test data           |
+| `pnpm exec prisma studio`     | Visual database browser  |
 
 ## Documentation
 

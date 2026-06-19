@@ -18,7 +18,7 @@ import {
 
 export default async function Home() {
   const session = await auth();
-  if (session?.user) redirect("/portfolio");
+  if (session?.user) redirect("/dashboard");
 
   return (
     <div className="min-h-screen bg-background">

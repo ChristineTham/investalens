@@ -46,12 +46,26 @@ Welcome to InvestaLens — a comprehensive portfolio tracker and optimiser for i
 
 Set up your account, create your first portfolio, and understand how InvestaLens organises your investments.
 
+### Navigation Overview
+
+After signing in, you land on the **Dashboard** (`/dashboard`) which shows your total portfolio value, gain/loss, and recent activity. The sidebar provides access to all sections:
+
+| Sidebar Link   | What It Contains                                                          |
+| -------------- | ------------------------------------------------------------------------- |
+| **Dashboard**  | Total value, gain/loss summary, portfolio table, recent transactions      |
+| **Portfolio**  | Create/manage portfolios, holdings, imports, bonds, cash                  |
+| **Reports**    | 10 performance and allocation reports                                     |
+| **Tax**        | Taxable income, CGT, and unrealised CGT reports                           |
+| **Tools**      | Watchlist, FIRE calculator, Share Checker, Market Sentiment, AI Assistant |
+| **Analytics**  | 13 quantitative analysis tools (backtesting, optimisation, Monte Carlo, etc.) |
+| **Settings**   | Groups, labels, sharing, export, API tokens                               |
+
 ### What You'll Do First
 
 1. **Create your account** — Register at `/register` with name, email, and password (minimum 8 characters). Or sign in with Google OAuth.
-2. **Create a portfolio** — Click "New Portfolio" on `/portfolio`, choose tax residency and entity type
-3. **Import your investments** — Use the CSV import wizard or add holdings manually via instrument search
-4. **Explore reports** — Navigate to Reports or Tax for performance and tax analysis
+2. **Create a portfolio** — From the sidebar click **Portfolio**, then "New Portfolio", choose tax residency and entity type
+3. **Import your investments** — Click into your portfolio, then use "Import CSV" or "✨ AI Import" button
+4. **Explore reports** — Click **Reports** or **Tax** in the sidebar for performance and tax analysis
 
 ### Key Concepts
 
@@ -88,13 +102,23 @@ InvestaLens is source-agnostic — import from any broker, any format.
 
 ### How to Import (CSV)
 
-1. Navigate to a portfolio detail page
-2. Click **"Import CSV"**
+1. From the sidebar, click **Portfolio** → select your portfolio
+2. Click **"Import CSV"** in the portfolio header
 3. **Upload** — drag and drop your broker's CSV file
 4. **Configure** — select a broker template (auto-fills mappings) or set date format/decimal separator manually
 5. **Map** — assign CSV columns to InvestaLens fields (Trade Date, Code, Quantity, Price, Type are required)
 6. **Review** — see parsed transactions colour-coded (green=valid, red=error, yellow=duplicate)
 7. **Import** — confirm to insert transactions into the database
+
+### How to Import (AI)
+
+1. From the sidebar, click **Portfolio** → select your portfolio
+2. Click **"Import CSV"** → then click **"✨ AI Import"** button in the top-right
+3. Select the document type (Contract Note, Trade Confirmation, Dividend Statement, etc.)
+4. Paste your document text into the text area
+5. Click **"Parse with AI"** — Gemini extracts transactions automatically
+6. Review the parsed transactions table
+7. Click **"Import"** to confirm
 
 ### Supported Broker Templates
 
@@ -147,7 +171,7 @@ InvestaLens tracks investments across all major asset classes.
 
 ### Bond Portfolio Features
 
-InvestaLens provides dedicated bond analytics (navigate to `/portfolio/[id]/bonds`):
+InvestaLens provides dedicated bond analytics (navigate via **Portfolio \u2192 select portfolio \u2192 click \"Bonds\" button**):
 
 - Yield to maturity calculation ✅
 - Modified duration ✅
@@ -172,15 +196,15 @@ Organise, share, and manage multiple portfolios.
 
 ### Organisation Tools
 
-| Feature               | Purpose                                                                                               | Status                       |
-| --------------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------- |
-| **Custom Groups**     | Group holdings by your own categories (e.g. "Growth", "Defensive", "Income") — applies to all reports | ✅ `/settings/groups`        |
-| **Labels**            | Tag holdings for filtered reporting (e.g. "Advisor A picks", "Tax loss candidates")                   | ✅ `/settings/labels`        |
-| **Consolidated View** | Aggregate view across all portfolios                                                                  | ✅ `/portfolio/consolidated` |
+| Feature               | Purpose                                                                                               | How to Access                                      |
+| --------------------- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| **Custom Groups**     | Group holdings by your own categories (e.g. "Growth", "Defensive", "Income") — applies to all reports | Sidebar → Settings → Custom Groups                 |
+| **Labels**            | Tag holdings for filtered reporting (e.g. "Advisor A picks", "Tax loss candidates")                   | Sidebar → Settings → Labels                        |
+| **Consolidated View** | Aggregate view across all portfolios                                                                  | Sidebar → Portfolio → "Consolidated View" button   |
 
 ### Sharing & Collaboration
 
-Share portfolio access with advisers, accountants, or family (manage at `/settings/sharing`):
+Share portfolio access with advisers, accountants, or family (Sidebar → Settings → Sharing):
 
 - **Read Only** — View all data ✅
 - **Read and Write** — Add/modify holdings and trades ✅
@@ -301,9 +325,9 @@ InvestaLens handles most corporate events automatically — and guides you throu
 
 ### How to Record Corporate Actions
 
-1. Navigate to a holding detail page
-2. Click the holding code to open it
-3. Access **Corporate Actions** page
+1. From the sidebar, click **Portfolio** → select your portfolio
+2. Click a holding code to open the holding detail page
+3. Click the **"Corporate Actions"** button in the top-right
 4. Select action type: Stock Split, Bonus Issue, Return of Capital, or Rights Issue
 5. Enter the date and relevant values (ratio, quantity, price)
 6. Click "Record Action"
@@ -318,18 +342,20 @@ Tools for research, monitoring, and financial planning beyond your existing port
 
 ### Research
 
-| Tool                 | Purpose                                                                           | Status                    |
+All research tools are accessible via **Sidebar → Tools**:
+
+| Tool                 | Purpose                                                                           | How to Access             |
 | -------------------- | --------------------------------------------------------------------------------- | ------------------------- |
-| **Watchlist**        | Monitor potential investments with price alerts and research notes                | ✅ `/tools/watchlist`     |
-| **Share Checker**    | Automated portfolio health checks — concentration, stale data, duplicates         | ✅ `/tools/checker`       |
-| **Market Sentiment** | Fear & Greed Index, VIX, ASX summary, sector heatmap                              | ✅ `/tools/sentiment`     |
-| **AI Assistant**     | Chat-based portfolio Q&A powered by Gemini                                        | ✅ `/tools/assistant`     |
+| **Watchlist**        | Monitor potential investments with price alerts and research notes                | Tools → Watchlist         |
+| **Share Checker**    | Automated portfolio health checks — concentration, stale data, duplicates         | Tools → Share Checker     |
+| **Market Sentiment** | Fear & Greed Index, VIX, ASX summary, sector heatmap                              | Tools → Market Sentiment  |
+| **AI Assistant**     | Chat-based portfolio Q&A powered by Gemini                                        | Tools → AI Assistant      |
 
 ### Financial Planning
 
-| Tool                | Purpose                                                                         | Status              |
+| Tool                | Purpose                                                                         | How to Access       |
 | ------------------- | ------------------------------------------------------------------------------- | ------------------- |
-| **FIRE Calculator** | Model your path to financial independence — years to FIRE, sensitivity analysis | ✅ `/tools/fire`    |
+| **FIRE Calculator** | Model your path to financial independence — years to FIRE, sensitivity analysis | Tools → FIRE Calculator |
 | **Emergency Fund**  | Track savings target (3–6 months expenses) alongside investments                | ⏳ R4               |
 | **Net Worth**       | Total assets minus liabilities over time                                        | ⏳ R4               |
 
@@ -341,9 +367,9 @@ The FIRE Calculator runs entirely client-side for instant feedback. It supports 
 
 ## 9. Advanced Analytics
 
-Quantitative tools for portfolio construction, optimisation, and forward-looking analysis. The Python analytics backend (`api/analytics/`) provides computation via FastAPI on Vercel Services.
+Quantitative tools for portfolio construction, optimisation, and forward-looking analysis. All analytics tools are accessible via **Sidebar → Analytics**. The Python analytics backend (`api/analytics/`) provides computation via FastAPI on Vercel Services.
 
-### Portfolio Backtesting (`/analytics/backtest`)
+### Portfolio Backtesting (Analytics → Backtesting)
 
 Test hypothetical allocations against history:
 
@@ -352,7 +378,7 @@ Test hypothetical allocations against history:
 - Full output: CAGR, Sharpe, Sortino, max drawdown, Calmar ratio, equity curve, drawdown chart
 - Strategy comparison and model selection via cross-validation
 
-### Monte Carlo Simulation (`/analytics/monte-carlo`)
+### Monte Carlo Simulation (Analytics → Monte Carlo Simulation)
 
 Project future portfolio outcomes using randomised return paths:
 
@@ -361,7 +387,7 @@ Project future portfolio outcomes using randomised return paths:
 - Withdrawal modelling for retirement planning
 - Distribution fitting (Normal, Student-t, Skew-Normal) with best-fit selection
 
-### Risk Metrics (`/analytics/risk`)
+### Risk Metrics (Analytics → Risk Metrics)
 
 Comprehensive risk dashboard with 5 tabs:
 
@@ -373,7 +399,7 @@ Comprehensive risk dashboard with 5 tabs:
 
 Real benchmark comparison using ASX 200, S&P 500, MSCI World, and ETF proxies.
 
-### Portfolio Optimisation (`/analytics/optimize`)
+### Portfolio Optimisation (Analytics → Portfolio Optimisation)
 
 | Family                      | Strategies                                         |
 | --------------------------- | -------------------------------------------------- |
@@ -383,7 +409,7 @@ Real benchmark comparison using ASX 200, S&P 500, MSCI World, and ETF proxies.
 
 Weight constraints (min/max per asset), current vs recommended comparison chart, and rebalancing trade calculator.
 
-### Efficient Frontier (`/analytics/frontier`)
+### Efficient Frontier (Analytics → Efficient Frontier)
 
 Interactive scatter plot showing the risk-return tradeoff curve:
 
@@ -391,7 +417,7 @@ Interactive scatter plot showing the risk-return tradeoff curve:
 - Max Sharpe and Min Risk special points highlighted
 - Hover to see allocation weights at any frontier point
 
-### Black-Litterman Model (`/analytics/black-litterman`)
+### Black-Litterman Model (Analytics → Black-Litterman)
 
 Combine market equilibrium with your personal investment views:
 
@@ -405,20 +431,20 @@ Combine market equilibrium with your personal investment views:
 - **Expected returns** — Empirical, Shrunk (James-Stein), Exponentially Weighted, Equilibrium (CAPM)
 - **Covariance** — Empirical, Ledoit-Wolf, OAS, Exponentially Weighted, Graphical Lasso
 
-### Factor Analysis (`/analytics/factors`)
+### Factor Analysis (Analytics → Factor Analysis)
 
 Decompose returns into systematic risk factors:
 
 - Principal Component Analysis (PCA) with explained variance and loadings
 - Fama-French regression (market, size, value factors)
 
-### Correlation Analysis (`/analytics/correlations`)
+### Correlation Analysis (Analytics → Correlation Analysis)
 
 - Full correlation matrix heatmap (colour-coded −1 red to +1 blue)
 - Hierarchical clustering dendrogram
 - Period selector (1Y, 3Y, 5Y)
 
-### Tactical Allocation (`/analytics/tactical`)
+### Tactical Allocation (Analytics → Tactical Allocation)
 
 6 signal-based dynamic weighting strategies:
 
@@ -426,13 +452,13 @@ Decompose returns into systematic risk factors:
 - Volatility Targeting, MA Crossover, Dual Momentum
 - Signal scores, recommended weights, comparison chart
 
-### Stress Testing (`/analytics/stress-test`)
+### Stress Testing (Analytics → Stress Testing)
 
-3 stress testing modes:
+Accessible at `/analytics/what-if` with 3 tabs:
 
 - **Historical** — 6 crisis scenarios (GFC, COVID, Dot-com, 2022 Rate Shock, Black Monday, Asian Crisis)
 - **Factor** — "If market drops X%, what happens?" with per-asset beta decomposition
-- **Custom** — Per-asset shock inputs via the What-If page
+- **Custom** — Per-asset shock inputs
 
 ### AI Features
 
@@ -445,7 +471,7 @@ Decompose returns into systematic risk factors:
 
 ## 10. Data Export & Backup
 
-You always own your data. Export everything at any time via `/settings/export`.
+You always own your data. Export everything at any time via **Sidebar → Settings → Export**.
 
 ### Export Options
 
@@ -473,26 +499,31 @@ Programmatic access to portfolio data via a RESTful API.
 
 - ✅ List/create portfolios (`GET/POST /api/v1/portfolios`)
 - ✅ Get/update/delete portfolio (`GET/PATCH/DELETE /api/v1/portfolios/[id]`)
+- ✅ List/create holdings (`GET/POST /api/v1/portfolios/[id]/holdings`)
+- ✅ Get/delete holding (`GET/DELETE /api/v1/portfolios/[id]/holdings/[holdingId]`)
+- ✅ List/create transactions (`GET/POST /api/v1/portfolios/[id]/transactions`)
+- ✅ Get/update/delete transaction (`GET/PATCH/DELETE /api/v1/portfolios/[id]/transactions/[txId]`)
+- ✅ Portfolio performance (`GET /api/v1/portfolios/[id]/performance`)
+- ✅ Portfolio diversity (`GET /api/v1/portfolios/[id]/diversity`)
+- ✅ Import transactions (`POST /api/v1/portfolios/[id]/import`)
+- ✅ Export portfolio (`GET /api/v1/portfolios/[id]/export`)
 - ✅ Search instruments (`GET /api/v1/market/search?q=...`)
+- ✅ Market quote (`GET /api/v1/market/quote/[code]`)
+- ✅ Token management (`GET/POST/DELETE /api/v1/auth/token`)
+- ✅ AI import (`POST /api/v1/ai-import`)
+- ✅ AI chat (`POST /api/v1/chat`)
 - ✅ Bearer token authentication with scope checking (read/write/admin)
 - ✅ Rate limited to 100 requests/minute per token
 - ✅ JSON response format with error codes
 
 ### To be Implemented
 
-- ⏳ Holdings endpoints (GET/POST/DELETE)
-- ⏳ Transactions endpoints (GET/POST/PATCH/DELETE)
-- ⏳ Reports endpoints
-- ⏳ Import/Export endpoints
-- ⏳ Watchlist endpoints
-- ⏳ Market quote endpoint
 - ⏳ Webhooks for real-time notifications (R4)
-- ⏳ Token management UI
 - ⏳ SDKs
 
 ### Authentication
 
-Bearer token with configurable scopes (read, write, admin) and optional expiry. Tokens are managed via `/settings/api-tokens`.
+Bearer token with configurable scopes (read, write, admin) and optional expiry. Tokens are managed via **Sidebar → Settings → API Tokens**.
 
 ```bash
 curl http://localhost:3000/api/v1/portfolios \

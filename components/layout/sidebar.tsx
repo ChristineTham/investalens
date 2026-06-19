@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
+  LayoutDashboard,
   Briefcase,
   BarChart3,
   FileText,
@@ -16,6 +17,7 @@ import {
 } from "lucide-react";
 
 const navItems = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/portfolio", label: "Portfolio", icon: Briefcase },
   { href: "/reports", label: "Reports", icon: FileText },
   { href: "/tax", label: "Tax", icon: Calculator },

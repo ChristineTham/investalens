@@ -123,7 +123,15 @@ export default function ImportPage({
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-2xl font-bold">Import Transactions</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-serif text-2xl font-bold">Import Transactions</h1>
+        <a
+          href={`/portfolio/${portfolioId}/import/ai`}
+          className="rounded-md border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-accent"
+        >
+          ✨ AI Import
+        </a>
+      </div>
 
       {/* Step indicators */}
       <div className="flex items-center gap-2 text-sm">

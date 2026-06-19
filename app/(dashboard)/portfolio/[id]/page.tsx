@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getPortfolio } from "@/lib/actions/portfolio";
-import { ArrowLeft, Plus, Upload } from "lucide-react";
+import { ArrowLeft, Plus, Upload, Banknote, Landmark } from "lucide-react";
 import { PortfolioActions } from "@/components/forms/portfolio-actions";
 
 export default async function PortfolioDetailPage({
@@ -25,6 +25,20 @@ export default async function PortfolioDetailPage({
           </p>
         </div>
         <PortfolioActions portfolioId={id} currentName={portfolio.name} />
+        <Link
+          href={`/portfolio/${id}/bonds`}
+          className="inline-flex items-center gap-2 rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent"
+        >
+          <Landmark className="h-4 w-4" />
+          Bonds
+        </Link>
+        <Link
+          href={`/portfolio/${id}/cash`}
+          className="inline-flex items-center gap-2 rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent"
+        >
+          <Banknote className="h-4 w-4" />
+          Cash
+        </Link>
         <Link
           href={`/portfolio/${id}/import`}
           className="inline-flex items-center gap-2 rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent"

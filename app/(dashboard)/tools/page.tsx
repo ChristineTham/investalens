@@ -4,7 +4,27 @@ const tools = [
   {
     href: "/tools/watchlist",
     title: "Watchlist",
-    desc: "Track instruments with price alerts",
+    desc: "Track instruments with price alerts.",
+  },
+  {
+    href: "/tools/fire",
+    title: "FIRE Calculator",
+    desc: "Financial independence retirement projections and Monte Carlo.",
+  },
+  {
+    href: "/tools/checker",
+    title: "Share Checker",
+    desc: "Portfolio health checks — duplicates, concentration, stale data.",
+  },
+  {
+    href: "/tools/sentiment",
+    title: "Market Sentiment",
+    desc: "Fear & Greed index, VIX, and market breadth indicators.",
+  },
+  {
+    href: "/tools/assistant",
+    title: "AI Assistant",
+    desc: "Chat with AI about your portfolio and investment questions.",
   },
 ];
 

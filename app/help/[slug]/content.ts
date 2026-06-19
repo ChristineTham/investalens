@@ -16,12 +16,26 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
     next: { slug: "importing", title: "Adding & Importing" },
     sections: [
       {
+        heading: "Navigation Overview",
+        content: `<p>After signing in, you land on the <strong>Dashboard</strong> showing your total portfolio value, gain/loss, and recent activity. The sidebar provides access to all sections:</p>
+<table>
+<tr><th>Sidebar Link</th><th>What It Contains</th></tr>
+<tr><td><strong>Dashboard</strong></td><td>Total value, gain/loss summary, portfolio table, recent transactions</td></tr>
+<tr><td><strong>Portfolio</strong></td><td>Create/manage portfolios, holdings, imports, bonds, cash</td></tr>
+<tr><td><strong>Reports</strong></td><td>10 performance and allocation reports</td></tr>
+<tr><td><strong>Tax</strong></td><td>Taxable income, CGT, and unrealised CGT reports</td></tr>
+<tr><td><strong>Tools</strong></td><td>Watchlist, FIRE calculator, Share Checker, Market Sentiment, AI Assistant</td></tr>
+<tr><td><strong>Analytics</strong></td><td>13 quantitative analysis tools</td></tr>
+<tr><td><strong>Settings</strong></td><td>Groups, labels, sharing, export, API tokens</td></tr>
+</table>`,
+      },
+      {
         heading: "What You'll Do First",
         content: `<ol>
 <li><strong>Create your account</strong> &mdash; Register at <code>/register</code> with name, email, and password (minimum 8 characters). Or sign in with Google OAuth.</li>
-<li><strong>Create a portfolio</strong> &mdash; Click &ldquo;New Portfolio&rdquo; on <code>/portfolio</code>, choose tax residency and entity type</li>
-<li><strong>Import your investments</strong> &mdash; Use the CSV import wizard or add holdings manually via instrument search</li>
-<li><strong>Explore reports</strong> &mdash; Navigate to Reports or Tax for performance and tax analysis</li>
+<li><strong>Create a portfolio</strong> &mdash; From the sidebar click <strong>Portfolio</strong>, then &ldquo;New Portfolio&rdquo;, choose tax residency and entity type</li>
+<li><strong>Import your investments</strong> &mdash; Click into your portfolio, then use &ldquo;Import CSV&rdquo; or &ldquo;&starf; AI Import&rdquo; button</li>
+<li><strong>Explore reports</strong> &mdash; Click <strong>Reports</strong> or <strong>Tax</strong> in the sidebar</li>
 </ol>`,
       },
       {
@@ -40,7 +54,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
         content: `<ul>
 <li><strong>One portfolio per tax entity</strong> &mdash; Don&rsquo;t mix personal and company holdings</li>
 <li><strong>Same stock across brokers</strong> &mdash; Use separate portfolios if you hold the same security at multiple brokers</li>
-<li><strong>Consolidated View</strong> &mdash; See all portfolios combined when you need the big picture</li>
+<li><strong>Consolidated View</strong> &mdash; See all portfolios combined (click &ldquo;Consolidated View&rdquo; button on the Portfolio page)</li>
 </ul>`,
       },
     ],
@@ -54,23 +68,35 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
       {
         heading: "Import Methods",
         content: `<table>
-<tr><th>Method</th><th>Best For</th></tr>
-<tr><td><strong>CSV Import</strong></td><td>Any broker &mdash; map columns via 5-step wizard</td></tr>
-<tr><td><strong>Manual Entry</strong></td><td>One-off trades, corrections</td></tr>
-<tr><td><strong>AI Importer</strong></td><td>PDFs, screenshots, non-standard formats (Gemini AI)</td></tr>
+<tr><th>Method</th><th>Best For</th><th>How to Access</th></tr>
+<tr><td><strong>CSV Import</strong></td><td>Any broker &mdash; map columns via 5-step wizard</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Import CSV&rdquo;</td></tr>
+<tr><td><strong>AI Importer</strong></td><td>PDFs, screenshots, non-standard formats (Gemini AI)</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Import CSV&rdquo; &rarr; &ldquo;&starf; AI Import&rdquo;</td></tr>
+<tr><td><strong>Manual Entry</strong></td><td>One-off trades, corrections</td><td>Portfolio &rarr; holding &rarr; &ldquo;Add Transaction&rdquo;</td></tr>
 </table>`,
       },
       {
         heading: "How to Import (CSV)",
         content: `<ol>
-<li>Navigate to a portfolio detail page</li>
-<li>Click <strong>&ldquo;Import CSV&rdquo;</strong></li>
+<li>From the sidebar, click <strong>Portfolio</strong> &rarr; select your portfolio</li>
+<li>Click <strong>&ldquo;Import CSV&rdquo;</strong> in the portfolio header</li>
 <li><strong>Upload</strong> &mdash; drag and drop your broker&rsquo;s CSV file</li>
 <li><strong>Configure</strong> &mdash; select a broker template or set date format manually</li>
 <li><strong>Map</strong> &mdash; assign CSV columns to InvestaLens fields</li>
 <li><strong>Review</strong> &mdash; see parsed transactions colour-coded (green=valid, red=error, yellow=duplicate)</li>
 <li><strong>Import</strong> &mdash; confirm to insert</li>
 </ol>`,
+      },
+      {
+        heading: "How to Import (AI)",
+        content: `<ol>
+<li>From the import page, click the <strong>&ldquo;&starf; AI Import&rdquo;</strong> button</li>
+<li>Select document type (Contract Note, Trade Confirmation, Dividend Statement, etc.)</li>
+<li>Paste your document text</li>
+<li>Click <strong>&ldquo;Parse with AI&rdquo;</strong> &mdash; Gemini extracts transactions automatically</li>
+<li>Review the parsed transactions table</li>
+<li>Click <strong>&ldquo;Import&rdquo;</strong> to confirm</li>
+</ol>
+<p><em>Requires <code>GOOGLE_GENERATIVE_AI_API_KEY</code> to be configured.</em></p>`,
       },
       {
         heading: "Supported Broker Templates",
@@ -117,15 +143,18 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
     sections: [
       {
         heading: "Organisation Tools",
-        content: `<ul>
-<li><strong>Custom Groups</strong> &mdash; Group holdings by your own categories (e.g. &ldquo;Growth&rdquo;, &ldquo;Defensive&rdquo;, &ldquo;Income&rdquo;)</li>
-<li><strong>Labels</strong> &mdash; Tag holdings for filtered reporting</li>
-<li><strong>Consolidated View</strong> &mdash; Aggregate view across all portfolios</li>
-</ul>`,
+        content: `<table>
+<tr><th>Feature</th><th>Purpose</th><th>How to Access</th></tr>
+<tr><td><strong>Custom Groups</strong></td><td>Group holdings by your own categories</td><td>Sidebar &rarr; Settings &rarr; Custom Groups</td></tr>
+<tr><td><strong>Labels</strong></td><td>Tag holdings for filtered reporting</td><td>Sidebar &rarr; Settings &rarr; Labels</td></tr>
+<tr><td><strong>Consolidated View</strong></td><td>Aggregate view across all portfolios</td><td>Sidebar &rarr; Portfolio &rarr; &ldquo;Consolidated View&rdquo; button</td></tr>
+<tr><td><strong>Bonds</strong></td><td>Bond analytics, maturity ladder, YTM</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Bonds&rdquo; button</td></tr>
+<tr><td><strong>Cash Accounts</strong></td><td>Cash alongside investments</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Cash&rdquo; button</td></tr>
+</table>`,
       },
       {
         heading: "Sharing & Collaboration",
-        content: `<p>Share portfolio access with advisers, accountants, or family:</p>
+        content: `<p>Share portfolio access with advisers, accountants, or family (Sidebar &rarr; Settings &rarr; Sharing):</p>
 <ul><li><strong>Read Only</strong> &mdash; View all data</li><li><strong>Read and Write</strong> &mdash; Add/modify holdings</li><li><strong>Admin</strong> &mdash; Full access except account-level changes</li></ul>`,
       },
       {
@@ -147,6 +176,10 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
     next: { slug: "tax", title: "Tax Reporting" },
     sections: [
       {
+        heading: "How to Access",
+        content: `<p>Click <strong>Reports</strong> in the sidebar to see all 10 available reports. Each report card links to a dedicated page.</p>`,
+      },
+      {
         heading: "Performance Reports",
         content: `<ul>
 <li><strong>Performance Report</strong> &mdash; Returns over any period, grouped by market/sector/custom</li>
@@ -161,13 +194,15 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
         heading: "Asset Allocation Reports",
         content: `<ul>
 <li><strong>Diversity Report</strong> &mdash; Weightings by sector, country, asset type, or custom group</li>
-<li><strong>Exposure Report</strong> &mdash; ETF look-through to see true underlying exposure</li>
 <li><strong>Drawdown Risk</strong> &mdash; Maximum drawdown and RoMaD per holding</li>
-</ul>`,
+<li><strong>Historical Cost</strong> &mdash; Opening/closing cost base for accounting</li>
+<li><strong>All Trades</strong> &mdash; Complete transaction history across portfolios</li>
+</ul>
+<p>For ETF look-through exposure analysis, see <strong>Analytics &rarr; ETF X-ray &amp; Exposure</strong>.</p>`,
       },
       {
         heading: "Risk Analysis (Share Checker)",
-        content: `<p>Automated health check scanning for concentration risk, stale prices, missing cost base, and duplicate holdings. Results shown at <code>/tools/checker</code>.</p>`,
+        content: `<p>Automated health check scanning for concentration risk, stale prices, missing cost base, and duplicate holdings. Access via <strong>Sidebar &rarr; Tools &rarr; Share Checker</strong>.</p>`,
       },
     ],
   },
@@ -177,6 +212,10 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
     prev: { slug: "reports", title: "Performance & Reporting" },
     next: { slug: "corporate-actions", title: "Corporate Actions" },
     sections: [
+      {
+        heading: "How to Access",
+        content: `<p>Click <strong>Tax</strong> in the sidebar to see the tax hub with links to all tax reports.</p>`,
+      },
       {
         heading: "Available Tax Reports",
         content: `<ul>
@@ -214,8 +253,9 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
       {
         heading: "How to Record",
         content: `<ol>
-<li>Navigate to a holding detail page</li>
-<li>Access <strong>Corporate Actions</strong> page</li>
+<li>From the sidebar, click <strong>Portfolio</strong> &rarr; select your portfolio</li>
+<li>Click a holding code to open the holding detail page</li>
+<li>Click the <strong>&ldquo;Corporate Actions&rdquo;</strong> button in the top-right</li>
 <li>Select action type: Stock Split, Bonus Issue, Return of Capital, or Rights Issue</li>
 <li>Enter the date and relevant values (ratio, quantity, price)</li>
 <li>Click &ldquo;Record Action&rdquo;</li>
@@ -230,17 +270,22 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
     next: { slug: "analytics", title: "Advanced Analytics" },
     sections: [
       {
+        heading: "How to Access",
+        content: `<p>Click <strong>Tools</strong> in the sidebar to see all available tools on one page.</p>`,
+      },
+      {
         heading: "Research Tools",
-        content: `<ul>
-<li><strong>Watchlist</strong> (<code>/tools/watchlist</code>) &mdash; Monitor investments with price alerts and notes</li>
-<li><strong>Share Checker</strong> (<code>/tools/checker</code>) &mdash; Automated portfolio health checks</li>
-<li><strong>Market Sentiment</strong> (<code>/tools/sentiment</code>) &mdash; Fear &amp; Greed Index, VIX, sector heatmap</li>
-<li><strong>AI Assistant</strong> (<code>/tools/assistant</code>) &mdash; Chat-based portfolio Q&amp;A (requires Gemini API key)</li>
-</ul>`,
+        content: `<table>
+<tr><th>Tool</th><th>Purpose</th></tr>
+<tr><td><strong>Watchlist</strong></td><td>Monitor investments with price alerts and notes</td></tr>
+<tr><td><strong>Share Checker</strong></td><td>Automated portfolio health checks (concentration, stale data, duplicates)</td></tr>
+<tr><td><strong>Market Sentiment</strong></td><td>Fear &amp; Greed Index, VIX, sector heatmap</td></tr>
+<tr><td><strong>AI Assistant</strong></td><td>Chat-based portfolio Q&amp;A (requires Gemini API key)</td></tr>
+</table>`,
       },
       {
         heading: "FIRE Calculator",
-        content: `<p>Model your path to financial independence at <code>/tools/fire</code>:</p>
+        content: `<p>Model your path to financial independence:</p>
 <ul>
 <li>FIRE Number &amp; Years to FIRE</li>
 <li>Coast FIRE calculation</li>
@@ -258,35 +303,40 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
     next: { slug: "export", title: "Data Export & Backup" },
     sections: [
       {
+        heading: "How to Access",
+        content: `<p>Click <strong>Analytics</strong> in the sidebar to see all 13 analytics tools on one page. Each card links to a dedicated analysis tool.</p>`,
+      },
+      {
         heading: "Risk Metrics",
-        content: `<p>Comprehensive 5-tab dashboard at <code>/analytics/risk</code> with 19 metrics: Sharpe, Sortino, Calmar, Treynor, Omega, VaR, CVaR, capture ratios, R&sup2;, skewness, kurtosis, and more. Real benchmark comparison using ASX 200, S&amp;P 500, and MSCI World.</p>`,
+        content: `<p>Comprehensive 5-tab dashboard with 19 metrics: Sharpe, Sortino, Calmar, Treynor, Omega, VaR, CVaR, capture ratios, R&sup2;, skewness, kurtosis, and more. Real benchmark comparison using ASX 200, S&amp;P 500, and MSCI World.</p>`,
       },
       {
         heading: "Backtesting",
-        content: `<p>Walk-forward backtest at <code>/analytics/backtest</code> with 5 strategies: Equal Weight, Min Variance, Max Sharpe, Risk Parity, and Mean-Variance. Configurable rebalancing (monthly, quarterly, annually) with strategy comparison and model selection.</p>`,
+        content: `<p>Walk-forward backtest with 5 strategies: Equal Weight, Min Variance, Max Sharpe, Risk Parity, and Mean-Variance. Configurable rebalancing (monthly, quarterly, annually). Also includes strategy comparison and cross-validation/model selection pages.</p>`,
       },
       {
         heading: "Portfolio Optimisation",
-        content: `<p>At <code>/analytics/optimize</code>: Mean-Variance (3 objectives &times; 3 risk measures), Hierarchical Risk Parity (HRP) with dendrogram, and Risk Parity / risk budgeting. Weight constraints, current vs recommended comparison.</p>`,
+        content: `<p>Mean-Variance (3 objectives &times; 3 risk measures), Hierarchical Risk Parity (HRP) with dendrogram, and Risk Parity / risk budgeting. Weight constraints, current vs recommended comparison.</p>`,
       },
       {
         heading: "Efficient Frontier & Black-Litterman",
-        content: `<p><code>/analytics/frontier</code> &mdash; Interactive scatter plot with 50-point curve, individual assets, Max Sharpe and Min Risk points.</p>
-<p><code>/analytics/black-litterman</code> &mdash; Combine market equilibrium with absolute/relative views and confidence sliders.</p>`,
+        content: `<p><strong>Efficient Frontier</strong> &mdash; Interactive scatter plot with 50-point curve, individual assets, Max Sharpe and Min Risk points.</p>
+<p><strong>Black-Litterman</strong> &mdash; Combine market equilibrium with absolute/relative views and confidence sliders.</p>`,
       },
       {
         heading: "Monte Carlo & Stress Testing",
         content: `<ul>
-<li><strong>Monte Carlo</strong> (<code>/analytics/monte-carlo</code>) &mdash; Bootstrap, parametric, copula methods with fan charts and withdrawal modelling</li>
-<li><strong>Stress Testing</strong> (<code>/analytics/stress-test</code>) &mdash; 6 historical crisis scenarios, factor stress, custom shocks</li>
+<li><strong>Monte Carlo Simulation</strong> &mdash; Bootstrap, parametric, copula methods with fan charts and withdrawal modelling</li>
+<li><strong>Stress Testing</strong> &mdash; 6 historical crisis scenarios, factor stress, custom shocks (via the What-If page)</li>
 </ul>`,
       },
       {
         heading: "Factor, Correlation & Tactical",
         content: `<ul>
-<li><strong>Factor Analysis</strong> (<code>/analytics/factors</code>) &mdash; PCA + Fama-French regression</li>
-<li><strong>Correlations</strong> (<code>/analytics/correlations</code>) &mdash; Heatmap, hierarchical clustering</li>
-<li><strong>Tactical Allocation</strong> (<code>/analytics/tactical</code>) &mdash; 6 signal-based strategies</li>
+<li><strong>Factor Analysis</strong> &mdash; PCA + Fama-French regression</li>
+<li><strong>Correlation Analysis</strong> &mdash; Heatmap, hierarchical clustering, period selector</li>
+<li><strong>Tactical Allocation</strong> &mdash; 6 signal-based strategies (Momentum, Mean Reversion, Vol Targeting, etc.)</li>
+<li><strong>ETF X-ray &amp; Exposure</strong> &mdash; Look-through decomposition and sector/geography treemap</li>
 </ul>`,
       },
     ],
@@ -298,6 +348,10 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
     next: { slug: "api", title: "API Access" },
     sections: [
       {
+        heading: "How to Access",
+        content: `<p>Navigate to <strong>Sidebar &rarr; Settings &rarr; Export</strong> to download your data.</p>`,
+      },
+      {
         heading: "Export Options",
         content: `<table>
 <tr><th>Format</th><th>Contents</th></tr>
@@ -306,7 +360,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <tr><td>CSV (Dividends)</td><td>All dividend and distribution records</td></tr>
 <tr><td>JSON (Full Backup)</td><td>Complete portfolio data including settings</td></tr>
 </table>
-<p>Access via <code>/settings/export</code>. PDF export and automated backups planned for R4.</p>`,
+<p>PDF export and automated backups planned for R4.</p>`,
       },
     ],
   },
@@ -320,14 +374,21 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
         content: `<ul>
 <li>List/create portfolios (<code>GET/POST /api/v1/portfolios</code>)</li>
 <li>Get/update/delete portfolio (<code>GET/PATCH/DELETE /api/v1/portfolios/[id]</code>)</li>
+<li>Holdings CRUD (<code>/api/v1/portfolios/[id]/holdings</code>)</li>
+<li>Transactions CRUD (<code>/api/v1/portfolios/[id]/transactions</code>)</li>
+<li>Performance metrics (<code>GET /api/v1/portfolios/[id]/performance</code>)</li>
+<li>Diversity breakdown (<code>GET /api/v1/portfolios/[id]/diversity</code>)</li>
+<li>Import/Export (<code>POST .../import</code>, <code>GET .../export</code>)</li>
 <li>Search instruments (<code>GET /api/v1/market/search?q=...</code>)</li>
+<li>Market quote (<code>GET /api/v1/market/quote/[code]</code>)</li>
+<li>AI import (<code>POST /api/v1/ai-import</code>)</li>
 <li>Bearer token authentication with scope checking (read/write/admin)</li>
 <li>Rate limited to 100 requests/minute per token</li>
 </ul>`,
       },
       {
         heading: "Authentication",
-        content: `<p>Bearer token with configurable scopes and optional expiry. Manage tokens at <code>/settings/api-tokens</code>.</p>
+        content: `<p>Bearer token with configurable scopes and optional expiry. Manage tokens at <strong>Sidebar &rarr; Settings &rarr; API Tokens</strong>.</p>
 <pre><code>curl http://localhost:3000/api/v1/portfolios \\
   -H "Authorization: Bearer your-api-token-here"</code></pre>`,
       },

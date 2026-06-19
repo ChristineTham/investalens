@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getPortfolios } from "@/lib/actions/portfolio";
-import { Briefcase, Plus } from "lucide-react";
+import { Briefcase, Plus, Layers } from "lucide-react";
 
 export default async function PortfolioPage() {
   const portfolios = await getPortfolios();
@@ -14,13 +14,24 @@ export default async function PortfolioPage() {
             Manage your investment portfolios
           </p>
         </div>
-        <Link
-          href="/portfolio/new"
-          className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          <Plus className="h-4 w-4" />
-          New Portfolio
-        </Link>
+        <div className="flex items-center gap-2">
+          {portfolios.length > 1 && (
+            <Link
+              href="/portfolio/consolidated"
+              className="inline-flex items-center gap-2 rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent"
+            >
+              <Layers className="h-4 w-4" />
+              Consolidated View
+            </Link>
+          )}
+          <Link
+            href="/portfolio/new"
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            <Plus className="h-4 w-4" />
+            New Portfolio
+          </Link>
+        </div>
       </div>
 
       {portfolios.length === 0 ? (
