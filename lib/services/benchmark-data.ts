@@ -1,5 +1,4 @@
 import { db } from "@/lib/db";
-import { getBenchmarkTimeSeries } from "./analytics-data";
 
 export const BENCHMARKS = {
   "^AXJO": { name: "S&P/ASX 200", market: "ASX", type: "equity" },

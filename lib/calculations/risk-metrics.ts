@@ -12,6 +12,16 @@ export interface RiskMetrics {
   maxDrawdown: number;
   informationRatio: number;
   trackingError: number;
+  calmarRatio: number;
+  treynorRatio: number;
+  omegaRatio: number;
+  var5: number;
+  cvar5: number;
+  upsideCapture: number;
+  downsideCapture: number;
+  rSquared: number;
+  skewness: number;
+  kurtosis: number;
 }
 
 export interface DailyReturn {
@@ -215,5 +225,136 @@ export function calculateRiskMetrics(
     maxDrawdown: mdd * 100,
     informationRatio: infoRatio,
     trackingError: tError * 100,
+    calmarRatio: calmarRatio(annReturn, mdd),
+    treynorRatio: treynorRatio(annReturn, beta),
+    omegaRatio: omegaRatio(portfolioReturns),
+    var5: valueAtRisk(portfolioReturns, 0.05) * 100,
+    cvar5: conditionalVaR(portfolioReturns, 0.05) * 100,
+    upsideCapture: captureRatio(portfolioReturns, benchmarkReturns, "up") * 100,
+    downsideCapture: captureRatio(portfolioReturns, benchmarkReturns, "down") * 100,
+    rSquared: rSquared(portfolioReturns, benchmarkReturns),
+    skewness: skewness(portfolioReturns),
+    kurtosis: kurtosis(portfolioReturns),
   };
+}
+
+// ─── New metrics ────────────────────────────────────────────────────────────
+
+export function calmarRatio(annReturn: number, mdd: number): number {
+  return mdd !== 0 ? annReturn / mdd : 0;
+}
+
+export function treynorRatio(
+  annReturn: number,
+  beta: number,
+  riskFreeRate: number = RISK_FREE_RATE
+): number {
+  return beta !== 0 ? (annReturn - riskFreeRate) / beta : 0;
+}
+
+export function omegaRatio(
+  dailyReturns: number[],
+  threshold: number = 0
+): number {
+  let gains = 0;
+  let losses = 0;
+  for (const r of dailyReturns) {
+    if (r > threshold) gains += r - threshold;
+    else losses += threshold - r;
+  }
+  return losses !== 0 ? gains / losses : gains > 0 ? Infinity : 1;
+}
+
+export function valueAtRisk(
+  dailyReturns: number[],
+  confidence: number = 0.05
+): number {
+  if (dailyReturns.length === 0) return 0;
+  const sorted = [...dailyReturns].sort((a, b) => a - b);
+  const idx = Math.floor(confidence * sorted.length);
+  return -sorted[idx];
+}
+
+export function conditionalVaR(
+  dailyReturns: number[],
+  confidence: number = 0.05
+): number {
+  if (dailyReturns.length === 0) return 0;
+  const sorted = [...dailyReturns].sort((a, b) => a - b);
+  const cutoffIdx = Math.floor(confidence * sorted.length);
+  if (cutoffIdx === 0) return -sorted[0];
+  const tail = sorted.slice(0, cutoffIdx);
+  return -(tail.reduce((s, v) => s + v, 0) / tail.length);
+}
+
+export function captureRatio(
+  portfolioReturns: number[],
+  benchmarkReturns: number[],
+  direction: "up" | "down"
+): number {
+  const n = Math.min(portfolioReturns.length, benchmarkReturns.length);
+  let portSum = 0;
+  let benchSum = 0;
+  let count = 0;
+
+  for (let i = 0; i < n; i++) {
+    const include =
+      direction === "up" ? benchmarkReturns[i] > 0 : benchmarkReturns[i] < 0;
+    if (include) {
+      portSum += portfolioReturns[i];
+      benchSum += benchmarkReturns[i];
+      count++;
+    }
+  }
+
+  if (count === 0 || benchSum === 0) return 0;
+  return (portSum / count) / (benchSum / count);
+}
+
+export function rSquared(
+  portfolioReturns: number[],
+  benchmarkReturns: number[]
+): number {
+  const n = Math.min(portfolioReturns.length, benchmarkReturns.length);
+  if (n < 2) return 0;
+
+  const pMean = portfolioReturns.slice(0, n).reduce((s, r) => s + r, 0) / n;
+  const bMean = benchmarkReturns.slice(0, n).reduce((s, r) => s + r, 0) / n;
+
+  let ssRes = 0;
+  let ssTot = 0;
+  const beta = calculateBeta(portfolioReturns, benchmarkReturns);
+  const alphaVal = pMean - beta * bMean;
+
+  for (let i = 0; i < n; i++) {
+    const predicted = alphaVal + beta * benchmarkReturns[i];
+    ssRes += (portfolioReturns[i] - predicted) ** 2;
+    ssTot += (portfolioReturns[i] - pMean) ** 2;
+  }
+
+  return ssTot !== 0 ? 1 - ssRes / ssTot : 0;
+}
+
+export function skewness(returns: number[]): number {
+  const n = returns.length;
+  if (n < 3) return 0;
+  const mean = returns.reduce((s, r) => s + r, 0) / n;
+  const std = Math.sqrt(
+    returns.reduce((s, r) => s + (r - mean) ** 2, 0) / (n - 1)
+  );
+  if (std === 0) return 0;
+  const m3 = returns.reduce((s, r) => s + ((r - mean) / std) ** 3, 0) / n;
+  return m3;
+}
+
+export function kurtosis(returns: number[]): number {
+  const n = returns.length;
+  if (n < 4) return 0;
+  const mean = returns.reduce((s, r) => s + r, 0) / n;
+  const std = Math.sqrt(
+    returns.reduce((s, r) => s + (r - mean) ** 2, 0) / (n - 1)
+  );
+  if (std === 0) return 0;
+  const m4 = returns.reduce((s, r) => s + ((r - mean) / std) ** 4, 0) / n;
+  return m4 - 3; // excess kurtosis
 }

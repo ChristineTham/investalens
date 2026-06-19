@@ -259,19 +259,19 @@ Model comparison via cross-validation: table + box plots of OOS returns.
 
 ## Deliverables Checklist
 
-- [ ] Enhanced risk metrics (VaR, CVaR, capture ratios, Omega, Calmar, etc.)
-- [ ] Risk dashboard rewrite (5 tabs: Overview, Drawdowns, Distribution, Rolling, Decomposition)
-- [ ] Growth chart component (portfolio vs benchmark)
-- [ ] Return histogram component
-- [ ] Rolling metrics chart component
-- [ ] Risk contribution pie component
-- [ ] Backtest Python endpoint (walk-forward, 5+ strategies)
-- [ ] Backtest comparison endpoint
-- [ ] Walk-forward analysis endpoint
-- [ ] Cross-validation / model selection endpoint
-- [ ] Backtest UI page (config + results)
-- [ ] Backtest comparison page
-- [ ] Model selection page
+- [x] Enhanced risk metrics (VaR, CVaR, capture ratios, Omega, Calmar, etc.)
+- [x] Risk dashboard rewrite (5 tabs: Overview, Drawdowns, Distribution, Rolling, Decomposition)
+- [x] Growth chart component (portfolio vs benchmark)
+- [x] Return histogram component
+- [x] Rolling metrics chart component
+- [x] Risk contribution pie component
+- [x] Backtest Python endpoint (walk-forward, 5+ strategies)
+- [x] Backtest comparison endpoint
+- [x] Walk-forward analysis endpoint
+- [x] Cross-validation / model selection endpoint
+- [x] Backtest UI page (config + results)
+- [x] Backtest comparison page
+- [x] Model selection page
 
 ## Performance Targets
 

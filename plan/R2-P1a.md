@@ -280,20 +280,20 @@ export function activeReturn(returns: number[], benchReturns: number[]): number;
 
 ## Deliverables Checklist
 
-- [ ] `lib/services/analytics-data.ts` — Portfolio time series, returns matrix
-- [ ] `lib/services/benchmark-data.ts` — Benchmark fetcher + constants
-- [ ] `lib/services/analytics-client.ts` — Python function caller
-- [ ] `lib/services/analytics-cache.ts` — TTL-based caching
-- [ ] `api/utils/response.py` — FastAPI helpers
-- [ ] `api/utils/transforms.py` — JSON ↔ pandas conversion
-- [ ] `lib/calculations/rolling-metrics.ts`
-- [ ] `lib/calculations/drawdown.ts`
-- [ ] `lib/calculations/benchmark.ts`
-- [ ] `components/analytics/portfolio-selector.tsx`
-- [ ] `components/analytics/benchmark-selector.tsx`
-- [ ] `components/analytics/date-range-selector.tsx`
-- [ ] `components/analytics/metric-card.tsx`
-- [ ] Extend cron job to fetch benchmark prices daily
+- [x] `lib/services/analytics-data.ts` — Portfolio time series, returns matrix
+- [x] `lib/services/benchmark-data.ts` — Benchmark fetcher + constants
+- [x] `lib/services/analytics-client.ts` — Python function caller
+- [x] `lib/services/analytics-cache.ts` — TTL-based caching
+- [x] `api/utils/response.py` — FastAPI helpers
+- [x] `api/utils/transforms.py` — JSON ↔ pandas conversion
+- [x] `lib/calculations/rolling-metrics.ts`
+- [x] `lib/calculations/drawdown.ts`
+- [x] `lib/calculations/benchmark.ts`
+- [x] `components/analytics/portfolio-selector.tsx`
+- [x] `components/analytics/benchmark-selector.tsx`
+- [x] `components/analytics/date-range-selector.tsx`
+- [x] `components/analytics/metric-card.tsx`
+- [x] Extend cron job to fetch benchmark prices daily
 
 ## Performance Targets
 
