@@ -24,7 +24,7 @@ When discussing numbers, use AUD by default.`,
       messages,
     });
 
-    return result.toDataStreamResponse();
+    return result.toTextStreamResponse();
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Chat failed" },
