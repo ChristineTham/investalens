@@ -103,9 +103,10 @@ export default async function HoldingDetailPage({
 
   // Holding period
   const firstBuy = buys.length > 0 ? buys[0].tradeDate : null;
+  const now = new Date();
   const holdingDays = firstBuy
     ? Math.floor(
-        (Date.now() - new Date(firstBuy).getTime()) / (1000 * 60 * 60 * 24)
+        (now.getTime() - new Date(firstBuy).getTime()) / (1000 * 60 * 60 * 24)
       )
     : 0;
 

@@ -11,7 +11,7 @@ export default function MonteCarloPage() {
   const [annualVol, setAnnualVol] = useState("15");
   const [years, setYears] = useState("10");
   const [monthlyContrib, setMonthlyContrib] = useState("1000");
-  const [numSims, setNumSims] = useState("1000");
+  const [numSims] = useState("1000");
   const [result, setResult] = useState<ReturnType<
     typeof runMonteCarloSimulation
   > | null>(null);

@@ -14,13 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Third-party agent skill files — not project code
     ".agents/**",
-    // Generated code
-    "generated/**",
-    // Standalone scripts (not Next.js app code)
-    "scripts/**",
-    "prisma/seed.ts",
-    // Complex Prisma type inference
-    "lib/services/analytics-data.ts",
+    // Python virtual environment (created by uv sync)
+    ".venv/**",
   ]),
 ]);
 

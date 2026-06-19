@@ -124,7 +124,7 @@ export function Breadcrumbs() {
             <Home className="h-3.5 w-3.5" />
           </Link>
         </li>
-        {crumbs.map((crumb, i) => (
+        {crumbs.map((crumb) => (
           <Fragment key={crumb.href}>
             <li className="flex items-center text-muted-foreground">
               <ChevronRight className="h-3.5 w-3.5" />

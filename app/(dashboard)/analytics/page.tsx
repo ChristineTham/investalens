@@ -1,5 +1,4 @@
 import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { BarChart3, TrendingUp, Shuffle, Globe } from "lucide-react";
