@@ -10,6 +10,9 @@ import {
   Calculator,
   Wrench,
   Settings,
+  HelpCircle,
+  Info,
+  Shield,
 } from "lucide-react";
 
 const navItems = [
@@ -19,6 +22,12 @@ const navItems = [
   { href: "/tools", label: "Tools", icon: Wrench },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },
+];
+
+const footerItems = [
+  { href: "/help", label: "Help", icon: HelpCircle },
+  { href: "/about", label: "About", icon: Info },
+  { href: "/privacy", label: "Privacy", icon: Shield },
 ];
 
 export function Sidebar() {
@@ -49,12 +58,24 @@ export function Sidebar() {
                   : "text-foreground hover:bg-accent hover:text-accent-foreground"
               )}
             >
-              <item.icon className="h-4 w-4" />
+              <item.icon className="h-4 w-4" aria-hidden="true" />
               {item.label}
             </Link>
           );
         })}
       </nav>
+      <div className="border-t border-border p-3">
+        {footerItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="flex items-center gap-3 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <item.icon className="h-3.5 w-3.5" aria-hidden="true" />
+            {item.label}
+          </Link>
+        ))}
+      </div>
     </aside>
   );
 }

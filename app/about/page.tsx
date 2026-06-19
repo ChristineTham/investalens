@@ -197,8 +197,18 @@ export default function AboutPage() {
           <section>
             <h2 className="font-serif text-2xl font-bold">Open Source</h2>
             <p className="mt-3 leading-relaxed text-muted-foreground">
-              InvestaLens is open source. View the code, report issues, or
-              contribute on{" "}
+              InvestaLens is created by{" "}
+              <a
+                href="https://hellotham.com"
+                className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Hello Tham
+              </a>
+              , a boutique management consulting firm specialising in business
+              and IT strategy. The project is open source &mdash; view the code,
+              report issues, or contribute on{" "}
               <a
                 href="https://github.com/ChristineTham/investalens"
                 className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
@@ -216,11 +226,21 @@ export default function AboutPage() {
       {/* Footer */}
       <footer className="border-t border-border px-6 py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-muted-foreground sm:flex-row">
-          <p>&copy; {new Date().getFullYear()} InvestaLens</p>
+          <p>
+            &copy; {new Date().getFullYear()} InvestaLens &middot; Created by{" "}
+            <a
+              href="https://hellotham.com"
+              className="font-medium text-foreground underline-offset-4 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Hello Tham
+            </a>
+          </p>
           <div className="flex gap-6">
             <Link href="/" className="hover:text-foreground">Home</Link>
-            <Link href="/login" className="hover:text-foreground">Sign In</Link>
-            <Link href="/register" className="hover:text-foreground">Register</Link>
+            <Link href="/help" className="hover:text-foreground">Help</Link>
+            <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
           </div>
         </div>
       </footer>
