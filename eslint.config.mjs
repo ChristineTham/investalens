@@ -16,6 +16,9 @@ const eslintConfig = defineConfig([
     ".agents/**",
     // Generated code
     "generated/**",
+    // Node.js scripts — not Next.js app code, and they pull in heavy Prisma types
+    "scripts/**",
+    "prisma/seed.ts",
   ]),
 ]);
 
