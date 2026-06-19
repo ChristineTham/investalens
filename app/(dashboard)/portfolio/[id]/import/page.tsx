@@ -62,17 +62,68 @@ export default function ImportPage({
     const file = acceptedFiles[0];
     if (!file) return;
 
-    file.text().then((text) => {
-      setCsvContent(text);
-      const result = parseCsv(text);
-      setCsvResult(result);
-      setStep("configure");
-    });
+    const isExcel = file.name.endsWith(".xlsx") || file.name.endsWith(".xls");
+
+    if (isExcel) {
+      file.arrayBuffer().then(async (buffer) => {
+        try {
+          const XLSX = await import("xlsx");
+          const workbook = XLSX.read(buffer, { type: "array" });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          
+          // Convert worksheet to a 2D array of raw values to strip any leading title/metadata rows
+          const rawRows = XLSX.utils.sheet_to_json<unknown[]>(worksheet, { header: 1 });
+          
+          // Find the first row that has a reasonable number of columns (e.g. >= 4 non-empty values)
+          let headerRowIndex = 0;
+          for (let r = 0; r < rawRows.length; r++) {
+            const nonNullCount = rawRows[r].filter((cell: unknown) => cell !== null && cell !== undefined && cell !== "").length;
+            if (nonNullCount >= 4) {
+              headerRowIndex = r;
+              break;
+            }
+          }
+          
+          // Slice rawRows to only include rows starting from headerRowIndex
+          const cleanRows = rawRows.slice(headerRowIndex);
+          
+          // Create a new worksheet from these cleaned rows
+          const cleanWorksheet = XLSX.utils.aoa_to_sheet(cleanRows);
+          
+          // Convert to CSV
+          const csvText = XLSX.utils.sheet_to_csv(cleanWorksheet);
+          
+          setCsvContent(csvText);
+          const result = parseCsv(csvText);
+          setCsvResult(result);
+          setStep("configure");
+        } catch (error) {
+          console.error("Failed to parse Excel file:", error);
+          setErrors([
+            { row: 0, data: {}, errors: ["Failed to parse Excel file. Ensure it is valid."] },
+          ]);
+          setStep("upload");
+        }
+      });
+    } else {
+      file.text().then((text) => {
+        setCsvContent(text);
+        const result = parseCsv(text);
+        setCsvResult(result);
+        setStep("configure");
+      });
+    }
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { "text/csv": [".csv"], "text/plain": [".txt"] },
+    accept: {
+      "text/csv": [".csv"],
+      "text/plain": [".txt"],
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+      "application/vnd.ms-excel": [".xls"],
+    },
     maxFiles: 1,
   });
 
@@ -171,7 +222,7 @@ export default function ImportPage({
             Drag & drop a CSV file, or click to browse
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Supports .csv and .txt files
+            Supports .csv, .txt and .xlsx files
           </p>
         </div>
       )}

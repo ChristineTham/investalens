@@ -130,8 +130,13 @@ function parseDate(value: string, format: string): Date | null {
 
   const cleaned = value.trim();
 
-  // ISO format
-  if (format === "yyyy-mm-dd" || format === "yyyy/mm/dd") {
+  // ISO format or wordy date formats
+  if (
+    format === "yyyy-mm-dd" ||
+    format === "yyyy/mm/dd" ||
+    format === "dd mmm yyyy" ||
+    format === "dd mmm yyyy hh:mm"
+  ) {
     const d = new Date(cleaned);
     return isNaN(d.getTime()) ? null : d;
   }
