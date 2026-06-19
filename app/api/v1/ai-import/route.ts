@@ -11,7 +11,9 @@ export async function POST(request: Request) {
   }
 
   try {
+    // @ts-expect-error — optional dependency, installed when AI features are enabled
     const { generateObject } = await import("ai");
+    // @ts-expect-error — optional dependency, installed when AI features are enabled
     const { google } = await import("@ai-sdk/google");
     const { z } = await import("zod");
 

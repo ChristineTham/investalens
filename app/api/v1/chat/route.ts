@@ -10,7 +10,9 @@ export async function POST(req: Request) {
   }
 
   try {
+    // @ts-expect-error — optional dependency, installed when AI features are enabled
     const { streamText } = await import("ai");
+    // @ts-expect-error — optional dependency, installed when AI features are enabled
     const { google } = await import("@ai-sdk/google");
 
     const { messages } = await req.json();
