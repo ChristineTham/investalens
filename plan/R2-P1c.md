@@ -308,20 +308,20 @@ D3 dendrogram for HRP (shows hierarchical asset clustering).
 
 ## Deliverables Checklist
 
-- [ ] Mean-Variance optimisation endpoint (3 objectives × 5 risk measures)
-- [ ] HRP optimisation endpoint
-- [ ] Risk Parity / Risk Budgeting endpoint
-- [ ] Efficient Frontier endpoint (n-point curve + assets + special points)
-- [ ] Black-Litterman endpoint (absolute + relative views)
-- [ ] Return estimation endpoint (4 methods)
-- [ ] Covariance estimation endpoint (8 methods)
-- [ ] Optimisation UI page (strategy tabs, constraints, results)
-- [ ] Efficient Frontier interactive chart (D3)
-- [ ] Black-Litterman views editor + results
-- [ ] Weight comparison chart
-- [ ] Correlation heatmap
-- [ ] Dendrogram chart (HRP)
-- [ ] Rebalancing trade calculator
+- [x] Mean-Variance optimisation endpoint (3 objectives × 5 risk measures)
+- [x] HRP optimisation endpoint
+- [x] Risk Parity / Risk Budgeting endpoint
+- [x] Efficient Frontier endpoint (n-point curve + assets + special points)
+- [x] Black-Litterman endpoint (absolute + relative views)
+- [x] Return estimation endpoint (4 methods)
+- [x] Covariance estimation endpoint (8 methods)
+- [x] Optimisation UI page (strategy tabs, constraints, results)
+- [x] Efficient Frontier interactive chart (D3)
+- [x] Black-Litterman views editor + results
+- [x] Weight comparison chart
+- [x] Correlation heatmap
+- [x] Dendrogram chart (HRP)
+- [x] Rebalancing trade calculator
 
 ## Performance Targets
 
