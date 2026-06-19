@@ -57,7 +57,7 @@ export default async function DashboardPage() {
 
         const position = calculatePosition(txData, currentPrice);
         portfolioValue += position.marketValue;
-        portfolioCost += position.costBase;
+        portfolioCost += position.totalCostBase;
       }
 
       totalValue += portfolioValue;
