@@ -2,12 +2,12 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 config({ path: ".env" });
 
-import { db } from "../lib/db";
-import {
+const { db } = await import("../lib/db");
+const {
   getPortfolioTimeSeries,
   getBenchmarkTimeSeries,
   getPortfolioReturnsMatrix,
-} from "../lib/services/analytics-data";
+} = await import("../lib/services/analytics-data");
 
 async function main() {
   console.log("=== Analytics Data Pipeline Verification ===\n");

@@ -1,7 +1,7 @@
 import { config } from "dotenv";
 config({ path: ".env.local" });
 config({ path: ".env" });
-import { db } from "../lib/db";
+const { db } = await import("../lib/db");
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 

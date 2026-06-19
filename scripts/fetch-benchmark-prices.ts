@@ -2,8 +2,8 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 config({ path: ".env" });
 
-import { db } from "../lib/db";
-import { fetchHistoricalPrices } from "../lib/services/price-service";
+const { db } = await import("../lib/db");
+const { fetchHistoricalPrices } = await import("../lib/services/price-service");
 
 const DEFAULT_YEARS = 5;
 
