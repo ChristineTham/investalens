@@ -7,6 +7,8 @@ import type {
 import { yahooRateLimiter } from "./rate-limiter";
 
 function toYahooSymbol(code: string, market: string): string {
+  // Index symbols (^GSPC, ^AXJO, etc.) are global — no market suffix
+  if (code.startsWith("^")) return code;
   const marketSuffix: Record<string, string> = {
     ASX: ".AX",
     LSE: ".L",
@@ -30,6 +32,7 @@ async function fetchWithRetry(
 
     const res = await fetch(url, {
       headers: { "User-Agent": "InvestaLens/1.0" },
+      signal: AbortSignal.timeout(30000),
     });
     if (res.ok) return res;
     if (res.status === 429 && i < retries) {
