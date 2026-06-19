@@ -17,6 +17,25 @@ A comprehensive portfolio tracker and optimiser for Australian investors. Track 
 - **Data Export** — CSV (trades, holdings, dividends) + JSON backup
 - **REST API** — Bearer token auth, rate limiting, portfolio/market endpoints
 
+## Features (R2 Analytics)
+
+- **Risk Metrics** — 19 metrics (Sharpe, Sortino, VaR, CVaR, Calmar, Omega, capture ratios, R², skewness, kurtosis) with 5-tab dashboard
+- **Backtesting** — Walk-forward backtest with 5 strategies, equity curves, strategy comparison, cross-validation
+- **Portfolio Optimisation** — Mean-Variance, HRP, Risk Parity with weight constraints and rebalancing trades
+- **Efficient Frontier** — Interactive scatter plot with frontier curve, Max Sharpe, Min Risk points
+- **Black-Litterman** — Combine market equilibrium with absolute/relative investment views
+- **Monte Carlo** — Bootstrap, parametric, copula simulations with fan charts and withdrawal modelling
+- **FIRE Calculator** — Financial independence projection with Coast FIRE, scenarios, super integration
+- **Stress Testing** — 6 historical crisis scenarios, factor stress, custom shocks
+- **Factor Analysis** — PCA + Fama-French factor decomposition
+- **Correlation Analysis** — Heatmap, hierarchical clustering, rolling correlations
+- **Tactical Allocation** — 6 signal-based strategies (momentum, mean reversion, vol targeting, etc.)
+- **ETF X-ray** — Look-through to underlying holdings, overlap detection, concentration alerts
+- **Share Checker** — Automated portfolio health checks (stale data, concentration, duplicates)
+- **Market Sentiment** — Fear & Greed Index, VIX, ASX summary, sector heatmap
+- **AI Importer** — Parse financial documents with Gemini AI (optional)
+- **AI Chat Assistant** — Portfolio Q&A powered by Gemini (optional)
+
 ## Tech Stack
 
 | Layer      | Technology                                                |
@@ -81,26 +100,30 @@ app/                    # Next.js App Router pages
     portfolio/          # Portfolio CRUD, holdings, import
     reports/            # 10 report pages
     tax/                # Tax reports (taxable income, CGT, unrealised)
-    tools/              # Watchlist
+    tools/              # Watchlist, FIRE, Share Checker, Sentiment, AI Assistant
     settings/           # Groups, labels, sharing, export, API tokens
-    analytics/          # Advanced analytics (R2)
+    analytics/          # Advanced analytics (risk, backtest, optimize, frontier, etc.)
   api/                  # API routes
     auth/               # NextAuth.js handlers
     cron/               # Price fetching cron
-    v1/                 # Public REST API
-api/                    # Python serverless functions (Vercel)
+    v1/                 # Public REST API + AI endpoints
+api/                    # Python FastAPI analytics (Vercel Services)
+  analytics/            # Optimize, backtest, frontier, Monte Carlo, stress test, etc.
+  utils/                # Python helpers (transforms, response)
 components/
   ui/                   # shadcn/ui components (17 installed)
-  charts/               # Recharts components (5)
+  charts/               # Recharts + custom chart components (15)
+  analytics/            # Analytics UI components (selectors, metric cards)
   forms/                # Import wizard, transaction form, etc.
   layout/               # Sidebar, header
 lib/
   actions/              # Server actions (auth, portfolio, holdings, etc.)
-  calculations/         # Performance, position, parcels, bond analytics
+  calculations/         # Performance, position, parcels, bond analytics, risk, drawdown, FIRE
+  constants/            # Shared constants (benchmarks)
   reports/              # Report generators (performance, tax, etc.)
   import/               # CSV parser, mapper, dedup, broker templates
   providers/            # Yahoo Finance, instrument search
-  services/             # Price service, maturity alerts
+  services/             # Price, analytics data, benchmark, ETF X-ray, share checker, sentiment
   export/               # CSV/JSON export functions
   api/                  # API middleware, rate limiting
   validators/           # Zod schemas
@@ -108,6 +131,7 @@ prisma/
   schema.prisma         # 22 models
   migrations/           # Database migrations
   seed.ts               # Test data seeder
+scripts/                # Standalone scripts (seed benchmarks, fetch prices, test pipeline)
 test-data/              # Sample broker CSVs for testing
 ```
 
@@ -139,6 +163,7 @@ In Vercel project settings → Environment Variables, add:
 | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                      | Optional |
 | `CRON_SECRET`          | Secret for cron endpoint auth                   | Optional |
 | `NEXT_PUBLIC_APP_URL`  | Your Vercel deployment URL                      | Optional |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | Gemini API key (for AI Import + Chat)    | Optional |
 
 ### 4. Deploy
 
@@ -168,8 +193,9 @@ DATABASE_URL="postgresql://..." npx prisma migrate deploy
 
 The project includes `vercel.json` with:
 
-- Python function config (60s timeout for analytics)
-- Cron schedule: `/api/cron/prices` at 08:00 UTC Mon–Fri
+- `experimentalServices` — Next.js frontend + Python FastAPI analytics as separate services
+- Cron schedule: `/api/cron/prices` at 08:00 UTC Mon–Fri (fetches holding + benchmark prices)
+- Framework Preset must be set to **"Services"** in Vercel dashboard
 
 ## Scripts
 

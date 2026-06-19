@@ -67,10 +67,10 @@ InvestaLens uses a **dual-runtime architecture**: a Next.js application for the 
 ### Advanced Analytics (Python Path)
 
 1. User configures analysis parameters via the frontend
-2. Next.js API route invokes the appropriate Python serverless function
-3. Python function loads portfolio data, runs computation (optimisation, simulation, etc.)
-4. Results returned as JSON and cached in object store for subsequent views
-5. Long-running jobs (>10s) use async pattern: submit → poll → retrieve
+2. Next.js client component calls the Python FastAPI endpoint directly (served as a Vercel Service at `/api/analytics/`)
+3. Python function runs computation (optimisation, simulation, factor analysis, etc.)
+4. Results returned as JSON and cached in-memory with configurable TTL
+5. Python and Next.js run as separate Vercel Services via `experimentalServices` in `vercel.json`
 
 ### Portfolio Optimisation
 

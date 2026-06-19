@@ -2,7 +2,7 @@
 
 > **📖 Part of the [InvestaLens User Manual](../USER-MANUAL.md)** | Previous: [Account Management](ACCOUNT.md) | Next: [Tax Reporting](TAX.md)
 
-> **Implementation Status (R1 MVP)**
+> **Implementation Status**
 >
 > | Feature                              | Status                                  |
 > | ------------------------------------ | --------------------------------------- |
@@ -17,12 +17,12 @@
 > | Historical Cost Report               | ✅ Implemented (server action, stub UI) |
 > | All Trades Report                    | ✅ Implemented                          |
 > | Watchlist                            | ✅ Implemented                          |
-> | Exposure Report (ETF X-ray)          | ⏳ To be Implemented (R2)               |
+> | Exposure Report (ETF X-ray)          | ✅ Implemented (R2)                     |
+> | Share Checker                        | ✅ Implemented (R2)                     |
+> | Market Sentiment                     | ✅ Implemented (R2)                     |
+> | FIRE Calculator                      | ✅ Implemented (R2)                     |
+> | Risk Analysis (X-ray)                | ✅ Implemented (R2)                     |
 > | Multi-Currency Valuation             | ⏳ To be Implemented (R3)               |
-> | Share Checker                        | ⏳ To be Implemented (R2)               |
-> | Market Sentiment                     | ⏳ To be Implemented (R2)               |
-> | FIRE Calculator                      | ⏳ To be Implemented (R2)               |
-> | Risk Analysis (X-ray)                | ⏳ To be Implemented (R2)               |
 
 ## Overview
 

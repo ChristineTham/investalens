@@ -2,7 +2,7 @@
 
 Welcome to InvestaLens — a comprehensive portfolio tracker and optimiser for investors. This manual guides you through every aspect of the platform, from initial setup to advanced analytics.
 
-> **Implementation Status (R1 MVP)**
+> **Implementation Status**
 >
 > | Section                                                        | Status                       |
 > | -------------------------------------------------------------- | ---------------------------- |
@@ -16,10 +16,11 @@ Welcome to InvestaLens — a comprehensive portfolio tracker and optimiser for i
 > | Watchlist                                                      | ✅ Implemented               |
 > | Data Export (CSV trades/holdings/dividends, JSON backup)       | ✅ Implemented               |
 > | API Access (portfolios, market search, auth, rate limiting)    | ✅ Implemented               |
-> | Research Tools (Share Checker, Market Sentiment)               | ⏳ To be Implemented (R2)    |
-> | Planning Tools (FIRE Calculator, Emergency Fund, Net Worth)    | ⏳ To be Implemented (R2/R4) |
-> | Advanced Analytics (backtesting, Monte Carlo, optimisation)    | ⏳ To be Implemented (R2)    |
-> | AI Importer                                                    | ⏳ To be Implemented (R2)    |
+> | Research Tools (Share Checker, Market Sentiment)               | ✅ Implemented (R2)          |
+> | Planning Tools (FIRE Calculator)                               | ✅ Implemented (R2)          |
+> | Advanced Analytics (backtesting, Monte Carlo, optimisation)    | ✅ Implemented (R2)          |
+> | AI Importer + AI Chat Assistant                                | ✅ Implemented (R2)          |
+> | Emergency Fund, Net Worth                                      | ⏳ To be Implemented (R4)    |
 > | PDF Export & Automated Backups                                 | ⏳ To be Implemented (R4)    |
 > | Webhooks                                                       | ⏳ To be Implemented (R4)    |
 
@@ -82,7 +83,7 @@ InvestaLens is source-agnostic — import from any broker, any format.
 | ---------------- | -------------------------------------------------------------------- | -------------- |
 | **CSV Import**   | Any broker — map columns to InvestaLens fields via 5-step wizard     | ✅ Implemented |
 | **Manual Entry** | One-off trades, corrections — add transactions per holding           | ✅ Implemented |
-| **AI Importer**  | PDFs, screenshots, non-standard formats — AI reads and maps the data | ⏳ R2          |
+| **AI Importer**  | PDFs, screenshots, non-standard formats — AI reads and maps the data | ✅ Implemented |
 | **Broker API**   | Supported brokers with automatic sync                                | ⏳ R4          |
 
 ### How to Import (CSV)
@@ -222,23 +223,21 @@ Comprehensive reporting suite covering performance, allocation, risk, and compli
 | Report                       | Purpose                                                               | Status                     |
 | ---------------------------- | --------------------------------------------------------------------- | -------------------------- |
 | **Diversity Report**         | Portfolio weightings by sector, country, asset type, or custom group  | ✅ `/reports/diversity`    |
-| **Exposure Report**          | Look-through ETF holdings to see true underlying exposure and overlap | ⏳ R2                      |
+| **Exposure Report**          | Look-through ETF holdings to see true underlying exposure and overlap | ✅ `/analytics/exposure`   |
 | **Drawdown Risk**            | Maximum drawdown and RoMaD for each holding                           | ✅ Server action (stub UI) |
 | **Multi-Currency Valuation** | Portfolio valued in any of 67+ currencies at any date                 | ⏳ R3                      |
 
 ### Risk Analysis (X-ray)
 
-_(⏳ To be Implemented — R2)_
+Automated portfolio health check at `/tools/checker`, scanning for:
 
-Automated portfolio health check scanning for:
+- Concentration risk (single holding > 20% of portfolio)
+- Stale price data (> 7 days old)
+- Missing cost base (no buy transactions)
+- Duplicate holdings across portfolios
+- ETF overlap detection via `/analytics/exposure`
 
-- Concentration risk (single holding, sector, country, currency)
-- ETF overlap and hidden duplications
-- Liquidity concerns and dividend dependency
-- High correlation between holdings
-- Missing or stale data
-
-Configurable thresholds and severity levels (Critical / Warning / Info).
+Results shown with severity badges (error / warning / info) and fix suggestions.
 
 > **Full guide:** [Tools & Reports](docs/TOOLS.md)
 
@@ -319,21 +318,22 @@ Tools for research, monitoring, and financial planning beyond your existing port
 
 ### Research
 
-| Tool                 | Purpose                                                                           | Status                |
-| -------------------- | --------------------------------------------------------------------------------- | --------------------- |
-| **Watchlist**        | Monitor potential investments with price alerts and research notes                | ✅ `/tools/watchlist` |
-| **Share Checker**    | Hypothetical $10,000 investment in any security — see what it would have returned | ⏳ R2                 |
-| **Market Sentiment** | Fear & Greed Index, VIX, Put/Call Ratio, Market Breadth, Yield Curve              | ⏳ R2                 |
+| Tool                 | Purpose                                                                           | Status                    |
+| -------------------- | --------------------------------------------------------------------------------- | ------------------------- |
+| **Watchlist**        | Monitor potential investments with price alerts and research notes                | ✅ `/tools/watchlist`     |
+| **Share Checker**    | Automated portfolio health checks — concentration, stale data, duplicates         | ✅ `/tools/checker`       |
+| **Market Sentiment** | Fear & Greed Index, VIX, ASX summary, sector heatmap                              | ✅ `/tools/sentiment`     |
+| **AI Assistant**     | Chat-based portfolio Q&A powered by Gemini                                        | ✅ `/tools/assistant`     |
 
 ### Financial Planning
 
-| Tool                | Purpose                                                                         | Status |
-| ------------------- | ------------------------------------------------------------------------------- | ------ |
-| **FIRE Calculator** | Model your path to financial independence — years to FIRE, sensitivity analysis | ⏳ R2  |
-| **Emergency Fund**  | Track savings target (3–6 months expenses) alongside investments                | ⏳ R4  |
-| **Net Worth**       | Total assets minus liabilities over time                                        | ⏳ R4  |
+| Tool                | Purpose                                                                         | Status              |
+| ------------------- | ------------------------------------------------------------------------------- | ------------------- |
+| **FIRE Calculator** | Model your path to financial independence — years to FIRE, sensitivity analysis | ✅ `/tools/fire`    |
+| **Emergency Fund**  | Track savings target (3–6 months expenses) alongside investments                | ⏳ R4               |
+| **Net Worth**       | Total assets minus liabilities over time                                        | ⏳ R4               |
 
-The FIRE Calculator integrates with your actual portfolio — pre-fills current value, uses your real historical return, and factors in dividend income and tax settings.
+The FIRE Calculator runs entirely client-side for instant feedback. It supports Australian superannuation integration, Coast FIRE calculation, and pessimistic/baseline/optimistic scenario comparison.
 
 > **Full guide:** [Tools & Reports](docs/TOOLS.md)
 
@@ -341,70 +341,103 @@ The FIRE Calculator integrates with your actual portfolio — pre-fills current 
 
 ## 9. Advanced Analytics
 
-_(⏳ All features in this section are To be Implemented — R2)_
+Quantitative tools for portfolio construction, optimisation, and forward-looking analysis. The Python analytics backend (`api/analytics/`) provides computation via FastAPI on Vercel Services.
 
-Quantitative tools for portfolio construction, optimisation, and forward-looking analysis. The Python analytics backend (`api/analytics/`) is scaffolded and the `/analytics` page exists as a placeholder.
-
-### Portfolio Backtesting
+### Portfolio Backtesting (`/analytics/backtest`)
 
 Test hypothetical allocations against history:
 
-- Ticker-level, asset-class, or dynamic allocation backtests
-- Configurable rebalancing (monthly to annual, or band-based)
-- Full output: CAGR, Sharpe, Sortino, max drawdown, rolling returns, and more
+- 5 strategies: Equal Weight, Min Variance, Max Sharpe, Risk Parity, Mean-Variance
+- Walk-forward methodology with configurable rebalancing (monthly, quarterly, annually)
+- Full output: CAGR, Sharpe, Sortino, max drawdown, Calmar ratio, equity curve, drawdown chart
+- Strategy comparison and model selection via cross-validation
 
-### Monte Carlo Simulation
+### Monte Carlo Simulation (`/analytics/monte-carlo`)
 
 Project future portfolio outcomes using randomised return paths:
 
-- Parametric (normal/t-distribution) or historical bootstrap methods
-- Probability of reaching goals, ruin probability, and percentile fan charts
+- 3 methods: Bootstrap (historical resampling), Parametric (multivariate normal), Copula (Student-t for tail risk)
+- Up to 10,000 simulations with fan chart (5th–95th percentile bands)
+- Withdrawal modelling for retirement planning
+- Distribution fitting (Normal, Student-t, Skew-Normal) with best-fit selection
 
-### Portfolio Optimisation
+### Risk Metrics (`/analytics/risk`)
 
-20+ optimisation strategies across four families:
+Comprehensive risk dashboard with 5 tabs:
+
+- **Overview** — 19 metrics including Sharpe, Sortino, Calmar, Treynor, Omega, VaR, CVaR, capture ratios, R², skewness, kurtosis
+- **Drawdowns** — Drawdown chart + episode table (start, trough, recovery, depth, duration)
+- **Distribution** — Return histogram with VaR/CVaR statistics
+- **Rolling** — Rolling Sharpe, Sortino, Beta over configurable window
+- **Decomposition** — Per-holding risk contribution pie chart
+
+Real benchmark comparison using ASX 200, S&P 500, MSCI World, and ETF proxies.
+
+### Portfolio Optimisation (`/analytics/optimize`)
 
 | Family                      | Strategies                                         |
 | --------------------------- | -------------------------------------------------- |
-| **Mean-Variance**           | Mean-Variance, CVaR, CDaR, Max Sharpe, Risk Parity |
-| **Hierarchical/Clustering** | HRP, HERC, Nested Clusters (NCO), Schur Complement |
-| **Naive**                   | Equal Weight (1/N), Inverse Volatility             |
-| **Ensemble**                | Stacking (combine multiple strategies)             |
+| **Mean-Variance**           | Max Sharpe, Min Risk, Max Return (3 objectives × 3 risk measures) |
+| **Hierarchical**            | Hierarchical Risk Parity (HRP) with dendrogram     |
+| **Risk Parity**             | Inverse volatility / risk budgeting                |
 
-With 20+ risk measures, 12 constraint types, regularisation (L1/L2/Elastic Net), robust optimisation with uncertainty sets, and pre-selection filters.
+Weight constraints (min/max per asset), current vs recommended comparison chart, and rebalancing trade calculator.
 
-### Efficient Frontier
+### Efficient Frontier (`/analytics/frontier`)
 
-Visualise all optimal portfolios — see where your current allocation sits and how close it is to the frontier.
+Interactive scatter plot showing the risk-return tradeoff curve:
 
-### Black-Litterman Model
+- 50-point frontier with individual assets plotted
+- Max Sharpe and Min Risk special points highlighted
+- Hover to see allocation weights at any frontier point
 
-Combine market equilibrium with your personal views (absolute or relative, with confidence levels). Extended with Entropy Pooling, Opinion Pooling, and factor-level views.
+### Black-Litterman Model (`/analytics/black-litterman`)
+
+Combine market equilibrium with your personal investment views:
+
+- Absolute views ("CBA returns 12%") and relative views ("CBA outperforms BHP by 5%")
+- Per-view confidence sliders
+- Prior vs posterior expected returns comparison table
+- Optimal weights under BL model
 
 ### Estimation Methods
 
-- **Expected returns** — Empirical, exponentially weighted, shrinkage, equilibrium, factor model
-- **Covariance** — 11 estimators including Ledoit-Wolf, Random Matrix Theory denoising, Gerber, Graphical Lasso
-- **Distribution modelling** — Heavy-tailed distributions (Student's t, Johnson Su, NIG) and Vine Copulas for joint dependence
+- **Expected returns** — Empirical, Shrunk (James-Stein), Exponentially Weighted, Equilibrium (CAPM)
+- **Covariance** — Empirical, Ledoit-Wolf, OAS, Exponentially Weighted, Graphical Lasso
 
-### Model Validation
+### Factor Analysis (`/analytics/factors`)
 
-Prevent overfitting with Walk Forward cross-validation, Combinatorial Purged CV, and hyperparameter tuning via grid/randomised/online search.
+Decompose returns into systematic risk factors:
 
-### Factor Analysis
+- Principal Component Analysis (PCA) with explained variance and loadings
+- Fama-French regression (market, size, value factors)
 
-Decompose returns into systematic risk factors (CAPM through Fama-French 5-Factor + momentum).
+### Correlation Analysis (`/analytics/correlations`)
 
-### Scenario & Stress Testing
+- Full correlation matrix heatmap (colour-coded −1 red to +1 blue)
+- Hierarchical clustering dendrogram
+- Period selector (1Y, 3Y, 5Y)
 
-- 7 historical crisis scenarios (GFC, COVID, Dot-com, etc.)
-- Custom hypothetical scenarios
-- Copula-based conditional stress testing ("what if my largest holding drops 20%?")
-- Factor stress testing (stress risk factors, propagate through loadings)
+### Tactical Allocation (`/analytics/tactical`)
 
-### Tactical Asset Allocation
+6 signal-based dynamic weighting strategies:
 
-Signal-based dynamic strategies (momentum, mean-reversion, trend-following, volatility targeting) with full backtest output.
+- Momentum, Mean Reversion, Risk-Adjusted Momentum
+- Volatility Targeting, MA Crossover, Dual Momentum
+- Signal scores, recommended weights, comparison chart
+
+### Stress Testing (`/analytics/stress-test`)
+
+3 stress testing modes:
+
+- **Historical** — 6 crisis scenarios (GFC, COVID, Dot-com, 2022 Rate Shock, Black Monday, Asian Crisis)
+- **Factor** — "If market drops X%, what happens?" with per-asset beta decomposition
+- **Custom** — Per-asset shock inputs via the What-If page
+
+### AI Features
+
+- **AI Importer** — Parse broker statements, contract notes, and tax documents using Gemini AI (requires `GOOGLE_GENERATIVE_AI_API_KEY`)
+- **AI Chat Assistant** — Ask questions about your portfolio, risk metrics, and investment strategies
 
 > **Full guide:** [Advanced Analytics](docs/ADVANCED.md)
 
