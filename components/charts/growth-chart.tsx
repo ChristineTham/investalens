@@ -66,8 +66,8 @@ export function GrowthChart({
             className="text-xs"
           />
           <Tooltip
-            labelFormatter={(d: string) => d}
-            formatter={(v: number) => [v.toFixed(2), ""]}
+            labelFormatter={(d) => String(d)}
+            formatter={(v) => [Number(v).toFixed(2), ""]}
           />
           <Legend />
           <Line

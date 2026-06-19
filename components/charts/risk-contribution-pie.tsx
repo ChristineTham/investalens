@@ -42,7 +42,7 @@ export function RiskContributionPie({ data }: RiskContributionPieProps) {
             <Cell key={i} fill={COLORS[i % COLORS.length]} />
           ))}
         </Pie>
-        <Tooltip formatter={(v: number) => [`${v.toFixed(1)}%`, "Risk Share"]} />
+        <Tooltip formatter={(v) => [`${Number(v).toFixed(1)}%`, "Risk Share"]} />
         <Legend />
       </PieChart>
     </ResponsiveContainer>

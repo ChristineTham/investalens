@@ -49,7 +49,7 @@ export function RollingMetricsChart({ data }: RollingMetricsChartProps) {
           className="text-xs"
         />
         <YAxis className="text-xs" />
-        <Tooltip labelFormatter={(d: string) => d} />
+        <Tooltip labelFormatter={(d) => String(d)} />
         <Legend />
         <ReferenceLine y={0} stroke="hsl(var(--muted-foreground))" />
         {data.map((series, i) => (

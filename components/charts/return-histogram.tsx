@@ -58,8 +58,8 @@ export function ReturnHistogram({ returns, bins = 40 }: ReturnHistogramProps) {
           />
           <YAxis className="text-xs" />
           <Tooltip
-            labelFormatter={(v: number) => `${v.toFixed(2)}%`}
-            formatter={(v: number) => [v, "Count"]}
+            labelFormatter={(v) => `${Number(v).toFixed(2)}%`}
+            formatter={(v) => [Number(v), "Count"]}
           />
           <ReferenceLine x={mean * 100} stroke="red" strokeDasharray="3 3" />
           <Bar dataKey="count" fill="hsl(var(--primary))" opacity={0.8} />
