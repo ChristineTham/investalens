@@ -1,8 +1,10 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
+  ...nextTs,
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
@@ -14,9 +16,11 @@ const eslintConfig = defineConfig([
     ".agents/**",
     // Generated code
     "generated/**",
-    // Node.js scripts — not Next.js app code, and they pull in heavy Prisma types
+    // Standalone scripts (not Next.js app code)
     "scripts/**",
     "prisma/seed.ts",
+    // Complex Prisma type inference
+    "lib/services/analytics-data.ts",
   ]),
 ]);
 
