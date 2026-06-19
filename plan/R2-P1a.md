@@ -79,7 +79,7 @@ Real benchmark data instead of hardcoded rates.
 ```typescript
 export const BENCHMARKS = {
   "^AXJO": { name: "S&P/ASX 200", market: "ASX", type: "equity" },
-  "^AXJOA": { name: "S&P/ASX 200 Accum.", market: "ASX", type: "equity-tr" },
+  "IOZ.AX": { name: "iShares Core S&P/ASX 200 ETF", market: "ASX", type: "equity-tr" },
   "^GSPC": { name: "S&P 500", market: "US", type: "equity" },
   "^MSCI": { name: "MSCI World", market: "GLOBAL", type: "equity" },
   "CASH": { name: "AUD Cash Rate (RBA)", market: "AU", type: "cash" },

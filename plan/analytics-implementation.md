@@ -81,7 +81,7 @@ Real benchmark data instead of hardcoded 8% line:
 
 | Benchmark | Ticker | Coverage |
 |-----------|--------|----------|
-| ASX 200 Total Return | ^AXJOA / STW.AX | AU equities |
+| ASX 200 Total Return | IOZ.AX / STW.AX | AU equities |
 | S&P 500 Total Return | ^SP500TR / SPY | US equities |
 | MSCI World | URTH | Global equities |
 | Bloomberg Agg Bond | AGG | Fixed income |

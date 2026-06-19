@@ -12,6 +12,11 @@ const BENCHMARKS = [
   { code: "SPY", marketCode: "NYSE", name: "SPDR S&P 500 ETF Trust", instrumentType: "ETF", currency: "USD", country: "US" },
 ];
 
+// Retired benchmarks to remove (not available on Yahoo Finance)
+const RETIRED = [
+  { code: "^AXJOA", marketCode: "ASX" },
+];
+
 async function main() {
   console.log("Seeding benchmark instruments...");
 
@@ -24,6 +29,16 @@ async function main() {
       create: benchmark,
     });
     console.log(`  ✓ ${result.code} (${result.name})`);
+  }
+
+  // Clean up retired benchmarks
+  for (const retired of RETIRED) {
+    const deleted = await db.instrument.deleteMany({
+      where: { code: retired.code, marketCode: retired.marketCode },
+    });
+    if (deleted.count > 0) {
+      console.log(`  ✗ Removed retired benchmark: ${retired.code}`);
+    }
   }
 
   console.log(`\nDone — ${BENCHMARKS.length} benchmark instruments seeded.`);
