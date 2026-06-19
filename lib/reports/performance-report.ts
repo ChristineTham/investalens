@@ -20,6 +20,7 @@ export interface PerformanceReportInput {
 export interface PerformanceReportResult {
   portfolio: PortfolioPerformance;
   groups: Record<string, HoldingPerformance[]>;
+  growthHistory: Array<{ date: string; portfolio: number }>;
 }
 
 export async function generatePerformanceReport(
@@ -43,13 +44,21 @@ export async function generatePerformanceReport(
   if (!portfolio) throw new Error("Portfolio not found");
 
   const holdingPerformances: HoldingPerformance[] = [];
+  const holdingsWithPrices: Array<{
+    holdingId: string;
+    instrumentCode: string;
+    transactions: typeof portfolio.holdings[0]["transactions"];
+    prices: Array<{ date: Date; close: number }>;
+  }> = [];
+
+  const priceDatesSet = new Set<string>();
 
   for (const holding of portfolio.holdings) {
-    // Get prices for this instrument
+    // Get prices for this instrument up to end date to support historical holdings purchased before start date
     const prices = await db.price.findMany({
       where: {
         instrumentId: holding.instrumentId,
-        date: { gte: input.dateRange.from, lte: input.dateRange.to },
+        date: { lte: input.dateRange.to },
       },
       orderBy: { date: "asc" },
     });
@@ -58,6 +67,20 @@ export async function generatePerformanceReport(
       date: p.date,
       close: Number(p.close),
     }));
+
+    holdingsWithPrices.push({
+      holdingId: holding.id,
+      instrumentCode: holding.instrument.code,
+      transactions: holding.transactions,
+      prices: priceData,
+    });
+
+    // Collect unique price dates within the date range
+    prices.forEach((p) => {
+      if (p.date >= input.dateRange.from && p.date <= input.dateRange.to) {
+        priceDatesSet.add(p.date.toISOString().split("T")[0]);
+      }
+    });
 
     const txData = holding.transactions.map((tx) => ({
       id: tx.id,
@@ -128,5 +151,63 @@ export async function generatePerformanceReport(
     }
   }
 
-  return { portfolio: portfolioPerf, groups };
+  // Calculate actual growth history
+  const sortedPriceDates = Array.from(priceDatesSet).sort();
+  const growthHistory: Array<{ date: string; portfolio: number }> = [];
+
+  for (const dateStr of sortedPriceDates) {
+    const targetDate = new Date(dateStr);
+    let totalPortfolioValue = 0;
+
+    for (const h of holdingsWithPrices) {
+      // Calculate quantity on targetDate
+      let qty = 0;
+      for (const tx of h.transactions) {
+        if (tx.tradeDate <= targetDate) {
+          const q = Number(tx.quantity);
+          if (tx.transactionType === "BUY") {
+            qty += q;
+          } else if (tx.transactionType === "SELL") {
+            qty -= q;
+          } else if (tx.transactionType === "SPLIT") {
+            qty *= q;
+          }
+        }
+      }
+
+      // Find price on or before targetDate
+      const sortedPricesDesc = [...h.prices]
+        .filter((p) => p.date <= targetDate)
+        .sort((a, b) => b.date.getTime() - a.date.getTime());
+      
+      const price = sortedPricesDesc[0]?.close || 0;
+      totalPortfolioValue += qty * price;
+    }
+
+    const formattedDate = targetDate.toLocaleDateString("en-AU", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+
+    growthHistory.push({
+      date: formattedDate,
+      portfolio: totalPortfolioValue,
+    });
+  }
+
+  // Fallback if no dates
+  if (growthHistory.length === 0) {
+    const formattedNow = new Date().toLocaleDateString("en-AU", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+    growthHistory.push({
+      date: formattedNow,
+      portfolio: portfolioPerf.totalMarketValue,
+    });
+  }
+
+  return { portfolio: portfolioPerf, groups, growthHistory };
 }

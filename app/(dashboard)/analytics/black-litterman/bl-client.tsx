@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MetricCard } from "@/components/analytics/metric-card";
+import { DateRangeSelector, type DateRange } from "@/components/analytics/date-range-selector";
 
 interface View {
   type: "absolute" | "relative";
@@ -26,6 +27,7 @@ export function BlackLittermanClient({
   assets: { code: string; name: string }[];
 }) {
   const [portfolioId, setPortfolioId] = useState(portfolios[0].id);
+  const [dateRange, setDateRange] = useState<DateRange>("3Y");
   const [views, setViews] = useState<View[]>([]);
   const [tau, setTau] = useState(0.05);
   const [riskAversion, setRiskAversion] = useState(2.5);
@@ -59,7 +61,7 @@ export function BlackLittermanClient({
     setError(null);
     try {
       const matrixRes = await fetch(
-        `/api/v1/analytics/matrix?portfolio=${portfolioId}&range=3Y`
+        `/api/v1/analytics/matrix?portfolio=${portfolioId}&range=${dateRange}`
       );
       if (!matrixRes.ok) throw new Error("Failed to load portfolio data");
       const matrix = await matrixRes.json();
@@ -94,7 +96,7 @@ export function BlackLittermanClient({
       </div>
 
       {/* Parameters */}
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap items-end gap-4">
         <div>
           <label className="text-sm font-medium">Portfolio</label>
           <select
@@ -106,6 +108,12 @@ export function BlackLittermanClient({
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
           </select>
+        </div>
+        <div>
+          <label className="text-sm font-medium">Date Range</label>
+          <div className="mt-1">
+            <DateRangeSelector selected={dateRange} onChange={setDateRange} />
+          </div>
         </div>
         <div>
           <label className="text-sm font-medium">Tau</label>

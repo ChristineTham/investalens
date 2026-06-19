@@ -3,14 +3,14 @@ import { db } from "@/lib/db";
 import { generateHistoricalCostReport } from "@/lib/reports/historical-cost-report";
 import { formatCurrency } from "@/lib/utils";
 import { redirect } from "next/navigation";
-import { PortfolioSelector } from "@/components/reports/portfolio-selector";
+import { ReportFilters } from "@/components/reports/report-filters";
 import { HistoricalCostChart } from "@/components/charts/historical-cost-chart";
 import { Suspense } from "react";
 
 export default async function HistoricalCostPage({
   searchParams,
 }: {
-  searchParams: Promise<{ portfolio?: string }>;
+  searchParams: Promise<{ portfolio?: string; from?: string; to?: string }>;
 }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
@@ -33,24 +33,33 @@ export default async function HistoricalCostPage({
 
   const selectedPortfolioId = params.portfolio || null;
 
-  // Default to current financial year (July 1 - June 30 for AU)
+  // Default to current financial year
   const now = new Date();
   const fyYear = now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear() - 1;
-  const from = new Date(fyYear, 6, 1); // July 1
-  const to = new Date(fyYear + 1, 5, 30); // June 30
+  const defaultFrom = new Date(fyYear, 6, 1); // July 1
+  const defaultTo = new Date(fyYear + 1, 5, 30); // June 30
+
+  const fromDate = params.from ? new Date(params.from) : defaultFrom;
+  const toDate = params.to ? new Date(params.to) : defaultTo;
+
+  const fromStr = fromDate.toISOString().split("T")[0];
+  const toStr = toDate.toISOString().split("T")[0];
 
   let items: Awaited<ReturnType<typeof generateHistoricalCostReport>>;
 
   if (selectedPortfolioId) {
     items = await generateHistoricalCostReport(selectedPortfolioId, {
-      from,
-      to,
+      from: fromDate,
+      to: toDate,
     });
   } else {
     const allItems: Awaited<ReturnType<typeof generateHistoricalCostReport>> =
       [];
     for (const p of portfolios) {
-      const r = await generateHistoricalCostReport(p.id, { from, to });
+      const r = await generateHistoricalCostReport(p.id, {
+        from: fromDate,
+        to: toDate,
+      });
       allItems.push(...r);
     }
     items = allItems;
@@ -69,16 +78,19 @@ export default async function HistoricalCostPage({
         <div>
           <h1 className="font-serif text-2xl font-bold">Historical Cost</h1>
           <p className="text-sm text-muted-foreground">
-            Opening and closing cost base for FY{fyYear}/{(fyYear + 1).toString().slice(2)}.
+            Opening and closing cost base comparison.
           </p>
         </div>
-        <Suspense>
-          <PortfolioSelector
-            portfolios={portfolios}
-            selectedId={selectedPortfolioId}
-          />
-        </Suspense>
       </div>
+
+      <Suspense>
+        <ReportFilters
+          portfolios={portfolios}
+          selectedPortfolioId={selectedPortfolioId}
+          from={fromStr}
+          to={toStr}
+        />
+      </Suspense>
 
       {/* Summary */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
@@ -131,74 +143,74 @@ export default async function HistoricalCostPage({
           </div>
 
           <div className="overflow-hidden rounded-lg border border-border">
-          <table className="w-full">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
-                  Code
-                </th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                  Opening
-                </th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                  Purchases
-                </th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                  Sales
-                </th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                  Adjustments
-                </th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                  Closing
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {items.map((item) => (
-                <tr key={item.instrumentCode} className="hover:bg-accent/50">
-                  <td className="px-4 py-3 font-medium">
-                    {item.instrumentCode}
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                    Code
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                    Opening
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                    Purchases
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                    Sales
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                    Adjustments
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                    Closing
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {items.map((item) => (
+                  <tr key={item.instrumentCode} className="hover:bg-accent/50">
+                    <td className="px-4 py-3 font-medium">
+                      {item.instrumentCode}
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm">
+                      {formatCurrency(item.openingCostBase)}
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm">
+                      {formatCurrency(item.purchases)}
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm">
+                      {formatCurrency(item.sales)}
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm">
+                      {formatCurrency(item.adjustments)}
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm">
+                      {formatCurrency(item.closingCostBase)}
+                    </td>
+                  </tr>
+                ))}
+                {/* Total row */}
+                <tr className="bg-muted/30 font-medium">
+                  <td className="px-4 py-3">Total</td>
+                  <td className="px-4 py-3 text-right text-sm">
+                    {formatCurrency(totalOpening)}
                   </td>
                   <td className="px-4 py-3 text-right text-sm">
-                    {formatCurrency(item.openingCostBase)}
+                    {formatCurrency(totalPurchases)}
                   </td>
                   <td className="px-4 py-3 text-right text-sm">
-                    {formatCurrency(item.purchases)}
+                    {formatCurrency(totalSales)}
                   </td>
                   <td className="px-4 py-3 text-right text-sm">
-                    {formatCurrency(item.sales)}
+                    {formatCurrency(totalAdjustments)}
                   </td>
                   <td className="px-4 py-3 text-right text-sm">
-                    {formatCurrency(item.adjustments)}
-                  </td>
-                  <td className="px-4 py-3 text-right text-sm">
-                    {formatCurrency(item.closingCostBase)}
+                    {formatCurrency(totalClosing)}
                   </td>
                 </tr>
-              ))}
-              {/* Total row */}
-              <tr className="bg-muted/30 font-medium">
-                <td className="px-4 py-3">Total</td>
-                <td className="px-4 py-3 text-right text-sm">
-                  {formatCurrency(totalOpening)}
-                </td>
-                <td className="px-4 py-3 text-right text-sm">
-                  {formatCurrency(totalPurchases)}
-                </td>
-                <td className="px-4 py-3 text-right text-sm">
-                  {formatCurrency(totalSales)}
-                </td>
-                <td className="px-4 py-3 text-right text-sm">
-                  {formatCurrency(totalAdjustments)}
-                </td>
-                <td className="px-4 py-3 text-right text-sm">
-                  {formatCurrency(totalClosing)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { MetricCard } from "@/components/analytics/metric-card";
+import { DateRangeSelector, type DateRange } from "@/components/analytics/date-range-selector";
 
 const ScenarioWaterfall = dynamic(
   () => import("@/components/charts/scenario-waterfall").then((m) => m.ScenarioWaterfall),
@@ -26,6 +27,7 @@ export function StressTestClient({
   portfolios: { id: string; name: string }[];
 }) {
   const [portfolioId, setPortfolioId] = useState(portfolios[0].id);
+  const [dateRange, setDateRange] = useState<DateRange>("3Y");
   const [tab, setTab] = useState<(typeof TABS)[number]>("Historical");
   const [running, setRunning] = useState(false);
   const [historicalResults, setHistoricalResults] = useState<HistoricalScenario[] | null>(null);
@@ -34,7 +36,7 @@ export function StressTestClient({
   const [error, setError] = useState<string | null>(null);
 
   async function fetchMatrix() {
-    const res = await fetch(`/api/v1/analytics/matrix?portfolio=${portfolioId}&range=3Y`);
+    const res = await fetch(`/api/v1/analytics/matrix?portfolio=${portfolioId}&range=${dateRange}`);
     if (!res.ok) throw new Error("Failed to load portfolio data");
     return res.json();
   }
@@ -85,15 +87,18 @@ export function StressTestClient({
           <h1 className="font-serif text-2xl font-bold">Stress Testing</h1>
           <p className="text-sm text-muted-foreground">Historical scenarios, custom shocks, and factor stress</p>
         </div>
-        <select
-          className="rounded-md border border-input bg-background px-3 py-1.5 text-sm"
-          value={portfolioId}
-          onChange={(e) => setPortfolioId(e.target.value)}
-        >
-          {portfolios.map((p) => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-        </select>
+        <div className="flex items-center gap-3">
+          <select
+            className="rounded-md border border-input bg-background px-3 py-1.5 text-sm"
+            value={portfolioId}
+            onChange={(e) => setPortfolioId(e.target.value)}
+          >
+            {portfolios.map((p) => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+          <DateRangeSelector selected={dateRange} onChange={setDateRange} />
+        </div>
       </div>
 
       {/* Tabs */}

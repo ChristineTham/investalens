@@ -53,11 +53,47 @@ export function calculateHoldingPerformance(
   prices: PriceData[],
   dateRange: DateRange
 ): HoldingPerformance {
+  const sortedTx = [...transactions].sort((a, b) => a.tradeDate.getTime() - b.tradeDate.getTime());
+
+  // 1. Calculate qtyAtStart and qtyAtEnd
+  let qtyAtStart = 0;
+  let qtyAtEnd = 0;
+  for (const tx of sortedTx) {
+    const qty = Number(tx.quantity);
+    if (tx.tradeDate < dateRange.from) {
+      if (tx.transactionType === "BUY") {
+        qtyAtStart += qty;
+      } else if (tx.transactionType === "SELL") {
+        qtyAtStart -= qty;
+      } else if (tx.transactionType === "SPLIT") {
+        qtyAtStart *= qty;
+      }
+    }
+    if (tx.tradeDate <= dateRange.to) {
+      if (tx.transactionType === "BUY") {
+        qtyAtEnd += qty;
+      } else if (tx.transactionType === "SELL") {
+        qtyAtEnd -= qty;
+      } else if (tx.transactionType === "SPLIT") {
+        qtyAtEnd *= qty;
+      }
+    }
+  }
+
+  // 2. Find priceAtStart and priceAtEnd
+  const sortedPricesDesc = [...prices].sort((a, b) => b.date.getTime() - a.date.getTime());
+  
+  const priceAtStart = sortedPricesDesc.find((p) => p.date < dateRange.from)?.close || 0;
+  const priceAtEnd = sortedPricesDesc.find((p) => p.date <= dateRange.to)?.close || 0;
+
+  // 3. Opening value and Closing value
+  const openingValue = qtyAtStart * priceAtStart;
+  const marketValue = qtyAtEnd * priceAtEnd;
+
+  // 4. In-period transactions
   let totalBought = 0;
   let totalSold = 0;
   let dividends = 0;
-  let quantity = 0;
-  let costBase = 0;
 
   const filteredTx = transactions.filter(
     (tx) => tx.tradeDate >= dateRange.from && tx.tradeDate <= dateRange.to
@@ -71,39 +107,26 @@ export function calculateHoldingPerformance(
     switch (tx.transactionType) {
       case "BUY":
         totalBought += qty * price + broker;
-        quantity += qty;
-        costBase += qty * price + broker;
         break;
       case "SELL":
         totalSold += qty * price - broker;
-        quantity -= qty;
         break;
       case "DIVIDEND":
       case "INTEREST":
       case "COUPON":
         dividends += qty * price;
         break;
-      case "SPLIT": {
-        // For splits, quantity is the multiplier
-        quantity = quantity * qty;
-        break;
-      }
     }
   }
 
-  // Get current price (last available)
-  const sortedPrices = prices
-    .filter((p) => p.date <= dateRange.to)
-    .sort((a, b) => b.date.getTime() - a.date.getTime());
-  const currentPrice = sortedPrices[0]?.close || 0;
-
-  const marketValue = quantity * currentPrice;
-  const capitalGain = marketValue + totalSold - totalBought;
+  // 5. Capital Gain & Return calculations
+  const capitalGain = marketValue + totalSold - (openingValue + totalBought);
   const totalReturn = capitalGain + dividends;
+  
+  const costBase = openingValue + totalBought;
   const totalReturnPercent = costBase > 0 ? (totalReturn / costBase) * 100 : 0;
 
-  const days =
-    (dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24);
+  const days = (dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24);
   const annualisedReturn = annualiseReturn(totalReturnPercent / 100, days);
 
   return {

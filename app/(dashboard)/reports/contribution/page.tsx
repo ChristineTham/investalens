@@ -3,14 +3,14 @@ import { db } from "@/lib/db";
 import { generateContributionReport } from "@/lib/reports/contribution-report";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import { redirect } from "next/navigation";
-import { PortfolioSelector } from "@/components/reports/portfolio-selector";
+import { ReportFilters } from "@/components/reports/report-filters";
 import { ContributionBarChart } from "@/components/charts/contribution-bar";
 import { Suspense } from "react";
 
 export default async function ContributionReportPage({
   searchParams,
 }: {
-  searchParams: Promise<{ portfolio?: string }>;
+  searchParams: Promise<{ portfolio?: string; from?: string; to?: string }>;
 }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
@@ -36,19 +36,25 @@ export default async function ContributionReportPage({
   const oneYearAgo = new Date(now);
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
+  const fromDate = params.from ? new Date(params.from) : oneYearAgo;
+  const toDate = params.to ? new Date(params.to) : now;
+
+  const fromStr = fromDate.toISOString().split("T")[0];
+  const toStr = toDate.toISOString().split("T")[0];
+
   let items: Awaited<ReturnType<typeof generateContributionReport>>;
 
   if (selectedPortfolioId) {
     items = await generateContributionReport(selectedPortfolioId, {
-      from: oneYearAgo,
-      to: now,
+      from: fromDate,
+      to: toDate,
     });
   } else {
     const allItems: Awaited<ReturnType<typeof generateContributionReport>> = [];
     for (const p of portfolios) {
       const r = await generateContributionReport(p.id, {
-        from: oneYearAgo,
-        to: now,
+        from: fromDate,
+        to: toDate,
       });
       allItems.push(...r);
     }
@@ -71,13 +77,16 @@ export default async function ContributionReportPage({
             How each holding drives overall portfolio return.
           </p>
         </div>
-        <Suspense>
-          <PortfolioSelector
-            portfolios={portfolios}
-            selectedId={selectedPortfolioId}
-          />
-        </Suspense>
       </div>
+
+      <Suspense>
+        <ReportFilters
+          portfolios={portfolios}
+          selectedPortfolioId={selectedPortfolioId}
+          from={fromStr}
+          to={toStr}
+        />
+      </Suspense>
 
       {items.length === 0 ? (
         <p className="text-muted-foreground">No holdings found.</p>
@@ -97,37 +106,37 @@ export default async function ContributionReportPage({
           </div>
 
           <div className="overflow-hidden rounded-lg border border-border">
-          <table className="w-full">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
-                  Code
-                </th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                  Total Return
-                </th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                  Contribution %
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {items.map((item) => (
-                <tr key={item.holdingId} className="hover:bg-accent/50">
-                  <td className="px-4 py-3 font-medium">
-                    {item.instrumentCode}
-                  </td>
-                  <td className="px-4 py-3 text-right text-sm">
-                    {formatCurrency(item.totalReturn)}
-                  </td>
-                  <td className="px-4 py-3 text-right text-sm">
-                    {formatPercent(item.contributionPercent)}
-                  </td>
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                    Code
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                    Total Return
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                    Contribution %
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {items.map((item) => (
+                  <tr key={item.holdingId} className="hover:bg-accent/50">
+                    <td className="px-4 py-3 font-medium">
+                      {item.instrumentCode}
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm">
+                      {formatCurrency(item.totalReturn)}
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm">
+                      {formatPercent(item.contributionPercent)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </div>

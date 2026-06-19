@@ -2,13 +2,13 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { redirect } from "next/navigation";
-import { PortfolioSelector } from "@/components/reports/portfolio-selector";
+import { ReportFilters } from "@/components/reports/report-filters";
 import { Suspense } from "react";
 
 export default async function AllTradesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ portfolio?: string }>;
+  searchParams: Promise<{ portfolio?: string; from?: string; to?: string }>;
 }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
@@ -30,14 +30,22 @@ export default async function AllTradesPage({
   }
 
   const selectedPortfolioId = params.portfolio || null;
+  const now = new Date();
+  const oneYearAgo = new Date(now);
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-  const whereClause = selectedPortfolioId
-    ? {
-        holding: {
-          portfolio: { id: selectedPortfolioId, userId: session.user.id },
-        },
-      }
-    : { holding: { portfolio: { userId: session.user.id } } };
+  const fromDate = params.from ? new Date(params.from) : oneYearAgo;
+  const toDate = params.to ? new Date(params.to) : now;
+
+  const fromStr = fromDate.toISOString().split("T")[0];
+  const toStr = toDate.toISOString().split("T")[0];
+
+  const whereClause = {
+    tradeDate: { gte: fromDate, lte: toDate },
+    holding: selectedPortfolioId
+      ? { portfolio: { id: selectedPortfolioId, userId: session.user.id } }
+      : { portfolio: { userId: session.user.id } },
+  };
 
   const transactions = await db.transaction.findMany({
     where: whereClause,
@@ -56,19 +64,22 @@ export default async function AllTradesPage({
         <div>
           <h1 className="font-serif text-2xl font-bold">All Trades</h1>
           <p className="text-sm text-muted-foreground">
-            Complete transaction history (latest 100).
+            Complete transaction history (latest 100 in selected range).
           </p>
         </div>
-        <Suspense>
-          <PortfolioSelector
-            portfolios={portfolios}
-            selectedId={selectedPortfolioId}
-          />
-        </Suspense>
       </div>
 
+      <Suspense>
+        <ReportFilters
+          portfolios={portfolios}
+          selectedPortfolioId={selectedPortfolioId}
+          from={fromStr}
+          to={toStr}
+        />
+      </Suspense>
+
       {transactions.length === 0 ? (
-        <p className="text-muted-foreground">No transactions found.</p>
+        <p className="text-muted-foreground">No transactions found for the selected period.</p>
       ) : (
         <div className="overflow-hidden rounded-lg border border-border">
           <table className="w-full">

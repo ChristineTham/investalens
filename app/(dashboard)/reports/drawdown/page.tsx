@@ -3,14 +3,14 @@ import { db } from "@/lib/db";
 import { generateDrawdownReport } from "@/lib/reports/drawdown-report";
 import { formatPercent } from "@/lib/utils";
 import { redirect } from "next/navigation";
-import { PortfolioSelector } from "@/components/reports/portfolio-selector";
+import { ReportFilters } from "@/components/reports/report-filters";
 import { DrawdownScatter } from "@/components/charts/drawdown-scatter";
 import { Suspense } from "react";
 
 export default async function DrawdownReportPage({
   searchParams,
 }: {
-  searchParams: Promise<{ portfolio?: string }>;
+  searchParams: Promise<{ portfolio?: string; from?: string; to?: string }>;
 }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
@@ -36,19 +36,25 @@ export default async function DrawdownReportPage({
   const oneYearAgo = new Date(now);
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
+  const fromDate = params.from ? new Date(params.from) : oneYearAgo;
+  const toDate = params.to ? new Date(params.to) : now;
+
+  const fromStr = fromDate.toISOString().split("T")[0];
+  const toStr = toDate.toISOString().split("T")[0];
+
   let items: Awaited<ReturnType<typeof generateDrawdownReport>>;
 
   if (selectedPortfolioId) {
     items = await generateDrawdownReport(selectedPortfolioId, {
-      from: oneYearAgo,
-      to: now,
+      from: fromDate,
+      to: toDate,
     });
   } else {
     const allItems: Awaited<ReturnType<typeof generateDrawdownReport>> = [];
     for (const p of portfolios) {
       const r = await generateDrawdownReport(p.id, {
-        from: oneYearAgo,
-        to: now,
+        from: fromDate,
+        to: toDate,
       });
       allItems.push(...r);
     }
@@ -74,13 +80,16 @@ export default async function DrawdownReportPage({
             Maximum drawdown and Return over Maximum Drawdown (RoMaD) analysis.
           </p>
         </div>
-        <Suspense>
-          <PortfolioSelector
-            portfolios={portfolios}
-            selectedId={selectedPortfolioId}
-          />
-        </Suspense>
       </div>
+
+      <Suspense>
+        <ReportFilters
+          portfolios={portfolios}
+          selectedPortfolioId={selectedPortfolioId}
+          from={fromStr}
+          to={toStr}
+        />
+      </Suspense>
 
       {/* Summary */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -126,48 +135,48 @@ export default async function DrawdownReportPage({
           </div>
 
           <div className="overflow-hidden rounded-lg border border-border">
-          <table className="w-full">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
-                  Code
-                </th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                  Max Drawdown %
-                </th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                  Total Return %
-                </th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                  RoMaD
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {items
-                .sort((a, b) => b.maxDrawdownPercent - a.maxDrawdownPercent)
-                .map((item) => (
-                  <tr
-                    key={item.instrumentCode}
-                    className="hover:bg-accent/50"
-                  >
-                    <td className="px-4 py-3 font-medium">
-                      {item.instrumentCode}
-                    </td>
-                    <td className="px-4 py-3 text-right text-sm text-destructive">
-                      -{item.maxDrawdownPercent.toFixed(2)}%
-                    </td>
-                    <td className="px-4 py-3 text-right text-sm">
-                      {formatPercent(item.totalReturn)}
-                    </td>
-                    <td className="px-4 py-3 text-right text-sm">
-                      {item.romad.toFixed(2)}
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                    Code
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                    Max Drawdown %
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                    Total Return %
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                    RoMaD
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {items
+                  .sort((a, b) => b.maxDrawdownPercent - a.maxDrawdownPercent)
+                  .map((item) => (
+                    <tr
+                      key={item.instrumentCode}
+                      className="hover:bg-accent/50"
+                    >
+                      <td className="px-4 py-3 font-medium">
+                        {item.instrumentCode}
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm text-destructive">
+                        -{item.maxDrawdownPercent.toFixed(2)}%
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm">
+                        {formatPercent(item.totalReturn)}
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm">
+                        {item.romad.toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </div>

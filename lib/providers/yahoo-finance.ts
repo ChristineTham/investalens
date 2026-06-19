@@ -2,6 +2,7 @@ import type {
   MarketDataProvider,
   Quote,
   PricePoint,
+  DividendPoint,
   InstrumentSearchResult,
 } from "./market-data";
 import { yahooRateLimiter } from "./rate-limiter";
@@ -114,6 +115,41 @@ export const yahooFinance: MarketDataProvider = {
       }
 
       return prices;
+    } catch {
+      return [];
+    }
+  },
+
+  async getHistoricalDividends(
+    code: string,
+    market: string,
+    from: Date,
+    to: Date
+  ): Promise<DividendPoint[]> {
+    const symbol = toYahooSymbol(code, market);
+    const period1 = Math.floor(from.getTime() / 1000);
+    const period2 = Math.floor(to.getTime() / 1000);
+
+    try {
+      const res = await fetchWithRetry(
+        `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?period1=${period1}&period2=${period2}&interval=1d&events=div`
+      );
+      const data = await res.json();
+      const result = data.chart?.result?.[0];
+      const dividendsObj = result?.events?.dividends;
+      if (!dividendsObj) return [];
+
+      const dividends: DividendPoint[] = [];
+      for (const key of Object.keys(dividendsObj)) {
+        const div = dividendsObj[key];
+        if (div && typeof div.amount === "number" && typeof div.date === "number") {
+          dividends.push({
+            date: new Date(div.date * 1000),
+            amount: div.amount,
+          });
+        }
+      }
+      return dividends;
     } catch {
       return [];
     }

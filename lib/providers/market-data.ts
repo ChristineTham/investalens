@@ -16,6 +16,11 @@ export interface PricePoint {
   volume: number;
 }
 
+export interface DividendPoint {
+  date: Date;
+  amount: number;
+}
+
 export interface InstrumentSearchResult {
   code: string;
   name: string;
@@ -31,6 +36,12 @@ export interface MarketDataProvider {
     from: Date,
     to: Date
   ): Promise<PricePoint[]>;
+  getHistoricalDividends(
+    code: string,
+    market: string,
+    from: Date,
+    to: Date
+  ): Promise<DividendPoint[]>;
   searchInstruments(
     query: string,
     market?: string
