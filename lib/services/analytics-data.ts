@@ -330,7 +330,7 @@ export async function getPortfolioReturnsMatrix(
     let lastPrice: number | null = null;
 
     for (const dateStr of dates) {
-      const price = instrPrices.get(dateStr) ?? lastPrice ?? 0;
+      const price: number = instrPrices.get(dateStr) ?? lastPrice ?? 0;
       assetPrices.push(price);
       lastPrice = price;
     }
