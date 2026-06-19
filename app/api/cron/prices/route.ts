@@ -16,12 +16,30 @@ export async function GET(request: Request) {
 
   try {
     // Get all instruments that have active holdings
-    const instruments = await db.instrument.findMany({
+    const holdingInstruments = await db.instrument.findMany({
       where: {
         holdings: { some: {} },
       },
       select: { id: true, code: true, marketCode: true },
     });
+
+    // Also get benchmark instruments (INDEX and ETF types)
+    const benchmarkInstruments = await db.instrument.findMany({
+      where: {
+        instrumentType: { in: ["INDEX", "ETF"] },
+      },
+      select: { id: true, code: true, marketCode: true },
+    });
+
+    // Merge and deduplicate
+    const seen = new Set<string>();
+    const instruments = [...holdingInstruments, ...benchmarkInstruments].filter(
+      (inst) => {
+        if (seen.has(inst.id)) return false;
+        seen.add(inst.id);
+        return true;
+      }
+    );
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
