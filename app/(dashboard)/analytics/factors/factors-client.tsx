@@ -19,7 +19,7 @@ export function FactorsClient({
 }) {
   const [portfolioId, setPortfolioId] = useState(portfolios[0].id);
   const [dateRange, setDateRange] = useState<DateRange>("3Y");
-  const [modelType, setModelType] = useState("pca");
+  const [modelType] = useState("pca");
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<PCAResult | null>(null);
   const [error, setError] = useState<string | null>(null);

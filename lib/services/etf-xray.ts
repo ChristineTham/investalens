@@ -1,5 +1,3 @@
-import { db } from "@/lib/db";
-
 // Common AU ETF top holdings (hardcoded — refresh monthly)
 const ETF_HOLDINGS: Record<string, { name: string; weight: number; sector: string }[]> = {
   "VAS.AX": [
