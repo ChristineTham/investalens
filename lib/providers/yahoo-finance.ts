@@ -9,6 +9,8 @@ import { yahooRateLimiter } from "./rate-limiter";
 function toYahooSymbol(code: string, market: string): string {
   // Index symbols (^GSPC, ^AXJO, etc.) are global — no market suffix
   if (code.startsWith("^")) return code;
+  // If code already contains a dot (e.g. STW.AX), it already has a suffix
+  if (code.includes(".")) return code;
   const marketSuffix: Record<string, string> = {
     ASX: ".AX",
     LSE: ".L",
