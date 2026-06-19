@@ -1,6 +1,6 @@
 "use client";
 
-import { BENCHMARKS, type BenchmarkCode } from "@/lib/services/benchmark-data";
+import { BENCHMARKS, type BenchmarkCode } from "@/lib/constants/benchmarks";
 
 interface BenchmarkSelectorProps {
   selectedCode: string;
