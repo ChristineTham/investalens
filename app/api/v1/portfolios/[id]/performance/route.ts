@@ -76,15 +76,15 @@ export async function GET(
     const perf = calculateHoldingPerformance(
       txData,
       priceMap,
-      dateRange,
-      holding.instrument.code
+      dateRange
     );
+    perf.instrumentCode = holding.instrument.code;
+    perf.holdingId = holding.id;
     holdingPerformances.push(perf);
   }
 
   const portfolioPerformance = calculatePortfolioPerformance(
-    holdingPerformances,
-    dateRange
+    holdingPerformances
   );
 
   return jsonSuccess({

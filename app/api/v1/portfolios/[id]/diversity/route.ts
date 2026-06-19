@@ -60,14 +60,14 @@ export async function GET(
     if (marketValue <= 0) continue;
 
     const groupKeyMap: Record<string, string> = {
-      type: holding.instrument.type,
+      type: holding.instrument.instrumentType,
       market: holding.instrument.marketCode,
       sector: holding.instrument.sector || "Unknown",
       industry: holding.instrument.industry || "Unknown",
       country: holding.instrument.country || "Unknown",
     };
 
-    const key = groupKeyMap[groupBy] || holding.instrument.type;
+    const key = groupKeyMap[groupBy] || holding.instrument.instrumentType;
     groupValues[key] = (groupValues[key] || 0) + marketValue;
     totalValue += marketValue;
   }

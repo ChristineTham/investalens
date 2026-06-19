@@ -96,7 +96,7 @@ export default function AIImportPage({
       const importResult = await importTransactions(portfolioId, csv, {
         dateFormat: "yyyy-mm-dd",
         decimalSeparator: ".",
-        fieldMapping: {
+        mapping: {
           tradeDate: "Date",
           instrumentCode: "Code",
           marketCode: "Market",
@@ -108,7 +108,7 @@ export default function AIImportPage({
         },
       });
 
-      setImportCount(importResult.imported);
+      setImportCount(importResult.imported.length);
       setStep("complete");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Import failed");

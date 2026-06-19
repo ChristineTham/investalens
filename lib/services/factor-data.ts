@@ -99,7 +99,7 @@ async function fetchFrenchCSV(filename: string): Promise<string> {
   // Decompress ZIP — the zip contains a single CSV file
   // Use built-in DecompressionStream for the raw deflated data inside zip
   const bytes = new Uint8Array(buffer);
-  const csvContent = extractCSVFromZip(bytes);
+  const csvContent = await extractCSVFromZip(bytes);
 
   setCache(cacheKey, csvContent, CACHE_TTL.factorData);
   return csvContent;
@@ -109,7 +109,7 @@ async function fetchFrenchCSV(filename: string): Promise<string> {
  * Minimal ZIP extraction — Kenneth French zips have one CSV file.
  * Extracts the first file from a zip archive.
  */
-function extractCSVFromZip(zipBytes: Uint8Array): string {
+async function extractCSVFromZip(zipBytes: Uint8Array): Promise<string> {
   // Local file header signature = 0x04034b50
   const sig = zipBytes[0] | (zipBytes[1] << 8) | (zipBytes[2] << 16) | (zipBytes[3] << 24);
   if (sig !== 0x04034b50) {
@@ -131,16 +131,15 @@ function extractCSVFromZip(zipBytes: Uint8Array): string {
 
   if (compressionMethod === 8) {
     // Deflated — use DecompressionStream
-    const ds = new DecompressionStream("raw");
+    const ds = new DecompressionStream("deflate-raw");
     const writer = ds.writable.getWriter();
     writer.write(compressedData);
     writer.close();
 
     const reader = ds.readable.getReader();
-    const chunks: Uint8Array[] = [];
 
-    // Read all chunks synchronously via a helper
-    return readAllChunks(reader).then((data) => new TextDecoder().decode(data)) as unknown as string;
+    const decompressed = await readAllChunks(reader);
+    return new TextDecoder().decode(decompressed);
   }
 
   throw new Error(`Unsupported ZIP compression method: ${compressionMethod}`);
