@@ -8,7 +8,7 @@ interface CorrelationHeatmapProps {
 const COLOR_SCALE = [
   { val: -1, color: "rgb(220, 38, 38)" },
   { val: -0.5, color: "rgb(252, 165, 165)" },
-  { val: 0, color: "rgb(255, 255, 255)" },
+  { val: 0, color: "rgb(209, 209, 214)" },
   { val: 0.5, color: "rgb(147, 197, 253)" },
   { val: 1, color: "rgb(37, 99, 235)" },
 ];

@@ -108,7 +108,7 @@ export default function AssistantPage() {
           </div>
         ))}
         {error && (
-          <div className="rounded-md bg-red-50 p-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">{error}</div>
+          <div className=\"rounded-md border border-destructive/30 bg-destructive/5 p-2 text-sm text-destructive\">{error}</div>
         )}
         <div ref={scrollRef} />
       </div>

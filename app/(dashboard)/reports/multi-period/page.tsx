@@ -159,8 +159,8 @@ export default async function MultiPeriodReportPage({
                       key={p.label}
                       className={`px-4 py-3 text-right text-sm ${
                         p.returnPercent >= 0
-                          ? "text-green-600"
-                          : "text-red-600"
+                          ? "text-gain"
+                          : "text-loss"
                       }`}
                     >
                       {formatPercent(p.returnPercent)}

@@ -25,10 +25,10 @@ export default async function SentimentPage() {
     sentiment.fearGreedIndex >= 25 ? "Fear" : "Extreme Fear";
 
   const fgColor =
-    sentiment.fearGreedIndex >= 75 ? "text-green-600" :
-    sentiment.fearGreedIndex >= 55 ? "text-green-500" :
-    sentiment.fearGreedIndex >= 45 ? "text-yellow-500" :
-    sentiment.fearGreedIndex >= 25 ? "text-orange-500" : "text-red-600";
+    sentiment.fearGreedIndex >= 75 ? "text-gain" :
+    sentiment.fearGreedIndex >= 55 ? "text-gain" :
+    sentiment.fearGreedIndex >= 45 ? "text-warning" :
+    sentiment.fearGreedIndex >= 25 ? "text-warning" : "text-loss";
 
   return (
     <div className="space-y-6">
@@ -52,7 +52,7 @@ export default async function SentimentPage() {
           <div className="rounded-lg border p-6">
             <p className="text-sm text-muted-foreground">S&P/ASX 200</p>
             <p className="text-3xl font-bold">{sentiment.asxSummary.close.toFixed(1)}</p>
-            <p className={`text-sm font-medium ${sentiment.asxSummary.change >= 0 ? "text-green-600" : "text-red-600"}`}>
+            <p className={`text-sm font-medium ${sentiment.asxSummary.change >= 0 ? "text-gain" : "text-loss"}`}>
               {sentiment.asxSummary.change >= 0 ? "+" : ""}{sentiment.asxSummary.change.toFixed(1)} ({sentiment.asxSummary.changePercent.toFixed(2)}%)
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
@@ -74,12 +74,12 @@ export default async function SentimentPage() {
                   key={sector}
                   className={`rounded-lg p-3 text-center ${
                     change >= 0
-                      ? "bg-green-50 dark:bg-green-950"
-                      : "bg-red-50 dark:bg-red-950"
+                      ? "bg-gain/10"
+                      : "bg-loss/10"
                   }`}
                 >
                   <p className="text-xs font-medium">{sector}</p>
-                  <p className={`text-sm font-bold ${change >= 0 ? "text-green-600" : "text-red-600"}`}>
+                  <p className={`text-sm font-bold ${change >= 0 ? "text-gain" : "text-loss"}`}>
                     {change >= 0 ? "+" : ""}{change.toFixed(2)}%
                   </p>
                 </div>

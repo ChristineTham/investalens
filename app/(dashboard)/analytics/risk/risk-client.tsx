@@ -174,7 +174,7 @@ export function RiskDashboardClient({
                     <td className="p-2">{ep.start}</td>
                     <td className="p-2">{ep.trough}</td>
                     <td className="p-2">{ep.recovery ?? "Ongoing"}</td>
-                    <td className="p-2 text-red-600">{(ep.depth * 100).toFixed(2)}%</td>
+                    <td className="p-2 text-loss">{(ep.depth * 100).toFixed(2)}%</td>
                     <td className="p-2">{ep.duration}</td>
                   </tr>
                 ))}

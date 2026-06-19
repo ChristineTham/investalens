@@ -261,8 +261,8 @@ function ReleaseBlock({
   const statusLabel = status === "complete" ? "Complete" : "Planned";
   const statusColor =
     status === "complete"
-      ? "text-green-600 dark:text-green-400"
-      : "text-yellow-600 dark:text-yellow-400";
+      ? "text-success"
+      : "text-warning";
 
   return (
     <div>
@@ -276,7 +276,7 @@ function ReleaseBlock({
       <ul className="mt-3 space-y-1.5">
         {items.map((item, i) => (
           <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-            <span className={`mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full ${status === "complete" ? "bg-green-500" : "bg-yellow-500"}`} aria-hidden="true" />
+            <span className={`mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full ${status === "complete" ? "bg-success" : "bg-warning"}`} aria-hidden="true" />
             {item}
           </li>
         ))}

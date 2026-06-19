@@ -115,7 +115,7 @@ export function StressTestClient({
       </div>
 
       {error && (
-        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300">{error}</div>
+        <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{error}</div>
       )}
 
       {tab === "Historical" && (
@@ -147,8 +147,8 @@ export function StressTestClient({
                         <div className="text-xs text-muted-foreground">{s.description}</div>
                       </td>
                       <td className="p-2">{s.durationDays}d</td>
-                      <td className="p-2 text-right text-red-600">{(s.marketReturn * 100).toFixed(1)}%</td>
-                      <td className="p-2 text-right font-medium text-red-600">{(s.portfolioImpact * 100).toFixed(1)}%</td>
+                      <td className="p-2 text-right text-loss">{(s.marketReturn * 100).toFixed(1)}%</td>
+                      <td className="p-2 text-right font-medium text-loss">{(s.portfolioImpact * 100).toFixed(1)}%</td>
                     </tr>
                   ))}
                 </tbody>

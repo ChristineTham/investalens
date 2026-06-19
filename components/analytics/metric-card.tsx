@@ -19,9 +19,9 @@ export function MetricCard({
 }: MetricCardProps) {
   const trendColor =
     trend === "up"
-      ? "text-green-600 dark:text-green-400"
+      ? "text-gain"
       : trend === "down"
-        ? "text-red-600 dark:text-red-400"
+        ? "text-loss"
         : "text-foreground";
 
   return (

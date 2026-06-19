@@ -88,13 +88,13 @@ export default async function HistoricalCostPage({
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-sm text-muted-foreground">Purchases</p>
-          <p className="text-lg font-bold text-green-600">
+          <p className="text-lg font-bold text-gain">
             +{formatCurrency(totalPurchases)}
           </p>
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-sm text-muted-foreground">Sales</p>
-          <p className="text-lg font-bold text-red-600">
+          <p className="text-lg font-bold text-loss">
             -{formatCurrency(totalSales)}
           </p>
         </div>

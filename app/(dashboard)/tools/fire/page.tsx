@@ -103,7 +103,7 @@ export default function FIREPage() {
             <GrowthChart dates={projectionDates} portfolioValues={projectionValues} portfolioLabel="Portfolio Value" />
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="rounded-lg border p-3">
               <p className="text-xs text-muted-foreground">Pessimistic (−2%)</p>
               <p className="text-lg font-bold">Age {result.scenarios.pessimistic.fireAge}</p>
