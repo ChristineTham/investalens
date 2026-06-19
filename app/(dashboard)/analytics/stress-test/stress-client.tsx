@@ -24,7 +24,6 @@ export function StressTestClient({
   const [tab, setTab] = useState<(typeof TABS)[number]>("Historical");
   const [running, setRunning] = useState(false);
   const [historicalResults, setHistoricalResults] = useState<HistoricalScenario[] | null>(null);
-  const [customResult, setCustomResult] = useState<{ portfolioImpact: number; contributions: Record<string, { shock: number; weight: number; contribution: number }> } | null>(null);
   const [factorResult, setFactorResult] = useState<{ factorShock: number; portfolioImpact: number; assetImpacts: Record<string, { beta: number; conditionalReturn: number; contribution: number }> } | null>(null);
   const [factorShock, setFactorShock] = useState(-10);
   const [error, setError] = useState<string | null>(null);
