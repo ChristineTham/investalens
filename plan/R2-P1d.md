@@ -324,17 +324,17 @@ Waterfall chart for stress test impact breakdown (per-asset contribution to loss
 
 ## Deliverables Checklist
 
-- [ ] Monte Carlo endpoint (bootstrap, parametric, copula + withdrawal modelling)
-- [ ] Distribution fitting endpoint (4 univariate + best-fit selection)
-- [ ] Copula fitting endpoint (5 types + tail dependence)
-- [ ] FIRE Calculator (`lib/calculations/fire.ts` — pure TypeScript)
-- [ ] Stress testing endpoint (historical, custom, conditional)
-- [ ] Enhanced Monte Carlo UI (portfolio-integrated, fan chart, histogram)
-- [ ] FIRE Calculator UI (projection chart, scenarios, Monte Carlo link)
-- [ ] Stress testing UI (3 tabs: historical, custom, factor)
-- [ ] Fan chart component (reusable)
-- [ ] Scenario waterfall chart component
-- [ ] Distribution comparison chart
+- [x] Monte Carlo endpoint (bootstrap, parametric, copula + withdrawal modelling)
+- [x] Distribution fitting endpoint (4 univariate + best-fit selection)
+- [x] Copula fitting endpoint (5 types + tail dependence)
+- [x] FIRE Calculator (`lib/calculations/fire.ts` — pure TypeScript)
+- [x] Stress testing endpoint (historical, custom, conditional)
+- [x] Enhanced Monte Carlo UI (portfolio-integrated, fan chart, histogram)
+- [x] FIRE Calculator UI (projection chart, scenarios, Monte Carlo link)
+- [x] Stress testing UI (3 tabs: historical, custom, factor)
+- [x] Fan chart component (reusable)
+- [x] Scenario waterfall chart component
+- [x] Distribution comparison chart
 
 ## Performance Targets
 

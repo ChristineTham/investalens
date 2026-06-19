@@ -38,7 +38,6 @@ export function EfficientFrontierChart({
   maxSharpe,
   minRisk,
   currentPortfolio,
-  onPointClick,
 }: EfficientFrontierChartProps) {
   const frontierData = frontier.map((p) => ({
     risk: p.risk * 100,
