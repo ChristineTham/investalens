@@ -1,9 +1,15 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "functions": {
-    "api/**/*.py": {
-      "maxDuration": 60,
-      "excludeFiles": "{tests/**,__tests__/**,**/*.test.py,**/test_*.py}"
+  "experimentalServices": {
+    "web": {
+      "entrypoint": ".",
+      "routePrefix": "/",
+      "framework": "nextjs"
+    },
+    "analytics": {
+      "entrypoint": "api/analytics/app.py",
+      "routePrefix": "/api/analytics",
+      "maxDuration": 60
     }
   },
   "crons": [{ "path": "/api/cron/prices", "schedule": "0 8 * * 1-5" }]
