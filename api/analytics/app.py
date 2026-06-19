@@ -7,6 +7,7 @@ from .black_litterman import router as bl_router
 from .estimation import router as estimation_router
 from .monte_carlo import router as mc_router
 from .stress_test import router as stress_router
+from .factor_tactical import router as factor_router
 
 app = FastAPI(title="InvestaLens Analytics API")
 
@@ -17,6 +18,7 @@ app.include_router(bl_router)
 app.include_router(estimation_router)
 app.include_router(mc_router)
 app.include_router(stress_router)
+app.include_router(factor_router)
 
 
 @app.get("/health")

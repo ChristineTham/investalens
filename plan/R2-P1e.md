@@ -308,22 +308,22 @@ Basic chat interface:
 
 ## Deliverables Checklist
 
-- [ ] Factor analysis endpoint (Fama-French regression + PCA)
-- [ ] Factor data service (Kenneth French library fetch + cache)
-- [ ] Correlation analysis endpoint (matrix, rolling, clustering)
-- [ ] Tactical allocation endpoint (6 strategies)
-- [ ] ETF X-ray service (look-through, overlap detection)
-- [ ] Enhanced exposure page (treemap + X-ray)
-- [ ] Share Checker service (5+ check types)
-- [ ] Share Checker UI page
-- [ ] AI Import route (Vercel AI SDK + Gemini + Zod schema)
-- [ ] AI Import UI (upload, parse, review, confirm)
-- [ ] Market Sentiment service
-- [ ] Market Sentiment dashboard (gauge, heatmap)
-- [ ] Factor analysis UI page
-- [ ] Correlations UI page (heatmap + rolling)
-- [ ] Tactical allocation UI page
-- [ ] AI Chat assistant (stretch — basic chat UI + streaming)
+- [x] Factor analysis endpoint (Fama-French regression + PCA)
+- [x] Factor data service (Kenneth French library fetch + cache)
+- [x] Correlation analysis endpoint (matrix, rolling, clustering)
+- [x] Tactical allocation endpoint (6 strategies)
+- [x] ETF X-ray service (look-through, overlap detection)
+- [x] Enhanced exposure page (treemap + X-ray)
+- [x] Share Checker service (5+ check types)
+- [x] Share Checker UI page
+- [x] AI Import route (Vercel AI SDK + Gemini + Zod schema)
+- [x] AI Import UI (upload, parse, review, confirm)
+- [x] Market Sentiment service
+- [x] Market Sentiment dashboard (gauge, heatmap)
+- [x] Factor analysis UI page
+- [x] Correlations UI page (heatmap + rolling)
+- [x] Tactical allocation UI page
+- [x] AI Chat assistant (stretch — basic chat UI + streaming)
 
 ## Performance Targets
 
