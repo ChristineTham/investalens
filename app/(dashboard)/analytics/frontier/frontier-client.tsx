@@ -27,7 +27,6 @@ export function FrontierClient({
   const [dateRange, setDateRange] = useState<DateRange>("3Y");
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<FrontierResult | null>(null);
-  const [selectedPoint, setSelectedPoint] = useState<FrontierPoint | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function handleRun() {
@@ -108,7 +107,6 @@ export function FrontierClient({
             assets={result.assets}
             maxSharpe={result.maxSharpe}
             minRisk={result.minRisk}
-            onPointClick={setSelectedPoint}
           />
 
           {result.maxSharpe && (

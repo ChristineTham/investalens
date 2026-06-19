@@ -41,8 +41,8 @@ export function OptimizeClient({
   const [objective, setObjective] = useState("max_sharpe");
   const [riskMeasure, setRiskMeasure] = useState("variance");
   const [dateRange, setDateRange] = useState<DateRange>("3Y");
-  const [minWeight, setMinWeight] = useState(0);
-  const [maxWeight, setMaxWeight] = useState(100);
+  const [minWeight] = useState(0);
+  const [maxWeight] = useState(100);
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<OptimizeResult | null>(null);
   const [error, setError] = useState<string | null>(null);

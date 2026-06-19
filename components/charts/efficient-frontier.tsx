@@ -8,8 +8,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Line,
-  LineChart,
   Legend,
 } from "recharts";
 
@@ -32,7 +30,6 @@ interface EfficientFrontierChartProps {
   maxSharpe?: FrontierPoint | null;
   minRisk?: FrontierPoint | null;
   currentPortfolio?: { return: number; risk: number } | null;
-  onPointClick?: (point: FrontierPoint) => void;
 }
 
 export function EfficientFrontierChart({

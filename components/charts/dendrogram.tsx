@@ -33,7 +33,7 @@ export function Dendrogram({ linkage, labels }: DendrogramProps) {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
-        {labels.map((label, i) => (
+        {labels.map((label) => (
           <span
             key={label}
             className="rounded-md bg-primary/10 px-2 py-1 text-xs font-medium"
