@@ -1,10 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { MetricCard } from "@/components/analytics/metric-card";
 import { DateRangeSelector, type DateRange } from "@/components/analytics/date-range-selector";
 import { BenchmarkSelector } from "@/components/analytics/benchmark-selector";
-import { GrowthChart } from "@/components/charts/growth-chart";
+
+const GrowthChart = dynamic(
+  () => import("@/components/charts/growth-chart").then((m) => m.GrowthChart),
+  { ssr: false }
+);
 
 interface BacktestResult {
   annualizedReturn: number;

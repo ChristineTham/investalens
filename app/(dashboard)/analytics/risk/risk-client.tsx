@@ -1,16 +1,30 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { RiskMetrics } from "@/lib/calculations/risk-metrics";
 import type { DrawdownEpisode } from "@/lib/calculations/drawdown";
 import { MetricCard } from "@/components/analytics/metric-card";
 import { DateRangeSelector, type DateRange } from "@/components/analytics/date-range-selector";
 import { BenchmarkSelector } from "@/components/analytics/benchmark-selector";
-import { GrowthChart } from "@/components/charts/growth-chart";
-import { ReturnHistogram } from "@/components/charts/return-histogram";
-import { RollingMetricsChart } from "@/components/charts/rolling-metrics-chart";
-import { RiskContributionPie } from "@/components/charts/risk-contribution-pie";
+
+const GrowthChart = dynamic(
+  () => import("@/components/charts/growth-chart").then((m) => m.GrowthChart),
+  { ssr: false }
+);
+const ReturnHistogram = dynamic(
+  () => import("@/components/charts/return-histogram").then((m) => m.ReturnHistogram),
+  { ssr: false }
+);
+const RollingMetricsChart = dynamic(
+  () => import("@/components/charts/rolling-metrics-chart").then((m) => m.RollingMetricsChart),
+  { ssr: false }
+);
+const RiskContributionPie = dynamic(
+  () => import("@/components/charts/risk-contribution-pie").then((m) => m.RiskContributionPie),
+  { ssr: false }
+);
 
 interface Props {
   portfolios: { id: string; name: string }[];

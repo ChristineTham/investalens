@@ -13,6 +13,19 @@ import { rollingMetric } from "@/lib/calculations/rolling-metrics";
 import { detectDrawdowns, drawdownSeries } from "@/lib/calculations/drawdown";
 import { RiskDashboardClient } from "./risk-client";
 
+const MAX_CHART_POINTS = 500;
+
+/** Downsample arrays to max points for chart rendering (keeps first and last). */
+function downsample<T>(arr: T[], maxPoints: number): T[] {
+  if (arr.length <= maxPoints) return arr;
+  const step = (arr.length - 1) / (maxPoints - 1);
+  const result: T[] = [];
+  for (let i = 0; i < maxPoints; i++) {
+    result.push(arr[Math.round(i * step)]);
+  }
+  return result;
+}
+
 type DateRange = "1Y" | "3Y" | "5Y" | "10Y" | "MAX";
 
 export default async function RiskMetricsPage({
@@ -101,13 +114,23 @@ export default async function RiskMetricsPage({
       dateRange={dateRange}
       benchmarkCode={benchmarkCode}
       metrics={metrics}
-      portfolioTs={portfolioTs}
-      benchmarkTs={benchmarkTs}
-      drawdownSeries={ddSeries}
+      portfolioTs={{
+        dates: downsample(portfolioTs.dates, MAX_CHART_POINTS),
+        values: downsample(portfolioTs.values, MAX_CHART_POINTS),
+        returns: downsample(portfolioTs.returns, MAX_CHART_POINTS),
+        cumReturns: downsample(portfolioTs.cumReturns, MAX_CHART_POINTS),
+      }}
+      benchmarkTs={{
+        dates: downsample(benchmarkTs.dates, MAX_CHART_POINTS),
+        values: downsample(benchmarkTs.values, MAX_CHART_POINTS),
+        returns: downsample(benchmarkTs.returns, MAX_CHART_POINTS),
+        cumReturns: downsample(benchmarkTs.cumReturns, MAX_CHART_POINTS),
+      }}
+      drawdownSeries={downsample(ddSeries, MAX_CHART_POINTS)}
       drawdownEpisodes={ddEpisodes}
-      rollingSharpe={rollingSharpe}
-      rollingSortino={rollingSortino}
-      rollingBeta={rollingBeta}
+      rollingSharpe={{ dates: downsample(rollingSharpe.dates, MAX_CHART_POINTS), values: downsample(rollingSharpe.values, MAX_CHART_POINTS) }}
+      rollingSortino={{ dates: downsample(rollingSortino.dates, MAX_CHART_POINTS), values: downsample(rollingSortino.values, MAX_CHART_POINTS) }}
+      rollingBeta={{ dates: downsample(rollingBeta.dates, MAX_CHART_POINTS), values: downsample(rollingBeta.values, MAX_CHART_POINTS) }}
       riskContribution={riskContribution}
     />
   );

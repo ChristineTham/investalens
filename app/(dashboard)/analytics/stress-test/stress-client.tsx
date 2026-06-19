@@ -1,8 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { MetricCard } from "@/components/analytics/metric-card";
-import { ScenarioWaterfall } from "@/components/charts/scenario-waterfall";
+
+const ScenarioWaterfall = dynamic(
+  () => import("@/components/charts/scenario-waterfall").then((m) => m.ScenarioWaterfall),
+  { ssr: false }
+);
 
 interface HistoricalScenario {
   name: string;
