@@ -151,7 +151,7 @@ export function PortfolioPerformanceChart() {
                   fontSize: "12px",
                 }}
                 labelFormatter={(label) => String(label)}
-                formatter={(value: number) => [formatCurrency(value)]}
+                formatter={(value) => [formatCurrency(Number(value))]}
               />
               <Legend
                 wrapperStyle={{ fontSize: "12px", paddingTop: "8px" }}
