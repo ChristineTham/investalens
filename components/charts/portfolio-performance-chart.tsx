@@ -150,7 +150,7 @@ export function PortfolioPerformanceChart() {
                   borderRadius: "8px",
                   fontSize: "12px",
                 }}
-                labelFormatter={(label: string) => label}
+                labelFormatter={(label) => String(label)}
                 formatter={(value: number) => [formatCurrency(value)]}
               />
               <Legend
