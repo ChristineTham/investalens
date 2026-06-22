@@ -75,7 +75,7 @@ export async function GET(request: Request) {
   }
 
   // Convert to percentage gain/loss indexed from start
-  const chartData = rawData.map(({ date, ...values }) => {
+  const chartData = rawData.map(({ date, values }) => {
     const point: Record<string, string | number> = { date };
 
     for (const ps of portfolioSeries) {

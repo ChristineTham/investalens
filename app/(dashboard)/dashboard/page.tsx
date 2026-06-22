@@ -327,7 +327,10 @@ export default async function DashboardPage() {
                     Portfolio
                   </th>
                   <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                    Qty × Price
+                    Quantity
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                    Price
                   </th>
                   <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
                     Brokerage
@@ -380,7 +383,15 @@ export default async function DashboardPage() {
                           href={`/portfolio/${tx.holding.portfolio.id}/holdings/${tx.holdingId}`}
                           className="hover:text-primary hover:underline"
                         >
-                          {Number(tx.quantity)} × ${Number(tx.price).toFixed(2)}
+                          {Number(tx.quantity)}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm">
+                        <Link
+                          href={`/portfolio/${tx.holding.portfolio.id}/holdings/${tx.holdingId}`}
+                          className="hover:text-primary hover:underline"
+                        >
+                          ${Number(tx.price).toFixed(2)}
                         </Link>
                       </td>
                       <td className="px-4 py-3 text-right text-sm text-muted-foreground">
