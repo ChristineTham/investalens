@@ -22,6 +22,33 @@ export default async function BondsPage({
     include: { instrument: true },
   });
 
+  // Bond income (coupons / interest / principal repayments)
+  const incomeTransactions = await db.transaction.findMany({
+    where: {
+      holding: {
+        portfolioId: id,
+        instrument: { instrumentType: { in: ["bond", "fixed_interest"] } },
+      },
+      transactionType: { in: ["COUPON", "INTEREST", "RETURN_OF_CAPITAL"] },
+    },
+    include: { holding: { include: { instrument: true } } },
+    orderBy: { tradeDate: "desc" },
+  });
+
+  const totalCoupons = incomeTransactions
+    .filter((t) => t.transactionType === "COUPON" || t.transactionType === "INTEREST")
+    .reduce((sum, t) => sum + Number(t.quantity) * Number(t.price), 0);
+  const totalPrincipal = incomeTransactions
+    .filter((t) => t.transactionType === "RETURN_OF_CAPITAL")
+    .reduce((sum, t) => sum + Number(t.quantity) * Number(t.price), 0);
+
+  // Custody fees
+  const fees = await db.fee.findMany({
+    where: { portfolioId: id, portfolio: { userId: session.user.id } },
+    orderBy: { invoiceDate: "desc" },
+  });
+  const totalFees = fees.reduce((sum, f) => sum + Number(f.total), 0);
+
   const maturityLadder = getMaturityLadder(
     holdings.map((h) => ({
       instrument: {
@@ -47,6 +74,28 @@ export default async function BondsPage({
         </p>
       ) : (
         <>
+          {/* Income & fee summary */}
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-lg border border-border bg-card p-4">
+              <p className="text-sm text-muted-foreground">Coupon Income</p>
+              <p className="mt-1 text-xl font-bold text-green-600">
+                ${totalCoupons.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-card p-4">
+              <p className="text-sm text-muted-foreground">Principal Repaid</p>
+              <p className="mt-1 text-xl font-bold">
+                ${totalPrincipal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-card p-4">
+              <p className="text-sm text-muted-foreground">Custody Fees</p>
+              <p className="mt-1 text-xl font-bold text-red-600">
+                ${totalFees.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            </div>
+          </div>
+
           <div className="overflow-hidden rounded-lg border border-border">
             <table className="w-full">
               <thead className="bg-muted/50">
@@ -93,6 +142,104 @@ export default async function BondsPage({
               </tbody>
             </table>
           </div>
+
+          {/* Income payments */}
+          {incomeTransactions.length > 0 && (
+            <div className="overflow-hidden rounded-lg border border-border">
+              <div className="border-b border-border p-4">
+                <h2 className="font-medium">Income Payments</h2>
+              </div>
+              <table className="w-full">
+                <thead className="bg-muted/50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                      Date
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                      Bond
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                      Type
+                    </th>
+                    <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                      Amount
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {incomeTransactions.slice(0, 30).map((t) => (
+                    <tr key={t.id} className="hover:bg-accent/50">
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                        {t.tradeDate.toISOString().split("T")[0]}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium">
+                        {t.holding.instrument.code}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        {t.transactionType === "RETURN_OF_CAPITAL"
+                          ? "Principal"
+                          : "Coupon"}
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm font-medium">
+                        ${(Number(t.quantity) * Number(t.price)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Custody fees */}
+          {fees.length > 0 && (
+            <div className="overflow-hidden rounded-lg border border-border">
+              <div className="border-b border-border p-4">
+                <h2 className="font-medium">Custody Fees</h2>
+              </div>
+              <table className="w-full">
+                <thead className="bg-muted/50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                      Invoice Date
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                      Invoice #
+                    </th>
+                    <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                      Charge
+                    </th>
+                    <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                      GST
+                    </th>
+                    <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                      Total
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {fees.slice(0, 30).map((f) => (
+                    <tr key={f.id} className="hover:bg-accent/50">
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                        {f.invoiceDate.toISOString().split("T")[0]}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground">
+                        {f.invoiceNumber || "—"}
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm">
+                        ${Number(f.chargeAmount).toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm">
+                        ${Number(f.gst).toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm font-medium">
+                        ${Number(f.total).toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
           {maturityLadder.length > 0 && (
             <div className="rounded-lg border border-border bg-card p-6">

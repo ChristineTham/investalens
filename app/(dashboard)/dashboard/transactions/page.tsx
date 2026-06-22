@@ -65,13 +65,24 @@ export default async function AllTransactionsPage() {
             </thead>
             <tbody className="divide-y divide-border">
               {transactions.map((tx) => {
-                const amount = Number(tx.quantity) * Number(tx.price);
+                const qty = Number(tx.quantity);
+                const price = Number(tx.price);
                 const brokerage = Number(tx.brokerage);
+                const accrued = Number(tx.accruedInterest ?? 0);
+                const isIncome = [
+                  "DIVIDEND",
+                  "INTEREST",
+                  "COUPON",
+                  "RETURN_OF_CAPITAL",
+                ].includes(tx.transactionType);
+                const gross = qty * price;
+                const amount = isIncome ? gross : gross + brokerage + accrued;
+                const holdingHref = `/portfolio/${tx.holding.portfolio.id}/holdings/${tx.holdingId}`;
                 return (
                   <tr key={tx.id} className="hover:bg-accent/50">
                     <td className="px-4 py-3 text-sm text-muted-foreground">
                       <Link
-                        href={`/portfolio/${tx.holding.portfolio.id}/holdings/${tx.holdingId}`}
+                        href={holdingHref}
                         className="hover:text-primary hover:underline"
                       >
                         {tx.tradeDate.toISOString().split("T")[0]}
@@ -79,7 +90,7 @@ export default async function AllTransactionsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <Link
-                        href={`/portfolio/${tx.holding.portfolio.id}/holdings/${tx.holdingId}`}
+                        href={holdingHref}
                         className="font-medium text-primary hover:underline"
                       >
                         {tx.holding.instrument.code}
@@ -87,15 +98,15 @@ export default async function AllTransactionsPage() {
                     </td>
                     <td className="px-4 py-3 text-sm text-muted-foreground">
                       <Link
-                        href={`/portfolio/${tx.holding.portfolio.id}/holdings/${tx.holdingId}`}
+                        href={holdingHref}
                         className="hover:text-primary hover:underline"
                       >
-                        {tx.transactionType}
+                        {tx.transactionType.replace(/_/g, " ")}
                       </Link>
                     </td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">
                       <Link
-                        href={`/portfolio/${tx.holding.portfolio.id}/holdings/${tx.holdingId}`}
+                        href={holdingHref}
                         className="hover:text-primary hover:underline"
                       >
                         {tx.holding.portfolio.name}
@@ -103,34 +114,40 @@ export default async function AllTransactionsPage() {
                     </td>
                     <td className="px-4 py-3 text-right text-sm">
                       <Link
-                        href={`/portfolio/${tx.holding.portfolio.id}/holdings/${tx.holdingId}`}
+                        href={holdingHref}
                         className="hover:text-primary hover:underline"
                       >
-                        {Number(tx.quantity)}
+                        {isIncome ? "—" : qty.toLocaleString()}
                       </Link>
                     </td>
                     <td className="px-4 py-3 text-right text-sm">
                       <Link
-                        href={`/portfolio/${tx.holding.portfolio.id}/holdings/${tx.holdingId}`}
+                        href={holdingHref}
                         className="hover:text-primary hover:underline"
                       >
-                        ${Number(tx.price).toFixed(2)}
+                        {isIncome
+                          ? "—"
+                          : `$${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}`}
                       </Link>
                     </td>
                     <td className="px-4 py-3 text-right text-sm text-muted-foreground">
                       <Link
-                        href={`/portfolio/${tx.holding.portfolio.id}/holdings/${tx.holdingId}`}
+                        href={holdingHref}
                         className="hover:text-primary hover:underline"
                       >
-                        {brokerage > 0 ? `$${brokerage.toFixed(2)}` : "—"}
+                        {brokerage > 0
+                          ? `$${brokerage.toFixed(2)}`
+                          : accrued > 0
+                            ? `$${accrued.toFixed(2)} acc`
+                            : "—"}
                       </Link>
                     </td>
                     <td className="px-4 py-3 text-right text-sm font-medium">
                       <Link
-                        href={`/portfolio/${tx.holding.portfolio.id}/holdings/${tx.holdingId}`}
+                        href={holdingHref}
                         className="hover:text-primary hover:underline"
                       >
-                        ${(amount + brokerage).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        ${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </Link>
                     </td>
                   </tr>

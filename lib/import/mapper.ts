@@ -96,6 +96,25 @@ export function mapRows(
 
     const comments = getField(row, config.mapping.comments) || "";
 
+    // Bond / fixed-interest fields (optional)
+    const couponRate =
+      parseNumber(
+        getField(row, config.mapping.couponRate),
+        config.decimalSeparator
+      ) ?? undefined;
+    const maturityDate =
+      parseDate(
+        getField(row, config.mapping.maturityDate),
+        config.dateFormat
+      ) ?? undefined;
+    const faceValue =
+      parseNumber(
+        getField(row, config.mapping.faceValue),
+        config.decimalSeparator
+      ) ?? undefined;
+    const paymentFrequency =
+      getField(row, config.mapping.paymentFrequency) || undefined;
+
     if (rowErrors.length > 0) {
       errors.push({ row: i + 1, data: row, errors: rowErrors });
     } else {
@@ -110,6 +129,10 @@ export function mapRows(
         currency: currency.toUpperCase(),
         exchangeRate,
         comments,
+        ...(couponRate !== undefined ? { couponRate } : {}),
+        ...(maturityDate !== undefined ? { maturityDate } : {}),
+        ...(faceValue !== undefined ? { faceValue } : {}),
+        ...(paymentFrequency !== undefined ? { paymentFrequency } : {}),
       });
     }
   }

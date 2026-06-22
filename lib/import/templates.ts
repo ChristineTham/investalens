@@ -1,4 +1,9 @@
-import type { ImportConfig } from "./types";
+import type {
+  ImportConfig,
+  ImportTemplate,
+  ImportCategory,
+  CashImportConfig,
+} from "./types";
 
 export const brokerTemplates: Record<string, ImportConfig> = {
   commsec: {
@@ -160,16 +165,152 @@ export function getBrokerTemplate(broker: string): ImportConfig | null {
   return brokerTemplates[broker] || null;
 }
 
-export function listBrokerTemplates(): Array<{ id: string; name: string }> {
-  return [
-    { id: "commsec", name: "CommSec" },
-    { id: "selfwealth", name: "SelfWealth" },
-    { id: "stake", name: "Stake" },
-    { id: "cmc_markets", name: "CMC Markets" },
-    { id: "cmc_invest", name: "CMC Invest" },
-    { id: "bell_direct", name: "Bell Direct" },
-    { id: "nabtrade", name: "nabtrade" },
-    { id: "fiig", name: "FIIG Securities" },
-    { id: "interactive_brokers", name: "Interactive Brokers" },
-  ];
+// ─── Cash / bank statement templates ──────────────────────────────────────────
+
+export const cashTemplates: Record<string, CashImportConfig> = {
+  // Generic "signed amount" bank statement (one Amount column, +in / -out)
+  generic_bank: {
+    mapping: {
+      date: "Date",
+      amount: "Amount",
+      description: "Description",
+      type: null,
+    },
+    dateFormat: "dd/mm/yyyy",
+    decimalSeparator: ".",
+  },
+  // Generic statement with separate Debit / Credit columns
+  generic_debit_credit: {
+    mapping: {
+      date: "Date",
+      debit: "Debit",
+      credit: "Credit",
+      description: "Description",
+      type: null,
+    },
+    dateFormat: "dd/mm/yyyy",
+    decimalSeparator: ".",
+  },
+};
+
+// ─── Template registry (metadata-driven) ─────────────────────────────────────
+
+export const importTemplates: ImportTemplate[] = [
+  // Share / equity broker statements
+  {
+    id: "commsec",
+    name: "CommSec",
+    category: "transactions",
+    config: brokerTemplates.commsec,
+    quickImport: true,
+    description: "CommSec trade confirmation export",
+  },
+  {
+    id: "selfwealth",
+    name: "SelfWealth",
+    category: "transactions",
+    config: brokerTemplates.selfwealth,
+    quickImport: true,
+    description: "SelfWealth trade history export",
+  },
+  {
+    id: "stake",
+    name: "Stake",
+    category: "transactions",
+    config: brokerTemplates.stake,
+    quickImport: true,
+    description: "Stake transaction history",
+  },
+  {
+    id: "cmc_invest",
+    name: "CMC Invest",
+    category: "transactions",
+    config: brokerTemplates.cmc_invest,
+    quickImport: true,
+    description: "CMC Invest trade confirmations",
+  },
+  {
+    id: "cmc_markets",
+    name: "CMC Markets",
+    category: "transactions",
+    config: brokerTemplates.cmc_markets,
+    description: "CMC Markets transaction export",
+  },
+  {
+    id: "bell_direct",
+    name: "Bell Direct",
+    category: "transactions",
+    config: brokerTemplates.bell_direct,
+    description: "Bell Direct contract notes",
+  },
+  {
+    id: "nabtrade",
+    name: "nabtrade",
+    category: "transactions",
+    config: brokerTemplates.nabtrade,
+    quickImport: true,
+    description: "nabtrade transaction export",
+  },
+  {
+    id: "interactive_brokers",
+    name: "Interactive Brokers",
+    category: "transactions",
+    config: brokerTemplates.interactive_brokers,
+    description: "IBKR Flex / activity statement",
+  },
+  // Bond / fixed-interest statements
+  {
+    id: "fiig",
+    name: "FIIG Securities",
+    category: "bonds",
+    config: brokerTemplates.fiig,
+    quickImport: true,
+    description: "FIIG bond trade confirmations",
+  },
+  // Cash / bank statements
+  {
+    id: "generic_bank",
+    name: "Bank Statement (signed amount)",
+    category: "cash",
+    cashConfig: cashTemplates.generic_bank,
+    description: "Single Amount column (+ deposits / − withdrawals)",
+  },
+  {
+    id: "generic_debit_credit",
+    name: "Bank Statement (debit / credit)",
+    category: "cash",
+    cashConfig: cashTemplates.generic_debit_credit,
+    description: "Separate Debit and Credit columns",
+  },
+];
+
+/** Look up a template by id across all categories. */
+export function getTemplate(id: string): ImportTemplate | null {
+  return importTemplates.find((t) => t.id === id) || null;
 }
+
+/** List templates filtered by category. */
+export function listTemplatesByCategory(
+  category: ImportCategory
+): ImportTemplate[] {
+  return importTemplates.filter((t) => t.category === category);
+}
+
+/** Templates that support one-step ("quick") import. */
+export function listQuickImportTemplates(): ImportTemplate[] {
+  return importTemplates.filter((t) => t.quickImport);
+}
+
+/** Get the cash config for a cash template id. */
+export function getCashTemplate(id: string): CashImportConfig | null {
+  const t = getTemplate(id);
+  return t?.cashConfig || cashTemplates[id] || null;
+}
+
+/** Backwards-compatible flat list of transaction/bond broker templates. */
+export function listBrokerTemplates(): Array<{ id: string; name: string }> {
+  return importTemplates
+    .filter((t) => t.category !== "cash")
+    .map((t) => ({ id: t.id, name: t.name }));
+}
+

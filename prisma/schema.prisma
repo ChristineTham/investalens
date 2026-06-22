@@ -95,6 +95,7 @@ model Portfolio {
   cashAccounts CashAccount[]
   shares       PortfolioShare[]
   importJobs   ImportJob[]
+  fees         Fee[]
 
   @@index([userId])
 }
@@ -170,6 +171,7 @@ model Transaction {
   exchangeRate    Decimal  @default(1) @db.Decimal(18, 6)
   currency        String   @default("AUD")
   comments        String?
+  accruedInterest Decimal? @db.Decimal(18, 2)
   frankedAmount   Decimal? @db.Decimal(18, 2)
   unfrankedAmount Decimal? @db.Decimal(18, 2)
   frankingCredits Decimal? @db.Decimal(18, 2)
@@ -236,8 +238,31 @@ model ImportJob {
 
   portfolio    Portfolio     @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
   transactions Transaction[]
+  fees         Fee[]
 
   @@index([portfolioId])
+}
+
+model Fee {
+  id            String    @id @default(cuid())
+  portfolioId   String
+  feeType       String    @default("custody")
+  invoiceNumber String?
+  invoiceDate   DateTime
+  periodStart   DateTime?
+  periodEnd     DateTime?
+  chargeAmount  Decimal   @default(0) @db.Decimal(18, 2)
+  gst           Decimal   @default(0) @db.Decimal(18, 2)
+  total         Decimal   @db.Decimal(18, 2)
+  currency      String    @default("AUD")
+  comments      String?
+  importJobId   String?
+  createdAt     DateTime  @default(now())
+
+  portfolio Portfolio  @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  importJob ImportJob? @relation(fields: [importJobId], references: [id])
+
+  @@index([portfolioId, invoiceDate])
 }
 
 model MappingTemplate {
