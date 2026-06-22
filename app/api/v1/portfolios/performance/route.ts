@@ -45,7 +45,7 @@ export async function GET(request: Request) {
   const allDates = [...allDatesSet].sort();
 
   // Compute raw values per date first
-  const rawData = allDates.map((date) => {
+  const rawData: Array<{ date: string } & Record<string, number>> = allDates.map((date) => {
     const point: Record<string, number> = {};
     let total = 0;
 
