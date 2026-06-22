@@ -126,11 +126,7 @@ export default function ImportPage({
           setCsvContent(text);
           const res = parseCsv(text);
           setCsvResult(res);
-          setStep((current) =>
-            current === "upload" && categoryRef.current === "cash"
-              ? "cash-configure"
-              : "configure"
-          );
+          setStep(category === "cash" ? "cash-configure" : "configure");
         })
         .catch(() => {
           setErrors([
@@ -144,12 +140,8 @@ export default function ImportPage({
           ]);
         });
     },
-    []
+    [category]
   );
-
-  // Keep latest category accessible inside the dropzone callback
-  const categoryRef = useRef<ImportCategory>(category);
-  categoryRef.current = category;
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -164,7 +156,6 @@ export default function ImportPage({
 
   function startCategory(cat: ImportCategory) {
     setCategory(cat);
-    categoryRef.current = cat;
     setSelectedTemplate("");
     setErrors([]);
     setResult(null);

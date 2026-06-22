@@ -7,7 +7,7 @@ Welcome to InvestaLens — a comprehensive portfolio tracker and optimiser for i
 > | Section                                                        | Status                       |
 > | -------------------------------------------------------------- | ---------------------------- |
 > | Getting Started (auth, portfolios, import, manual entry)       | ✅ Implemented               |
-> | CSV Import (9 broker templates, 5-step wizard)                 | ✅ Implemented               |
+> | Multi-Type Import (shares, bonds, cash; quick + custom importers) | ✅ Implemented             |
 > | Supported Assets (equities, ETFs, bonds, crypto)               | ✅ Implemented               |
 > | Portfolio Management (groups, labels, sharing, consolidated)   | ✅ Implemented               |
 > | Performance & Reporting (6 performance + 4 allocation reports) | ✅ Implemented               |
@@ -52,7 +52,7 @@ After signing in, you land on the **Dashboard** (`/dashboard`) which shows your 
 
 | Sidebar Link   | What It Contains                                                          |
 | -------------- | ------------------------------------------------------------------------- |
-| **Dashboard**  | Total value, gain/loss summary, portfolio table, recent transactions      |
+| **Dashboard**  | Summary cards (purchase cost, total value, capital gain, income, total gain, portfolios/holdings), portfolio performance chart, allocation treemap, portfolio summary table, recent activity |
 | **Portfolio**  | Create/manage portfolios, holdings, imports, bonds, cash                  |
 | **Reports**    | 10 performance and allocation reports                                     |
 | **Tax**        | Taxable income, CGT, and unrealised CGT reports                           |
@@ -64,8 +64,18 @@ After signing in, you land on the **Dashboard** (`/dashboard`) which shows your 
 
 1. **Create your account** — Register at `/register` with name, email, and password (minimum 8 characters). Or sign in with Google OAuth.
 2. **Create a portfolio** — From the sidebar click **Portfolio**, then "New Portfolio", choose tax residency and entity type
-3. **Import your investments** — Click into your portfolio, then use "Import CSV" or "✨ AI Import" button
+3. **Import your investments** — Click into your portfolio, then use the "Import" or "✨ AI Import" button
 4. **Explore reports** — Click **Reports** or **Tax** in the sidebar for performance and tax analysis
+
+### Dashboard at a Glance
+
+The Dashboard gives you an instant overview of every portfolio combined:
+
+- **Summary cards** — Purchase Cost, Total Value, Capital Gain, Income (dividends/interest/coupons), Total Gain (capital gain + income, with %), and Portfolios / Holdings count
+- **Portfolio Performance chart** — An area/line chart of each portfolio's value over time with a consolidated total line. Indexed to percentage gain/loss from the start of the selected time range so portfolios and the benchmark share a common baseline. Pick a benchmark (ASX 200, S&P 500, MSCI World, and more) shown as a dotted reference line, and switch the timescale (1Y, 3Y, 5Y, 10Y, All)
+- **Portfolio Allocation treemap** — Current value broken down by portfolio, then by holding, with each portfolio in its own colour and holdings as shades of that colour. Click any holding to open its detail page
+- **Portfolio Summary table** — Cost base, market value, capital gain, income, and total gain per portfolio
+- **Recent Activity** — The latest transactions across all portfolios with date, instrument, type, quantity, price, brokerage/accrued interest, and amount. Every row links to the transaction's holding page, and a "View All" button opens the full transaction history
 
 ### Key Concepts
 
@@ -89,31 +99,44 @@ After signing in, you land on the **Dashboard** (`/dashboard`) which shows your 
 
 ## 2. Adding & Importing Investments
 
-InvestaLens is source-agnostic — import from any broker, any format.
+InvestaLens is source-agnostic — import shares, bonds, and cash from any broker, any format.
 
 ### Import Methods (Ranked by Flexibility)
 
 | Method           | Best For                                                             | Status         |
 | ---------------- | -------------------------------------------------------------------- | -------------- |
-| **CSV Import**   | Any broker — map columns to InvestaLens fields via 5-step wizard     | ✅ Implemented |
+| **Quick Import** | Known brokers (CommSec, SelfWealth, Stake, CMC Invest, nabtrade, FIIG) — pick a file and it imports in one step | ✅ Implemented |
+| **Guided Import**| Shares, bonds, or cash/bank statements — map columns via a category wizard | ✅ Implemented |
+| **Custom Import**| Complex multi-sheet files that templates can't handle (e.g. the FIIG data extract) | ✅ Implemented |
 | **Manual Entry** | One-off trades, corrections — add transactions per holding           | ✅ Implemented |
 | **AI Importer**  | PDFs, screenshots, non-standard formats — AI reads and maps the data | ✅ Implemented |
 | **Broker API**   | Supported brokers with automatic sync                                | ⏳ R4          |
 
-### How to Import (CSV)
+All import paths automatically **resolve duplicates** against transactions you have already imported, so re-importing the same file is safe.
+
+### How to Import
 
 1. From the sidebar, click **Portfolio** → select your portfolio
-2. Click **"Import CSV"** in the portfolio header
-3. **Upload** — drag and drop your broker's CSV file
-4. **Configure** — select a broker template (auto-fills mappings) or set date format/decimal separator manually
-5. **Map** — assign CSV columns to InvestaLens fields (Trade Date, Code, Quantity, Price, Type are required)
-6. **Review** — see parsed transactions colour-coded (green=valid, red=error, yellow=duplicate)
-7. **Import** — confirm to insert transactions into the database
+2. Click **"Import"** in the portfolio header
+3. Choose an import path on the hub:
+   - **Quick Import** — click a broker button, pick the file, done
+   - **Guided Import** — choose a category (Share Transactions, Bonds & Fixed Interest, or Cash / Bank Statement) and step through Upload → Configure → Map → Review → Import
+   - **Custom Import** — choose a dedicated importer (e.g. FIIG Data Extract) and pick the file
+4. Review parsed rows (green=valid, red=error), then confirm
+
+### How to Import (Bonds — FIIG)
+
+The FIIG Securities data-extract workbook (`.xls`) contains separate sheets for trades, income and fees. Use **Custom Import → FIIG Data Extract** to import all of them in one step:
+
+- **Trades** become BUY/SELL bond transactions (with accrued interest and per-$1 pricing on face value)
+- **Income payments** become COUPON income and RETURN_OF_CAPITAL principal repayments
+- **Custody fees** are recorded as portfolio fee invoices
+- **Security metadata** enriches each bond (type, sector, coupon rate, payment frequency, maturity)
 
 ### How to Import (AI)
 
 1. From the sidebar, click **Portfolio** → select your portfolio
-2. Click **"Import CSV"** → then click **"✨ AI Import"** button in the top-right
+2. Click **"Import"** → then click **"✨ AI Import"** button in the top-right
 3. Select the document type (Contract Note, Trade Confirmation, Dividend Statement, etc.)
 4. Paste your document text into the text area
 5. Click **"Parse with AI"** — Gemini extracts transactions automatically
@@ -144,7 +167,7 @@ Custom templates can be created for any broker and saved for reuse.
 
 InvestaLens supports 16 transaction types including BUY, SELL, DIVIDEND, SPLIT, INTEREST, COUPON, MATURITY, TRANSFER_IN/OUT, RETURN_OF_CAPITAL, MERGER_IN/OUT, RIGHTS_ISSUE, BONUS, ADJUSTMENT, and FEE.
 
-For bonds and fixed income, additional fields are available: Coupon Rate, Maturity Date, Face Value, and Payment Frequency.
+For bonds and fixed income, additional fields are available: Coupon Rate, Maturity Date, Face Value, Payment Frequency, and Accrued Interest. The dedicated FIIG importer also records coupon income, principal repayments, and custody fee invoices.
 
 > **Full guide:** [Data Import Architecture](docs/DATA_IMPORT.md)
 
@@ -178,7 +201,8 @@ InvestaLens provides dedicated bond analytics (navigate via **Portfolio \u2192 s
 - Maturity ladder (sorted by days to maturity) ✅
 - Coupon schedule generation ✅
 - Maturity alerts (30/60/90 days before expiry) ✅
-- Import from FIIG Securities ✅
+- Import from FIIG Securities — trades, coupon income, principal repayments, and custody fees in one step ✅
+- Coupon income, principal repayments, and custody fee tracking with summary totals ✅
 - Credit quality breakdown ✅
 - Income forecasting and accrued interest tracking ✅
 

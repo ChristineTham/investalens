@@ -54,12 +54,15 @@ Separate portfolios are strongly recommended if you hold the same stock across m
 
 ## Adding Your Investments
 
-There are several ways to add your investments into your InvestaLens portfolio:
+There are several ways to add your investments into your InvestaLens portfolio. Open the import hub via **Portfolio → select portfolio → "Import"**:
 
-1. **Import from a CSV file** — Bulk import your historical trades from a CSV/spreadsheet exported from any broker or institution, with custom field mapping
-2. **Import via Sharesight** — If you use Sharesight, import your portfolio via their API
-3. **Import from your broker** — If InvestaLens supports a direct integration with your broker
-4. **Add manually** — Manually add individual holdings and trades one by one
+1. **Quick Import** — One-step import for recognised brokers (CommSec, SelfWealth, Stake, CMC Invest, nabtrade, FIIG): pick a file and it imports immediately
+2. **Guided Import** — Choose a category — Share Transactions, Bonds & Fixed Interest, or Cash / Bank Statement — and map columns through a short wizard
+3. **Custom Import** — Dedicated importers for complex multi-sheet files (e.g. the FIIG Securities data extract covering trades, income, and fees)
+4. **AI Importer** — Parse PDFs, screenshots, or non-standard formats with Gemini AI
+5. **Add manually** — Manually add individual holdings and trades one by one
+
+All import paths automatically resolve duplicates, so re-importing the same file is safe.
 
 ### Method 1: Bulk Import from a CSV File (Recommended)
 

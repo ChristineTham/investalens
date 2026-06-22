@@ -194,14 +194,19 @@ When adding a bond (listed or custom), InvestaLens tracks:
 | Income Forecast           | Projected income from coupons over next 12 months       |
 | Accrued Interest          | Interest earned but not yet paid since last coupon date |
 
-#### Tracking Bond Income
+#### Tracking Bond Income & Fees
 
-Bond coupon payments are recorded as **INTEREST** transactions. InvestaLens automatically:
+Bond coupon payments are recorded as **COUPON** transactions and principal repayments (e.g. amortising / indexed annuity bonds) as **RETURN_OF_CAPITAL**. Custody / management fees are recorded as portfolio **fee invoices**. The Bonds page surfaces summary totals for coupon income, principal repaid, and custody fees, plus an income-payments table and a fees table. InvestaLens also:
 
 - Calculates expected coupon amounts based on face value × coupon rate × frequency
 - Flags missing payments if a scheduled coupon is not recorded
 - Tracks running yield vs purchase yield
 - Separates capital gain/loss from income return
+- Records accrued interest paid/received on a trade separately from the cost base
+
+#### Importing from FIIG Securities
+
+The FIIG data-extract workbook (`.xls`) is imported in one step via **Import → Custom Import → FIIG Data Extract**. It reads the workbook's separate sheets and consolidates trades (BUY/SELL with accrued interest), income payments (coupons and principal repayments), custody fees, and security metadata (type, sector, coupon rate, payment frequency, maturity). All rows are deduplicated against existing data.
 
 #### Supported Bond Platforms
 

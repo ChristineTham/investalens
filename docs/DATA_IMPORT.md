@@ -8,11 +8,16 @@
 > | --------------------------------------------------------------------------------------------------------- | ------------------------------ |
 > | CSV parser (papaparse, auto-detect)                                                                       | ✅ Implemented                 |
 > | Field mapping engine                                                                                      | ✅ Implemented                 |
-> | Deduplication                                                                                             | ✅ Implemented                 |
+> | Deduplication (all import paths)                                                                          | ✅ Implemented                 |
 > | 9 broker templates (CommSec, SelfWealth, Stake, CMC Markets, CMC Invest, Bell Direct, nabtrade, FIIG, IB) | ✅ Implemented                 |
-> | 5-step import wizard UI                                                                                   | ✅ Implemented                 |
+> | Multi-type import hub (shares, bonds, cash)                                                               | ✅ Implemented                 |
+> | Quick (one-step) import for known brokers                                                                 | ✅ Implemented                 |
+> | Cash / bank statement import (signed amount or debit/credit)                                              | ✅ Implemented                 |
+> | Custom importers for complex files (FIIG multi-sheet extract)                                             | ✅ Implemented                 |
+> | Bond income (coupons, principal) & custody fee import                                                     | ✅ Implemented                 |
+> | Excel (.xlsx/.xls) upload                                                                                 | ✅ Implemented                 |
 > | Mapping template save/load                                                                                | ⏳ To be Implemented           |
-> | AI Importer (PDF/screenshot)                                                                              | ⏳ To be Implemented (R2)      |
+> | AI Importer (PDF/screenshot)                                                                              | ✅ Implemented (R2)            |
 > | Broker API sync (Sharesight)                                                                              | ⏳ To be Implemented (R4)      |
 > | CSV export (trades, holdings, dividends)                                                                  | ✅ Implemented (server action) |
 > | JSON full backup                                                                                          | ✅ Implemented (server action) |
@@ -25,10 +30,25 @@ InvestaLens is a **standalone portfolio tracker** that does not depend on any si
 
 Import sources include:
 
-- **CSV files** from any broker or financial institution (with custom field mapping)
+- **CSV / Excel files** from any broker or financial institution (with custom field mapping)
+- **Quick import** for recognised brokers (one click, no manual mapping)
+- **Cash / bank statements** imported into cash accounts
+- **Custom importers** for complex multi-sheet files (e.g. the FIIG data extract)
 - **Sharesight API** (OAuth2 integration for users who have Sharesight accounts)
 - **Direct broker integrations** (where APIs are available)
 - **Manual entry** (individual transactions added via the UI)
+
+### Import Hub
+
+The import page (**Portfolio → select portfolio → "Import"**) is organised as a hub with three paths:
+
+| Path             | Description                                                                                      |
+| ---------------- | ----------------------------------------------------------------------------------------------- |
+| **Quick Import** | One-step buttons for known brokers (CommSec, SelfWealth, Stake, CMC Invest, nabtrade, FIIG). Pick a file and it parses, deduplicates, and imports immediately — no review step. |
+| **Guided Import**| Choose a category — Share Transactions, Bonds & Fixed Interest, or Cash / Bank Statement — then step through Upload → Configure → Map → Review → Import. |
+| **Custom Import**| Dedicated routines for files templates cannot handle, such as the FIIG multi-sheet workbook. Each importer fully parses its file and emits normalised transactions, income, fees, and instrument metadata. |
+
+Every path resolves duplicates against previously imported data, so re-running the same file is always safe.
 
 ## Design Principles
 
@@ -72,6 +92,7 @@ InvestaLens provides a column mapping interface that allows users to:
 | Maturity Date     | No       | Maturity/expiry date for bonds and term deposits           |
 | Face Value        | No       | Par value per unit for bonds (default $100)                |
 | Payment Frequency | No       | Coupon frequency (Monthly, Quarterly, Semi-Annual, Annual) |
+| Accrued Interest  | No       | Accrued interest paid/received on a bond trade             |
 
 #### Supported Transaction Types
 
@@ -115,6 +136,30 @@ Users can save and share field mapping configurations for common brokers:
 | Custom              | Any       | User-defined mapping                        |
 
 New templates can be contributed by users or added over time.
+
+### 1a. Cash / Bank Statement Import
+
+Under **Guided Import → Cash / Bank Statement**, you can import a bank or cash-account statement into a named cash account (created automatically if it doesn't exist). The mapper supports either:
+
+- A single **signed Amount** column (positive = money in, negative = money out), or
+- Separate **Debit** (money out) and **Credit** (money in) columns
+
+An optional Type column is mapped to canonical cash types (deposit, withdrawal, interest, fee, dividend received, transfer in/out); when absent the direction is inferred from the sign. Account balances are updated automatically and duplicate rows (same date, amount, type, description) are skipped.
+
+### 1b. Custom Importers (Complex Files)
+
+Some files cannot be handled by simple column mapping — for example a workbook with several sheets. **Custom Import** runs a dedicated routine that fully parses the file and emits normalised data.
+
+**FIIG Securities Data Extract** (`.xls`) is the built-in example. It consolidates multiple sheets in one import:
+
+| Sheet             | Imported As                                                            |
+| ----------------- | --------------------------------------------------------------------- |
+| TransactionHistory| BUY / SELL bond trades (quantity = face value, price per $1 of face, with accrued interest) |
+| IncomePayments    | COUPON income (interest) and RETURN_OF_CAPITAL (principal repayments)  |
+| Fees              | Custody fee invoices recorded against the portfolio                    |
+| SecurityStatic    | Instrument metadata — type, sector, coupon rate, payment frequency, maturity |
+
+New custom importers are added as modules in `lib/import/custom/` and registered in the importer registry without changes to the core data model.
 
 ### 2. Sharesight API Integration
 

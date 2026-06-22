@@ -20,7 +20,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
         content: `<p>After signing in, you land on the <strong>Dashboard</strong> showing your total portfolio value, gain/loss, and recent activity. The sidebar provides access to all sections:</p>
 <table>
 <tr><th>Sidebar Link</th><th>What It Contains</th></tr>
-<tr><td><strong>Dashboard</strong></td><td>Total value, gain/loss summary, portfolio table, recent transactions</td></tr>
+<tr><td><strong>Dashboard</strong></td><td>Summary cards, portfolio performance chart, allocation treemap, portfolio table, recent activity</td></tr>
 <tr><td><strong>Portfolio</strong></td><td>Create/manage portfolios, holdings, imports, bonds, cash</td></tr>
 <tr><td><strong>Reports</strong></td><td>10 performance and allocation reports</td></tr>
 <tr><td><strong>Tax</strong></td><td>Taxable income, CGT, and unrealised CGT reports</td></tr>
@@ -34,7 +34,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
         content: `<ol>
 <li><strong>Create your account</strong> &mdash; Register at <code>/register</code> with name, email, and password (minimum 8 characters). Or sign in with Google OAuth.</li>
 <li><strong>Create a portfolio</strong> &mdash; From the sidebar click <strong>Portfolio</strong>, then &ldquo;New Portfolio&rdquo;, choose tax residency and entity type</li>
-<li><strong>Import your investments</strong> &mdash; Click into your portfolio, then use &ldquo;Import CSV&rdquo; or &ldquo;&starf; AI Import&rdquo; button</li>
+<li><strong>Import your investments</strong> &mdash; Click into your portfolio, then use the &ldquo;Import&rdquo; or &ldquo;&starf; AI Import&rdquo; button</li>
 <li><strong>Explore reports</strong> &mdash; Click <strong>Reports</strong> or <strong>Tax</strong> in the sidebar</li>
 </ol>`,
       },
@@ -69,20 +69,23 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
         heading: "Import Methods",
         content: `<table>
 <tr><th>Method</th><th>Best For</th><th>How to Access</th></tr>
-<tr><td><strong>CSV Import</strong></td><td>Any broker &mdash; map columns via 5-step wizard</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Import CSV&rdquo;</td></tr>
-<tr><td><strong>AI Importer</strong></td><td>PDFs, screenshots, non-standard formats (Gemini AI)</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Import CSV&rdquo; &rarr; &ldquo;&starf; AI Import&rdquo;</td></tr>
+<tr><td><strong>Quick Import</strong></td><td>Known brokers &mdash; one-step, no manual mapping</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Import&rdquo; &rarr; Quick Import</td></tr>
+<tr><td><strong>Guided Import</strong></td><td>Shares, bonds, or cash/bank statements via category wizard</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Import&rdquo; &rarr; Guided Import</td></tr>
+<tr><td><strong>Custom Import</strong></td><td>Complex multi-sheet files (e.g. FIIG data extract)</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Import&rdquo; &rarr; Custom Import</td></tr>
+<tr><td><strong>AI Importer</strong></td><td>PDFs, screenshots, non-standard formats (Gemini AI)</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Import&rdquo; &rarr; &ldquo;&starf; AI Import&rdquo;</td></tr>
 <tr><td><strong>Manual Entry</strong></td><td>One-off trades, corrections</td><td>Portfolio &rarr; holding &rarr; &ldquo;Add Transaction&rdquo;</td></tr>
-</table>`,
+</table>
+<p>Every import path resolves duplicates automatically, so re-importing the same file is safe.</p>`,
       },
       {
-        heading: "How to Import (CSV)",
+        heading: "How to Import",
         content: `<ol>
 <li>From the sidebar, click <strong>Portfolio</strong> &rarr; select your portfolio</li>
-<li>Click <strong>&ldquo;Import CSV&rdquo;</strong> in the portfolio header</li>
-<li><strong>Upload</strong> &mdash; drag and drop your broker&rsquo;s CSV file</li>
-<li><strong>Configure</strong> &mdash; select a broker template or set date format manually</li>
-<li><strong>Map</strong> &mdash; assign CSV columns to InvestaLens fields</li>
-<li><strong>Review</strong> &mdash; see parsed transactions colour-coded (green=valid, red=error, yellow=duplicate)</li>
+<li>Click <strong>&ldquo;Import&rdquo;</strong> in the portfolio header</li>
+<li>Choose a path on the hub: <strong>Quick Import</strong> (one click), <strong>Guided Import</strong> (choose Share Transactions, Bonds &amp; Fixed Interest, or Cash / Bank Statement), or <strong>Custom Import</strong></li>
+<li><strong>Upload</strong> &mdash; drag and drop your file (.csv, .txt, or .xlsx)</li>
+<li><strong>Configure &amp; Map</strong> &mdash; pick a template or map columns to InvestaLens fields</li>
+<li><strong>Review</strong> &mdash; see parsed rows colour-coded (green=valid, red=error)</li>
 <li><strong>Import</strong> &mdash; confirm to insert</li>
 </ol>`,
       },
@@ -99,8 +102,8 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <p><em>Requires <code>GOOGLE_GENERATIVE_AI_API_KEY</code> to be configured.</em></p>`,
       },
       {
-        heading: "Supported Broker Templates",
-        content: `<p>Pre-built templates: CommSec, SelfWealth, Stake, CMC Markets, CMC Invest, Bell Direct, nabtrade, FIIG Securities, Interactive Brokers. Custom templates can be created for any broker and saved for reuse.</p>`,
+        heading: "Supported Templates & Importers",
+        content: `<p>Pre-built broker templates: CommSec, SelfWealth, Stake, CMC Markets, CMC Invest, Bell Direct, nabtrade, FIIG Securities, Interactive Brokers. Generic bank-statement templates handle cash imports. The FIIG Data Extract custom importer reads the full multi-sheet bond workbook (trades, coupon income, principal repayments, and custody fees). Custom templates can be created for any broker and saved for reuse.</p>`,
       },
     ],
   },
@@ -130,6 +133,8 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <li>Coupon schedule generation</li>
 <li>Maturity alerts (30/60/90 days before expiry)</li>
 <li>Credit quality breakdown</li>
+<li>Coupon income, principal repayments, and custody fee tracking with summary totals</li>
+<li>One-step FIIG Securities import (trades, income, and fees)</li>
 <li>Income forecasting and accrued interest tracking</li>
 </ul>`,
       },
