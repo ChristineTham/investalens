@@ -4,6 +4,27 @@ import { getMaturityLadder } from "@/lib/calculations/bond-analytics";
 import { formatDate } from "@/lib/utils";
 import { redirect } from "next/navigation";
 
+const STALE_DAYS = 7;
+
+type PriceStatus = {
+  price: number | null;
+  asAt: Date | null;
+  stale: boolean;
+  missing: boolean;
+};
+
+/** Compute price staleness. Module-level so the time read stays out of render. */
+function computePriceStatus(p: { close: number; date: Date } | null): PriceStatus {
+  if (!p) return { price: null, asAt: null, stale: false, missing: true };
+  const ageDays = (Date.now() - p.date.getTime()) / 86_400_000;
+  return {
+    price: p.close,
+    asAt: p.date,
+    stale: ageDays > STALE_DAYS,
+    missing: false,
+  };
+}
+
 export default async function BondsPage({
   params,
 }: {
@@ -22,17 +43,9 @@ export default async function BondsPage({
     include: { instrument: true },
   });
 
-  const STALE_DAYS = 7;
-
   // Latest stored price per bond, with a precomputed staleness flag.
-  // The current time is captured inside the async data-fetch (not during
-  // render) to keep the render path pure.
-  type PriceStatus = {
-    price: number | null;
-    asAt: Date | null;
-    stale: boolean;
-    missing: boolean;
-  };
+  // Staleness is computed in a module-level helper so the time read is not
+  // treated as an impure call during render.
   const priceStatuses = new Map<string, PriceStatus>();
   await Promise.all(
     holdings.map(async (h) => {
@@ -41,22 +54,10 @@ export default async function BondsPage({
         orderBy: { date: "desc" },
         select: { close: true, date: true },
       });
-      if (!p) {
-        priceStatuses.set(h.instrumentId, {
-          price: null,
-          asAt: null,
-          stale: false,
-          missing: true,
-        });
-        return;
-      }
-      const ageDays = (Date.now() - p.date.getTime()) / 86_400_000;
-      priceStatuses.set(h.instrumentId, {
-        price: Number(p.close),
-        asAt: p.date,
-        stale: ageDays > STALE_DAYS,
-        missing: false,
-      });
+      priceStatuses.set(
+        h.instrumentId,
+        computePriceStatus(p ? { close: Number(p.close), date: p.date } : null)
+      );
     })
   );
 
