@@ -22,6 +22,49 @@ export default async function BondsPage({
     include: { instrument: true },
   });
 
+  // Latest stored price per bond, to flag stale / missing valuations
+  const latestPrices = new Map<
+    string,
+    { close: number; date: Date } | null
+  >();
+  await Promise.all(
+    holdings.map(async (h) => {
+      const p = await db.price.findFirst({
+        where: { instrumentId: h.instrumentId },
+        orderBy: { date: "desc" },
+        select: { close: true, date: true },
+      });
+      latestPrices.set(
+        h.instrumentId,
+        p ? { close: Number(p.close), date: p.date } : null
+      );
+    })
+  );
+
+  const STALE_DAYS = 7;
+  const now = Date.now();
+  function priceStatus(instrumentId: string): {
+    price: number | null;
+    asAt: Date | null;
+    stale: boolean;
+    missing: boolean;
+  } {
+    const p = latestPrices.get(instrumentId) ?? null;
+    if (!p) return { price: null, asAt: null, stale: false, missing: true };
+    const ageDays = (now - p.date.getTime()) / 86_400_000;
+    return {
+      price: p.close,
+      asAt: p.date,
+      stale: ageDays > STALE_DAYS,
+      missing: false,
+    };
+  }
+
+  const needsUpdate = holdings.filter((h) => {
+    const s = priceStatus(h.instrumentId);
+    return s.missing || s.stale;
+  });
+
   // Bond income (coupons / interest / principal repayments)
   const incomeTransactions = await db.transaction.findMany({
     where: {
@@ -74,6 +117,23 @@ export default async function BondsPage({
         </p>
       ) : (
         <>
+          {/* Price-update notice */}
+          {needsUpdate.length > 0 && (
+            <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+              <p className="font-medium text-amber-700 dark:text-amber-400">
+                {needsUpdate.length} bond
+                {needsUpdate.length === 1 ? "" : "s"} need a price update
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {needsUpdate.map((h) => h.instrument.code).join(", ")} —
+                missing or older than {STALE_DAYS} days. Use{" "}
+                <span className="font-medium">Settings → Bond Prices</span> to
+                refresh from the FIIG rate sheet, or add a manual price. Bonds
+                not on the rate sheet keep their last/purchase price.
+              </p>
+            </div>
+          )}
+
           {/* Income & fee summary */}
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="rounded-lg border border-border bg-card p-4">
@@ -115,10 +175,15 @@ export default async function BondsPage({
                   <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
                     Rating
                   </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                    Price (as-at)
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {holdings.map((h) => (
+                {holdings.map((h) => {
+                  const ps = priceStatus(h.instrumentId);
+                  return (
                   <tr key={h.id} className="hover:bg-accent/50">
                     <td className="px-4 py-3 font-medium">
                       {h.instrument.code}
@@ -137,7 +202,28 @@ export default async function BondsPage({
                     <td className="px-4 py-3 text-sm">
                       {h.instrument.creditRating || "—"}
                     </td>
+                    <td className="px-4 py-3 text-right text-sm">
+                      {ps.missing ? (
+                        <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-400">
+                          No price
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center justify-end gap-2">
+                          <span className="font-medium">
+                            {(ps.price! * 100).toFixed(3)}
+                          </span>
+                          <span
+                            className={`text-xs ${ps.stale ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"}`}
+                          >
+                            {ps.stale ? "stale · " : ""}
+                            {ps.asAt ? formatDate(ps.asAt) : ""}
+                          </span>
+                        </span>
+                      )}
+                    </td>
                   </tr>
+                  );
+                })}
                 ))}
               </tbody>
             </table>

@@ -19,6 +19,8 @@ export interface BondPriceResult {
   matched: number;
   updated: number;
   unmatched: number;
+  /** Unmatched bonds that were carried forward from their last/purchase price. */
+  carriedForward: number;
   totalBonds: number;
   rateSheetCount: number;
   unmatchedCodes: string[];
@@ -30,6 +32,7 @@ function emptyResult(extra?: Partial<BondPriceResult>): BondPriceResult {
     matched: 0,
     updated: 0,
     unmatched: 0,
+    carriedForward: 0,
     totalBonds: 0,
     rateSheetCount: 0,
     unmatchedCodes: [],
@@ -59,9 +62,38 @@ async function getUserBondInstruments(userId: string) {
 }
 
 /**
+ * Determine a fallback price (per $1 of face) for an unmatched bond, so its
+ * market value never goes stale to zero. Prefers the most recent stored price,
+ * otherwise derives it from the latest BUY transaction's price.
+ */
+async function getFallbackClose(instrumentId: string): Promise<number | null> {
+  const latest = await db.price.findFirst({
+    where: { instrumentId },
+    orderBy: { date: "desc" },
+    select: { close: true },
+  });
+  if (latest) return Number(latest.close);
+
+  const buy = await db.transaction.findFirst({
+    where: {
+      holding: { instrumentId },
+      transactionType: { in: ["BUY", "TRANSFER_IN"] },
+    },
+    orderBy: { tradeDate: "desc" },
+    select: { price: true },
+  });
+  if (buy) return Number(buy.price);
+
+  return null;
+}
+
+/**
  * Persist a rate map against the user's bond instruments, matching by ISIN.
  * FIIG quotes a clean capital price per $100 of par; we store `close = price/100`
  * to stay consistent with how bond market value is computed.
+ *
+ * Bonds not on the rate sheet are carried forward from their last known (or
+ * purchase) price so their market value stays populated instead of going stale.
  */
 async function persistRates(
   instruments: Map<string, { id: string; code: string; couponRate: unknown; maturityDate: Date | null; sector: string | null }>,
@@ -72,12 +104,24 @@ async function persistRates(
 
   let matched = 0;
   let updated = 0;
+  let carriedForward = 0;
   const unmatchedCodes: string[] = [];
 
   for (const inst of instruments.values()) {
     const rate = rates.get(inst.code.toUpperCase());
     if (!rate) {
       unmatchedCodes.push(inst.code);
+      // Carry the last known / purchase price forward to today so the bond's
+      // market value doesn't go stale just because it left the rate sheet.
+      const fallback = await getFallbackClose(inst.id);
+      if (fallback != null) {
+        await db.price.upsert({
+          where: { instrumentId_date: { instrumentId: inst.id, date: today } },
+          create: { instrumentId: inst.id, date: today, close: fallback },
+          update: {},
+        });
+        carriedForward++;
+      }
       continue;
     }
     matched++;
@@ -113,12 +157,14 @@ async function persistRates(
 
   revalidatePath("/dashboard");
   revalidatePath("/settings");
+  revalidatePath("/portfolio", "layout");
 
   return {
     ok: true,
     matched,
     updated,
     unmatched: unmatchedCodes.length,
+    carriedForward,
     totalBonds: instruments.size,
     rateSheetCount: rates.size,
     unmatchedCodes,
