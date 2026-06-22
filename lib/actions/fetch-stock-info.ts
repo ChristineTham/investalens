@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import type { Prisma } from "@/generated/prisma/client";
 import { analyticsClient } from "@/lib/services/analytics-client";
 import {
   toYahooSymbol,
@@ -21,6 +22,11 @@ export interface StockInfoFetchResult {
 function dec(value: unknown): number | undefined {
   const n = Number(value);
   return Number.isFinite(n) ? n : undefined;
+}
+
+/** Cast a structured value to a Prisma JSON input, dropping null/undefined. */
+function toJson(value: unknown): Prisma.InputJsonValue | undefined {
+  return value == null ? undefined : (value as Prisma.InputJsonValue);
 }
 
 /**
@@ -87,73 +93,43 @@ export async function fetchStockInfo(): Promise<StockInfoFetchResult> {
       const p = info.profile;
       const s = info.stats || {};
 
+      const infoData = {
+        longName: p.longName,
+        shortName: p.shortName,
+        summary: p.summary,
+        website: p.website,
+        sector: p.sector,
+        industry: p.industry,
+        country: p.country,
+        city: p.city,
+        employees: p.employees ?? undefined,
+        exchange: p.exchange,
+        quoteType: p.quoteType,
+        currency: p.currency,
+        marketCap: dec(s.marketCap),
+        trailingPE: dec(s.trailingPE),
+        forwardPE: dec(s.forwardPE),
+        priceToBook: dec(s.priceToBook),
+        beta: dec(s.beta),
+        eps: dec(s.trailingEps),
+        dividendYield: dec(s.dividendYield),
+        fiftyTwoWeekHigh: dec(s.fiftyTwoWeekHigh),
+        fiftyTwoWeekLow: dec(s.fiftyTwoWeekLow),
+        stats: toJson(info.stats),
+        analystTargets: toJson(info.analystTargets),
+        recommendations: toJson(info.recommendations),
+        upgrades: toJson(info.upgrades),
+        calendar: toJson(info.calendar),
+        news: toJson(info.news),
+        financials: toJson(info.financials),
+        actions: toJson(info.actions),
+        fetchedAt: new Date(),
+      };
+
       await db.instrumentInfo.upsert({
         where: { instrumentId: inst.id },
-        create: {
-          instrumentId: inst.id,
-          longName: p.longName,
-          shortName: p.shortName,
-          summary: p.summary,
-          website: p.website,
-          sector: p.sector,
-          industry: p.industry,
-          country: p.country,
-          city: p.city,
-          employees: p.employees ?? undefined,
-          exchange: p.exchange,
-          quoteType: p.quoteType,
-          currency: p.currency,
-          marketCap: dec(s.marketCap),
-          trailingPE: dec(s.trailingPE),
-          forwardPE: dec(s.forwardPE),
-          priceToBook: dec(s.priceToBook),
-          beta: dec(s.beta),
-          eps: dec(s.trailingEps),
-          dividendYield: dec(s.dividendYield),
-          fiftyTwoWeekHigh: dec(s.fiftyTwoWeekHigh),
-          fiftyTwoWeekLow: dec(s.fiftyTwoWeekLow),
-          stats: info.stats,
-          analystTargets: info.analystTargets ?? undefined,
-          recommendations: info.recommendations,
-          upgrades: info.upgrades,
-          calendar: info.calendar ?? undefined,
-          news: info.news,
-          financials: info.financials ?? undefined,
-          actions: info.actions ?? undefined,
-          fetchedAt: new Date(),
-        },
-        update: {
-          longName: p.longName,
-          shortName: p.shortName,
-          summary: p.summary,
-          website: p.website,
-          sector: p.sector,
-          industry: p.industry,
-          country: p.country,
-          city: p.city,
-          employees: p.employees ?? undefined,
-          exchange: p.exchange,
-          quoteType: p.quoteType,
-          currency: p.currency,
-          marketCap: dec(s.marketCap),
-          trailingPE: dec(s.trailingPE),
-          forwardPE: dec(s.forwardPE),
-          priceToBook: dec(s.priceToBook),
-          beta: dec(s.beta),
-          eps: dec(s.trailingEps),
-          dividendYield: dec(s.dividendYield),
-          fiftyTwoWeekHigh: dec(s.fiftyTwoWeekHigh),
-          fiftyTwoWeekLow: dec(s.fiftyTwoWeekLow),
-          stats: info.stats,
-          analystTargets: info.analystTargets ?? undefined,
-          recommendations: info.recommendations,
-          upgrades: info.upgrades,
-          calendar: info.calendar ?? undefined,
-          news: info.news,
-          financials: info.financials ?? undefined,
-          actions: info.actions ?? undefined,
-          fetchedAt: new Date(),
-        },
+        create: { instrumentId: inst.id, ...infoData },
+        update: infoData,
       });
 
       // Backfill sector/industry/country onto the instrument when missing
