@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
-import { calculatePosition } from "@/lib/calculations/position";
+import { calculatePosition, calculateIncome } from "@/lib/calculations/position";
 import { PortfolioPerformanceChart } from "@/components/charts/portfolio-performance-chart";
 import { PortfolioValueTreemap } from "@/components/charts/portfolio-value-treemap";
 import {
@@ -14,8 +14,6 @@ import {
   Wallet,
   PiggyBank,
 } from "lucide-react";
-
-const INCOME_TYPES = ["DIVIDEND", "INTEREST", "COUPON"];
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -30,6 +28,7 @@ export default async function DashboardPage() {
           transactions: { orderBy: { tradeDate: "asc" } },
         },
       },
+      fees: true,
     },
   });
 
@@ -57,6 +56,7 @@ export default async function DashboardPage() {
           brokerage: tx.brokerage,
           exchangeRate: tx.exchangeRate,
           currency: tx.currency,
+          accruedInterest: tx.accruedInterest,
         }));
 
         const position = calculatePosition(txData, currentPrice);
@@ -71,15 +71,18 @@ export default async function DashboardPage() {
           });
         }
 
-        // Calculate income from dividends, interest, coupons
-        for (const tx of holding.transactions) {
-          if (INCOME_TYPES.includes(tx.transactionType)) {
-            portfolioIncome += Number(tx.quantity) * Number(tx.price);
-          }
-        }
+        // Income (dividends/interest/coupons), net of accrued interest
+        portfolioIncome += calculateIncome(txData);
       }
 
+      // Custody / management fees (portfolio level, e.g. bond custody fees)
+      const portfolioFees = portfolio.fees.reduce(
+        (sum, f) => sum + Number(f.total),
+        0
+      );
+
       const capitalGain = portfolioValue - portfolioCost;
+      const totalGain = capitalGain + portfolioIncome - portfolioFees;
 
       return {
         id: portfolio.id,
@@ -90,11 +93,10 @@ export default async function DashboardPage() {
         costBase: portfolioCost,
         capitalGain,
         income: portfolioIncome,
-        totalGain: capitalGain + portfolioIncome,
+        fees: portfolioFees,
+        totalGain,
         totalGainPercent:
-          portfolioCost > 0
-            ? ((capitalGain + portfolioIncome) / portfolioCost) * 100
-            : 0,
+          portfolioCost > 0 ? (totalGain / portfolioCost) * 100 : 0,
         holdings: holdingValues,
       };
     })
@@ -103,6 +105,7 @@ export default async function DashboardPage() {
   const totalValue = portfolioSummaries.reduce((sum, p) => sum + p.marketValue, 0);
   const totalCost = portfolioSummaries.reduce((sum, p) => sum + p.costBase, 0);
   const totalIncome = portfolioSummaries.reduce((sum, p) => sum + p.income, 0);
+  const totalFees = portfolioSummaries.reduce((sum, p) => sum + p.fees, 0);
   const totalHoldings = portfolioSummaries.reduce((sum, p) => sum + p.holdingCount, 0);
 
   // Recent transactions (last 10 across all portfolios)
@@ -117,8 +120,76 @@ export default async function DashboardPage() {
     take: 10,
   });
 
+  // Recent custody fees (e.g. bond custody invoices)
+  const recentFees = await db.fee.findMany({
+    where: { portfolio: { userId: session.user.id } },
+    include: { portfolio: { select: { id: true, name: true } } },
+    orderBy: { invoiceDate: "desc" },
+    take: 10,
+  });
+
+  // Unified recent activity feed (transactions + fees), newest first
+  type ActivityRow = {
+    key: string;
+    date: Date;
+    portfolioId: string;
+    portfolioName: string;
+    holdingId: string | null;
+    instrumentCode: string;
+    type: string;
+    quantity: number | null;
+    price: number | null;
+    fees: number;
+    amount: number;
+  };
+
+  const txActivity: ActivityRow[] = recentTransactions.map((tx) => {
+    const qty = Number(tx.quantity);
+    const price = Number(tx.price);
+    const brokerage = Number(tx.brokerage);
+    const accrued = Number(tx.accruedInterest ?? 0);
+    const isIncome = [
+      "DIVIDEND",
+      "INTEREST",
+      "COUPON",
+      "RETURN_OF_CAPITAL",
+    ].includes(tx.transactionType);
+    const gross = qty * price;
+    return {
+      key: `tx-${tx.id}`,
+      date: tx.tradeDate,
+      portfolioId: tx.holding.portfolio.id,
+      portfolioName: tx.holding.portfolio.name,
+      holdingId: tx.holdingId,
+      instrumentCode: tx.holding.instrument.code,
+      type: tx.transactionType,
+      quantity: isIncome ? null : qty,
+      price: isIncome ? null : price,
+      fees: brokerage,
+      amount: isIncome ? gross : gross + brokerage + accrued,
+    };
+  });
+
+  const feeActivity: ActivityRow[] = recentFees.map((fee) => ({
+    key: `fee-${fee.id}`,
+    date: fee.invoiceDate,
+    portfolioId: fee.portfolio.id,
+    portfolioName: fee.portfolio.name,
+    holdingId: null,
+    instrumentCode: "Custody Fee",
+    type: "FEE",
+    quantity: null,
+    price: null,
+    fees: Number(fee.total),
+    amount: Number(fee.total),
+  }));
+
+  const recentActivity = [...txActivity, ...feeActivity]
+    .sort((a, b) => b.date.getTime() - a.date.getTime())
+    .slice(0, 10);
+
   const totalCapitalGain = totalValue - totalCost;
-  const totalGainLoss = totalCapitalGain + totalIncome;
+  const totalGainLoss = totalCapitalGain + totalIncome - totalFees;
   const totalGainLossPercent =
     totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0;
 
@@ -187,6 +258,12 @@ export default async function DashboardPage() {
               {totalGainLossPercent.toFixed(1)}%)
             </span>
           </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Capital + income
+            {totalFees > 0
+              ? ` − $${totalFees.toLocaleString(undefined, { maximumFractionDigits: 0 })} fees`
+              : ""}
+          </p>
         </div>
         <div className="rounded-lg border border-border bg-card p-6">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -246,6 +323,9 @@ export default async function DashboardPage() {
                     Income
                   </th>
                   <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                    Fees
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
                     Total Gain
                   </th>
                 </tr>
@@ -282,6 +362,11 @@ export default async function DashboardPage() {
                     <td className="px-4 py-3 text-right text-sm font-medium text-green-600">
                       ${p.income.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </td>
+                    <td className="px-4 py-3 text-right text-sm text-muted-foreground">
+                      {p.fees > 0
+                        ? `−$${p.fees.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+                        : "—"}
+                    </td>
                     <td
                       className={`px-4 py-3 text-right text-sm font-medium ${p.totalGain >= 0 ? "text-green-600" : "text-red-600"}`}
                     >
@@ -299,7 +384,7 @@ export default async function DashboardPage() {
       )}
 
       {/* Recent Activity */}
-      {recentTransactions.length > 0 && (
+      {recentActivity.length > 0 && (
         <div className="rounded-lg border border-border">
           <div className="flex items-center justify-between border-b border-border p-4">
             <h2 className="font-medium">Recent Activity</h2>
@@ -333,7 +418,7 @@ export default async function DashboardPage() {
                     Price
                   </th>
                   <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                    Brokerage
+                    Fees
                   </th>
                   <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
                     Amount
@@ -341,93 +426,58 @@ export default async function DashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {recentTransactions.map((tx) => {
-                  const qty = Number(tx.quantity);
-                  const price = Number(tx.price);
-                  const brokerage = Number(tx.brokerage);
-                  const accrued = Number(tx.accruedInterest ?? 0);
-                  // Income / non-trade types store the amount as quantity(1) × price
-                  const isIncome = [
-                    "DIVIDEND",
-                    "INTEREST",
-                    "COUPON",
-                    "RETURN_OF_CAPITAL",
-                  ].includes(tx.transactionType);
-                  const gross = qty * price;
-                  const amount = isIncome
-                    ? gross
-                    : gross + brokerage + accrued;
-                  const holdingHref = `/portfolio/${tx.holding.portfolio.id}/holdings/${tx.holdingId}`;
+                {recentActivity.map((row) => {
+                  const href = row.holdingId
+                    ? `/portfolio/${row.portfolioId}/holdings/${row.holdingId}`
+                    : `/portfolio/${row.portfolioId}/bonds`;
                   return (
-                    <tr key={tx.id} className="hover:bg-accent/50">
+                    <tr key={row.key} className="hover:bg-accent/50">
                       <td className="px-4 py-3 text-sm text-muted-foreground">
-                        <Link
-                          href={holdingHref}
-                          className="hover:text-primary hover:underline"
-                        >
-                          {tx.tradeDate.toISOString().split("T")[0]}
+                        <Link href={href} className="hover:text-primary hover:underline">
+                          {row.date.toISOString().split("T")[0]}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Link href={href} className="font-medium text-primary hover:underline">
+                          {row.instrumentCode}
                         </Link>
                       </td>
                       <td className="px-4 py-3">
                         <Link
-                          href={holdingHref}
-                          className="font-medium text-primary hover:underline"
-                        >
-                          {tx.holding.instrument.code}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3">
-                        <Link
-                          href={holdingHref}
+                          href={href}
                           className="text-sm text-muted-foreground hover:text-primary hover:underline"
                         >
-                          {tx.transactionType.replace(/_/g, " ")}
+                          {row.type.replace(/_/g, " ")}
                         </Link>
                       </td>
                       <td className="px-4 py-3">
                         <Link
-                          href={holdingHref}
+                          href={href}
                           className="text-xs text-muted-foreground hover:text-primary hover:underline"
                         >
-                          {tx.holding.portfolio.name}
+                          {row.portfolioName}
                         </Link>
                       </td>
                       <td className="px-4 py-3 text-right text-sm">
-                        <Link
-                          href={holdingHref}
-                          className="hover:text-primary hover:underline"
-                        >
-                          {isIncome ? "—" : qty.toLocaleString()}
+                        <Link href={href} className="hover:text-primary hover:underline">
+                          {row.quantity != null ? row.quantity.toLocaleString() : "—"}
                         </Link>
                       </td>
                       <td className="px-4 py-3 text-right text-sm">
-                        <Link
-                          href={holdingHref}
-                          className="hover:text-primary hover:underline"
-                        >
-                          {isIncome
-                            ? "—"
-                            : `$${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}`}
+                        <Link href={href} className="hover:text-primary hover:underline">
+                          {row.price != null
+                            ? `$${row.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}`
+                            : "—"}
                         </Link>
                       </td>
                       <td className="px-4 py-3 text-right text-sm text-muted-foreground">
-                        <Link
-                          href={holdingHref}
-                          className="hover:text-primary hover:underline"
-                        >
-                          {brokerage > 0
-                            ? `$${brokerage.toFixed(2)}`
-                            : accrued > 0
-                              ? `$${accrued.toFixed(2)} acc`
-                              : "—"}
+                        <Link href={href} className="hover:text-primary hover:underline">
+                          {row.fees > 0 ? `$${row.fees.toFixed(2)}` : "—"}
                         </Link>
                       </td>
                       <td className="px-4 py-3 text-right text-sm font-medium">
-                        <Link
-                          href={holdingHref}
-                          className="hover:text-primary hover:underline"
-                        >
-                          ${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <Link href={href} className="hover:text-primary hover:underline">
+                          ${row.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </Link>
                       </td>
                     </tr>

@@ -12,6 +12,7 @@ export interface TransactionData {
   brokerage: number | { toNumber(): number };
   exchangeRate: number | { toNumber(): number };
   currency: string;
+  accruedInterest?: number | { toNumber(): number } | null;
   frankedAmount?: number | { toNumber(): number } | null;
   unfrankedAmount?: number | { toNumber(): number } | null;
   frankingCredits?: number | { toNumber(): number } | null;
@@ -103,13 +104,19 @@ export function calculateHoldingPerformance(
     const qty = Number(tx.quantity);
     const price = Number(tx.price);
     const broker = Number(tx.brokerage);
+    const accrued = Number(tx.accruedInterest ?? 0);
 
     switch (tx.transactionType) {
       case "BUY":
         totalBought += qty * price + broker;
+        // Accrued interest paid on purchase is recovered at the next coupon,
+        // so it offsets (reduces) income rather than being capitalised.
+        dividends -= accrued;
         break;
       case "SELL":
         totalSold += qty * price - broker;
+        // Accrued interest received on sale is income.
+        dividends += accrued;
         break;
       case "DIVIDEND":
       case "INTEREST":

@@ -135,6 +135,8 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <li>Credit quality breakdown</li>
 <li>Coupon income, principal repayments, and custody fee tracking with summary totals</li>
 <li>One-step FIIG Securities import (trades, income, and fees)</li>
+<li>Update current bond prices from the FIIG rate sheet (Settings &rarr; Bond Prices), matched by ISIN</li>
+<li>Returns include income and net custody fees; accrued interest is tracked and netted into income</li>
 <li>Income forecasting and accrued interest tracking</li>
 </ul>`,
       },

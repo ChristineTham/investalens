@@ -74,3 +74,36 @@ export function calculatePosition(
     unrealisedGainPercent,
   };
 }
+
+/** Transaction types that represent income (dividends, interest, coupons). */
+export const INCOME_TYPES = ["DIVIDEND", "INTEREST", "COUPON"] as const;
+
+/**
+ * Net income from a holding's transactions.
+ *
+ * Income = dividends + interest + coupons received, net of accrued interest:
+ * accrued interest paid on a BUY is recovered at the next coupon (so it reduces
+ * income), and accrued interest received on a SELL is income.
+ */
+export function calculateIncome(transactions: TransactionData[]): number {
+  let income = 0;
+  for (const tx of transactions) {
+    const accrued = Number(tx.accruedInterest ?? 0);
+    switch (tx.transactionType) {
+      case "DIVIDEND":
+      case "INTEREST":
+      case "COUPON":
+        income += Number(tx.quantity) * Number(tx.price);
+        break;
+      case "BUY":
+      case "TRANSFER_IN":
+        income -= accrued;
+        break;
+      case "SELL":
+      case "TRANSFER_OUT":
+        income += accrued;
+        break;
+    }
+  }
+  return income;
+}

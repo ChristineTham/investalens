@@ -208,6 +208,14 @@ Bond coupon payments are recorded as **COUPON** transactions and principal repay
 
 The FIIG data-extract workbook (`.xls`) is imported in one step via **Import → Custom Import → FIIG Data Extract**. It reads the workbook's separate sheets and consolidates trades (BUY/SELL with accrued interest), income payments (coupons and principal repayments), custody fees, and security metadata (type, sector, coupon rate, payment frequency, maturity). All rows are deduplicated against existing data.
 
+#### Updating Bond Prices
+
+Unlisted/OTC bond prices are not available from Yahoo Finance. Instead, update them from the FIIG Securities rate sheet via **Settings → Bond Prices → “Fetch Bond Prices”**. Holdings are matched by ISIN (the bond `code`), and the current clean capital price is stored as today's price. Coupon rate, maturity, and sector are backfilled where missing.
+
+#### Bonds in Return Calculations
+
+Bond returns follow the same model as the rest of the portfolio: cost base includes any brokerage, market value uses the latest stored price per $1 of face value, coupon income and principal repayments count as income, and custody fees reduce total gain. Accrued interest paid on a purchase is netted out of income (it is recovered at the next coupon); accrued interest received on a sale adds to income.
+
 #### Supported Bond Platforms
 
 | Platform                          | Region    | Notes                                                     |

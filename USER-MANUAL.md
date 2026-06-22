@@ -58,7 +58,7 @@ After signing in, you land on the **Dashboard** (`/dashboard`) which shows your 
 | **Tax**        | Taxable income, CGT, and unrealised CGT reports                           |
 | **Tools**      | Watchlist, FIRE calculator, Share Checker, Market Sentiment, AI Assistant |
 | **Analytics**  | 13 quantitative analysis tools (backtesting, optimisation, Monte Carlo, etc.) |
-| **Settings**   | Groups, labels, sharing, export, API tokens                               |
+| **Settings**   | Groups, labels, sharing, export, API tokens, market data (fetch share and bond prices) |
 
 ### What You'll Do First
 
@@ -71,11 +71,11 @@ After signing in, you land on the **Dashboard** (`/dashboard`) which shows your 
 
 The Dashboard gives you an instant overview of every portfolio combined:
 
-- **Summary cards** — Purchase Cost, Total Value, Capital Gain, Income (dividends/interest/coupons), Total Gain (capital gain + income, with %), and Portfolios / Holdings count
+- **Summary cards** — Purchase Cost, Total Value, Capital Gain, Income (dividends/interest/coupons, net of accrued interest), Total Gain (capital gain + income − fees, with %), and Portfolios / Holdings count
 - **Portfolio Performance chart** — An area/line chart of each portfolio's value over time with a consolidated total line. Indexed to percentage gain/loss from the start of the selected time range so portfolios and the benchmark share a common baseline. Pick a benchmark (ASX 200, S&P 500, MSCI World, and more) shown as a dotted reference line, and switch the timescale (1Y, 3Y, 5Y, 10Y, All)
 - **Portfolio Allocation treemap** — Current value broken down by portfolio, then by holding, with each portfolio in its own colour and holdings as shades of that colour. Click any holding to open its detail page
-- **Portfolio Summary table** — Cost base, market value, capital gain, income, and total gain per portfolio
-- **Recent Activity** — The latest transactions across all portfolios with date, instrument, type, quantity, price, brokerage/accrued interest, and amount. Every row links to the transaction's holding page, and a "View All" button opens the full transaction history
+- **Portfolio Summary table** — Cost base, market value, capital gain, income, fees, and total gain per portfolio
+- **Recent Activity** — The latest activity across all portfolios (trades, dividends, coupons, and custody fees) with date, instrument, type, quantity, price, fees, and amount. Every row links to its holding (or the Bonds page for custody fees), and a "View All" button opens the full activity history
 
 ### Key Concepts
 
@@ -202,7 +202,9 @@ InvestaLens provides dedicated bond analytics (navigate via **Portfolio \u2192 s
 - Coupon schedule generation ✅
 - Maturity alerts (30/60/90 days before expiry) ✅
 - Import from FIIG Securities — trades, coupon income, principal repayments, and custody fees in one step ✅
+- Update current bond capital prices from the FIIG rate sheet (Settings → Bond Prices), matched by ISIN ✅
 - Coupon income, principal repayments, and custody fee tracking with summary totals ✅
+- Returns include income and net custody fees; accrued interest on trades is tracked and netted into income ✅
 - Credit quality breakdown ✅
 - Income forecasting and accrued interest tracking ✅
 
@@ -254,6 +256,17 @@ Move securities between portfolios by recording a sell at cost base in the sourc
 ## 5. Performance & Reporting
 
 Comprehensive reporting suite covering performance, allocation, risk, and compliance.
+
+### How Returns Are Calculated
+
+Throughout the dashboard and reports, returns combine capital and income, net of costs:
+
+- **Cost base** includes brokerage paid on purchases
+- **Capital gain** = market value − cost base
+- **Income** = dividends + interest + coupons, **net of accrued interest** (accrued interest paid when buying a bond reduces income because it is recovered at the next coupon; accrued interest received on a sale adds to income)
+- **Total gain** = capital gain + income − custody/management fees
+
+Bond market value uses the latest stored price per $1 of face value, so refreshing bond prices (Settings → Bond Prices) keeps bond valuations current.
 
 ### Performance Reports
 

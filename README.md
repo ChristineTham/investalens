@@ -7,11 +7,11 @@ A comprehensive portfolio tracker and optimiser for Australian investors. Track 
 - **Authentication** — Email/password + Google OAuth via NextAuth.js v5
 - **Portfolio Management** — Create, rename, delete, share portfolios with access levels
 - **Multi-Type Import** — Import hub for shares, bonds, and cash. One-step quick import for known brokers, a category-based guided wizard, and dedicated custom importers (e.g. the FIIG multi-sheet data extract). 9 broker templates (CommSec, SelfWealth, Stake, CMC, Bell Direct, nabtrade, FIIG, IB) plus generic bank-statement templates. All paths resolve duplicates automatically
-- **Market Data** — ASX prices via Yahoo Finance, instrument search, daily price cron
+- **Market Data** — ASX prices via Yahoo Finance, FIIG rate-sheet bond prices (matched by ISIN), instrument search, daily price cron
 - **Reports** — Performance, Contribution, Diversity, Future Income, Sold Securities, All Trades, Drawdown, Multi-Period, Calendar, Historical Cost
 - **Tax** — Taxable Income Report, CGT with 5 allocation methods + discount, Unrealised CGT
 - **Corporate Actions** — Splits, bonus, return of capital, rights issues, mergers
-- **Bonds** — YTM, duration, maturity ladder, coupon schedule, credit ratings, coupon income, principal repayments, and custody fee tracking
+- **Bonds** — YTM, duration, maturity ladder, coupon schedule, credit ratings, coupon income, principal repayments, custody fee tracking, and live FIIG rate-sheet price updates
 - **Organisation** — Custom groups, labels, consolidated view
 - **Watchlist** — Track potential investments
 - **Data Export** — CSV (trades, holdings, dividends) + JSON backup
@@ -125,7 +125,7 @@ lib/
   data/                 # Static data (exchange registry)
   reports/              # Report generators (performance, tax, etc.)
   import/               # CSV parser, mapper, cash mapper, dedup, broker + cash templates, custom importers (FIIG)
-  providers/            # Yahoo Finance, instrument search, FX rates
+  providers/            # Yahoo Finance, FIIG bond rates, instrument search, FX rates
   services/             # Price, analytics data, benchmark, ETF X-ray, share checker, sentiment, factor data
   export/               # CSV/JSON export functions
   api/                  # API middleware, rate limiting

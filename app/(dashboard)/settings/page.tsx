@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Users, Tag, FolderTree, Download, Key } from "lucide-react";
 import { FetchPricesButton } from "@/components/forms/fetch-prices-button";
+import { FetchBondPricesButton } from "@/components/forms/fetch-bond-prices-button";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -106,6 +107,7 @@ export default async function SettingsPage() {
 
       {/* Market Data section */}
       <FetchPricesButton />
+      <FetchBondPricesButton />
     </div>
   );
 }
