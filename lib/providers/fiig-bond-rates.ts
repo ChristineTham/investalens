@@ -10,6 +10,9 @@
 const FIIG_BONDS_API =
   "https://bondtickerapi.fiig.com.au/api/instruments/bonds";
 
+/** Full rate-sheet URL (all bonds in one page). */
+export const FIIG_BONDS_URL = `${FIIG_BONDS_API}?pageNo=1&pageSize=2000&sortField=companyName&sortDescending=false`;
+
 export interface FiigBondRate {
   /** ISIN — matches our bond instrument `code`. */
   isin: string;
@@ -41,6 +44,31 @@ interface FiigApiBond {
 interface FiigApiResponse {
   data: FiigApiBond[];
   stats?: { totals?: { count?: number } };
+}
+
+/**
+ * Parse a raw FIIG bonds API response into normalized rate records.
+ * Pure function — safe to run in the browser or on the server.
+ */
+export function parseFiigBonds(json: unknown): FiigBondRate[] {
+  const data = (json as FiigApiResponse)?.data ?? [];
+  const out: FiigBondRate[] = [];
+  for (const b of data) {
+    const price = Number(b.price);
+    if (!b.isin || isNaN(price)) continue;
+    out.push({
+      isin: b.isin,
+      companyName: b.companyName,
+      securityDescription: b.securityDescription,
+      price,
+      yield: Number(b.yield),
+      maturityDate: b.maturityDate,
+      couponDetail: b.couponDetail != null ? Number(b.couponDetail) : null,
+      couponFrequency: b.couponFrequency,
+      sector: b.sector,
+    });
+  }
+  return out;
 }
 
 /** Structured diagnostics captured during a rate-sheet fetch attempt. */
@@ -107,6 +135,12 @@ export async function fetchFiigBondRates(): Promise<Map<string, FiigBondRate>> {
     diag.durationMs = Date.now() - start;
     diag.errorName = err instanceof Error ? err.name : "Error";
     diag.errorMessage = err instanceof Error ? err.message : String(err);
+    // Node's fetch wraps the real reason (TLS/DNS/proxy) in `cause`
+    const cause = (err as { cause?: unknown })?.cause;
+    if (cause) {
+      const c = cause as { code?: string; message?: string };
+      diag.errorMessage = `${diag.errorMessage} — cause: ${c.code ?? ""} ${c.message ?? String(cause)}`.trim();
+    }
     const hint =
       diag.errorName === "TimeoutError"
         ? "The request timed out after 30s."

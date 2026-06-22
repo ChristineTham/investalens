@@ -3,53 +3,49 @@
 import { useState } from "react";
 import {
   fetchBondPrices,
+  saveBondPrices,
   type BondPriceResult,
 } from "@/lib/actions/fetch-bond-prices";
+import type {
+  FiigBondRate,
+  FiigFetchDiagnostics,
+} from "@/lib/providers/fiig-bond-rates";
 import { Landmark, X, Copy, Check } from "lucide-react";
 
-function buildErrorLog(res: BondPriceResult): string {
-  const d = res.diagnostics;
+interface BondRatesResponse {
+  ok: boolean;
+  rates?: FiigBondRate[];
+  error?: string;
+  diagnostics?: FiigFetchDiagnostics;
+}
+
+function diagnosticsToLog(d: FiigFetchDiagnostics | undefined, heading: string): string[] {
   const lines: string[] = [];
-  lines.push("=== InvestaLens — Fetch Bond Prices Error Log ===");
-  lines.push(`Timestamp: ${new Date().toISOString()}`);
-  lines.push(`Message: ${res.error ?? "Unknown error"}`);
-  lines.push(`Bonds in portfolios: ${res.totalBonds}`);
-  lines.push("");
-  if (d) {
-    lines.push("--- Request ---");
-    lines.push(`URL: ${d.url}`);
-    lines.push(`Started: ${d.startedAt}`);
-    lines.push(`Duration: ${d.durationMs} ms`);
-    lines.push(`OK: ${d.ok}`);
-    if (d.status !== undefined) {
-      lines.push(`HTTP status: ${d.status} ${d.statusText ?? ""}`.trim());
-    }
-    if (d.errorName || d.errorMessage) {
-      lines.push("");
-      lines.push("--- Exception ---");
-      if (d.errorName) lines.push(`Name: ${d.errorName}`);
-      if (d.errorMessage) lines.push(`Detail: ${d.errorMessage}`);
-    }
-    if (d.responseHeaders && Object.keys(d.responseHeaders).length > 0) {
-      lines.push("");
-      lines.push("--- Response headers ---");
-      for (const [k, v] of Object.entries(d.responseHeaders)) {
-        lines.push(`${k}: ${v}`);
-      }
-    }
-    if (d.bodySnippet) {
-      lines.push("");
-      lines.push("--- Response body (first 1000 chars) ---");
-      lines.push(d.bodySnippet);
-    }
-  } else {
-    lines.push(
-      "(No request diagnostics available — failure occurred before the network call.)"
-    );
+  if (!d) return lines;
+  lines.push(`--- ${heading} ---`);
+  lines.push(`URL: ${d.url}`);
+  lines.push(`Started: ${d.startedAt}`);
+  lines.push(`Duration: ${d.durationMs} ms`);
+  lines.push(`OK: ${d.ok}`);
+  if (d.status !== undefined) {
+    lines.push(`HTTP status: ${d.status} ${d.statusText ?? ""}`.trim());
   }
-  lines.push("");
-  lines.push("=== End of log ===");
-  return lines.join("\n");
+  if (d.errorName || d.errorMessage) {
+    lines.push("--- Exception ---");
+    if (d.errorName) lines.push(`Name: ${d.errorName}`);
+    if (d.errorMessage) lines.push(`Detail: ${d.errorMessage}`);
+  }
+  if (d.responseHeaders && Object.keys(d.responseHeaders).length > 0) {
+    lines.push("--- Response headers ---");
+    for (const [k, v] of Object.entries(d.responseHeaders)) {
+      lines.push(`${k}: ${v}`);
+    }
+  }
+  if (d.bodySnippet) {
+    lines.push("--- Response body (first 1000 chars) ---");
+    lines.push(d.bodySnippet);
+  }
+  return lines;
 }
 
 export function FetchBondPricesButton() {
@@ -68,27 +64,62 @@ export function FetchBondPricesButton() {
     setShowLog(false);
     setCopied(false);
 
+    const logLines: string[] = [
+      "=== InvestaLens — Fetch Bond Prices Error Log ===",
+      `Timestamp: ${new Date().toISOString()}`,
+    ];
+
+    // 1. Primary path: Sydney-pinned route fetches the rate sheet from an
+    //    allowed region, then we persist via the server action.
+    try {
+      const res = await fetch("/api/v1/market/bond-rates", { cache: "no-store" });
+      const data: BondRatesResponse = await res.json();
+
+      if (data.ok && data.rates && data.rates.length > 0) {
+        const saved = await saveBondPrices(data.rates);
+        if (saved.ok) {
+          setResult(saved);
+          setLoading(false);
+          return;
+        }
+        setError(saved.error ?? "Failed to save bond prices");
+        logLines.push(`Save error: ${saved.error ?? "unknown"}`);
+        setErrorLog(logLines.concat("=== End of log ===").join("\n"));
+        setLoading(false);
+        return;
+      }
+
+      // Route reachable but FIIG fetch failed — capture its diagnostics
+      logLines.push(`Primary (syd1 route) error: ${data.error ?? "unknown"}`);
+      logLines.push(...diagnosticsToLog(data.diagnostics, "Primary request (syd1 route)"));
+    } catch (err) {
+      logLines.push(
+        `Primary (syd1 route) request failed: ${err instanceof Error ? err.message : String(err)}`
+      );
+    }
+
+    // 2. Fallback: direct server action (same region as the page).
     try {
       const res = await fetchBondPrices();
-      if (!res.ok) {
-        setError(res.error ?? "Failed to fetch bond prices");
-        setErrorLog(buildErrorLog(res));
-      } else {
+      if (res.ok) {
         setResult(res);
+        setLoading(false);
+        return;
       }
+      setError(res.error ?? "Failed to fetch bond prices");
+      logLines.push("");
+      logLines.push(`Fallback error: ${res.error ?? "unknown"}`);
+      logLines.push(`Bonds in portfolios: ${res.totalBonds}`);
+      logLines.push(...diagnosticsToLog(res.diagnostics, "Fallback request (default region)"));
+      setErrorLog(logLines.concat("", "=== End of log ===").join("\n"));
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to fetch bond prices";
       setError(message);
-      setErrorLog(
-        [
-          "=== InvestaLens — Fetch Bond Prices Error Log ===",
-          `Timestamp: ${new Date().toISOString()}`,
-          `Message: ${message}`,
-          err instanceof Error && err.stack ? `\nStack:\n${err.stack}` : "",
-          "=== End of log ===",
-        ].join("\n")
-      );
+      logLines.push("");
+      logLines.push(`Fallback request failed: ${message}`);
+      if (err instanceof Error && err.stack) logLines.push(`Stack:\n${err.stack}`);
+      setErrorLog(logLines.concat("", "=== End of log ===").join("\n"));
     } finally {
       setLoading(false);
     }
