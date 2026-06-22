@@ -10,9 +10,21 @@ export class AnalyticsClient {
   }
 
   async callFunction<T>(endpoint: string, data: unknown): Promise<T> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    // When the deployment has Deployment Protection enabled, a server-to-server
+    // request to our own VERCEL_URL is rejected with 401. The automation bypass
+    // secret (set automatically by Vercel when "Protection Bypass for
+    // Automation" is enabled) lets these internal calls through.
+    const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+    if (bypass) {
+      headers["x-vercel-protection-bypass"] = bypass;
+    }
+
     const response = await fetch(`${this.baseUrl}/api/analytics/${endpoint}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(data),
     });
     if (!response.ok) {
