@@ -22,11 +22,18 @@ export default async function BondsPage({
     include: { instrument: true },
   });
 
-  // Latest stored price per bond, to flag stale / missing valuations
-  const latestPrices = new Map<
-    string,
-    { close: number; date: Date } | null
-  >();
+  const STALE_DAYS = 7;
+
+  // Latest stored price per bond, with a precomputed staleness flag.
+  // The current time is captured inside the async data-fetch (not during
+  // render) to keep the render path pure.
+  type PriceStatus = {
+    price: number | null;
+    asAt: Date | null;
+    stale: boolean;
+    missing: boolean;
+  };
+  const priceStatuses = new Map<string, PriceStatus>();
   await Promise.all(
     holdings.map(async (h) => {
       const p = await db.price.findFirst({
@@ -34,30 +41,34 @@ export default async function BondsPage({
         orderBy: { date: "desc" },
         select: { close: true, date: true },
       });
-      latestPrices.set(
-        h.instrumentId,
-        p ? { close: Number(p.close), date: p.date } : null
-      );
+      if (!p) {
+        priceStatuses.set(h.instrumentId, {
+          price: null,
+          asAt: null,
+          stale: false,
+          missing: true,
+        });
+        return;
+      }
+      const ageDays = (Date.now() - p.date.getTime()) / 86_400_000;
+      priceStatuses.set(h.instrumentId, {
+        price: Number(p.close),
+        asAt: p.date,
+        stale: ageDays > STALE_DAYS,
+        missing: false,
+      });
     })
   );
 
-  const STALE_DAYS = 7;
-  const now = Date.now();
-  function priceStatus(instrumentId: string): {
-    price: number | null;
-    asAt: Date | null;
-    stale: boolean;
-    missing: boolean;
-  } {
-    const p = latestPrices.get(instrumentId) ?? null;
-    if (!p) return { price: null, asAt: null, stale: false, missing: true };
-    const ageDays = (now - p.date.getTime()) / 86_400_000;
-    return {
-      price: p.close,
-      asAt: p.date,
-      stale: ageDays > STALE_DAYS,
-      missing: false,
-    };
+  function priceStatus(instrumentId: string): PriceStatus {
+    return (
+      priceStatuses.get(instrumentId) ?? {
+        price: null,
+        asAt: null,
+        stale: false,
+        missing: true,
+      }
+    );
   }
 
   const needsUpdate = holdings.filter((h) => {
