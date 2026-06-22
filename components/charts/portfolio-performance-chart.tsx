@@ -2,8 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import {
-  AreaChart,
-  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -70,8 +68,8 @@ export function PortfolioPerformanceChart() {
     fetchData();
   }, [fetchData]);
 
-  const formatCurrency = (value: number) =>
-    `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  const formatPercent = (value: number) =>
+    `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
 
   const formatDate = (date: string) => {
     if (range === "1Y") return date.slice(5); // MM-DD
@@ -138,10 +136,10 @@ export function PortfolioPerformanceChart() {
                 tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
               />
               <YAxis
-                tickFormatter={formatCurrency}
+                tickFormatter={(v) => `${v >= 0 ? "+" : ""}${v.toFixed(0)}%`}
                 className="text-xs"
                 tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
-                width={80}
+                width={60}
               />
               <Tooltip
                 contentStyle={{
@@ -151,50 +149,47 @@ export function PortfolioPerformanceChart() {
                   fontSize: "12px",
                 }}
                 labelFormatter={(label) => String(label)}
-                formatter={(value) => [formatCurrency(Number(value))]}
+                formatter={(value) => [formatPercent(Number(value))]}
               />
               <Legend
                 wrapperStyle={{ fontSize: "12px", paddingTop: "8px" }}
               />
 
-              {/* Individual portfolio areas (stacked) */}
+              {/* Individual portfolio lines */}
               {portfolioNames.map((name, i) => (
-                <Area
+                <Line
                   key={name}
                   type="monotone"
                   dataKey={name}
-                  stackId="portfolios"
                   stroke={PORTFOLIO_COLORS[i % PORTFOLIO_COLORS.length]}
-                  fill={PORTFOLIO_COLORS[i % PORTFOLIO_COLORS.length]}
-                  fillOpacity={0.3}
                   strokeWidth={1.5}
+                  dot={false}
                 />
               ))}
 
-              {/* Total consolidated line on top */}
+              {/* Total consolidated line */}
               <Line
                 type="monotone"
                 dataKey="Total"
                 stroke="var(--primary)"
                 strokeWidth={2.5}
                 dot={false}
-                strokeDasharray=""
               />
 
-              {/* Benchmark reference line */}
+              {/* Benchmark dotted line */}
               {benchmark && (
                 <Line
                   type="monotone"
                   dataKey="Benchmark"
                   stroke="var(--muted-foreground)"
                   strokeWidth={2}
-                  strokeDasharray="5 5"
+                  strokeDasharray="4 4"
                   dot={false}
                   connectNulls
                 />
               )}
 
-              <ReferenceLine y={0} stroke="var(--border)" />
+              <ReferenceLine y={0} stroke="var(--border)" strokeWidth={1.5} />
             </ComposedChart>
           </ResponsiveContainer>
         )}

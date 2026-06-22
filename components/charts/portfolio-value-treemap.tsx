@@ -8,13 +8,17 @@ interface HoldingNode {
   size: number;
   portfolioId: string;
   holdingId: string;
+  portfolioIndex: number;
+  holdingIndex: number;
+  holdingCount: number;
   [key: string]: string | number;
 }
 
 interface PortfolioNode {
   name: string;
+  portfolioIndex: number;
   children: HoldingNode[];
-  [key: string]: string | HoldingNode[];
+  [key: string]: string | number | HoldingNode[];
 }
 
 export interface PortfolioTreemapData {
@@ -27,18 +31,22 @@ interface PortfolioValueTreemapProps {
   data: PortfolioTreemapData[];
 }
 
-const COLORS = [
-  "var(--rosely2)",
-  "var(--rosely7)",
-  "var(--rosely8)",
-  "var(--rosely14)",
-  "var(--rosely15)",
-  "var(--rosely10)",
-  "var(--rosely9)",
-  "var(--rosely12)",
-  "var(--rosely13)",
-  "var(--rosely3)",
-];
+// Base hues for portfolios (HSL hue values)
+const PORTFOLIO_HUES = [210, 150, 340, 30, 270, 180, 60, 300, 120, 0];
+
+function getPortfolioColor(portfolioIndex: number, opacity: number = 1): string {
+  const hue = PORTFOLIO_HUES[portfolioIndex % PORTFOLIO_HUES.length];
+  return `hsla(${hue}, 65%, 45%, ${opacity})`;
+}
+
+function getHoldingColor(portfolioIndex: number, holdingIndex: number, holdingCount: number): string {
+  const hue = PORTFOLIO_HUES[portfolioIndex % PORTFOLIO_HUES.length];
+  // Vary lightness from 35% to 60% based on position within portfolio
+  const lightness = holdingCount > 1
+    ? 35 + (holdingIndex / (holdingCount - 1)) * 25
+    : 45;
+  return `hsl(${hue}, 65%, ${lightness}%)`;
+}
 
 function CustomContent(props: {
   x?: number;
@@ -50,11 +58,18 @@ function CustomContent(props: {
   value?: number;
   root?: { children?: { value: number }[] };
   depth?: number;
+  portfolioIndex?: number;
+  holdingIndex?: number;
+  holdingCount?: number;
 }) {
-  const { x = 0, y = 0, width = 0, height = 0, index = 0, name = "", value = 0, root, depth = 0 } = props;
+  const {
+    x = 0, y = 0, width = 0, height = 0,
+    name = "", value = 0, root, depth = 0,
+    portfolioIndex = 0, holdingIndex = 0, holdingCount = 1,
+  } = props;
 
   if (depth === 1) {
-    // Portfolio level - just draw the rect, children will be drawn on top
+    // Portfolio level - border and label
     return (
       <g>
         <rect
@@ -62,16 +77,15 @@ function CustomContent(props: {
           y={y}
           width={width}
           height={height}
-          fill={COLORS[index % COLORS.length]}
-          fillOpacity={0.2}
-          stroke="var(--border)"
+          fill={getPortfolioColor(portfolioIndex, 0.15)}
+          stroke={getPortfolioColor(portfolioIndex)}
           strokeWidth={2}
         />
         {width > 60 && height > 20 && (
           <text
             x={x + 4}
             y={y + 14}
-            fill="var(--muted-foreground)"
+            fill={getPortfolioColor(portfolioIndex)}
             fontSize={10}
             fontWeight="bold"
           >
@@ -82,9 +96,10 @@ function CustomContent(props: {
     );
   }
 
-  // Holding level
+  // Holding level - colored by portfolio with shade variation
   const total = root?.children?.reduce((s, c) => s + c.value, 0) || 1;
   const percent = ((value / total) * 100).toFixed(1);
+  const fillColor = getHoldingColor(portfolioIndex, holdingIndex, holdingCount);
 
   return (
     <g>
@@ -93,8 +108,7 @@ function CustomContent(props: {
         y={y}
         width={width}
         height={height}
-        fill={COLORS[index % COLORS.length]}
-        fillOpacity={0.85}
+        fill={fillColor}
         stroke="var(--background)"
         strokeWidth={1.5}
         className="cursor-pointer"
@@ -135,13 +149,17 @@ export function PortfolioValueTreemap({ data }: PortfolioValueTreemapProps) {
   // Build hierarchical data for recharts Treemap
   const treemapData: PortfolioNode[] = data
     .filter((p) => p.holdings.length > 0)
-    .map((p) => ({
+    .map((p, pIdx) => ({
       name: p.portfolioName,
-      children: p.holdings.map((h) => ({
+      portfolioIndex: pIdx,
+      children: p.holdings.map((h, hIdx) => ({
         name: h.code,
         size: h.marketValue,
         portfolioId: p.portfolioId,
         holdingId: h.id,
+        portfolioIndex: pIdx,
+        holdingIndex: hIdx,
+        holdingCount: p.holdings.length,
       })),
     }));
 

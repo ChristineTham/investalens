@@ -44,9 +44,9 @@ export async function GET(request: Request) {
   }
   const allDates = [...allDatesSet].sort();
 
-  // Build data points for each date
-  const chartData = allDates.map((date) => {
-    const point: Record<string, string | number> = { date };
+  // Compute raw values per date first
+  const rawData = allDates.map((date) => {
+    const point: Record<string, number> = {};
     let total = 0;
 
     for (const ps of portfolioSeries) {
@@ -56,34 +56,48 @@ export async function GET(request: Request) {
       total += value;
     }
     point["Total"] = total;
+    return { date, ...point };
+  });
 
-    if (benchmarkSeries && benchmarkSeries.dates.length > 0) {
+  // Get base values (first data point) for percentage indexing
+  const baseValues: Record<string, number> = {};
+  if (rawData.length > 0) {
+    for (const ps of portfolioSeries) {
+      baseValues[ps.name] = rawData[0][ps.name] || 0;
+    }
+    baseValues["Total"] = rawData[0]["Total"] || 0;
+  }
+
+  // Get benchmark base value
+  let benchBase = 0;
+  if (benchmarkSeries && benchmarkSeries.values.length > 0) {
+    benchBase = benchmarkSeries.values[0];
+  }
+
+  // Convert to percentage gain/loss indexed from start
+  const chartData = rawData.map(({ date, ...values }) => {
+    const point: Record<string, string | number> = { date };
+
+    for (const ps of portfolioSeries) {
+      const base = baseValues[ps.name];
+      const value = values[ps.name] || 0;
+      point[ps.name] = base > 0 ? ((value - base) / base) * 100 : 0;
+    }
+
+    const totalBase = baseValues["Total"];
+    const totalValue = values["Total"] || 0;
+    point["Total"] = totalBase > 0 ? ((totalValue - totalBase) / totalBase) * 100 : 0;
+
+    // Benchmark percentage gain from start
+    if (benchmarkSeries && benchmarkSeries.dates.length > 0 && benchBase > 0) {
       const idx = benchmarkSeries.dates.indexOf(date);
       if (idx >= 0) {
-        // Rebase benchmark to match total portfolio value at start
-        const benchBase = benchmarkSeries.values[0];
-        const firstTotal = chartData.length === 0 ? total : (chartData[0] as Record<string, number>)["Total"] || total;
-        point["Benchmark"] = benchBase > 0
-          ? (benchmarkSeries.values[idx] / benchBase) * firstTotal
-          : 0;
+        point["Benchmark"] = ((benchmarkSeries.values[idx] - benchBase) / benchBase) * 100;
       }
     }
 
     return point;
   });
-
-  // Fix benchmark rebasing - use the first total value
-  if (benchmarkSeries && benchmarkSeries.dates.length > 0 && chartData.length > 0) {
-    const firstTotal = chartData[0]["Total"] as number;
-    const benchBase = benchmarkSeries.values[0];
-    for (const point of chartData) {
-      const date = point.date as string;
-      const idx = benchmarkSeries.dates.indexOf(date);
-      if (idx >= 0 && benchBase > 0) {
-        point["Benchmark"] = (benchmarkSeries.values[idx] / benchBase) * firstTotal;
-      }
-    }
-  }
 
   return NextResponse.json({
     portfolioNames: portfolios.map((p) => p.name),
