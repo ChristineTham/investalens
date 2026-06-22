@@ -7,7 +7,7 @@ A comprehensive portfolio tracker and optimiser for Australian investors. Track 
 - **Authentication** — Email/password + Google OAuth via NextAuth.js v5
 - **Portfolio Management** — Create, rename, delete, share portfolios with access levels
 - **Multi-Type Import** — Import hub for shares, bonds, and cash. One-step quick import for known brokers, a category-based guided wizard, and dedicated custom importers (e.g. the FIIG multi-sheet data extract). 9 broker templates (CommSec, SelfWealth, Stake, CMC, Bell Direct, nabtrade, FIIG, IB) plus generic bank-statement templates. All paths resolve duplicates automatically
-- **Market Data** — ASX prices via Yahoo Finance, FIIG rate-sheet bond prices (matched by ISIN), instrument search, daily price cron
+- **Market Data** — One-step **Update** (Settings → Market Data) streams live progress while it fetches ASX/share & ETF prices via Yahoo Finance, FIIG rate-sheet bond prices (matched by ISIN), and company information — plus instrument search and a daily price cron
 - **Stock Information** — Rich company data per holding via yfinance (Python): profile & description, key fundamentals, analyst price targets & recommendation trend, upgrades/downgrades, earnings/dividend calendar, recent news, financial statements, and corporate actions
 - **Reports** — Performance, Contribution, Diversity, Future Income, Sold Securities, All Trades, Drawdown, Multi-Period, Calendar, Historical Cost
 - **Tax** — Taxable Income Report, CGT with 5 allocation methods + discount, Unrealised CGT
@@ -200,6 +200,16 @@ The project includes `vercel.json` with:
 - `experimentalServices` — Next.js frontend + Python FastAPI analytics as separate services
 - Cron schedule: `/api/cron/prices` at 08:00 UTC Mon–Fri (fetches holding + benchmark prices)
 - Framework Preset must be set to **"Services"** in Vercel dashboard
+
+### Deployment Protection (required for analytics + stock info)
+
+The app calls its own Python analytics services server-to-server (optimisation, Monte Carlo, **stock information**, etc.). If your project has **Deployment Protection** enabled, those internal requests are rejected with `401` unless you allow automation:
+
+1. Vercel → project → **Settings → Deployment Protection**
+2. Under **Protection Bypass for Automation**, add a secret — Vercel sets the `VERCEL_AUTOMATION_BYPASS_SECRET` system env var automatically
+3. **Redeploy** (the secret is injected at build time)
+
+The app sends this secret as the `x-vercel-protection-bypass` header on internal analytics calls only. Without it, the **Update** button reports company info as "unavailable" (HTTP 401).
 
 ## Scripts
 

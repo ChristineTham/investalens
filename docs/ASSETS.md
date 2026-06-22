@@ -84,7 +84,7 @@ Unit trusts operate similarly to managed funds and are tracked the same way — 
 
 ### Stock Information
 
-Beyond price tracking, every share and ETF holding carries rich company information sourced from Yahoo Finance via the Python `yfinance` backend. It is refreshed alongside prices (**Settings → Market Data → "Fetch Prices"**) and displayed in a tabbed **Company Information** panel on the holding detail page:
+Beyond price tracking, every share and ETF holding carries rich company information sourced from Yahoo Finance via the Python `yfinance` backend. It is refreshed alongside prices (**Settings → Market Data → "Update"**) and displayed in a tabbed **Company Information** panel on the holding detail page:
 
 | Section        | Contents                                                                                         |
 | -------------- | ------------------------------------------------------------------------------------------------ |
@@ -225,7 +225,7 @@ The FIIG data-extract workbook (`.xls`) is imported in one step via **Import →
 
 #### Updating Bond Prices
 
-Unlisted/OTC bond prices are not available from Yahoo Finance. Instead, update them from the FIIG Securities rate sheet via **Settings → Bond Prices → “Fetch Bond Prices”**. Holdings are matched by ISIN (the bond `code`), and the current clean capital price is stored as today's price. Coupon rate, maturity, and sector are backfilled where missing.
+Unlisted/OTC bond prices are not available from Yahoo Finance. Instead, they are updated from the FIIG Securities rate sheet as part of the unified market-data refresh: **Settings → Market Data → “Update”** fetches share/ETF prices, bond prices, and company info in one streamed step. Holdings are matched by ISIN (the bond `code`), and the current clean capital price is stored as today's price. Coupon rate, maturity, and sector are backfilled where missing.
 
 #### Bonds in Return Calculations
 

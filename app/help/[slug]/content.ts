@@ -135,14 +135,14 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <li>Credit quality breakdown</li>
 <li>Coupon income, principal repayments, and custody fee tracking with summary totals</li>
 <li>One-step FIIG Securities import (trades, income, and fees)</li>
-<li>Update current bond prices from the FIIG rate sheet (Settings &rarr; Bond Prices), matched by ISIN</li>
+<li>Update current bond prices from the FIIG rate sheet (Settings &rarr; Market Data &rarr; &ldquo;Update&rdquo;), matched by ISIN</li>
 <li>Returns include income and net custody fees; accrued interest is tracked and netted into income</li>
 <li>Income forecasting and accrued interest tracking</li>
 </ul>`,
       },
       {
         heading: "Stock Information",
-        content: `<p>Each share and ETF holding shows rich company information from Yahoo Finance, refreshed alongside prices (<strong>Settings &rarr; Market Data &rarr; &ldquo;Fetch Prices&rdquo;</strong>). Open a holding to see a tabbed <strong>Company Information</strong> panel:</p>
+        content: `<p>Each share and ETF holding shows rich company information from Yahoo Finance, refreshed alongside prices (<strong>Settings &rarr; Market Data &rarr; &ldquo;Update&rdquo;</strong>, which streams share, bond, and company-info updates in one step). Open a holding to see a tabbed <strong>Company Information</strong> panel:</p>
 <ul>
 <li><strong>Overview</strong> &mdash; business summary, sector/industry/country, and key fundamentals (market cap, P/E, EPS, beta, dividend yield, margins, ROE, 52-week range)</li>
 <li><strong>Analysts</strong> &mdash; price targets with upside vs current price, recommendation-trend chart, and recent upgrades/downgrades</li>

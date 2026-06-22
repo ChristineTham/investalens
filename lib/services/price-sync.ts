@@ -1,7 +1,7 @@
 /**
- * Streaming market-data sync. Performs the same work as the individual
- * fetch-prices / fetch-bond-prices / fetch-stock-info actions, but accepts an
- * `emit` callback so a route handler can stream per-ticker progress to the UI.
+ * Streaming market-data sync. Fetches share/ETF prices, FIIG bond prices and
+ * company info, accepting an `emit` callback so a route handler can stream
+ * per-ticker progress to the UI.
  *
  * Server-only. Not a server action (it takes a callback), so it must be called
  * from a route handler or another server module.

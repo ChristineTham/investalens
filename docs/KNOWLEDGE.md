@@ -549,6 +549,14 @@
   ```
 - **IMPORTANT**: Do NOT specify `"runtime": "@vercel/python@..."` — this is legacy. Python is now a built-in runtime.
 
+### Gotcha — Deployment Protection blocks internal service calls (401)
+
+- **Source**: https://vercel.com/docs/deployment-protection/methods-to-bypass-deployment-protection/protection-bypass-automation
+- The Next.js app calls its own Python analytics services server-to-server via `lib/services/analytics-client.ts` (`https://${VERCEL_URL}/api/analytics/<endpoint>`).
+- If the project has **Deployment Protection** enabled, those self-requests are rejected with **HTTP 401** before reaching the Python function. Symptom: stock-info / optimisation / Monte Carlo all "unavailable" with `Analytics function failed: 401`.
+- **Fix**: Vercel → project → **Settings → Deployment Protection → Protection Bypass for Automation → Add Secret**. Vercel auto-creates the `VERCEL_AUTOMATION_BYPASS_SECRET` system env var. **Redeploy** (it's injected at build time).
+- `analyticsClient.callFunction` sends it as the `x-vercel-protection-bypass` header when present (header method is recommended). The header is only attached to internal analytics calls, never to external (Yahoo/FIIG) requests.
+
 ---
 
 ## Python — Google Antigravity SDK

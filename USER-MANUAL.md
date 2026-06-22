@@ -203,7 +203,7 @@ InvestaLens provides dedicated bond analytics (navigate via **Portfolio \u2192 s
 - Coupon schedule generation ✅
 - Maturity alerts (30/60/90 days before expiry) ✅
 - Import from FIIG Securities — trades, coupon income, principal repayments, and custody fees in one step ✅
-- Update current bond capital prices from the FIIG rate sheet (Settings → Bond Prices), matched by ISIN ✅
+- Update current bond capital prices from the FIIG rate sheet (Settings → Market Data → "Update"), matched by ISIN ✅
 - Coupon income, principal repayments, and custody fee tracking with summary totals ✅
 - Returns include income and net custody fees; accrued interest on trades is tracked and netted into income ✅
 - Credit quality breakdown ✅
@@ -231,7 +231,9 @@ Each share and ETF holding shows rich, periodically-refreshed company informatio
 
 ### How to Refresh Stock Information
 
-Stock information is fetched together with prices. Go to **Settings → Market Data → "Fetch Prices"** — in one step InvestaLens updates share and ETF prices (Yahoo Finance), bond prices (FIIG rate sheet), and the company information for your share/ETF holdings. Bonds, cash, and currencies are skipped. The panel shows when the data was last updated.
+Stock information is fetched together with prices. Go to **Settings → Market Data** and click **"Update"** — in one step InvestaLens updates share and ETF prices (Yahoo Finance), bond prices (FIIG rate sheet), and the company information for your share/ETF holdings. A live progress bar shows each phase (shares & ETFs → bonds → company info) and the current ticker as it works. Bonds, cash, and currencies are skipped for company info. The panel shows when the data was last updated.
+
+> **Note (self-hosted on Vercel):** company information is computed by the Python `yfinance` backend, which the app calls server-to-server. If your deployment has **Deployment Protection** enabled, enable **Protection Bypass for Automation** (Settings → Deployment Protection) so these internal calls aren't blocked with a 401, then redeploy.
 
 > **Full guide:** [Asset Support](docs/ASSETS.md)
 
@@ -287,7 +289,7 @@ Throughout the dashboard and reports, returns combine capital and income, net of
 - **Income** = dividends + interest + coupons, **net of accrued interest** (accrued interest paid when buying a bond reduces income because it is recovered at the next coupon; accrued interest received on a sale adds to income)
 - **Total gain** = capital gain + income − custody/management fees
 
-Bond market value uses the latest stored price per $1 of face value, so refreshing bond prices (Settings → Bond Prices) keeps bond valuations current.
+Bond market value uses the latest stored price per $1 of face value, so refreshing market data (Settings → Market Data → "Update") keeps bond valuations current.
 
 ### Performance Reports
 
