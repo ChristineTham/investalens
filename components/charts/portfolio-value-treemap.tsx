@@ -8,11 +8,13 @@ interface HoldingNode {
   size: number;
   portfolioId: string;
   holdingId: string;
+  [key: string]: string | number;
 }
 
 interface PortfolioNode {
   name: string;
   children: HoldingNode[];
+  [key: string]: string | HoldingNode[];
 }
 
 export interface PortfolioTreemapData {
