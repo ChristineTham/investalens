@@ -7,6 +7,10 @@ import {
   saveBondPrices,
   type BondPriceResult,
 } from "@/lib/actions/fetch-bond-prices";
+import {
+  fetchStockInfo,
+  type StockInfoFetchResult,
+} from "@/lib/actions/fetch-stock-info";
 import type {
   FiigBondRate,
   FiigFetchDiagnostics,
@@ -101,8 +105,10 @@ export function FetchPricesButton() {
   const [loading, setLoading] = useState(false);
   const [stockResult, setStockResult] = useState<StockResult | null>(null);
   const [bondResult, setBondResult] = useState<BondPriceResult | null>(null);
+  const [infoResult, setInfoResult] = useState<StockInfoFetchResult | null>(null);
   const [stockError, setStockError] = useState("");
   const [bondError, setBondError] = useState("");
+  const [infoError, setInfoError] = useState("");
   const [errorLog, setErrorLog] = useState<string | null>(null);
   const [showLog, setShowLog] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -111,8 +117,10 @@ export function FetchPricesButton() {
     setLoading(true);
     setStockResult(null);
     setBondResult(null);
+    setInfoResult(null);
     setStockError("");
     setBondError("");
+    setInfoError("");
     setErrorLog(null);
     setShowLog(false);
     setCopied(false);
@@ -142,7 +150,28 @@ export function FetchPricesButton() {
       setBondError(error);
     }
 
-    if (error) {
+    // 3. Rich stock info (profile, fundamentals, analysts, news) via yfinance
+    let infoFailed = false;
+    try {
+      const info = await fetchStockInfo();
+      if (info.ok) {
+        setInfoResult(info);
+      } else {
+        infoFailed = true;
+        setInfoError(info.error ?? "Failed to fetch stock information");
+        logLines.push("");
+        logLines.push(`Stock info fetch failed: ${info.error ?? "unknown"}`);
+      }
+    } catch (err) {
+      infoFailed = true;
+      const message =
+        err instanceof Error ? err.message : "Failed to fetch stock information";
+      setInfoError(message);
+      logLines.push("");
+      logLines.push(`Stock info fetch failed: ${message}`);
+    }
+
+    if (error || infoFailed) {
       setErrorLog(logLines.concat("", "=== End of log ===").join("\n"));
     }
 
@@ -168,7 +197,8 @@ export function FetchPricesButton() {
           <p className="mt-1 text-sm text-muted-foreground">
             Fetch the latest prices for all holdings — shares and ETFs from Yahoo
             Finance (historical prices and dividends), and bonds from the FIIG
-            Securities rate sheet (matched by ISIN).
+            Securities rate sheet (matched by ISIN). Also refreshes company
+            profiles, fundamentals, analyst views and news for shares &amp; ETFs.
           </p>
         </div>
         <button
@@ -181,7 +211,12 @@ export function FetchPricesButton() {
         </button>
       </div>
 
-      {(stockResult || bondResult || stockError || bondError) && (
+      {(stockResult ||
+        bondResult ||
+        infoResult ||
+        stockError ||
+        bondError ||
+        infoError) && (
         <div className="mt-3 space-y-2 rounded-md border border-border bg-muted/50 p-3 text-sm">
           {/* Shares / ETFs */}
           {stockResult && (
@@ -224,6 +259,36 @@ export function FetchPricesButton() {
           {bondError && (
             <div className="flex items-center justify-between gap-3 text-destructive">
               <span>Bonds: {bondError}</span>
+              {errorLog && (
+                <button
+                  type="button"
+                  onClick={() => setShowLog(true)}
+                  className="shrink-0 rounded-md border border-destructive/50 px-2 py-1 text-xs font-medium hover:bg-destructive/20"
+                >
+                  View error log
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Stock information */}
+          {infoResult &&
+            (infoResult.total === 0 ? null : (
+              <p className="font-medium text-success">
+                Stock info: updated {infoResult.updated} of {infoResult.total}{" "}
+                share{infoResult.total === 1 ? "" : "s"} &amp; ETF
+                {infoResult.total === 1 ? "" : "s"}
+                {infoResult.failed > 0 ? (
+                  <span className="font-normal text-muted-foreground">
+                    {" "}
+                    ({infoResult.failed} unavailable)
+                  </span>
+                ) : null}
+              </p>
+            ))}
+          {infoError && (
+            <div className="flex items-center justify-between gap-3 text-destructive">
+              <span>Stock info: {infoError}</span>
               {errorLog && (
                 <button
                   type="button"

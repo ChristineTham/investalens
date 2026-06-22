@@ -155,9 +155,59 @@ model Instrument {
 
   holdings Holding[]
   prices   Price[]
+  info     InstrumentInfo?
 
   @@unique([code, marketCode])
   @@index([code])
+}
+
+/// Rich, periodically-refreshed market information for an instrument
+/// (company profile, fundamentals, analyst views, news, financials, actions).
+/// Fetched from Yahoo Finance via the Python yfinance backend.
+model InstrumentInfo {
+  id           String @id @default(cuid())
+  instrumentId String @unique
+
+  // Company profile
+  longName  String?
+  shortName String?
+  summary   String? @db.Text
+  website   String?
+  sector    String?
+  industry  String?
+  country   String?
+  city      String?
+  employees Int?
+  exchange  String?
+  quoteType String?
+  currency  String?
+
+  // Frequently-displayed key stats (numeric)
+  marketCap        Decimal? @db.Decimal(24, 2)
+  trailingPE       Decimal? @db.Decimal(18, 4)
+  forwardPE        Decimal? @db.Decimal(18, 4)
+  priceToBook      Decimal? @db.Decimal(18, 4)
+  beta             Decimal? @db.Decimal(12, 4)
+  eps              Decimal? @db.Decimal(18, 4)
+  dividendYield    Decimal? @db.Decimal(10, 6)
+  fiftyTwoWeekHigh Decimal? @db.Decimal(18, 4)
+  fiftyTwoWeekLow  Decimal? @db.Decimal(18, 4)
+
+  // Rich structured data (JSON blobs)
+  stats           Json? // additional key statistics
+  analystTargets  Json? // {current, low, high, mean, median}
+  recommendations Json? // analyst recommendation trend rows
+  upgrades        Json? // recent upgrades/downgrades
+  calendar        Json? // earnings dates, ex-dividend, estimates
+  news            Json? // recent news items
+  financials      Json? // income-statement summary by year
+  actions         Json? // dividends + splits history
+
+  fetchedAt DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instrument Instrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
 }
 
 model Transaction {

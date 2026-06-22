@@ -25,7 +25,8 @@
 15. [Python — uv Project Manager](#python--uv-project-manager)
 16. [Python — FastAPI](#python--fastapi)
 17. [Python — skfolio](#python--skfolio)
-18. [Python — NumPy, SciPy, pandas](#python--numpy-scipy-pandas)
+18. [Python — yfinance](#python--yfinance)
+19. [Python — NumPy, SciPy, pandas](#python--numpy-scipy-pandas)
 19. [Deployment — Vercel Python Runtime](#deployment--vercel-python-runtime)
 20. [Python — Google Antigravity SDK](#python--google-antigravity-sdk)
 21. [Misc JS Libraries](#misc-js-libraries)
@@ -457,6 +458,43 @@
   portfolio = model.predict(X_test)
   ```
 - **Bundle size concern**: skfolio pulls in scikit-learn, cvxpy — large for serverless. May need to split analytics functions or use chunked computation.
+
+---
+
+## Python — yfinance
+
+- **Source**: https://ranaroussi.github.io/yfinance/ — PyPI: https://pypi.org/project/yfinance/
+- **Install command** (via uv): `uv add yfinance`
+- **Version verified**: 1.4.1 (May 2026)
+- **Key facts**:
+  - Pythonic wrapper over Yahoo! Finance's public API (research/personal use only; not affiliated with Yahoo)
+  - Apache 2.0 license
+  - Depends on `curl_cffi` for the requests fallback (handles Yahoo's TLS/anti-bot)
+  - Main class `Ticker(symbol)` exposes attributes/getters:
+    - `info` / `get_info()` — company profile + key stats dict (longName, sector, industry, marketCap, trailingPE, dividendYield, beta, fiftyTwoWeekHigh/Low, longBusinessSummary, website, fullTimeEmployees, etc.)
+    - `news` / `get_news(count)` — recent news (newer schema nests under `content`)
+    - `calendar` / `get_calendar()` — earnings dates, ex-dividend date, earnings/revenue estimates
+    - `recommendations` / `recommendations_summary` — analyst trend rows (period, strongBuy, buy, hold, sell, strongSell)
+    - `upgrades_downgrades` — recent grade changes (firm, toGrade, fromGrade, action)
+    - `analyst_price_targets` / `get_analyst_price_targets()` — {current, low, high, mean, median}
+    - `actions` / `dividends` / `splits` — corporate actions (Series)
+    - `income_stmt` / `balance_sheet` / `cash_flow` (and `quarterly_*`) — financial statements (DataFrame)
+    - `major_holders` / `institutional_holders` — ownership
+  - Symbol uses Yahoo suffixes (ASX `.AX`, LSE `.L`, etc.); indices use `^` prefix with no suffix
+- **Usage pattern**:
+  ```python
+  import yfinance as yf
+  t = yf.Ticker("BHP.AX")
+  info = t.info                      # dict
+  targets = t.get_analyst_price_targets()
+  recs = t.recommendations           # DataFrame
+  cal = t.get_calendar()             # dict
+  news = t.get_news(count=8)         # list
+  ```
+- **Gotchas**:
+  - Any attribute may raise or return None/empty — wrap each access in try/except and return partial data.
+  - DataFrames must be made JSON-serializable (use `make_serializable` / convert Timestamps + numpy types).
+  - Rate-limited by Yahoo; fetch in small batches with delays. Server-side only.
 
 ---
 

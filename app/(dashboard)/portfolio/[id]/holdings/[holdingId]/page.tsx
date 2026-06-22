@@ -8,6 +8,20 @@ import { AddTransactionForm } from "@/components/forms/add-transaction-form";
 import { TransactionRow } from "@/components/forms/transaction-row";
 import { DeleteHoldingButton } from "@/components/forms/delete-holding-button";
 import { DrpToggle } from "@/components/forms/drp-toggle";
+import {
+  StockInfoPanel,
+  type StockInfoData,
+} from "@/components/analytics/stock-info-panel";
+import type {
+  StockProfile,
+  StockStats,
+  AnalystTargets,
+  RecommendationRow,
+  UpgradeRow,
+  StockCalendar,
+  NewsItem,
+  StockFinancials,
+} from "@/lib/services/stock-info";
 
 export default async function HoldingDetailPage({
   params,
@@ -23,12 +37,51 @@ export default async function HoldingDetailPage({
       id: holdingId,
       portfolio: { userId: session.user.id },
     },
-    include: { instrument: true, portfolio: true },
+    include: { instrument: { include: { info: true } }, portfolio: true },
   });
 
   if (!holding) redirect(`/portfolio/${id}`);
 
   const transactions = await getTransactions(holdingId);
+
+  // Latest stored price (for analyst target comparison)
+  const latestPrice = await db.price.findFirst({
+    where: { instrumentId: holding.instrumentId },
+    orderBy: { date: "desc" },
+    select: { close: true },
+  });
+  const currentPrice = latestPrice ? Number(latestPrice.close) : null;
+
+  // Build the stock info panel data (only when info has been fetched)
+  const info = holding.instrument.info;
+  const stockInfo: StockInfoData | null = info
+    ? {
+        profile: {
+          longName: info.longName,
+          shortName: info.shortName,
+          summary: info.summary,
+          website: info.website,
+          sector: info.sector,
+          industry: info.industry,
+          country: info.country,
+          city: info.city,
+          employees: info.employees,
+          exchange: info.exchange,
+          quoteType: info.quoteType,
+          currency: info.currency,
+        } as StockProfile,
+        stats: (info.stats as StockStats | null) ?? null,
+        analystTargets: (info.analystTargets as AnalystTargets | null) ?? null,
+        recommendations:
+          (info.recommendations as RecommendationRow[] | null) ?? null,
+        upgrades: (info.upgrades as UpgradeRow[] | null) ?? null,
+        calendar: (info.calendar as StockCalendar | null) ?? null,
+        news: (info.news as NewsItem[] | null) ?? null,
+        financials: (info.financials as StockFinancials | null) ?? null,
+        fetchedAt: info.fetchedAt ? info.fetchedAt.toISOString() : null,
+        currency: info.currency ?? holding.instrument.currency,
+      }
+    : null;
 
   return (
     <div className="space-y-6">
@@ -93,6 +146,11 @@ export default async function HoldingDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Rich company / instrument information from Yahoo Finance */}
+      {stockInfo && (
+        <StockInfoPanel data={stockInfo} currentPrice={currentPrice} />
+      )}
 
       <div>
         <div className="flex items-center justify-between">
