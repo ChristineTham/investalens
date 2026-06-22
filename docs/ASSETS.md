@@ -12,6 +12,7 @@
 > | Custom investments                                  | ✅ Implemented (schema supports)   |
 > | Instrument search (Yahoo Finance)                   | ✅ Implemented                     |
 > | Cryptocurrencies                                    | ✅ Implemented (via Yahoo Finance) |
+> | Stock information (profile, fundamentals, analysts, news, financials) | ✅ Implemented   |
 > | Net Worth & Liabilities                             | ⏳ To be Implemented (R4)          |
 > | Property tracking                                   | ⏳ To be Implemented               |
 > | Multi-currency pricing                              | ⏳ To be Implemented (R3)          |
@@ -80,6 +81,20 @@ AMIT tax components must be entered manually from your Annual Tax Statement.
 ### Unit Trusts
 
 Unit trusts operate similarly to managed funds and are tracked the same way — add as a custom investment if unlisted, or search by ticker if listed.
+
+### Stock Information
+
+Beyond price tracking, every share and ETF holding carries rich company information sourced from Yahoo Finance via the Python `yfinance` backend. It is refreshed alongside prices (**Settings → Market Data → "Fetch Prices"**) and displayed in a tabbed **Company Information** panel on the holding detail page:
+
+| Section        | Contents                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------ |
+| Overview       | Business summary, sector/industry/country, website, and key fundamentals (market cap, P/E, forward P/E, price/book, EPS, beta, dividend yield, profit margin, ROE, revenue growth, 52-week high/low) |
+| Analysts       | Price targets (low/mean/median/high with upside vs current price), recommendation trend chart, and recent upgrades/downgrades |
+| Financials     | Five-year income-statement summary (revenue, gross profit, EBITDA, net income)                   |
+| News           | Recent headlines with publisher, date and links                                                  |
+| Events         | Next earnings date, ex-dividend/dividend dates, and EPS estimates                                 |
+
+Fetched data is cached per instrument (`InstrumentInfo`) and shared across portfolios. Bonds, cash and currencies are skipped. Sector, industry and country are also backfilled onto the instrument when missing, improving diversity reports.
 
 ---
 

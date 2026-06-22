@@ -140,6 +140,17 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <li>Income forecasting and accrued interest tracking</li>
 </ul>`,
       },
+      {
+        heading: "Stock Information",
+        content: `<p>Each share and ETF holding shows rich company information from Yahoo Finance, refreshed alongside prices (<strong>Settings &rarr; Market Data &rarr; &ldquo;Fetch Prices&rdquo;</strong>). Open a holding to see a tabbed <strong>Company Information</strong> panel:</p>
+<ul>
+<li><strong>Overview</strong> &mdash; business summary, sector/industry/country, and key fundamentals (market cap, P/E, EPS, beta, dividend yield, margins, ROE, 52-week range)</li>
+<li><strong>Analysts</strong> &mdash; price targets with upside vs current price, recommendation-trend chart, and recent upgrades/downgrades</li>
+<li><strong>Financials</strong> &mdash; five-year revenue, gross profit, EBITDA and net income</li>
+<li><strong>News</strong> &mdash; recent headlines with publisher, date and links</li>
+<li><strong>Events</strong> &mdash; next earnings date, ex-dividend/dividend dates, EPS estimates</li>
+</ul>`,
+      },
     ],
   },
 

@@ -8,6 +8,7 @@ A comprehensive portfolio tracker and optimiser for Australian investors. Track 
 - **Portfolio Management** — Create, rename, delete, share portfolios with access levels
 - **Multi-Type Import** — Import hub for shares, bonds, and cash. One-step quick import for known brokers, a category-based guided wizard, and dedicated custom importers (e.g. the FIIG multi-sheet data extract). 9 broker templates (CommSec, SelfWealth, Stake, CMC, Bell Direct, nabtrade, FIIG, IB) plus generic bank-statement templates. All paths resolve duplicates automatically
 - **Market Data** — ASX prices via Yahoo Finance, FIIG rate-sheet bond prices (matched by ISIN), instrument search, daily price cron
+- **Stock Information** — Rich company data per holding via yfinance (Python): profile & description, key fundamentals, analyst price targets & recommendation trend, upgrades/downgrades, earnings/dividend calendar, recent news, financial statements, and corporate actions
 - **Reports** — Performance, Contribution, Diversity, Future Income, Sold Securities, All Trades, Drawdown, Multi-Period, Calendar, Historical Cost
 - **Tax** — Taxable Income Report, CGT with 5 allocation methods + discount, Unrealised CGT
 - **Corporate Actions** — Splits, bonus, return of capital, rights issues, mergers
@@ -110,7 +111,7 @@ app/                    # Next.js App Router pages
     v1/                 # Public REST API (portfolios, holdings, transactions, market, auth)
   help/                 # Public help/documentation pages
 api/                    # Python FastAPI analytics (Vercel Services)
-  analytics/            # Optimize, backtest, frontier, Monte Carlo, stress test, etc.
+  analytics/            # Optimize, backtest, frontier, Monte Carlo, stress test, stock-info (yfinance)
   utils/                # Python helpers (transforms, response)
 components/
   ui/                   # shadcn/ui components (17 installed)
@@ -126,12 +127,12 @@ lib/
   reports/              # Report generators (performance, tax, etc.)
   import/               # CSV parser, mapper, cash mapper, dedup, broker + cash templates, custom importers (FIIG)
   providers/            # Yahoo Finance, FIIG bond rates, instrument search, FX rates
-  services/             # Price, analytics data, benchmark, ETF X-ray, share checker, sentiment, factor data
+  services/             # Price, analytics data, benchmark, ETF X-ray, share checker, sentiment, factor data, stock info
   export/               # CSV/JSON export functions
   api/                  # API middleware, rate limiting
   validators/           # Zod schemas
 prisma/
-  schema.prisma         # 23 models
+  schema.prisma         # 24 models
   migrations/           # Database migrations
   seed.ts               # Test data seeder
 scripts/                # Standalone scripts (seed benchmarks, fetch prices, test pipeline)

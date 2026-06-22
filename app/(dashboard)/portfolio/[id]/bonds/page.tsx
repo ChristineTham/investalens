@@ -224,7 +224,6 @@ export default async function BondsPage({
                   </tr>
                   );
                 })}
-                ))}
               </tbody>
             </table>
           </div>

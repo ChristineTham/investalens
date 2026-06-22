@@ -9,6 +9,7 @@ Welcome to InvestaLens — a comprehensive portfolio tracker and optimiser for i
 > | Getting Started (auth, portfolios, import, manual entry)       | ✅ Implemented               |
 > | Multi-Type Import (shares, bonds, cash; quick + custom importers) | ✅ Implemented             |
 > | Supported Assets (equities, ETFs, bonds, crypto)               | ✅ Implemented               |
+> | Stock Information (profile, fundamentals, analysts, news)      | ✅ Implemented               |
 > | Portfolio Management (groups, labels, sharing, consolidated)   | ✅ Implemented               |
 > | Performance & Reporting (6 performance + 4 allocation reports) | ✅ Implemented               |
 > | Tax Reporting (Taxable Income, CGT, Unrealised CGT)            | ✅ Implemented               |
@@ -58,7 +59,7 @@ After signing in, you land on the **Dashboard** (`/dashboard`) which shows your 
 | **Tax**        | Taxable income, CGT, and unrealised CGT reports                           |
 | **Tools**      | Watchlist, FIRE calculator, Share Checker, Market Sentiment, AI Assistant |
 | **Analytics**  | 13 quantitative analysis tools (backtesting, optimisation, Monte Carlo, etc.) |
-| **Settings**   | Groups, labels, sharing, export, API tokens, market data (fetch share and bond prices) |
+| **Settings**   | Groups, labels, sharing, export, API tokens, market data (fetch share &amp; bond prices and company information) |
 
 ### What You'll Do First
 
@@ -211,6 +212,26 @@ InvestaLens provides dedicated bond analytics (navigate via **Portfolio \u2192 s
 ### Net Worth & Liabilities
 
 Track your complete financial picture — mortgages, loans, and credit cards alongside your investments to see true net worth over time. _(⏳ To be Implemented — R4)_
+
+> **Full guide:** [Asset Support](docs/ASSETS.md)
+
+---
+
+## Stock Information
+
+Each share and ETF holding shows rich, periodically-refreshed company information sourced from Yahoo Finance (via the Python `yfinance` backend). Open any holding (**Portfolio → select portfolio → click a holding code**) to see a tabbed **Company Information** panel:
+
+| Tab            | What It Shows                                                                                       |
+| -------------- | -------------------------------------------------------------------------------------------------- |
+| **Overview**   | Business summary, sector/industry/country, website, and a grid of key fundamentals (market cap, P/E, forward P/E, price/book, EPS, beta, dividend yield, profit margin, ROE, revenue growth, 52-week high/low) |
+| **Analysts**   | Analyst price targets (low/mean/median/high with upside vs current price), a recommendation trend chart (strong buy → strong sell), and recent rating changes (upgrades/downgrades) |
+| **Financials** | Five-year income-statement summary (revenue, gross profit, EBITDA, net income)                     |
+| **News**       | Recent news headlines with publisher and date, linking to the full article                         |
+| **Events**     | Next earnings date, ex-dividend and dividend dates, and EPS estimates                               |
+
+### How to Refresh Stock Information
+
+Stock information is fetched together with prices. Go to **Settings → Market Data → "Fetch Prices"** — in one step InvestaLens updates share and ETF prices (Yahoo Finance), bond prices (FIIG rate sheet), and the company information for your share/ETF holdings. Bonds, cash, and currencies are skipped. The panel shows when the data was last updated.
 
 > **Full guide:** [Asset Support](docs/ASSETS.md)
 
