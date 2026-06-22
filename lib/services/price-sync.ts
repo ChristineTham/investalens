@@ -439,6 +439,10 @@ export async function syncStockInfo(
   let updated = 0;
   let failed = 0;
   let current = 0;
+  let firstError = "";
+  let notFound = 0;
+  // Per-ticker failure details for the copyable extended error log.
+  const failures: { code: string; symbol: string; reason: string }[] = [];
 
   for (const inst of list) {
     current++;
@@ -451,6 +455,12 @@ export async function syncStockInfo(
       });
       if (!info || !info.found) {
         failed++;
+        notFound++;
+        failures.push({
+          code: inst.code,
+          symbol,
+          reason: !info ? "No response from backend" : "Backend returned found=false (no data on Yahoo)",
+        });
       } else {
         const p = info.profile;
         const s = info.stats || {};
@@ -507,11 +517,42 @@ export async function syncStockInfo(
 
         updated++;
       }
-    } catch {
+    } catch (err) {
       failed++;
+      const reason = err instanceof Error ? err.message : String(err);
+      if (!firstError) {
+        firstError = reason;
+      }
+      failures.push({ code: inst.code, symbol, reason });
     }
 
     await new Promise((r) => setTimeout(r, 400));
+  }
+
+  // If nothing succeeded, surface the likely cause so it's not a silent "0".
+  // The full per-ticker breakdown rides along as diagnostics so the client's
+  // copyable error-log modal shows every failure.
+  if (failed > 0) {
+    const diagnostics = {
+      total: list.length,
+      updated,
+      failed,
+      backendErrors: failures.filter((f) => !f.reason.startsWith("Backend returned found=false")).length,
+      notFoundOnYahoo: notFound,
+      failures,
+    };
+
+    let message: string;
+    if (updated === 0 && firstError) {
+      message = `Company info backend error (e.g. ${list[0]?.code}): ${firstError}`;
+    } else if (updated === 0 && notFound === list.length) {
+      message =
+        "Company info returned no data for any holding. The yfinance backend reached Yahoo but found nothing — check the Python analytics service has yfinance installed and is deployed.";
+    } else {
+      message = `Company info unavailable for ${failed} of ${list.length} holding${list.length === 1 ? "" : "s"}.`;
+    }
+
+    emit({ type: "error", section: "info", message, diagnostics });
   }
 
   const result = { updated, failed, total: list.length };

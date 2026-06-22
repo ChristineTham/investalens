@@ -235,7 +235,7 @@ export function FetchPricesButton() {
           className="inline-flex shrink-0 items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-          {loading ? "Fetching..." : "Fetch Prices"}
+          {loading ? "Updating..." : "Update"}
         </button>
       </div>
 
