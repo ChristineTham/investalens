@@ -1,126 +1,102 @@
 "use client";
 
 import { useState } from "react";
-import { fetchAllPrices } from "@/lib/actions/fetch-prices";
-import {
-  fetchBondPrices,
-  saveBondPrices,
-  type BondPriceResult,
-} from "@/lib/actions/fetch-bond-prices";
-import {
-  fetchStockInfo,
-  type StockInfoFetchResult,
-} from "@/lib/actions/fetch-stock-info";
-import type {
-  FiigBondRate,
-  FiigFetchDiagnostics,
-} from "@/lib/providers/fiig-bond-rates";
 import { RefreshCw, X, Copy, Check } from "lucide-react";
+
+// Mirrors lib/services/price-sync.ts SyncEvent (kept local to avoid importing
+// server-only modules into this client component).
+type PhaseKey = "shares" | "bonds" | "info";
+type SyncEvent =
+  | { type: "phase"; phase: PhaseKey; label: string; total: number }
+  | { type: "item"; phase: PhaseKey; current: number; total: number; label: string }
+  | { type: "result"; section: PhaseKey; data: unknown }
+  | { type: "error"; section: PhaseKey; message: string; diagnostics?: unknown }
+  | { type: "done" };
 
 interface StockResult {
   fetched: number;
   failed: number;
   total: number;
 }
-
-interface BondRatesResponse {
-  ok: boolean;
-  rates?: FiigBondRate[];
-  error?: string;
-  diagnostics?: FiigFetchDiagnostics;
+interface BondResult {
+  matched: number;
+  updated: number;
+  unmatched: number;
+  carriedForward: number;
+  totalBonds: number;
+  rateSheetCount: number;
+  unmatchedCodes: string[];
+}
+interface InfoResult {
+  updated: number;
+  failed: number;
+  total: number;
 }
 
-function diagnosticsToLog(
-  d: FiigFetchDiagnostics | undefined,
-  heading: string
-): string[] {
-  const lines: string[] = [];
-  if (!d) return lines;
-  lines.push(`--- ${heading} ---`);
-  lines.push(`URL: ${d.url}`);
-  lines.push(`Started: ${d.startedAt}`);
-  lines.push(`Duration: ${d.durationMs} ms`);
-  lines.push(`OK: ${d.ok}`);
-  if (d.status !== undefined) {
-    lines.push(`HTTP status: ${d.status} ${d.statusText ?? ""}`.trim());
-  }
-  if (d.errorName || d.errorMessage) {
-    lines.push("--- Exception ---");
-    if (d.errorName) lines.push(`Name: ${d.errorName}`);
-    if (d.errorMessage) lines.push(`Detail: ${d.errorMessage}`);
-  }
-  if (d.responseHeaders && Object.keys(d.responseHeaders).length > 0) {
-    lines.push("--- Response headers ---");
-    for (const [k, v] of Object.entries(d.responseHeaders)) {
-      lines.push(`${k}: ${v}`);
-    }
-  }
-  if (d.bodySnippet) {
-    lines.push("--- Response body (first 1000 chars) ---");
-    lines.push(d.bodySnippet);
-  }
-  return lines;
+interface Progress {
+  phase: PhaseKey;
+  label: string;
+  current: number;
+  total: number;
+  item: string;
 }
 
-/** Fetch FIIG bond rates, preferring the dedicated route, then persist them. */
-async function updateBondPrices(
-  logLines: string[]
-): Promise<{ result: BondPriceResult | null; error: string }> {
-  // 1. Primary: dedicated route fetches the rate sheet, then persist via action
-  try {
-    const res = await fetch("/api/v1/market/bond-rates", { cache: "no-store" });
-    const data: BondRatesResponse = await res.json();
+const PHASE_LABEL: Record<PhaseKey, string> = {
+  shares: "Shares & ETFs (Yahoo Finance)",
+  bonds: "Bond prices (FIIG rate sheet)",
+  info: "Company information (yfinance)",
+};
+const PHASE_ORDER: PhaseKey[] = ["shares", "bonds", "info"];
 
-    if (data.ok && data.rates && data.rates.length > 0) {
-      const saved = await saveBondPrices(data.rates);
-      if (saved.ok) return { result: saved, error: "" };
-      logLines.push(`Bond save error: ${saved.error ?? "unknown"}`);
-      return { result: null, error: saved.error ?? "Failed to save bond prices" };
-    }
-
-    logLines.push(`Bond fetch (route) error: ${data.error ?? "unknown"}`);
-    logLines.push(...diagnosticsToLog(data.diagnostics, "Bond request (route)"));
-  } catch (err) {
-    logLines.push(
-      `Bond fetch (route) request failed: ${err instanceof Error ? err.message : String(err)}`
-    );
+// Round a 0–100 percentage to the nearest available Tailwind width fraction so
+// the bar width is a static class (no forbidden inline style).
+const WIDTH_STEPS: { pct: number; cls: string }[] = [
+  { pct: 0, cls: "w-0" },
+  { pct: 8, cls: "w-1/12" },
+  { pct: 17, cls: "w-2/12" },
+  { pct: 25, cls: "w-1/4" },
+  { pct: 33, cls: "w-1/3" },
+  { pct: 42, cls: "w-5/12" },
+  { pct: 50, cls: "w-1/2" },
+  { pct: 58, cls: "w-7/12" },
+  { pct: 67, cls: "w-2/3" },
+  { pct: 75, cls: "w-3/4" },
+  { pct: 83, cls: "w-10/12" },
+  { pct: 92, cls: "w-11/12" },
+  { pct: 100, cls: "w-full" },
+];
+function widthClass(pct: number): string {
+  let best = WIDTH_STEPS[0];
+  for (const s of WIDTH_STEPS) {
+    if (Math.abs(s.pct - pct) < Math.abs(best.pct - pct)) best = s;
   }
-
-  // 2. Fallback: direct server action
-  try {
-    const res = await fetchBondPrices();
-    if (res.ok) return { result: res, error: "" };
-    logLines.push(`Bond fetch (fallback) error: ${res.error ?? "unknown"}`);
-    logLines.push(...diagnosticsToLog(res.diagnostics, "Bond request (fallback)"));
-    return { result: null, error: res.error ?? "Failed to fetch bond prices" };
-  } catch (err) {
-    const message =
-      err instanceof Error ? err.message : "Failed to fetch bond prices";
-    logLines.push(`Bond fetch (fallback) request failed: ${message}`);
-    return { result: null, error: message };
-  }
+  return best.cls;
 }
 
 export function FetchPricesButton() {
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState<Progress | null>(null);
   const [stockResult, setStockResult] = useState<StockResult | null>(null);
-  const [bondResult, setBondResult] = useState<BondPriceResult | null>(null);
-  const [infoResult, setInfoResult] = useState<StockInfoFetchResult | null>(null);
-  const [stockError, setStockError] = useState("");
+  const [bondResult, setBondResult] = useState<BondResult | null>(null);
+  const [infoResult, setInfoResult] = useState<InfoResult | null>(null);
   const [bondError, setBondError] = useState("");
   const [infoError, setInfoError] = useState("");
+  const [sharesError, setSharesError] = useState("");
+  const [topError, setTopError] = useState("");
   const [errorLog, setErrorLog] = useState<string | null>(null);
   const [showLog, setShowLog] = useState(false);
   const [copied, setCopied] = useState(false);
 
   async function handleFetch() {
     setLoading(true);
+    setProgress(null);
     setStockResult(null);
     setBondResult(null);
     setInfoResult(null);
-    setStockError("");
     setBondError("");
     setInfoError("");
+    setSharesError("");
+    setTopError("");
     setErrorLog(null);
     setShowLog(false);
     setCopied(false);
@@ -130,52 +106,95 @@ export function FetchPricesButton() {
       `Timestamp: ${new Date().toISOString()}`,
     ];
 
-    // 1. Shares / ETFs / benchmarks via Yahoo Finance
     try {
-      const res = await fetchAllPrices();
-      setStockResult(res);
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to fetch share prices";
-      setStockError(message);
-      logLines.push("");
-      logLines.push(`Share fetch failed: ${message}`);
-    }
+      const res = await fetch("/api/v1/market/sync-prices", {
+        cache: "no-store",
+      });
 
-    // 2. Bonds via FIIG rate sheet
-    const { result, error } = await updateBondPrices(logLines);
-    if (result) {
-      setBondResult(result);
-    } else if (error) {
-      setBondError(error);
-    }
+      if (!res.ok || !res.body) {
+        const data = await res.json().catch(() => ({}));
+        const message =
+          data.error ?? `Sync failed (HTTP ${res.status} ${res.statusText}).`;
+        setTopError(message);
+        logLines.push("", `Request failed: ${message}`);
+        setErrorLog(logLines.concat("", "=== End of log ===").join("\n"));
+        setLoading(false);
+        return;
+      }
 
-    // 3. Rich stock info (profile, fundamentals, analysts, news) via yfinance
-    let infoFailed = false;
-    try {
-      const info = await fetchStockInfo();
-      if (info.ok) {
-        setInfoResult(info);
-      } else {
-        infoFailed = true;
-        setInfoError(info.error ?? "Failed to fetch stock information");
-        logLines.push("");
-        logLines.push(`Stock info fetch failed: ${info.error ?? "unknown"}`);
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      const handleEvent = (event: SyncEvent) => {
+        switch (event.type) {
+          case "phase":
+            setProgress({
+              phase: event.phase,
+              label: PHASE_LABEL[event.phase],
+              current: 0,
+              total: event.total,
+              item: "",
+            });
+            break;
+          case "item":
+            setProgress({
+              phase: event.phase,
+              label: PHASE_LABEL[event.phase],
+              current: event.current,
+              total: event.total,
+              item: event.label,
+            });
+            break;
+          case "result":
+            if (event.section === "shares") setStockResult(event.data as StockResult);
+            else if (event.section === "bonds") setBondResult(event.data as BondResult);
+            else if (event.section === "info") setInfoResult(event.data as InfoResult);
+            break;
+          case "error":
+            if (event.section === "shares") setSharesError(event.message);
+            else if (event.section === "bonds") setBondError(event.message);
+            else if (event.section === "info") setInfoError(event.message);
+            logLines.push("", `[${event.section}] ${event.message}`);
+            if (event.diagnostics) {
+              logLines.push(JSON.stringify(event.diagnostics, null, 2));
+            }
+            break;
+          case "done":
+            break;
+        }
+      };
+
+      // Read the NDJSON stream line by line
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        let nl: number;
+        while ((nl = buffer.indexOf("\n")) >= 0) {
+          const line = buffer.slice(0, nl).trim();
+          buffer = buffer.slice(nl + 1);
+          if (!line) continue;
+          try {
+            handleEvent(JSON.parse(line) as SyncEvent);
+          } catch {
+            /* ignore malformed line */
+          }
+        }
+      }
+
+      if (logLines.length > 2) {
+        setErrorLog(logLines.concat("", "=== End of log ===").join("\n"));
       }
     } catch (err) {
-      infoFailed = true;
-      const message =
-        err instanceof Error ? err.message : "Failed to fetch stock information";
-      setInfoError(message);
-      logLines.push("");
-      logLines.push(`Stock info fetch failed: ${message}`);
-    }
-
-    if (error || infoFailed) {
+      const message = err instanceof Error ? err.message : "Fetch failed.";
+      setTopError(message);
+      logLines.push("", `Stream error: ${message}`);
       setErrorLog(logLines.concat("", "=== End of log ===").join("\n"));
+    } finally {
+      setProgress(null);
+      setLoading(false);
     }
-
-    setLoading(false);
   }
 
   async function handleCopy() {
@@ -188,6 +207,15 @@ export function FetchPricesButton() {
       setCopied(false);
     }
   }
+
+  const hasResults =
+    stockResult ||
+    bondResult ||
+    infoResult ||
+    sharesError ||
+    bondError ||
+    infoError ||
+    topError;
 
   return (
     <div className="rounded-lg border border-border bg-card p-4">
@@ -211,13 +239,12 @@ export function FetchPricesButton() {
         </button>
       </div>
 
-      {(stockResult ||
-        bondResult ||
-        infoResult ||
-        stockError ||
-        bondError ||
-        infoError) && (
+      {loading && <FetchProgress progress={progress} />}
+
+      {hasResults && (
         <div className="mt-3 space-y-2 rounded-md border border-border bg-muted/50 p-3 text-sm">
+          {topError && <p className="text-destructive">{topError}</p>}
+
           {/* Shares / ETFs */}
           {stockResult && (
             <p className="font-medium text-success">
@@ -227,13 +254,13 @@ export function FetchPricesButton() {
               {stockResult.failed > 0 ? (
                 <span className="font-normal text-muted-foreground">
                   {" "}
-                  ({stockResult.failed} not found on Yahoo Finance — e.g. bonds)
+                  ({stockResult.failed} not found on Yahoo Finance)
                 </span>
               ) : null}
             </p>
           )}
-          {stockError && (
-            <p className="text-destructive">Shares &amp; ETFs: {stockError}</p>
+          {sharesError && (
+            <p className="text-destructive">Shares &amp; ETFs: {sharesError}</p>
           )}
 
           {/* Bonds */}
@@ -311,6 +338,45 @@ export function FetchPricesButton() {
           onClose={() => setShowLog(false)}
         />
       )}
+    </div>
+  );
+}
+
+function FetchProgress({ progress }: { progress: Progress | null }) {
+  const phaseIndex = progress ? PHASE_ORDER.indexOf(progress.phase) : 0;
+  const stepNo = phaseIndex + 1;
+  const pct =
+    progress && progress.total > 0
+      ? Math.round((progress.current / progress.total) * 100)
+      : 0;
+  const cls = widthClass(pct);
+
+  return (
+    <div className="mt-3 space-y-2">
+      <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+        <div className={`h-full rounded-full bg-primary transition-all duration-300 ease-out ${cls}`} />
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-muted-foreground">
+        <span>
+          Step {stepNo} of {PHASE_ORDER.length}:{" "}
+          <span className="font-medium text-foreground">
+            {progress ? progress.label : "Starting…"}
+          </span>
+        </span>
+        {progress && progress.total > 0 ? (
+          <span>
+            {progress.current} / {progress.total}
+            {progress.item ? (
+              <>
+                {" · "}
+                <span className="font-medium text-foreground">{progress.item}</span>
+              </>
+            ) : null}
+          </span>
+        ) : (
+          <span>Preparing…</span>
+        )}
+      </div>
     </div>
   );
 }

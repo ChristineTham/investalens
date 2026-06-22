@@ -1,0 +1,520 @@
+/**
+ * Streaming market-data sync. Performs the same work as the individual
+ * fetch-prices / fetch-bond-prices / fetch-stock-info actions, but accepts an
+ * `emit` callback so a route handler can stream per-ticker progress to the UI.
+ *
+ * Server-only. Not a server action (it takes a callback), so it must be called
+ * from a route handler or another server module.
+ */
+
+import { db } from "@/lib/db";
+import type { Prisma } from "@/generated/prisma/client";
+import { yahooFinance } from "@/lib/providers/yahoo-finance";
+import { BENCHMARKS } from "@/lib/constants/benchmarks";
+import {
+  fetchFiigBondRates,
+  FiigFetchError,
+  type FiigBondRate,
+} from "@/lib/providers/fiig-bond-rates";
+import { analyticsClient } from "@/lib/services/analytics-client";
+import {
+  toYahooSymbol,
+  supportsStockInfo,
+  type StockInfoResponse,
+} from "@/lib/services/stock-info";
+
+export type SyncEvent =
+  | { type: "phase"; phase: PhaseKey; label: string; total: number }
+  | {
+      type: "item";
+      phase: PhaseKey;
+      current: number;
+      total: number;
+      label: string;
+    }
+  | { type: "result"; section: PhaseKey; data: unknown }
+  | { type: "error"; section: PhaseKey; message: string; diagnostics?: unknown }
+  | { type: "done" };
+
+export type PhaseKey = "shares" | "bonds" | "info";
+
+type Emit = (event: SyncEvent) => void;
+
+const BENCHMARK_SEED = [
+  { code: "^AXJO", marketCode: "ASX", name: "S&P/ASX 200", instrumentType: "INDEX", currency: "AUD", country: "AU" },
+  { code: "IOZ.AX", marketCode: "ASX", name: "iShares Core S&P/ASX 200 ETF", instrumentType: "ETF", currency: "AUD", country: "AU" },
+  { code: "^GSPC", marketCode: "NYSE", name: "S&P 500", instrumentType: "INDEX", currency: "USD", country: "US" },
+  { code: "URTH", marketCode: "NYSE", name: "MSCI World ETF", instrumentType: "ETF", currency: "USD", country: "US" },
+  { code: "STW.AX", marketCode: "ASX", name: "SPDR S&P/ASX 200 Fund", instrumentType: "ETF", currency: "AUD", country: "AU" },
+  { code: "SPY", marketCode: "NYSE", name: "SPDR S&P 500 ETF Trust", instrumentType: "ETF", currency: "USD", country: "US" },
+];
+
+// ─── Phase 1: Shares & ETFs (Yahoo Finance) ──────────────────────────────────
+
+async function fetchHistoricalRange(
+  instrumentId: string,
+  code: string,
+  marketCode: string,
+  from: Date,
+  to: Date
+): Promise<number> {
+  if (from >= to) return 0;
+  const prices = await yahooFinance.getHistoricalPrices(code, marketCode, from, to);
+  let inserted = 0;
+  for (const p of prices) {
+    const date = new Date(p.date);
+    date.setHours(0, 0, 0, 0);
+    try {
+      await db.price.upsert({
+        where: { instrumentId_date: { instrumentId, date } },
+        create: {
+          instrumentId,
+          date,
+          open: p.open,
+          high: p.high,
+          low: p.low,
+          close: p.close,
+          adjustedClose: p.adjustedClose,
+          volume: BigInt(p.volume),
+        },
+        update: {
+          open: p.open,
+          high: p.high,
+          low: p.low,
+          close: p.close,
+          adjustedClose: p.adjustedClose,
+          volume: BigInt(p.volume),
+        },
+      });
+      inserted++;
+    } catch {
+      /* ignore individual row errors */
+    }
+  }
+  return inserted;
+}
+
+export async function syncSharePrices(
+  userId: string,
+  emit: Emit
+): Promise<{ fetched: number; failed: number; total: number }> {
+  // Seed benchmark instruments
+  for (const b of BENCHMARK_SEED) {
+    await db.instrument.upsert({
+      where: { code_marketCode: { code: b.code, marketCode: b.marketCode } },
+      update: { name: b.name, instrumentType: b.instrumentType },
+      create: b,
+    });
+  }
+
+  const benchmarks = await db.instrument.findMany({
+    where: {
+      instrumentType: { in: ["INDEX", "ETF"] },
+      code: { in: Object.keys(BENCHMARKS) },
+    },
+    select: { id: true, code: true, marketCode: true },
+  });
+
+  const holdings = await db.holding.findMany({
+    where: { portfolio: { userId } },
+    include: {
+      instrument: { select: { id: true, code: true, marketCode: true, currency: true } },
+      transactions: true,
+    },
+  });
+
+  const total = benchmarks.length + holdings.length;
+  emit({ type: "phase", phase: "shares", label: "Shares & ETFs", total });
+
+  let fetched = 0;
+  let failed = 0;
+  let current = 0;
+  const now = new Date();
+  const fiveYearsAgo = new Date();
+  fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
+
+  // Benchmarks first
+  for (const benchmark of benchmarks) {
+    current++;
+    emit({ type: "item", phase: "shares", current, total, label: benchmark.code });
+    try {
+      const latest = await db.price.findFirst({
+        where: { instrumentId: benchmark.id },
+        orderBy: { date: "desc" },
+        select: { date: true },
+      });
+      const from = latest
+        ? new Date(latest.date.getTime() + 86400000)
+        : fiveYearsAgo;
+      const n = await fetchHistoricalRange(
+        benchmark.id,
+        benchmark.code,
+        benchmark.marketCode,
+        from,
+        now
+      );
+      fetched += n;
+    } catch {
+      failed++;
+    }
+  }
+
+  // Holdings
+  for (const holding of holdings) {
+    current++;
+    const inst = holding.instrument;
+    emit({ type: "item", phase: "shares", current, total, label: inst.code });
+
+    try {
+      const earliestTxDate = holding.transactions.reduce(
+        (earliest, tx) => (tx.tradeDate < earliest ? tx.tradeDate : earliest),
+        new Date()
+      );
+
+      const latestPrice = await db.price.findFirst({
+        where: { instrumentId: inst.id },
+        orderBy: { date: "desc" },
+        select: { date: true },
+      });
+      const from = latestPrice
+        ? new Date(latestPrice.date.getTime() + 86400000)
+        : earliestTxDate;
+
+      fetched += await fetchHistoricalRange(
+        inst.id,
+        inst.code,
+        inst.marketCode,
+        from,
+        now
+      );
+
+      // Dividends → auto DIVIDEND transactions
+      const latestDividend = await db.transaction.findFirst({
+        where: { holdingId: holding.id, transactionType: "DIVIDEND" },
+        orderBy: { tradeDate: "desc" },
+        select: { tradeDate: true },
+      });
+      const divFrom = latestDividend
+        ? new Date(latestDividend.tradeDate.getTime() - 7 * 86400000)
+        : earliestTxDate;
+
+      const dividends = await yahooFinance.getHistoricalDividends(
+        inst.code,
+        inst.marketCode,
+        divFrom,
+        now
+      );
+
+      for (const div of dividends) {
+        const divDate = new Date(div.date);
+        let balance = 0;
+        for (const tx of holding.transactions) {
+          const txDate = new Date(tx.tradeDate);
+          txDate.setHours(0, 0, 0, 0);
+          const dDate = new Date(divDate);
+          dDate.setHours(0, 0, 0, 0);
+          if (txDate < dDate) {
+            const qty = Number(tx.quantity);
+            if (["BUY", "TRANSFER_IN", "BONUS"].includes(tx.transactionType)) balance += qty;
+            else if (["SELL", "TRANSFER_OUT"].includes(tx.transactionType)) balance -= qty;
+            else if (tx.transactionType === "SPLIT") balance *= qty;
+          }
+        }
+        if (balance <= 0) continue;
+
+        const duplicate = await db.transaction.findFirst({
+          where: {
+            holdingId: holding.id,
+            transactionType: "DIVIDEND",
+            tradeDate: {
+              gte: new Date(divDate.getTime() - 14 * 86400000),
+              lte: new Date(divDate.getTime() + 45 * 86400000),
+            },
+          },
+        });
+        if (!duplicate) {
+          await db.transaction.create({
+            data: {
+              holdingId: holding.id,
+              transactionType: "DIVIDEND",
+              tradeDate: divDate,
+              quantity: balance,
+              price: div.amount,
+              brokerage: 0,
+              exchangeRate: 1,
+              currency: inst.currency,
+              comments: "Auto-fetched dividend",
+            },
+          });
+        }
+      }
+    } catch {
+      failed++;
+    }
+  }
+
+  const result = { fetched, failed, total: holdings.length };
+  emit({ type: "result", section: "shares", data: result });
+  return result;
+}
+
+// ─── Phase 2: Bonds (FIIG rate sheet) ────────────────────────────────────────
+
+async function getFallbackClose(instrumentId: string): Promise<number | null> {
+  const latest = await db.price.findFirst({
+    where: { instrumentId },
+    orderBy: { date: "desc" },
+    select: { close: true },
+  });
+  if (latest) return Number(latest.close);
+  const buy = await db.transaction.findFirst({
+    where: {
+      holding: { instrumentId },
+      transactionType: { in: ["BUY", "TRANSFER_IN"] },
+    },
+    orderBy: { tradeDate: "desc" },
+    select: { price: true },
+  });
+  return buy ? Number(buy.price) : null;
+}
+
+export interface BondSyncResult {
+  matched: number;
+  updated: number;
+  unmatched: number;
+  carriedForward: number;
+  totalBonds: number;
+  rateSheetCount: number;
+  unmatchedCodes: string[];
+}
+
+export async function syncBondPrices(
+  userId: string,
+  emit: Emit
+): Promise<BondSyncResult | null> {
+  const holdings = await db.holding.findMany({
+    where: {
+      portfolio: { userId },
+      instrument: { instrumentType: { in: ["bond", "fixed_interest"] } },
+    },
+    select: {
+      instrument: {
+        select: { id: true, code: true, couponRate: true, maturityDate: true, sector: true },
+      },
+    },
+  });
+
+  const instruments = new Map<string, (typeof holdings)[number]["instrument"]>();
+  for (const h of holdings) instruments.set(h.instrument.id, h.instrument);
+
+  const list = [...instruments.values()];
+  emit({ type: "phase", phase: "bonds", label: "Bond prices", total: list.length });
+
+  if (list.length === 0) {
+    const empty: BondSyncResult = {
+      matched: 0,
+      updated: 0,
+      unmatched: 0,
+      carriedForward: 0,
+      totalBonds: 0,
+      rateSheetCount: 0,
+      unmatchedCodes: [],
+    };
+    emit({ type: "result", section: "bonds", data: empty });
+    return empty;
+  }
+
+  let rates: Map<string, FiigBondRate>;
+  try {
+    rates = await fetchFiigBondRates();
+  } catch (err) {
+    emit({
+      type: "error",
+      section: "bonds",
+      message: err instanceof Error ? err.message : "Failed to fetch bond prices.",
+      diagnostics: err instanceof FiigFetchError ? err.diagnostics : undefined,
+    });
+    return null;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let matched = 0;
+  let updated = 0;
+  let carriedForward = 0;
+  let current = 0;
+  const unmatchedCodes: string[] = [];
+
+  for (const inst of list) {
+    current++;
+    emit({ type: "item", phase: "bonds", current, total: list.length, label: inst.code });
+
+    const rate = rates.get(inst.code.toUpperCase());
+    if (!rate) {
+      unmatchedCodes.push(inst.code);
+      const fallback = await getFallbackClose(inst.id);
+      if (fallback != null) {
+        await db.price.upsert({
+          where: { instrumentId_date: { instrumentId: inst.id, date: today } },
+          create: { instrumentId: inst.id, date: today, close: fallback },
+          update: {},
+        });
+        carriedForward++;
+      }
+      continue;
+    }
+    matched++;
+
+    const close = rate.price / 100;
+    await db.price.upsert({
+      where: { instrumentId_date: { instrumentId: inst.id, date: today } },
+      create: { instrumentId: inst.id, date: today, close },
+      update: { close },
+    });
+    updated++;
+
+    const metaUpdate: { couponRate?: number; maturityDate?: Date; sector?: string } = {};
+    if (inst.couponRate == null && rate.couponDetail != null) metaUpdate.couponRate = rate.couponDetail;
+    if (inst.maturityDate == null && rate.maturityDate) {
+      const d = new Date(rate.maturityDate);
+      if (!isNaN(d.getTime())) metaUpdate.maturityDate = d;
+    }
+    if (!inst.sector && rate.sector) metaUpdate.sector = rate.sector;
+    if (Object.keys(metaUpdate).length > 0) {
+      await db.instrument.update({ where: { id: inst.id }, data: metaUpdate });
+    }
+  }
+
+  const result: BondSyncResult = {
+    matched,
+    updated,
+    unmatched: unmatchedCodes.length,
+    carriedForward,
+    totalBonds: list.length,
+    rateSheetCount: rates.size,
+    unmatchedCodes,
+  };
+  emit({ type: "result", section: "bonds", data: result });
+  return result;
+}
+
+// ─── Phase 3: Company info (yfinance) ─────────────────────────────────────────
+
+function dec(value: unknown): number | undefined {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+function toJson(value: unknown): Prisma.InputJsonValue | undefined {
+  return value == null ? undefined : (value as Prisma.InputJsonValue);
+}
+
+export async function syncStockInfo(
+  userId: string,
+  emit: Emit
+): Promise<{ updated: number; failed: number; total: number }> {
+  const holdings = await db.holding.findMany({
+    where: { portfolio: { userId } },
+    select: {
+      instrument: {
+        select: { id: true, code: true, marketCode: true, instrumentType: true },
+      },
+    },
+  });
+
+  const instruments = new Map<
+    string,
+    { id: string; code: string; marketCode: string; instrumentType: string }
+  >();
+  for (const h of holdings) {
+    if (supportsStockInfo(h.instrument.instrumentType)) {
+      instruments.set(h.instrument.id, h.instrument);
+    }
+  }
+
+  const list = [...instruments.values()];
+  emit({ type: "phase", phase: "info", label: "Company info", total: list.length });
+
+  let updated = 0;
+  let failed = 0;
+  let current = 0;
+
+  for (const inst of list) {
+    current++;
+    emit({ type: "item", phase: "info", current, total: list.length, label: inst.code });
+
+    const symbol = toYahooSymbol(inst.code, inst.marketCode);
+    try {
+      const info = await analyticsClient.callFunction<StockInfoResponse>("stock-info", {
+        symbol,
+      });
+      if (!info || !info.found) {
+        failed++;
+      } else {
+        const p = info.profile;
+        const s = info.stats || {};
+        const infoData = {
+          longName: p.longName,
+          shortName: p.shortName,
+          summary: p.summary,
+          website: p.website,
+          sector: p.sector,
+          industry: p.industry,
+          country: p.country,
+          city: p.city,
+          employees: p.employees ?? undefined,
+          exchange: p.exchange,
+          quoteType: p.quoteType,
+          currency: p.currency,
+          marketCap: dec(s.marketCap),
+          trailingPE: dec(s.trailingPE),
+          forwardPE: dec(s.forwardPE),
+          priceToBook: dec(s.priceToBook),
+          beta: dec(s.beta),
+          eps: dec(s.trailingEps),
+          dividendYield: dec(s.dividendYield),
+          fiftyTwoWeekHigh: dec(s.fiftyTwoWeekHigh),
+          fiftyTwoWeekLow: dec(s.fiftyTwoWeekLow),
+          stats: toJson(info.stats),
+          analystTargets: toJson(info.analystTargets),
+          recommendations: toJson(info.recommendations),
+          upgrades: toJson(info.upgrades),
+          calendar: toJson(info.calendar),
+          news: toJson(info.news),
+          financials: toJson(info.financials),
+          actions: toJson(info.actions),
+          fetchedAt: new Date(),
+        };
+
+        await db.instrumentInfo.upsert({
+          where: { instrumentId: inst.id },
+          create: { instrumentId: inst.id, ...infoData },
+          update: infoData,
+        });
+
+        await db.instrument.updateMany({
+          where: {
+            id: inst.id,
+            OR: [{ sector: null }, { industry: null }, { country: null }],
+          },
+          data: {
+            sector: p.sector ?? undefined,
+            industry: p.industry ?? undefined,
+            country: p.country ?? undefined,
+          },
+        });
+
+        updated++;
+      }
+    } catch {
+      failed++;
+    }
+
+    await new Promise((r) => setTimeout(r, 400));
+  }
+
+  const result = { updated, failed, total: list.length };
+  emit({ type: "result", section: "info", data: result });
+  return result;
+}
