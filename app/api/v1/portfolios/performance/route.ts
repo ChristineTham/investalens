@@ -45,27 +45,27 @@ export async function GET(request: Request) {
   const allDates = [...allDatesSet].sort();
 
   // Compute raw values per date first
-  const rawData: Array<{ date: string } & Record<string, number>> = allDates.map((date) => {
-    const point: Record<string, number> = {};
+  const rawData = allDates.map((date) => {
+    const values: Record<string, number> = {};
     let total = 0;
 
     for (const ps of portfolioSeries) {
       const idx = ps.dates.indexOf(date);
       const value = idx >= 0 ? ps.values[idx] : 0;
-      point[ps.name] = value;
+      values[ps.name] = value;
       total += value;
     }
-    point["Total"] = total;
-    return { date, ...point };
+    values["Total"] = total;
+    return { date, values };
   });
 
   // Get base values (first data point) for percentage indexing
   const baseValues: Record<string, number> = {};
   if (rawData.length > 0) {
     for (const ps of portfolioSeries) {
-      baseValues[ps.name] = rawData[0][ps.name] || 0;
+      baseValues[ps.name] = rawData[0].values[ps.name] || 0;
     }
-    baseValues["Total"] = rawData[0]["Total"] || 0;
+    baseValues["Total"] = rawData[0].values["Total"] || 0;
   }
 
   // Get benchmark base value

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   XAxis,
   YAxis,
@@ -47,26 +47,43 @@ export function PortfolioPerformanceChart() {
   const [portfolioNames, setPortfolioNames] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
       const params = new URLSearchParams({ range });
       if (benchmark) params.set("benchmark", benchmark);
 
-      const res = await fetch(`/api/v1/portfolios/performance?${params}`);
-      if (res.ok) {
-        const data = await res.json();
-        setChartData(data.chartData);
-        setPortfolioNames(data.portfolioNames);
+      try {
+        const res = await fetch(`/api/v1/portfolios/performance?${params}`);
+        if (cancelled) return;
+        if (res.ok) {
+          const data = await res.json();
+          if (cancelled) return;
+          setChartData(data.chartData);
+          setPortfolioNames(data.portfolioNames);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
   }, [range, benchmark]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const handleRangeChange = (value: string) => {
+    setLoading(true);
+    setRange(value);
+  };
+
+  const handleBenchmarkChange = (value: string) => {
+    setLoading(true);
+    setBenchmark(value);
+  };
 
   const formatPercent = (value: number) =>
     `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
@@ -92,7 +109,7 @@ export function PortfolioPerformanceChart() {
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:bg-accent"
                 } ${opt.value === "1Y" ? "rounded-l-md" : ""} ${opt.value === "MAX" ? "rounded-r-md" : ""}`}
-                onClick={() => setRange(opt.value)}
+                onClick={() => handleRangeChange(opt.value)}
               >
                 {opt.label}
               </button>
@@ -102,7 +119,7 @@ export function PortfolioPerformanceChart() {
           {/* Benchmark Selector */}
           <select
             value={benchmark}
-            onChange={(e) => setBenchmark(e.target.value)}
+            onChange={(e) => handleBenchmarkChange(e.target.value)}
             className="rounded-md border border-border bg-background px-3 py-1.5 text-xs"
             aria-label="Select benchmark"
           >
