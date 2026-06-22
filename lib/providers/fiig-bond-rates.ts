@@ -102,6 +102,14 @@ export class FiigFetchError extends Error {
  * The API is fronted by a WAF that rejects requests without browser-like
  * headers, so we send a realistic User-Agent / Origin / Referer.
  *
+ * The FIIG API server also serves an INCOMPLETE certificate chain (it omits the
+ * intermediate CA). Browsers recover via AIA fetching; Node.js does not, so
+ * verification fails with UNABLE_TO_VERIFY_LEAF_SIGNATURE. We therefore perform
+ * this single request with Node's `https` module and `rejectUnauthorized:false`.
+ * This is acceptable because the request sends no credentials and the response
+ * is public, read-only bond pricing (worst-case MITM = wrong displayed prices,
+ * not data disclosure). All other TLS in the app keeps full verification.
+ *
  * On failure, throws a {@link FiigFetchError} carrying full diagnostics so the
  * UI can present a copyable error log.
  */
@@ -117,62 +125,52 @@ export async function fetchFiigBondRates(): Promise<Map<string, FiigBondRate>> {
     ok: false,
   };
 
-  let res: Response;
+  let response: {
+    status: number;
+    statusText: string;
+    headers: Record<string, string>;
+    body: string;
+  };
   try {
-    res = await fetch(url, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
-        Accept: "application/json, text/plain, */*",
-        "Accept-Language": "en-AU,en;q=0.9",
-        Origin: "https://fiig.com.au",
-        Referer: "https://fiig.com.au/",
-      },
-      cache: "no-store",
-      signal: AbortSignal.timeout(30000),
+    response = await httpsGet(url, {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+      Accept: "application/json, text/plain, */*",
+      "Accept-Language": "en-AU,en;q=0.9",
+      Origin: "https://fiig.com.au",
+      Referer: "https://fiig.com.au/",
     });
   } catch (err) {
     diag.durationMs = Date.now() - start;
     diag.errorName = err instanceof Error ? err.name : "Error";
     diag.errorMessage = err instanceof Error ? err.message : String(err);
-    // Node's fetch wraps the real reason (TLS/DNS/proxy) in `cause`
-    const cause = (err as { cause?: unknown })?.cause;
-    if (cause) {
-      const c = cause as { code?: string; message?: string };
-      diag.errorMessage = `${diag.errorMessage} — cause: ${c.code ?? ""} ${c.message ?? String(cause)}`.trim();
-    }
+    const code = (err as { code?: string })?.code;
+    if (code) diag.errorMessage = `${diag.errorMessage} (code: ${code})`;
     const hint =
-      diag.errorName === "TimeoutError"
-        ? "The request timed out after 30s."
+      diag.errorName === "TimeoutError" || code === "ETIMEDOUT"
+        ? "The request timed out."
         : "A network error occurred (DNS, TLS, or the host is unreachable from this server).";
     throw new FiigFetchError(`Could not reach the FIIG rate sheet. ${hint}`, diag);
   }
 
   diag.durationMs = Date.now() - start;
-  diag.status = res.status;
-  diag.statusText = res.statusText;
-  diag.responseHeaders = Object.fromEntries(res.headers.entries());
+  diag.status = response.status;
+  diag.statusText = response.statusText;
+  diag.responseHeaders = response.headers;
 
-  if (!res.ok) {
-    // Capture a snippet of the body to help diagnose WAF/error pages
-    try {
-      const text = await res.text();
-      diag.bodySnippet = text.slice(0, 1000);
-    } catch {
-      /* ignore */
-    }
+  if (response.status < 200 || response.status >= 300) {
+    diag.bodySnippet = response.body.slice(0, 1000);
     const reason =
-      res.status === 403
+      response.status === 403
         ? "The FIIG rate sheet blocked the request (HTTP 403). It may be unavailable from this server's network."
-        : `FIIG rate sheet request failed (HTTP ${res.status} ${res.statusText}).`;
+        : `FIIG rate sheet request failed (HTTP ${response.status} ${response.statusText}).`;
     throw new FiigFetchError(reason, diag);
   }
 
   let json: FiigApiResponse;
   try {
-    const text = await res.text();
-    diag.bodySnippet = text.slice(0, 500);
-    json = JSON.parse(text) as FiigApiResponse;
+    diag.bodySnippet = response.body.slice(0, 500);
+    json = JSON.parse(response.body) as FiigApiResponse;
   } catch (err) {
     diag.errorName = err instanceof Error ? err.name : "Error";
     diag.errorMessage = err instanceof Error ? err.message : String(err);
@@ -204,4 +202,55 @@ export async function fetchFiigBondRates(): Promise<Map<string, FiigBondRate>> {
   diag.recordCount = map.size;
 
   return map;
+}
+
+/**
+ * Perform an HTTPS GET using Node's `https` module with `rejectUnauthorized`
+ * disabled (FIIG serves an incomplete cert chain — see {@link fetchFiigBondRates}).
+ * Server-only; `node:https` is dynamically imported so this module stays out of
+ * any client bundle.
+ */
+async function httpsGet(
+  url: string,
+  headers: Record<string, string>
+): Promise<{
+  status: number;
+  statusText: string;
+  headers: Record<string, string>;
+  body: string;
+}> {
+  const https = await import("node:https");
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(
+      url,
+      {
+        method: "GET",
+        headers,
+        rejectUnauthorized: false,
+        timeout: 30000,
+      },
+      (res) => {
+        const chunks: Buffer[] = [];
+        res.on("data", (c) => chunks.push(c as Buffer));
+        res.on("end", () => {
+          const respHeaders: Record<string, string> = {};
+          for (const [k, v] of Object.entries(res.headers)) {
+            respHeaders[k] = Array.isArray(v) ? v.join(", ") : String(v ?? "");
+          }
+          resolve({
+            status: res.statusCode ?? 0,
+            statusText: res.statusMessage ?? "",
+            headers: respHeaders,
+            body: Buffer.concat(chunks).toString("utf8"),
+          });
+        });
+      }
+    );
+    req.on("timeout", () => {
+      req.destroy(Object.assign(new Error("Request timed out"), { name: "TimeoutError" }));
+    });
+    req.on("error", reject);
+    req.end();
+  });
 }
