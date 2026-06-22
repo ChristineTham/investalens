@@ -2,17 +2,38 @@
 
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { fetchFiigBondRates } from "@/lib/providers/fiig-bond-rates";
+import {
+  fetchFiigBondRates,
+  FiigFetchError,
+  type FiigFetchDiagnostics,
+} from "@/lib/providers/fiig-bond-rates";
 import { checkUserCooldown, setUserCooldown } from "@/lib/providers/rate-limiter";
 import { revalidatePath } from "next/cache";
 
 export interface BondPriceResult {
+  ok: boolean;
+  error?: string;
+  /** Full diagnostics (populated on failure) for a copyable error log. */
+  diagnostics?: FiigFetchDiagnostics;
   matched: number;
   updated: number;
   unmatched: number;
   totalBonds: number;
   rateSheetCount: number;
   unmatchedCodes: string[];
+}
+
+function emptyResult(extra?: Partial<BondPriceResult>): BondPriceResult {
+  return {
+    ok: true,
+    matched: 0,
+    updated: 0,
+    unmatched: 0,
+    totalBonds: 0,
+    rateSheetCount: 0,
+    unmatchedCodes: [],
+    ...extra,
+  };
 }
 
 /**
@@ -23,17 +44,23 @@ export interface BondPriceResult {
  * a percentage of par (e.g. 98.714); imported bond transactions price per $1 of
  * face value, so we store `close = price / 100` to stay consistent with how
  * market value is computed (quantity = face value × per-$1 price).
+ *
+ * Returns a structured result (never throws for expected failures such as an
+ * unreachable rate sheet) so the UI can show a clear message instead of a 500.
  */
 export async function fetchBondPrices(): Promise<BondPriceResult> {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  if (!session?.user?.id) {
+    return emptyResult({ ok: false, error: "You must be signed in." });
+  }
 
   // Per-user cooldown (shared with other price fetches)
   const cooldown = checkUserCooldown(session.user.id);
   if (!cooldown.allowed) {
-    throw new Error(
-      `Please wait ${cooldown.remainingSeconds} seconds before fetching again.`
-    );
+    return emptyResult({
+      ok: false,
+      error: `Please wait ${cooldown.remainingSeconds} seconds before fetching again.`,
+    });
   }
   setUserCooldown(session.user.id);
 
@@ -57,18 +84,22 @@ export async function fetchBondPrices(): Promise<BondPriceResult> {
   }
 
   if (instruments.size === 0) {
-    return {
-      matched: 0,
-      updated: 0,
-      unmatched: 0,
-      totalBonds: 0,
-      rateSheetCount: 0,
-      unmatchedCodes: [],
-    };
+    return emptyResult();
   }
 
   // Fetch the live rate sheet
-  const rates = await fetchFiigBondRates();
+  let rates: Awaited<ReturnType<typeof fetchFiigBondRates>>;
+  try {
+    rates = await fetchFiigBondRates();
+  } catch (err) {
+    return emptyResult({
+      ok: false,
+      totalBonds: instruments.size,
+      error: err instanceof Error ? err.message : "Failed to fetch bond prices.",
+      diagnostics:
+        err instanceof FiigFetchError ? err.diagnostics : undefined,
+    });
+  }
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -123,6 +154,7 @@ export async function fetchBondPrices(): Promise<BondPriceResult> {
   revalidatePath("/settings");
 
   return {
+    ok: true,
     matched,
     updated,
     unmatched: unmatchedCodes.length,
