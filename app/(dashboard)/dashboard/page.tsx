@@ -5,6 +5,7 @@ import Link from "next/link";
 import { calculatePosition, calculateIncome } from "@/lib/calculations/position";
 import { PortfolioPerformanceChart } from "@/components/charts/portfolio-performance-chart";
 import { PortfolioValueTreemap } from "@/components/charts/portfolio-value-treemap";
+import { FetchPricesButton } from "@/components/forms/fetch-prices-button";
 import {
   Briefcase,
   TrendingUp,
@@ -202,6 +203,9 @@ export default async function DashboardPage() {
         </p>
       </div>
 
+      {/* Market Data section */}
+      <FetchPricesButton />
+
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <div className="rounded-lg border border-border bg-card p-6">
@@ -233,6 +237,7 @@ export default async function DashboardPage() {
             {totalCapitalGain >= 0 ? "+" : ""}$
             {totalCapitalGain.toLocaleString(undefined, { maximumFractionDigits: 0 })}
           </p>
+          <p className="mt-1 text-xs text-muted-foreground">Since inception</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-6">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -242,6 +247,7 @@ export default async function DashboardPage() {
           <p className="mt-2 text-2xl font-bold text-green-600">
             ${totalIncome.toLocaleString(undefined, { maximumFractionDigits: 0 })}
           </p>
+          <p className="mt-1 text-xs text-muted-foreground">Since inception</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-6">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -259,7 +265,7 @@ export default async function DashboardPage() {
             </span>
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Capital + income
+            Since inception · capital + income
             {totalFees > 0
               ? ` − $${totalFees.toLocaleString(undefined, { maximumFractionDigits: 0 })} fees`
               : ""}
@@ -278,6 +284,29 @@ export default async function DashboardPage() {
 
       {/* Portfolio Performance Chart */}
       <PortfolioPerformanceChart />
+
+      {/* Returns methodology note */}
+      <div className="rounded-lg border border-border bg-muted/30 p-4 text-xs text-muted-foreground">
+        <p>
+          <span className="font-medium text-foreground">
+            A note on these returns.
+          </span>{" "}
+          Gain and performance figures on this dashboard are{" "}
+          <span className="font-medium">simple, nominal</span> returns: they are{" "}
+          <span className="font-medium">not time-weighted</span> (they do not
+          neutralise the timing or size of contributions and withdrawals) and
+          are <span className="font-medium">not inflation-indexed</span> (they
+          are shown in today&apos;s dollars, not adjusted for CPI). For an
+          inflation-indexed view, the{" "}
+          <Link href="/tax" className="text-primary hover:underline">
+            Tax reports
+          </Link>{" "}
+          apply the ATO capital gains methodology, including the CPI{" "}
+          <span className="font-medium">indexation method</span> for assets
+          eligible for indexed cost-base treatment (generally acquired before 21
+          September 1999).
+        </p>
+      </div>
 
       {/* Portfolio Allocation Treemap */}
       <PortfolioValueTreemap

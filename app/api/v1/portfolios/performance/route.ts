@@ -1,7 +1,11 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getPortfolioTimeSeries, getBenchmarkTimeSeries } from "@/lib/services/analytics-data";
+import {
+  getPortfolioTimeSeries,
+  getBenchmarkTimeSeries,
+  getPortfolioPeriodMetricsFromSeries,
+} from "@/lib/services/analytics-data";
 
 export async function GET(request: Request) {
   const session = await auth();
@@ -19,13 +23,55 @@ export async function GET(request: Request) {
     select: { id: true, name: true },
   });
 
-  // Get time series for each portfolio
+  // Get time series + period metrics for each portfolio
   const portfolioSeries = await Promise.all(
     portfolios.map(async (p) => {
       const ts = await getPortfolioTimeSeries(p.id, range);
-      return { id: p.id, name: p.name, ...ts };
+      const metrics = await getPortfolioPeriodMetricsFromSeries(p.id, ts);
+      return { id: p.id, name: p.name, ...ts, metrics };
     })
   );
+
+  // Aggregate period KPIs across all portfolios for the selected range
+  const kpiTotals = portfolioSeries.reduce(
+    (acc, ps) => {
+      acc.capitalGain += ps.metrics.capitalGain;
+      acc.income += ps.metrics.income;
+      acc.fees += ps.metrics.fees;
+      acc.totalGain += ps.metrics.totalGain;
+      acc.baseValue += ps.metrics.baseValue;
+      if (ps.metrics.startDate && (!acc.startDate || ps.metrics.startDate < acc.startDate)) {
+        acc.startDate = ps.metrics.startDate;
+      }
+      if (ps.metrics.endDate && (!acc.endDate || ps.metrics.endDate > acc.endDate)) {
+        acc.endDate = ps.metrics.endDate;
+      }
+      return acc;
+    },
+    {
+      capitalGain: 0,
+      income: 0,
+      fees: 0,
+      totalGain: 0,
+      baseValue: 0,
+      startDate: null as string | null,
+      endDate: null as string | null,
+    }
+  );
+
+  const kpis = {
+    range,
+    startDate: kpiTotals.startDate,
+    endDate: kpiTotals.endDate,
+    capitalGain: kpiTotals.capitalGain,
+    income: kpiTotals.income,
+    fees: kpiTotals.fees,
+    totalGain: kpiTotals.totalGain,
+    totalGainPercent:
+      kpiTotals.baseValue > 0
+        ? (kpiTotals.totalGain / kpiTotals.baseValue) * 100
+        : 0,
+  };
 
   // Get benchmark if requested
   let benchmarkSeries = null;
@@ -102,5 +148,6 @@ export async function GET(request: Request) {
   return NextResponse.json({
     portfolioNames: portfolios.map((p) => p.name),
     chartData,
+    kpis,
   });
 }

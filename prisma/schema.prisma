@@ -270,6 +270,23 @@ model ExchangeRate {
   @@index([fromCurrency, toCurrency, date])
 }
 
+// Quarterly Consumer Price Index (All Groups), used for CGT cost-base indexation
+// (current-law pre-1999 method and the proposed 2027 indexation regime) and for
+// inflation-adjusted ("real") return reporting. Sourced from RBA Statistical
+// Table G1. One row per CPI reference quarter.
+model CpiIndex {
+  id         String   @id @default(cuid())
+  quarterEnd DateTime @db.Date // last day of the reference quarter (e.g. 1999-09-30)
+  label      String // human label, e.g. "1999-Q3"
+  indexValue Decimal  @db.Decimal(12, 4) // All Groups CPI index number
+  source     String   @default("RBA G1")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([quarterEnd])
+  @@index([quarterEnd])
+}
+
 // ─── IMPORT ──────────────────────────────────────────────────────────────────
 
 model ImportJob {

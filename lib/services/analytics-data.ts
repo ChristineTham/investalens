@@ -1,4 +1,6 @@
 import { db } from "@/lib/db";
+import { calculateIncome } from "@/lib/calculations/position";
+import type { TransactionData } from "@/lib/calculations/performance";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -7,6 +9,19 @@ export interface TimeSeriesResult {
   values: number[];
   returns: number[];
   cumReturns: number[];
+}
+
+export interface PeriodMetrics {
+  startDate: string | null;
+  endDate: string | null;
+  startValue: number;
+  endValue: number;
+  capitalGain: number;
+  income: number;
+  fees: number;
+  totalGain: number;
+  /** Capital base used for percentage returns (start value + new money in). */
+  baseValue: number;
 }
 
 export interface ReturnsMatrix {
@@ -164,6 +179,122 @@ export async function getPortfolioTimeSeries(
 
   const { returns, cumReturns } = computeReturns(values);
   return { dates: allDates, values, returns, cumReturns };
+}
+
+// ─── Portfolio Period Metrics ────────────────────────────────────────────────
+
+const EMPTY_PERIOD_METRICS: PeriodMetrics = {
+  startDate: null,
+  endDate: null,
+  startValue: 0,
+  endValue: 0,
+  capitalGain: 0,
+  income: 0,
+  fees: 0,
+  totalGain: 0,
+  baseValue: 0,
+};
+
+/**
+ * Period KPIs (capital gain, income, fees, total gain) for a single portfolio
+ * over the window covered by a pre-computed time series.
+ *
+ * Capital gain isolates price appreciation by removing contributions and
+ * withdrawals during the window:
+ *   capitalGain = (endValue − startValue) − netInjected − brokerage
+ * where netInjected is the market value added by share transactions (buys add;
+ * sells and returns of capital remove). Bonus issues and splits change quantity
+ * without a cash contribution, so they are left in capital gain as appreciation.
+ *
+ * The window is exclusive of the first series date (those transactions are
+ * already reflected in startValue) and inclusive of the last.
+ */
+export async function getPortfolioPeriodMetricsFromSeries(
+  portfolioId: string,
+  ts: TimeSeriesResult
+): Promise<PeriodMetrics> {
+  if (ts.dates.length === 0) return { ...EMPTY_PERIOD_METRICS };
+
+  const startDate = ts.dates[0];
+  const endDate = ts.dates[ts.dates.length - 1];
+  const startValue = ts.values[0];
+  const endValue = ts.values[ts.values.length - 1];
+
+  const startBoundary = new Date(`${startDate}T00:00:00.000Z`);
+  const endBoundary = new Date(`${endDate}T23:59:59.999Z`);
+
+  const [txs, feeAgg] = await Promise.all([
+    db.transaction.findMany({
+      where: {
+        holding: { portfolioId },
+        tradeDate: { gt: startBoundary, lte: endBoundary },
+      },
+      select: {
+        id: true,
+        transactionType: true,
+        tradeDate: true,
+        quantity: true,
+        price: true,
+        brokerage: true,
+        exchangeRate: true,
+        currency: true,
+        accruedInterest: true,
+      },
+    }),
+    db.fee.aggregate({
+      where: {
+        portfolioId,
+        invoiceDate: { gt: startBoundary, lte: endBoundary },
+      },
+      _sum: { total: true },
+    }),
+  ]);
+
+  let netInjected = 0;
+  let brokerage = 0;
+  for (const tx of txs) {
+    const amount = toNumber(tx.quantity) * toNumber(tx.price);
+    brokerage += toNumber(tx.brokerage);
+    switch (tx.transactionType) {
+      case "BUY":
+      case "TRANSFER_IN":
+        netInjected += amount;
+        break;
+      case "SELL":
+      case "TRANSFER_OUT":
+      case "RETURN_OF_CAPITAL":
+        netInjected -= amount;
+        break;
+      // BONUS and SPLIT change quantity without a contribution → appreciation.
+    }
+  }
+
+  const income = calculateIncome(txs as unknown as TransactionData[]);
+  const fees = toNumber(feeAgg._sum.total);
+  const capitalGain = endValue - startValue - netInjected - brokerage;
+  const totalGain = capitalGain + income - fees;
+  const baseValue = startValue + Math.max(netInjected + brokerage, 0);
+
+  return {
+    startDate,
+    endDate,
+    startValue,
+    endValue,
+    capitalGain,
+    income,
+    fees,
+    totalGain,
+    baseValue,
+  };
+}
+
+/** Convenience wrapper: compute period metrics for a portfolio over a range. */
+export async function getPortfolioPeriodMetrics(
+  portfolioId: string,
+  dateRange: DateRange
+): Promise<PeriodMetrics> {
+  const ts = await getPortfolioTimeSeries(portfolioId, dateRange);
+  return getPortfolioPeriodMetricsFromSeries(portfolioId, ts);
 }
 
 // ─── Benchmark Time Series ──────────────────────────────────────────────────

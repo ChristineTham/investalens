@@ -40,11 +40,40 @@ interface ChartDataPoint {
   [key: string]: string | number | undefined;
 }
 
+interface PeriodKpis {
+  range: string;
+  startDate: string | null;
+  endDate: string | null;
+  capitalGain: number;
+  income: number;
+  fees: number;
+  totalGain: number;
+  totalGainPercent: number;
+}
+
+const RANGE_LABEL: Record<string, string> = {
+  "1Y": "past year",
+  "3Y": "past 3 years",
+  "5Y": "past 5 years",
+  "10Y": "past 10 years",
+  MAX: "all time",
+};
+
+function formatSignedCurrency(value: number): string {
+  const sign = value >= 0 ? "+" : "\u2212";
+  return `${sign}$${Math.abs(value).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+}
+
+function formatCurrency(value: number): string {
+  return `$${Math.abs(value).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+}
+
 export function PortfolioPerformanceChart() {
   const [range, setRange] = useState<string>("1Y");
   const [benchmark, setBenchmark] = useState<string>("");
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [portfolioNames, setPortfolioNames] = useState<string[]>([]);
+  const [kpis, setKpis] = useState<PeriodKpis | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -62,6 +91,7 @@ export function PortfolioPerformanceChart() {
           if (cancelled) return;
           setChartData(data.chartData);
           setPortfolioNames(data.portfolioNames);
+          setKpis(data.kpis ?? null);
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -130,6 +160,55 @@ export function PortfolioPerformanceChart() {
               </option>
             ))}
           </select>
+        </div>
+      </div>
+
+      {/* Timeframe KPIs — reflect the selected range */}
+      <div className="grid gap-3 border-b border-border p-4 sm:grid-cols-3">
+        <div className="rounded-md border border-border bg-card p-3">
+          <p className="text-xs text-muted-foreground">Capital Gain</p>
+          <p
+            className={`mt-1 text-xl font-bold ${
+              !kpis || kpis.capitalGain >= 0 ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            {kpis ? formatSignedCurrency(kpis.capitalGain) : "\u2014"}
+          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {RANGE_LABEL[range] ?? "selected period"}
+          </p>
+        </div>
+        <div className="rounded-md border border-border bg-card p-3">
+          <p className="text-xs text-muted-foreground">Income</p>
+          <p className="mt-1 text-xl font-bold text-green-600">
+            {kpis ? formatCurrency(kpis.income) : "\u2014"}
+          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {RANGE_LABEL[range] ?? "selected period"}
+          </p>
+        </div>
+        <div className="rounded-md border border-border bg-card p-3">
+          <p className="text-xs text-muted-foreground">Total Gain</p>
+          <p
+            className={`mt-1 text-xl font-bold ${
+              !kpis || kpis.totalGain >= 0 ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            {kpis ? formatSignedCurrency(kpis.totalGain) : "\u2014"}
+            {kpis ? (
+              <span className="text-sm font-normal">
+                {" "}
+                ({kpis.totalGainPercent >= 0 ? "+" : ""}
+                {kpis.totalGainPercent.toFixed(1)}%)
+              </span>
+            ) : null}
+          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Capital + income
+            {kpis && kpis.fees > 0
+              ? ` \u2212 ${formatCurrency(kpis.fees)} fees`
+              : ""}
+          </p>
         </div>
       </div>
 

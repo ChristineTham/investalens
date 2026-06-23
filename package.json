@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:cpi": "tsx scripts/fetch-cpi.ts"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"

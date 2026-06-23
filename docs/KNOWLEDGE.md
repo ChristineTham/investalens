@@ -687,6 +687,83 @@
 
 ---
 
+## Data Sources — Reserve Bank of Australia (RBA)
+
+> **Verified**: 2026-06-23 against https://www.rba.gov.au/statistics/tables/. The
+> RBA publishes economic/financial series as downloadable CSV (and XLSX). CSV is
+> preferred for ingestion. URLs accept a `?v=YYYY-MM-DD-...` cache-buster which
+> can be omitted; the base path below returns the latest data. All RBA material
+> is subject to the RBA Copyright and Disclaimer Notice
+> (https://www.rba.gov.au/copyright/) — attribute the source and note data may be
+> revised, withdrawn or discontinued.
+
+**CSV pattern**: `https://www.rba.gov.au/statistics/tables/csv/<id>-data.csv`
+
+**CSV format**: RBA CSVs have a multi-row preamble before the data — `Title`,
+`Description`, `Frequency`, `Type`, `Units`, `Source`, `Publication date`,
+`Series ID` (the stable machine key, e.g. `GCPIAG`), then dated observation rows
+(first column = date, remaining columns = each series). A parser must skip to the
+`Series ID` row to map columns, then read date rows below it.
+
+### Inflation / CPI (for cost-base indexation & real returns)
+
+| Table    | What it provides                                                            | CSV                                                              |
+| -------- | --------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| **G1**   | Consumer Price Inflation — All Groups CPI **index numbers** + % change      | `https://www.rba.gov.au/statistics/tables/csv/g1-data.csv`      |
+| G2       | CPI by expenditure group                                                    | `.../csv/g2-data.csv`                                           |
+| G3       | Inflation expectations                                                       | `.../csv/g3-data.csv`                                           |
+| G4       | Monthly CPI indicator                                                        | `.../csv/g4-data.csv`                                           |
+
+- **G1 is the source for CPI indexation.** The All Groups CPI index number series
+  is what drives both (a) the ATO CGT **indexation method** and (b) inflation-
+  adjusted ("real") return reporting.
+- **CGT indexation rule (ATO)**: only for assets acquired before **21 Sept 1999**;
+  the indexation factor = `CPI(September 1999 quarter) ÷ CPI(quarter of expense)`
+  rounded to 3 decimals, with the numerator **frozen at the Sept-1999 quarter**.
+  Because the factor is a ratio, any consistent CPI index series (e.g. RBA G1)
+  yields the correct factor regardless of the index reference base.
+- **Authoritative frozen table**: the ATO "Consumer price index (CPI) rates"
+  table (quarterly index numbers Mar 1985 → Sep 1999, Sep 1999 = 68.7) is the
+  legally-precise source and should be used to validate any RBA-derived values.
+
+### Interest rates (cash, bills, bonds)
+
+| Table     | What it provides                                                                  | CSV                                                              |
+| --------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| **A2**    | Changes in Monetary Policy (cash rate target — historical changes)                | `https://www.rba.gov.au/statistics/tables/csv/a2-data.csv`     |
+| **F1.1**  | Money-market rates — **cash rate, BBSW / bank bill** (30/90/180-day), OIS, repo   | `https://www.rba.gov.au/statistics/tables/csv/f1.1-data.csv`   |
+| **F2**    | Capital market yields — **Australian Government bonds** (2/3/5/10-yr), daily       | `https://www.rba.gov.au/statistics/tables/csv/f2-data.csv`     |
+| F2.1      | Government bond yields — monthly                                                   | `.../csv/f2.1-data.csv`                                          |
+| **F3**    | Aggregate measures of Australian **corporate bond** yields                         | `https://www.rba.gov.au/statistics/tables/csv/f3-data.csv`     |
+| F16       | Indicative mid rates of selected Australian Government Securities                  | `.../csv/f16-data.csv`                                           |
+| F17       | Zero-coupon (analytical) interest rates, 2017→current                              | (XLSX only: `.../xls/f17hist.xlsx`)                             |
+
+- **Cash rate**: live value at https://www.rba.gov.au/statistics/cash-rate/;
+  history via A2 (policy changes) or F1.1 (monthly series).
+- **Bill rates**: F1.1 (BBSW / bank-accepted bills — useful as a cash/short-term
+  benchmark for portfolio comparison).
+- **Bond rates**: F2 / F2.1 (government) and F3 (corporate) — usable as fixed-
+  income benchmarks alongside the existing equity benchmarks in
+  `lib/constants/benchmarks.ts`.
+
+### Other usable RBA series
+
+- **F11 / F11.1** Exchange rates (daily) — already partially handled via
+  `ExchangeRate` model; RBA is an alternative FX source.
+- **I2** Commodity prices; **D3** monetary aggregates; **H1** GDP — available if
+  macro context is ever needed.
+
+### Ingestion notes (not yet implemented)
+
+- No CPI or RBA-rates ingestion exists in the codebase today. The closest
+  existing pattern is `scripts/fetch-benchmark-prices.ts` + `scripts/seed-benchmarks.ts`.
+- A future `CpiIndex` (and optional `RateSeries`) Prisma model + fetch script
+  (mirroring the benchmark scripts, parsing the CSV format above) would let the
+  Tax reports compute the CGT indexation method and let the dashboard show
+  inflation-adjusted returns.
+
+---
+
 ## Verification Checklist
 
 Every package listed above has been verified against its official documentation as of 2026-06-05. The following were confirmed:

@@ -209,6 +209,32 @@ export default async function CgtPage({
         </ol>
       </div>
 
+      {/* CGT method / indexation methodology note */}
+      <div className="rounded-lg border border-border bg-muted/30 p-4">
+        <h3 className="text-sm font-medium">CGT methods &amp; CPI indexation</h3>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Australian CGT allows two ways to work out a gain on assets held for
+          at least 12 months. This report currently applies the{" "}
+          <span className="font-medium text-foreground">discount method</span>:
+          the nominal gain (proceeds less cost base) is reduced by the CGT
+          discount shown above ({summary.method.toUpperCase()} parcel
+          allocation).
+        </p>
+        <p className="mt-2 text-xs text-muted-foreground">
+          For assets acquired before{" "}
+          <span className="font-medium text-foreground">
+            21 September 1999
+          </span>
+          , the <span className="font-medium text-foreground">indexation
+          method</span> is the inflation-indexed alternative: the cost base is
+          uplifted by the change in the ABS Consumer Price Index (frozen at the
+          September 1999 quarter) before the gain is calculated, and no CGT
+          discount applies. Taxpayers may use whichever method produces the
+          lower assessable gain. CPI index data is sourced from the Reserve Bank
+          of Australia (Statistical Table&nbsp;G1, Consumer Price Inflation).
+        </p>
+      </div>
+
       {/* Detail table */}
       {items.length === 0 ? (
         <p className="text-muted-foreground">
