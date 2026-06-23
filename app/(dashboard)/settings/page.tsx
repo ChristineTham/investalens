@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Users, Tag, FolderTree, Download, Key } from "lucide-react";
+import { Users, Tag, FolderTree, Download, Key, Calculator, Scale } from "lucide-react";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -99,6 +99,26 @@ export default async function SettingsPage() {
           <h3 className="mt-2 font-medium">API Tokens</h3>
           <p className="mt-1 text-sm text-muted-foreground">
             Manage API access
+          </p>
+        </Link>
+        <Link
+          href="/settings/portfolio"
+          className="rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent"
+        >
+          <Calculator className="h-5 w-5 text-primary" />
+          <h3 className="mt-2 font-medium">Tax &amp; CGT</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Entity type, allocation &amp; 2027 regime settings
+          </p>
+        </Link>
+        <Link
+          href="/settings/instruments"
+          className="rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent"
+        >
+          <Scale className="h-5 w-5 text-primary" />
+          <h3 className="mt-2 font-medium">Instrument Tax</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            CGT vs income treatment per instrument
           </p>
         </Link>
       </div>

@@ -14,6 +14,12 @@ export const updatePortfolioSchema = createPortfolioSchema.partial().extend({
   saleAllocationMethod: z
     .enum(["fifo", "lifo", "min_gain", "max_gain", "min_tax"])
     .optional(),
+  // Proposed 2027 CGT regime projection settings.
+  cgtRegime: z.enum(["current", "proposed_2027"]).optional(),
+  cgtTransitionMethod: z.enum(["market_value", "apportionment"]).optional(),
+  incomeSupportRecipient: z.boolean().optional(),
+  isForeignResident: z.boolean().optional(),
+  marginalTaxRate: z.number().min(0).max(1).nullable().optional(),
 });
 
 export type CreatePortfolioInput = z.infer<typeof createPortfolioSchema>;

@@ -110,7 +110,7 @@
 Each step is independently testable. **After each step the agent stops and asks
 the user to test in Codespaces**, then waits.
 
-### Step 1 — CPI data foundation ⬜
+### Step 1 — CPI data foundation ✅
 
 **Build**
 
@@ -131,7 +131,7 @@ the user to test in Codespaces**, then waits.
 3. Confirm `CpiIndex` is populated (≈ 1 row/quarter from the 1940s–present) and
    the printed sample factors look sane (e.g. Sep-1990 → Sep-1999 ≈ 1.19).
 
-### Step 2 — Asset-class tax classification (bonds) ⬜
+### Step 2 — Asset-class tax classification (bonds) ✅
 
 **Build**
 
@@ -146,7 +146,7 @@ the user to test in Codespaces**, then waits.
 **Test in Codespaces**: a bond holding no longer appears in the CGT report and
 its redemption/sale gain shows in Taxable Income; shares/hybrids still in CGT.
 
-### Step 3 — Indexation method (current law, pre-1999) ⬜
+### Step 3 — Indexation method (current law, pre-1999) ✅
 
 **Build**
 
@@ -160,7 +160,7 @@ its redemption/sale gain shows in Taxable Income; shares/hybrids still in CGT.
 **Test in Codespaces**: a seeded pre-1999 parcel shows the indexation method when
 it produces a lower gain; post-1999 parcels stay on the discount method.
 
-### Step 4 — Proposed 2027 regime engine (opt-in) ⬜
+### Step 4 — Proposed 2027 regime engine (opt-in) ✅
 
 **Build**
 
@@ -178,7 +178,7 @@ it produces a lower gain; post-1999 parcels stay on the discount method.
 **Test in Codespaces**: reproduce the H&R Block worked examples (shares post-CGT,
 pre-CGT farm, low-income retiree minimum-tax top-up, founder) within rounding.
 
-### Step 5 — Reports/UI compliance pass + docs ⬜
+### Step 5 — Reports/UI compliance pass + docs ✅
 
 **Build**
 
@@ -190,6 +190,47 @@ pre-CGT farm, low-income retiree minimum-tax top-up, founder) within rounding.
 
 **Test in Codespaces**: full end-to-end report review across a mixed
 share/bond/hybrid portfolio under both regimes.
+
+---
+
+## Audit (2026-06-23) — all steps ✅
+
+Full codebase review against this plan. Every step's deliverables are present and
+compile cleanly.
+
+| Step | Key files | Result |
+| ---- | --------- | ------ |
+| 1 | `CpiIndex` model, `scripts/fetch-cpi.ts`, `lib/calculations/indexation.ts` | ✅ |
+| 2 | `lib/calculations/asset-tax-class.ts`, `Instrument.taxClass`, income-class exclusion in CGT/unrealised, `bondCapitalGrowth` in taxable income | ✅ |
+| 3 | `allocateSale(cpi)` + `ParcelSaleResult` indexed fields, `cgt-report.ts` indexation, CGT page Method/Assessable/Indexation Relief | ✅ |
+| 4 | Portfolio 2027 config, `lib/calculations/cgt-2027.ts`, `scripts/verify-cgt-2027.ts` (worked examples + loss ordering) | ✅ |
+| 5 | Projection toggle + `lib/calculations/income-tax.ts`, prescribed loss ordering, unrealised indexation, Settings (Tax & CGT + Instrument Tax), docs | ✅ |
+
+### Gap found & fixed
+
+- **Companies/super funds were incorrectly indexed under the proposed regime.**
+  The Bill keeps existing settings (no indexation) for companies, super funds and
+  life insurers, and the 30% minimum tax does not apply to them. Fixed:
+  - `lib/calculations/cgt-2027.ts` — indexation gated to resident individuals/
+    trusts (`indexationEligibleEntity`).
+  - `lib/reports/tax/cgt-report.ts` — projection routes company/SMSF disposals
+    through current law, gates the minimum tax, and exposes `regimeAppliesToEntity`.
+  - `app/(dashboard)/tax/cgt/page.tsx` — shows a "keep existing settings" note for
+    company/super portfolios.
+  - Code-only change (no migration); `verify:cgt2027` unaffected (individual cases).
+
+### Documented limitations (by design, not gaps)
+
+- The 2027 projection defaults to the **apportionment** method (no price data
+  exists at the future 1 Jul 2027 date); the market-value method engages
+  automatically once such a price is available.
+- Pre-CGT (pre-1985) cost-base reset needs a 1 Jul 2027 market value; absent one
+  it yields a nil post-gain with a note.
+- The 2027 projection is **per-portfolio** (the consolidated view prompts to
+  select one).
+- Current-law capital-loss **carry-forward** remains manual entry (pre-existing).
+- The minimum-tax marginal rate is estimated from the income-band selector
+  (simplified — not a full tax return).
 
 ---
 

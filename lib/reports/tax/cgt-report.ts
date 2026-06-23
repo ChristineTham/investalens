@@ -256,6 +256,8 @@ export interface Cgt2027ProjectionSummary {
   estTaxOnGains: number;
   /** estTaxOnGains + minTaxTopUp. */
   estTotalProposedTax: number;
+  /** True when the proposed regime changes this entity (individuals/trusts). */
+  regimeAppliesToEntity: boolean;
   otherIncome: number;
   incomeSupportRecipient: boolean;
   transitionMethod: string;
@@ -288,6 +290,11 @@ export async function generateCgt2027Projection(
   const fyEnd = new Date(financialYear, portfolio.financialYearEnd, 0);
   const cpi = await loadCpiMap();
   const transitionMethod = portfolio.cgtTransitionMethod as TransitionMethod;
+  // The proposed regime only changes resident individuals and trusts; companies
+  // and super funds keep their existing CGT settings.
+  const proposedAppliesToEntity =
+    portfolio.taxEntityType === "individual" ||
+    portfolio.taxEntityType === "trust";
 
   const sells = await db.transaction.findMany({
     where: {
@@ -350,7 +357,7 @@ export async function generateCgt2027Projection(
     let postGain = 0;
     const methods = new Set<string>();
     for (const r of parcelResults) {
-      if (underNewRegime) {
+      if (underNewRegime && proposedAppliesToEntity) {
         const res = assessableUnder2027({
           acquisitionDate: r.parcel.purchaseDate,
           disposalDate: sell.tradeDate,
@@ -430,9 +437,10 @@ export async function generateCgt2027Projection(
   // The minimum-tax gain sits on top of other income and the pre-2027 gains.
   const baseIncome = Math.max(0, otherIncome) + Math.max(0, preAssessable);
   const rate = marginalRateOnGain(baseIncome, minTaxCapitalGain);
-  const minTaxTopUp = portfolio.incomeSupportRecipient
-    ? 0
-    : minimumTaxTopUp(minTaxCapitalGain, rate);
+  const minTaxTopUp =
+    !proposedAppliesToEntity || portfolio.incomeSupportRecipient
+      ? 0
+      : minimumTaxTopUp(minTaxCapitalGain, rate);
   const estTaxOnGains = taxOnGain(
     Math.max(0, otherIncome),
     Math.max(0, totalAssessable)
@@ -455,6 +463,7 @@ export async function generateCgt2027Projection(
     minTaxTopUp,
     estTaxOnGains,
     estTotalProposedTax: estTaxOnGains + minTaxTopUp,
+    regimeAppliesToEntity: proposedAppliesToEntity,
     otherIncome: Math.max(0, otherIncome),
     incomeSupportRecipient: portfolio.incomeSupportRecipient,
     transitionMethod,

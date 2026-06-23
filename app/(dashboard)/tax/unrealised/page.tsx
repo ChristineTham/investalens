@@ -74,11 +74,17 @@ export default async function UnrealisedCgtPage({
     .filter((i) => i.unrealisedGain < 0)
     .reduce((s, i) => s + Math.abs(i.unrealisedGain), 0);
   const cgtDiscount = items
-    .filter((i) => i.isLongTerm && i.unrealisedGain > 0)
-    .reduce((s, i) => s + (i.unrealisedGain - i.discountedGain), 0);
+    .filter((i) => i.unrealisedGain > 0 && i.methodUsed === "discount")
+    .reduce((s, i) => s + (i.unrealisedGain - i.assessableGain), 0);
+  const indexationRelief = items
+    .filter((i) => i.unrealisedGain > 0 && i.methodUsed === "indexation")
+    .reduce((s, i) => s + (i.unrealisedGain - i.assessableGain), 0);
   const totalGains = shortTermGains + longTermGains;
   const netAfterLosses = Math.max(0, totalGains - unrealisedLosses);
-  const netHypotheticalGain = Math.max(0, netAfterLosses - cgtDiscount);
+  const netHypotheticalGain = Math.max(
+    0,
+    netAfterLosses - cgtDiscount - indexationRelief
+  );
 
   // Totals
   const totalCostBase = items.reduce((s, i) => s + i.costBase, 0);
@@ -160,6 +166,17 @@ export default async function UnrealisedCgtPage({
             -{formatCurrency(cgtDiscount)}
           </p>
         </div>
+        {indexationRelief > 0 && (
+          <div className="rounded-lg border border-border bg-card p-4">
+            <p className="text-xs text-muted-foreground">Indexation Relief</p>
+            <p className="text-lg font-bold">
+              -{formatCurrency(indexationRelief)}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              pre-1999 CPI method
+            </p>
+          </div>
+        )}
         <div className="rounded-lg border border-border bg-card p-4 ring-2 ring-primary/20">
           <p className="text-xs font-medium text-primary">
             Net Hypothetical CGT
@@ -203,10 +220,13 @@ export default async function UnrealisedCgtPage({
                   Unrealised
                 </th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                  After Discount
+                  Assessable
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
                   Term
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                  Method
                 </th>
               </tr>
             </thead>
@@ -236,10 +256,13 @@ export default async function UnrealisedCgtPage({
                       {formatCurrency(item.unrealisedGain)}
                     </td>
                     <td className="px-4 py-3 text-right text-sm">
-                      {formatCurrency(item.discountedGain)}
+                      {formatCurrency(item.assessableGain)}
                     </td>
                     <td className="px-4 py-3 text-sm">
                       {item.isLongTerm ? "Long (≥12m)" : "Short (<12m)"}
+                    </td>
+                    <td className="px-4 py-3 text-sm capitalize">
+                      {item.methodUsed}
                     </td>
                   </tr>
                 ))}
@@ -262,9 +285,10 @@ export default async function UnrealisedCgtPage({
                 </td>
                 <td className="px-4 py-3 text-right text-sm">
                   {formatCurrency(
-                    items.reduce((s, i) => s + i.discountedGain, 0)
+                    items.reduce((s, i) => s + i.assessableGain, 0)
                   )}
                 </td>
+                <td className="px-4 py-3"></td>
                 <td className="px-4 py-3"></td>
               </tr>
             </tbody>

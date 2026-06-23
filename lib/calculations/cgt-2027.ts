@@ -127,9 +127,17 @@ export function assessableUnder2027(input: Cgt2027Input): Cgt2027Result {
   const heldAtLeast12m = totalHoldingDays >= 365;
 
   // Post-component indexation factor (CPI from the base date to disposal).
+  // Indexation under the proposed regime is available only to resident
+  // individuals and trusts; companies and super funds keep existing settings.
+  const indexationEligibleEntity =
+    taxEntityType === "individual" || taxEntityType === "trust";
   let postIndexationFactor = 1;
   if (isForeignResident) {
     notes.push("Foreign/temporary resident: no CGT indexation applies.");
+  } else if (!indexationEligibleEntity) {
+    notes.push(
+      "Companies and super funds keep existing settings — no indexation."
+    );
   } else if (!heldAtLeast12m) {
     notes.push("Held < 12 months: no CGT indexation applies.");
   } else {
@@ -282,15 +290,15 @@ export interface LossOrderingResult {
  */
 export function applyLossOrdering(input: LossOrderingInput): LossOrderingResult {
   let loss = Math.max(0, input.losses);
-  const use = (pool: number) => {
+  const absorb = (pool: number) => {
     const p = Math.max(0, pool);
     const used = Math.min(loss, p);
     loss -= used;
     return p - used;
   };
-  const remainingDiscount = use(input.discountGains);
-  const remainingNonDiscount = use(input.nonDiscountGains);
-  const remainingIndexed = use(input.indexedGains);
+  const remainingDiscount = absorb(input.discountGains);
+  const remainingNonDiscount = absorb(input.nonDiscountGains);
+  const remainingIndexed = absorb(input.indexedGains);
 
   const preAssessable =
     remainingDiscount * (1 - input.discountRate) + remainingNonDiscount;

@@ -7,9 +7,11 @@
 > | Feature                                     | Status                                                |
 > | ------------------------------------------- | ----------------------------------------------------- |
 > | Taxable Income Report                       | ✅ Implemented                                        |
-> | CGT Report (5 allocation methods, discount) | ✅ Implemented                                        |
+> | CGT Report (discount + CPI indexation methods) | ✅ Implemented                                     |
 > | CGT parcel matcher (optimiser)              | ✅ Implemented                                        |
-> | Unrealised CGT Report                       | ✅ Implemented                                        |
+> | Unrealised CGT Report (indexation-aware)    | ✅ Implemented                                        |
+> | Bond CGT exemption / income treatment       | ✅ Implemented                                        |
+> | Proposed 2027 regime projection (opt-in)    | ✅ Implemented                                        |
 > | AMIT components (schema field)              | ✅ Schema ready, ⏳ full processing To be Implemented |
 > | Stapled securities                          | ⏳ To be Implemented                                  |
 > | Foreign exchange rates for CGT              | ⏳ To be Implemented (R3)                             |
@@ -31,6 +33,8 @@ InvestaLens provides comprehensive tax reporting for Australian investors. The T
 - [Taxable Income Report](#taxable-income-report)
 - [Capital Gains Tax (CGT) Report](#capital-gains-tax-cgt-report)
 - [Unrealised CGT Report](#unrealised-cgt-report)
+- [CGT Methods, Indexation & Bonds](#cgt-methods-indexation--bonds)
+- [Proposed 2027 CGT Regime (Projection)](#proposed-2027-cgt-regime-projection)
 - [Annual Tax Statement Components (AMIT)](#annual-tax-statement-components-amit)
 - [Stapled Securities](#stapled-securities)
 - [Foreign Exchange Rates and CGT](#foreign-exchange-rates-and-cgt)
@@ -249,6 +253,71 @@ Calculates unrealised capital gains in your portfolio and the resulting taxable 
 4. Click **Update current report**
 
 > **Note:** InvestaLens does not automatically account for capital losses from previous tax years. Carry forward losses must be entered manually and are not saved between report runs.
+
+---
+
+## CGT Methods, Indexation & Bonds
+
+Australian CGT offers two ways to work out a gain on an asset held for at least
+12 months:
+
+- **Discount method** — the nominal gain (proceeds − cost base) is reduced by the
+  CGT discount: 50% for individuals and trusts, 33⅓% for SMSFs, 0% for companies.
+- **Indexation method** — available only for assets acquired **before 21 September
+  1999**. The cost base is indexed by the change in the ABS Consumer Price Index
+  (frozen at the September 1999 quarter), and no discount applies. InvestaLens
+  computes both and uses whichever produces the **lower assessable gain**;
+  indexation can never create or increase a loss.
+
+The CGT and Unrealised CGT reports show a **Method** column indicating which was
+applied per disposal, and an **Indexation Relief** figure when the indexation
+method is used. CPI data is sourced from the Reserve Bank of Australia
+(Statistical Table G1) — run `pnpm db:cpi` to load or refresh it.
+
+### Bonds
+
+- **Traditional (non-listed) bonds** are exempt from CGT. Any discount or premium
+  realised on sale or at maturity is **ordinary income** (shown as _Bond Capital
+  Growth_ in the Taxable Income report), declared in full with no CGT discount.
+- **Listed and hybrid securities** (exchange-traded bonds, convertible notes,
+  capital notes) remain subject to CGT.
+
+By default an instrument's treatment is derived from its type (bonds → income,
+everything else → CGT). Override it per instrument under **Settings → Instrument
+Tax** (Auto / CGT / Income).
+
+---
+
+## Proposed 2027 CGT Regime (Projection)
+
+> **Not yet law.** The _Treasury Laws Amendment (Tax Reform No. 1) Bill 2026_
+> (introduced 28 May 2026) proposes major CGT changes from **1 July 2027**.
+> InvestaLens models these as an **opt-in projection** for planning only.
+
+Enable the projection with the **"Show proposed 2027 regime projection"** toggle
+on the CGT report, and pick your income band so the 30% minimum tax can be
+estimated. Configure entity type, transition method, residency, income-support
+status and marginal rate under **Settings → Tax & CGT**.
+
+What the projection models:
+
+- **Indexation replaces the discount** for CGT events on/after 1 July 2027
+  (individuals and trusts). Companies and super funds keep existing settings.
+- **Deemed disposal at 1 July 2027** — straddle assets are split into a pre-2027
+  component (existing law, incl. the 50% discount) and a post-2027 component
+  (CPI-indexed), using either the **market value at 1 July 2027** or the
+  **apportionment** (days-based) method.
+- **Pre-CGT assets** (acquired before 20 September 1985) have their cost base
+  reset to market value at 1 July 2027; pre-2027 growth stays exempt.
+- **30% minimum tax** on the post-2027 ("minimum tax") gain, topping up to an
+  effective 30% where the marginal rate is lower. Income-support recipients are
+  exempt.
+- **Asymmetric losses** — gains are indexed, losses are nominal, and capital
+  losses are applied against discount/deferred gains first, then indexed gains.
+
+> This is a simplified projection. It excludes formal valuations, part-year
+> residency apportionment, tax offsets, and the full four-category method
+> statement in the Bill. Always seek advice for your circumstances.
 
 ---
 

@@ -321,6 +321,12 @@ export default async function CgtPage({
             <p className="text-sm text-muted-foreground">
               Select a single portfolio (above) to view the 2027 projection.
             </p>
+          ) : projection && !projection.regimeAppliesToEntity ? (
+            <p className="text-sm text-muted-foreground">
+              Companies and super funds keep their existing CGT settings — the
+              proposed 2027 regime (indexation + 30% minimum tax) does not change
+              their treatment.
+            </p>
           ) : !projection || !projection.applies ? (
             <p className="text-sm text-muted-foreground">
               No disposals in {summary.financialYear} fall under the proposed

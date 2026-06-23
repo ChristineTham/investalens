@@ -10,7 +10,7 @@ A comprehensive portfolio tracker and optimiser for Australian investors. Track 
 - **Market Data** — One-step **Update** (Settings → Market Data) streams live progress while it fetches ASX/share & ETF prices via Yahoo Finance, FIIG rate-sheet bond prices (matched by ISIN), and company information — plus instrument search and a daily price cron
 - **Stock Information** — Rich company data per holding via yfinance (Python): profile & description, key fundamentals, analyst price targets & recommendation trend, upgrades/downgrades, earnings/dividend calendar, recent news, financial statements, and corporate actions
 - **Reports** — Performance, Contribution, Diversity, Future Income, Sold Securities, All Trades, Drawdown, Multi-Period, Calendar, Historical Cost
-- **Tax** — Taxable Income Report, CGT with 5 allocation methods + discount, Unrealised CGT
+- **Tax** — Taxable Income Report (incl. bond income), CGT with 5 allocation methods, 50% discount **and** CPI indexation (pre-1999), bond CGT exemption, Unrealised CGT, plus an opt-in **proposed 2027 regime** projection (cost-base indexation + 30% minimum tax)
 - **Corporate Actions** — Splits, bonus, return of capital, rights issues, mergers
 - **Bonds** — YTM, duration, maturity ladder, coupon schedule, credit ratings, coupon income, principal repayments, custody fee tracking, and live FIIG rate-sheet price updates
 - **Organisation** — Custom groups, labels, consolidated view
@@ -223,6 +223,8 @@ The app sends this secret as the `x-vercel-protection-bypass` header on internal
 | `pnpm exec prisma migrate dev`| Create/apply migrations  |
 | `pnpm exec prisma db seed`    | Seed test data           |
 | `pnpm exec prisma studio`     | Visual database browser  |
+| `pnpm db:cpi`                 | Load/refresh RBA CPI data (CGT indexation)  |
+| `pnpm verify:cgt2027`         | Verify the proposed 2027 CGT engine         |
 
 ## Documentation
 

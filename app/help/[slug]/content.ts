@@ -182,6 +182,8 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <tr><td>Tax Residency</td><td>Determines currency, tax rules, reports</td></tr>
 <tr><td>Tax Entity Type</td><td>CGT discount rate (Individual 50%, SMSF 33&frac13;%, Company 0%)</td></tr>
 <tr><td>Sale Allocation Method</td><td>FIFO, LIFO, Minimise CGT, etc.</td></tr>
+<tr><td>CGT Regime</td><td>Current (50% discount) or proposed 2027 (indexation + 30% min-tax) &mdash; Settings &rarr; Tax &amp; CGT</td></tr>
+<tr><td>Instrument Tax Class</td><td>CGT vs income treatment per instrument &mdash; Settings &rarr; Instrument Tax</td></tr>
 <tr><td>Performance Method</td><td>Simple or compound return</td></tr>
 </table>`,
       },
@@ -248,8 +250,17 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
         content: `<ul>
 <li>5 sale allocation methods (FIFO, LIFO, Minimise Capital Gain, Maximise Capital Gain, Minimise CGT)</li>
 <li>CGT discount &mdash; 50% individual, 33&frac13;% SMSF, 0% company</li>
+<li>CPI indexation method for assets acquired before 21 September 1999 (uses whichever gives the lower gain)</li>
+<li>Traditional bonds treated as income (CGT-exempt); listed bonds &amp; hybrids subject to CGT</li>
+<li>Proposed 2027 regime projection (opt-in) &mdash; cost-base indexation, 30% minimum tax, transitional split</li>
 <li>CGT parcel matcher &mdash; Compare all 5 methods to find optimal allocation</li>
 </ul>`,
+      },
+      {
+        heading: "CGT Methods &amp; the 2027 Projection",
+        content: `<p>Australian CGT offers two methods for assets held over 12 months: the <strong>discount method</strong> (50% / 33&frac13;% / 0% by entity) and, for assets acquired before 21 September 1999, the <strong>indexation method</strong> (cost base indexed by CPI, frozen at the September 1999 quarter). InvestaLens uses whichever gives the lower assessable gain and shows the method per disposal.</p>
+<p><strong>Bonds:</strong> traditional bonds are exempt from CGT &mdash; their discount or premium is ordinary income (shown as <em>Bond Capital Growth</em> in the Taxable Income report). Listed bonds and hybrids remain subject to CGT. Override the treatment under Settings &rarr; Instrument Tax.</p>
+<p><strong>Proposed 2027 regime (not yet law):</strong> toggle <em>Show proposed 2027 regime projection</em> on the CGT report and choose your income band to model cost-base indexation, the 30% minimum tax, and the 1 July 2027 transitional split. Configure entity type, residency and income-support status under Settings &rarr; Tax &amp; CGT.</p>`,
       },
     ],
   },

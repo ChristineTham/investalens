@@ -4,15 +4,23 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { buildParcels } from "@/lib/calculations/parcels";
 import { isIncomeAsset } from "@/lib/calculations/asset-tax-class";
+import {
+  currentLawIndexationFactor,
+  loadCpiMap,
+} from "@/lib/calculations/indexation";
 
 export interface UnrealisedCgtItem {
   instrumentCode: string;
   quantity: number;
   costBase: number;
+  indexedCostBase: number;
   marketValue: number;
   unrealisedGain: number;
   isLongTerm: boolean;
   discountedGain: number;
+  indexationGain: number;
+  assessableGain: number;
+  methodUsed: "discount" | "indexation";
 }
 
 export interface UnrealisedCgtSummary {
@@ -21,6 +29,7 @@ export interface UnrealisedCgtSummary {
   longTermGains: number;
   unrealisedLosses: number;
   cgtDiscount: number;
+  indexationRelief: number;
   netHypotheticalGain: number;
 }
 
@@ -43,6 +52,7 @@ export async function generateUnrealisedCgtReport(
     },
   });
 
+  const cpi = await loadCpiMap();
   const items: UnrealisedCgtItem[] = [];
   const today = new Date();
 
@@ -110,14 +120,37 @@ export async function generateUnrealisedCgtReport(
     const discountedGain =
       unrealisedGain > 0 ? unrealisedGain * (1 - discountRate) : unrealisedGain;
 
+    // Current-law indexation method (pre-1999 parcels): index each parcel's
+    // cost base to today, then use whichever method gives the lower gain.
+    const indexedCostBase = activeParcels.reduce((s, p) => {
+      const base = p.remainingQuantity * p.costPerUnit;
+      const factor = currentLawIndexationFactor(p.purchaseDate, today, cpi);
+      return s + (factor != null && factor > 1 ? base * factor : base);
+    }, 0);
+    const indexationGain =
+      unrealisedGain > 0
+        ? Math.max(0, marketValue - indexedCostBase)
+        : unrealisedGain;
+
+    let methodUsed: "discount" | "indexation" = "discount";
+    let assessableGain = discountedGain;
+    if (unrealisedGain > 0 && indexationGain < discountedGain) {
+      methodUsed = "indexation";
+      assessableGain = indexationGain;
+    }
+
     items.push({
       instrumentCode: holding.instrument.code,
       quantity: totalQuantity,
       costBase: totalCostBase,
+      indexedCostBase,
       marketValue,
       unrealisedGain,
       isLongTerm,
       discountedGain,
+      indexationGain,
+      assessableGain,
+      methodUsed,
     });
   }
 
@@ -131,11 +164,18 @@ export async function generateUnrealisedCgtReport(
     .filter((i) => i.unrealisedGain < 0)
     .reduce((s, i) => s + Math.abs(i.unrealisedGain), 0);
   const cgtDiscount = items
-    .filter((i) => i.isLongTerm && i.unrealisedGain > 0)
-    .reduce((s, i) => s + (i.unrealisedGain - i.discountedGain), 0);
+    .filter((i) => i.unrealisedGain > 0 && i.methodUsed === "discount")
+    .reduce((s, i) => s + (i.unrealisedGain - i.assessableGain), 0);
+  const indexationRelief = items
+    .filter((i) => i.unrealisedGain > 0 && i.methodUsed === "indexation")
+    .reduce((s, i) => s + (i.unrealisedGain - i.assessableGain), 0);
   const netHypotheticalGain = Math.max(
     0,
-    shortTermGains + longTermGains - cgtDiscount - unrealisedLosses
+    shortTermGains +
+      longTermGains -
+      cgtDiscount -
+      indexationRelief -
+      unrealisedLosses
   );
 
   return {
@@ -144,6 +184,7 @@ export async function generateUnrealisedCgtReport(
     longTermGains,
     unrealisedLosses,
     cgtDiscount,
+    indexationRelief,
     netHypotheticalGain,
   };
 }

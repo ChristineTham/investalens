@@ -12,7 +12,8 @@ Welcome to InvestaLens — a comprehensive portfolio tracker and optimiser for i
 > | Stock Information (profile, fundamentals, analysts, news)      | ✅ Implemented               |
 > | Portfolio Management (groups, labels, sharing, consolidated)   | ✅ Implemented               |
 > | Performance & Reporting (6 performance + 4 allocation reports) | ✅ Implemented               |
-> | Tax Reporting (Taxable Income, CGT, Unrealised CGT)            | ✅ Implemented               |
+> | Tax Reporting (Taxable Income, CGT + CPI indexation, Unrealised CGT, bonds) | ✅ Implemented           |
+> | Proposed 2027 CGT regime projection (opt-in)                   | ✅ Implemented               |
 > | Corporate Actions (split, bonus, ROC, rights, merger)          | ✅ Implemented               |
 > | Watchlist                                                      | ✅ Implemented               |
 > | Data Export (CSV trades/holdings/dividends, JSON backup)       | ✅ Implemented               |
@@ -59,7 +60,7 @@ After signing in, you land on the **Dashboard** (`/dashboard`) which shows your 
 | **Tax**        | Taxable income, CGT, and unrealised CGT reports                           |
 | **Tools**      | Watchlist, FIRE calculator, Share Checker, Market Sentiment, AI Assistant |
 | **Analytics**  | 13 quantitative analysis tools (backtesting, optimisation, Monte Carlo, etc.) |
-| **Settings**   | Groups, labels, sharing, export, API tokens, market data (fetch share &amp; bond prices and company information) |
+| **Settings**   | Groups, labels, sharing, export, API tokens, market data (fetch share &amp; bond prices and company information), Tax &amp; CGT (entity type, allocation, 2027 regime), Instrument Tax (CGT vs income) |
 
 ### What You'll Do First
 
@@ -208,6 +209,7 @@ InvestaLens provides dedicated bond analytics (navigate via **Portfolio \u2192 s
 - Returns include income and net custody fees; accrued interest on trades is tracked and netted into income ✅
 - Credit quality breakdown ✅
 - Income forecasting and accrued interest tracking ✅
+- Tax treatment: traditional bonds are CGT-exempt (gains reported as income); listed bonds &amp; hybrids are subject to CGT — override per instrument under Settings → Instrument Tax ✅
 
 ### Net Worth & Liabilities
 
@@ -266,6 +268,8 @@ Share portfolio access with advisers, accountants, or family (Sidebar → Settin
 | Tax Residency          | Determines currency, tax rules, reports (permanent — cannot change)         |
 | Tax Entity Type        | Determines CGT discount rate (Individual 50%, SMSF 33⅓%, Company 0%)        |
 | Sale Allocation Method | How cost base parcels are matched to sells (FIFO, LIFO, Minimise CGT, etc.) |
+| CGT Regime             | Current (50% discount) or proposed 2027 projection (indexation + 30% min-tax) |
+| Instrument Tax Class   | Override CGT vs income treatment per instrument (Settings → Instrument Tax)  |
 | Performance Method     | Simple or compound return calculation                                       |
 
 ### Transferring Holdings
@@ -290,6 +294,8 @@ Throughout the dashboard and reports, returns combine capital and income, net of
 - **Total gain** = capital gain + income − custody/management fees
 
 Bond market value uses the latest stored price per $1 of face value, so refreshing market data (Settings → Market Data → "Update") keeps bond valuations current.
+
+> **Note on returns:** Dashboard and report returns are simple, nominal figures — they are **not time-weighted** and **not inflation-indexed**. For an inflation-indexed (CPI) view, the Tax reports apply the ATO capital gains methodology, including the indexation method for eligible assets (acquired before 21 September 1999).
 
 ### Performance Reports
 
@@ -336,7 +342,7 @@ Australian-focused tax reporting with full CGT calculation, AMIT support, and ta
 | Report                     | Purpose                                                                  | Status                     |
 | -------------------------- | ------------------------------------------------------------------------ | -------------------------- |
 | **Taxable Income Report**  | All dividend/distribution income mapped to ATO form codes                | ✅ `/tax/taxable-income`   |
-| **CGT Report**             | Realised capital gains with discount, losses, and parcel-level breakdown | ✅ `/tax/cgt`              |
+| **CGT Report**             | Realised gains with discount **and** CPI indexation, losses, parcel breakdown, and an opt-in 2027 projection | ✅ `/tax/cgt`              |
 | **Unrealised CGT Report**  | Hypothetical tax liability if positions were sold today                  | ✅ `/tax/unrealised`       |
 | **Historical Cost Report** | Opening/closing cost base for accounting purposes                        | ✅ Server action (stub UI) |
 
@@ -345,6 +351,9 @@ Australian-focused tax reporting with full CGT calculation, AMIT support, and ta
 - **Sale allocation methods** — FIFO, LIFO, Minimise Capital Gain, Maximise Capital Gain, Minimise CGT (considers discount eligibility) ✅
 - **CGT parcel matcher** — Compare all 5 methods to find optimal allocation ✅
 - **CGT discount** — 50% individual/trust, 33⅓% SMSF, 0% company ✅
+- **CGT indexation method** — Cost base indexed by CPI for assets acquired before 21 September 1999; uses whichever method gives the lower gain ✅
+- **Bond CGT treatment** — Traditional bonds exempt from CGT (gains reported as income); listed bonds &amp; hybrids subject to CGT; override per instrument ✅
+- **Proposed 2027 regime projection** — Opt-in toggle modelling cost-base indexation, the 30% minimum tax, and the 1 July 2027 transitional split ✅
 - **Lock-in** — Preserve CGT allocation for completed financial years _(⏳ To be Implemented)_
 - **AMIT support** — Enter Annual Tax Statement components for ETFs and trusts _(Schema ready, ⏳ full processing To be Implemented)_
 - **Stapled securities** — Handles dual trust/company distributions _(⏳ To be Implemented)_

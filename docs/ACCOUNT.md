@@ -9,6 +9,9 @@
 > | Create/rename/delete portfolios      | ✅ Implemented                      |
 > | Tax residency & entity type settings | ✅ Implemented                      |
 > | Sale allocation method (5 methods)   | ✅ Implemented                      |
+> | CGT indexation method (pre-1999)     | ✅ Implemented                      |
+> | Proposed 2027 CGT regime projection  | ✅ Implemented                      |
+> | Instrument tax-class override        | ✅ Implemented                      |
 > | Portfolio sharing (read/write/admin) | ✅ Implemented (server action + UI) |
 > | Custom groups with categories        | ✅ Implemented (server action + UI) |
 > | Labels (create, assign to holdings)  | ✅ Implemented (server action + UI) |
@@ -111,17 +114,38 @@ All holdings are displayed in the portfolio currency. Foreign exchange holdings 
 
 ## Tax Settings
 
+Per-portfolio tax settings live under **Settings → Tax & CGT**. Each portfolio has its own card.
+
 ### Changing Tax Entity Type (Australia)
 
-To change the tax entity type for an Australian portfolio:
-
-1. Click the **Settings** tab
-2. Click the **Tax Settings** side tab
-3. Select your Tax Entity Type:
+1. Click **Settings → Tax & CGT**
+2. On the portfolio's card, select the **Tax entity**:
    - **Individuals / Trust** — CGT discount of 50%
-   - **Self-Managed Super Fund** — CGT discount of 33.3%
+   - **Self-Managed Super Fund** — CGT discount of 33⅓%
    - **Company** — CGT discount nil
-4. Click **Save**
+3. Click **Save**
+
+The same card also sets the **parcel allocation** method and the proposed 2027 settings below.
+
+### Proposed 2027 CGT Regime (projection)
+
+The _Treasury Laws Amendment (Tax Reform No. 1) Bill 2026_ proposes replacing the 50% discount with CPI indexation, plus a 30% minimum tax, from 1 July 2027. **This is not yet law.** InvestaLens models it as an opt-in projection. On the Tax & CGT card you can set:
+
+- **CGT regime** — Current (50% discount) or Proposed 2027 (indexation)
+- **2027 transition method** — Apportionment (days-based) or Market value at 1 July 2027
+- **Foreign / temporary resident** — disables CGT indexation and the discount
+- **Income-support recipient** — exempt from the 30% minimum tax
+- **Marginal tax rate on gains** — used to estimate the 30% minimum-tax top-up
+
+Enable the projection itself with the **Show proposed 2027 regime projection** toggle on the CGT report. See [TAX.md](TAX.md#proposed-2027-cgt-regime-projection).
+
+### Instrument Tax Treatment
+
+Under **Settings → Instrument Tax**, override how each instrument is taxed:
+
+- **Auto** — derive from the instrument type (traditional bonds → income, everything else → CGT)
+- **CGT** — for listed bonds and hybrid securities
+- **Income** — for traditional bonds (the discount/premium is ordinary income)
 
 ---
 
