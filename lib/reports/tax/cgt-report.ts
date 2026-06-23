@@ -8,6 +8,7 @@ import {
   type SaleAllocationMethod,
   type ParcelSaleResult,
 } from "@/lib/calculations/parcels";
+import { isIncomeAsset } from "@/lib/calculations/asset-tax-class";
 
 export interface CgtItem {
   instrumentCode: string;
@@ -71,6 +72,10 @@ export async function generateCgtReport(
   const items: CgtItem[] = [];
 
   for (const sell of sells) {
+    // Traditional bonds are exempt from CGT — their discount/premium is ordinary
+    // income and is reported in the Taxable Income report instead.
+    if (isIncomeAsset(sell.holding.instrument)) continue;
+
     // Build parcels from all transactions before this sell
     const priorTx = sell.holding.transactions
       .filter((tx) => tx.tradeDate <= sell.tradeDate && tx.id !== sell.id)

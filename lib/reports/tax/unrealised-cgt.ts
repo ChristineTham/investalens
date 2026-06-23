@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { buildParcels } from "@/lib/calculations/parcels";
+import { isIncomeAsset } from "@/lib/calculations/asset-tax-class";
 
 export interface UnrealisedCgtItem {
   instrumentCode: string;
@@ -46,6 +47,9 @@ export async function generateUnrealisedCgtReport(
   const today = new Date();
 
   for (const holding of holdings) {
+    // Traditional bonds are exempt from CGT — skip them here.
+    if (isIncomeAsset(holding.instrument)) continue;
+
     const txData = holding.transactions.map((tx) => ({
       id: tx.id,
       transactionType: tx.transactionType,

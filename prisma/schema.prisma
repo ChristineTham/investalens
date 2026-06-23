@@ -148,6 +148,11 @@ model Instrument {
   paymentFrequency String?
   maturityDate     DateTime?
   creditRating     String?
+  // CGT tax treatment override: "cgt" (shares/ETFs/listed debt & hybrids — CGT
+  // events on disposal) or "income" (traditional non-listed bonds — CGT-exempt,
+  // discount/premium is ordinary income). Null derives from instrumentType
+  // (bond → income, otherwise cgt). See lib/calculations/asset-tax-class.ts.
+  taxClass         String?
   isCustom         Boolean   @default(false)
   createdByUserId  String?
   createdAt        DateTime  @default(now())

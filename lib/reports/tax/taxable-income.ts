@@ -2,6 +2,12 @@
 
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import {
+  buildParcels,
+  allocateSale,
+  type SaleAllocationMethod,
+} from "@/lib/calculations/parcels";
+import { isIncomeAsset } from "@/lib/calculations/asset-tax-class";
 
 export interface TaxableIncomeItem {
   instrumentCode: string;
@@ -10,6 +16,9 @@ export interface TaxableIncomeItem {
   frankedAmount: number;
   unfrankedAmount: number;
   interest: number;
+  // Traditional bonds are CGT-exempt; discount/premium realised on sale or at
+  // maturity is ordinary income (declared in full, no CGT discount).
+  bondCapitalGrowth: number;
   taxDeferred: number;
   foreignIncome: number;
   frankingCredits: number;
@@ -60,6 +69,7 @@ export async function generateTaxableIncomeReport(
         frankedAmount: 0,
         unfrankedAmount: 0,
         interest: 0,
+        bondCapitalGrowth: 0,
         taxDeferred: 0,
         foreignIncome: 0,
         frankingCredits: 0,
@@ -89,6 +99,80 @@ export async function generateTaxableIncomeReport(
     item.totalIncome = item.netDividend + item.interest - item.taxDeferred;
   }
 
+  // Traditional bonds are exempt from CGT: the discount/premium realised when a
+  // bond is sold or redeemed at maturity is ordinary income. Compute it via the
+  // same parcel allocation used by the CGT report, but report it as income.
+  const allocationMethod = portfolio.saleAllocationMethod as SaleAllocationMethod;
+  const bondDisposals = await db.transaction.findMany({
+    where: {
+      holding: { portfolioId },
+      transactionType: { in: ["SELL", "MATURITY"] },
+      tradeDate: { gte: fyStart, lte: fyEnd },
+    },
+    include: {
+      holding: {
+        include: {
+          instrument: true,
+          transactions: { orderBy: { tradeDate: "asc" } },
+        },
+      },
+    },
+    orderBy: { tradeDate: "asc" },
+  });
+
+  for (const disposal of bondDisposals) {
+    if (!isIncomeAsset(disposal.holding.instrument)) continue;
+
+    const priorTx = disposal.holding.transactions
+      .filter((tx) => tx.tradeDate <= disposal.tradeDate && tx.id !== disposal.id)
+      .map((tx) => ({
+        id: tx.id,
+        transactionType: tx.transactionType,
+        tradeDate: tx.tradeDate,
+        quantity: tx.quantity,
+        price: tx.price,
+        brokerage: tx.brokerage,
+        exchangeRate: tx.exchangeRate,
+        currency: tx.currency,
+      }));
+
+    const parcels = buildParcels(priorTx);
+    const parcelResults = allocateSale(
+      parcels,
+      disposal.tradeDate,
+      Number(disposal.quantity),
+      Number(disposal.price),
+      Number(disposal.brokerage),
+      allocationMethod,
+      portfolio.taxEntityType
+    );
+    const growth = parcelResults.reduce((s, r) => s + r.gain, 0);
+
+    const code = disposal.holding.instrument.code;
+    if (!byInstrument[code]) {
+      byInstrument[code] = {
+        instrumentCode: code,
+        totalIncome: 0,
+        netDividend: 0,
+        frankedAmount: 0,
+        unfrankedAmount: 0,
+        interest: 0,
+        bondCapitalGrowth: 0,
+        taxDeferred: 0,
+        foreignIncome: 0,
+        frankingCredits: 0,
+        foreignTax: 0,
+      };
+    }
+    byInstrument[code].bondCapitalGrowth += growth;
+  }
+
+  // Final income per instrument includes bond capital growth.
+  for (const item of Object.values(byInstrument)) {
+    item.totalIncome =
+      item.netDividend + item.interest + item.bondCapitalGrowth - item.taxDeferred;
+  }
+
   const items = Object.values(byInstrument);
 
   const totals: TaxableIncomeItem = {
@@ -98,6 +182,7 @@ export async function generateTaxableIncomeReport(
     frankedAmount: items.reduce((s, i) => s + i.frankedAmount, 0),
     unfrankedAmount: items.reduce((s, i) => s + i.unfrankedAmount, 0),
     interest: items.reduce((s, i) => s + i.interest, 0),
+    bondCapitalGrowth: items.reduce((s, i) => s + i.bondCapitalGrowth, 0),
     taxDeferred: items.reduce((s, i) => s + i.taxDeferred, 0),
     foreignIncome: items.reduce((s, i) => s + i.foreignIncome, 0),
     frankingCredits: items.reduce((s, i) => s + i.frankingCredits, 0),

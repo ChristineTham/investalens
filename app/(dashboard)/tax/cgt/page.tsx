@@ -233,6 +233,12 @@ export default async function CgtPage({
           lower assessable gain. CPI index data is sourced from the Reserve Bank
           of Australia (Statistical Table&nbsp;G1, Consumer Price Inflation).
         </p>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Traditional (non-listed) bonds are exempt from CGT and are excluded
+          here &mdash; any discount or premium realised on sale or at maturity is
+          ordinary income and appears in the Taxable Income report. Listed and
+          hybrid securities remain subject to CGT.
+        </p>
       </div>
 
       {/* Detail table */}

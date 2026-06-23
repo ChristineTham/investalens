@@ -73,6 +73,7 @@ export default async function TaxableIncomePage({
           existing.frankedAmount += item.frankedAmount;
           existing.unfrankedAmount += item.unfrankedAmount;
           existing.interest += item.interest;
+          existing.bondCapitalGrowth += item.bondCapitalGrowth;
           existing.taxDeferred += item.taxDeferred;
           existing.foreignIncome += item.foreignIncome;
           existing.frankingCredits += item.frankingCredits;
@@ -92,6 +93,7 @@ export default async function TaxableIncomePage({
     frankedAmount: items.reduce((s, i) => s + i.frankedAmount, 0),
     unfrankedAmount: items.reduce((s, i) => s + i.unfrankedAmount, 0),
     interest: items.reduce((s, i) => s + i.interest, 0),
+    bondCapitalGrowth: items.reduce((s, i) => s + i.bondCapitalGrowth, 0),
     taxDeferred: items.reduce((s, i) => s + i.taxDeferred, 0),
     foreignIncome: items.reduce((s, i) => s + i.foreignIncome, 0),
     frankingCredits: items.reduce((s, i) => s + i.frankingCredits, 0),
@@ -166,6 +168,15 @@ export default async function TaxableIncomePage({
           </p>
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
+          <p className="text-xs text-muted-foreground">Bond Capital Growth</p>
+          <p className="text-lg font-bold">
+            {formatCurrency(totals.bondCapitalGrowth)}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            (bonds — ordinary income)
+          </p>
+        </div>
+        <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">Foreign Income</p>
           <p className="text-lg font-bold">
             {formatCurrency(totals.foreignIncome)}
@@ -220,6 +231,9 @@ export default async function TaxableIncomePage({
                   Interest
                 </th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                  Bond Growth
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
                   Foreign Tax
                 </th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
@@ -249,6 +263,9 @@ export default async function TaxableIncomePage({
                     {formatCurrency(item.interest)}
                   </td>
                   <td className="px-4 py-3 text-right text-sm">
+                    {formatCurrency(item.bondCapitalGrowth)}
+                  </td>
+                  <td className="px-4 py-3 text-right text-sm">
                     {formatCurrency(item.foreignTax)}
                   </td>
                   <td className="px-4 py-3 text-right text-sm">
@@ -273,6 +290,9 @@ export default async function TaxableIncomePage({
                 </td>
                 <td className="px-4 py-3 text-right text-sm">
                   {formatCurrency(totals.interest)}
+                </td>
+                <td className="px-4 py-3 text-right text-sm">
+                  {formatCurrency(totals.bondCapitalGrowth)}
                 </td>
                 <td className="px-4 py-3 text-right text-sm">
                   {formatCurrency(totals.foreignTax)}
@@ -301,6 +321,10 @@ export default async function TaxableIncomePage({
           <li>
             <strong>Item 10 (Interest):</strong>{" "}
             {formatCurrency(totals.interest)}
+          </li>
+          <li>
+            <strong>Item 10/24 (Bond discount &amp; gains — ordinary income):</strong>{" "}
+            {formatCurrency(totals.bondCapitalGrowth)}
           </li>
           <li>
             <strong>Item 20 (Foreign Income):</strong>{" "}
