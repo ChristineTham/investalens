@@ -1,4 +1,5 @@
 import type { TransactionData } from "./performance";
+import { currentLawIndexationFactor, type CpiMap } from "./indexation";
 
 export interface Parcel {
   purchaseDate: Date;
@@ -18,6 +19,16 @@ export interface ParcelSaleResult {
   gain: number;
   isLongTerm: boolean;
   discountedGain: number;
+  /** Cost base after CPI indexation (= costBase when indexation isn't applied). */
+  indexedCostBase: number;
+  /** Indexation factor applied (1 when not applied). */
+  indexationFactor: number;
+  /** Assessable gain under the indexation method (no discount). */
+  indexationGain: number;
+  /** Method giving the lower assessable gain for this parcel. */
+  methodUsed: "discount" | "indexation";
+  /** Assessable gain after the chosen method (or the nominal loss). */
+  assessableGain: number;
 }
 
 export type SaleAllocationMethod =
@@ -114,7 +125,8 @@ export function allocateSale(
   salePrice: number,
   brokerage: number,
   method: SaleAllocationMethod,
-  taxEntityType: string = "individual"
+  taxEntityType: string = "individual",
+  cpi?: CpiMap
 ): ParcelSaleResult[] {
   // Update holding periods
   const available = parcels
@@ -144,6 +156,32 @@ export function allocateSale(
     const discountRate = getDiscountRate(taxEntityType, parcel.isLongTerm);
     const discountedGain = gain > 0 ? gain * (1 - discountRate) : gain;
 
+    // Current-law CPI indexation method (assets acquired before 21 Sep 1999):
+    // index the cost base, compute the gain with no discount, and use whichever
+    // method gives the lower assessable gain. Indexation cannot create a loss.
+    let indexedCostBase = costBase;
+    let indexationFactor = 1;
+    let indexationGain = gain;
+    let methodUsed: "discount" | "indexation" = "discount";
+    let assessableGain = discountedGain;
+
+    if (cpi && gain > 0) {
+      const factor = currentLawIndexationFactor(
+        parcel.purchaseDate,
+        saleDate,
+        cpi
+      );
+      if (factor != null && factor > 1) {
+        indexationFactor = factor;
+        indexedCostBase = costBase * factor;
+        indexationGain = Math.max(0, proceeds - indexedCostBase);
+        if (indexationGain < discountedGain) {
+          methodUsed = "indexation";
+          assessableGain = indexationGain;
+        }
+      }
+    }
+
     results.push({
       parcel,
       quantitySold,
@@ -152,6 +190,11 @@ export function allocateSale(
       gain,
       isLongTerm: parcel.isLongTerm,
       discountedGain,
+      indexedCostBase,
+      indexationFactor,
+      indexationGain,
+      methodUsed,
+      assessableGain,
     });
 
     remaining -= quantitySold;

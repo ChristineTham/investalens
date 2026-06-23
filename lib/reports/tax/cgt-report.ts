@@ -9,6 +9,7 @@ import {
   type ParcelSaleResult,
 } from "@/lib/calculations/parcels";
 import { isIncomeAsset } from "@/lib/calculations/asset-tax-class";
+import { loadCpiMap } from "@/lib/calculations/indexation";
 
 export interface CgtItem {
   instrumentCode: string;
@@ -16,9 +17,17 @@ export interface CgtItem {
   quantity: number;
   proceeds: number;
   costBase: number;
+  indexedCostBase: number;
   gain: number;
   isLongTerm: boolean;
   discountedGain: number;
+  /** Assessable gain after the chosen method (discount or indexation). */
+  assessableGain: number;
+  /** Relief from the 50% CGT discount method. */
+  cgtDiscount: number;
+  /** Relief from the CPI indexation method (pre-1999 assets). */
+  indexationRelief: number;
+  methodUsed: "discount" | "indexation" | "mixed";
   parcelDetails: ParcelSaleResult[];
 }
 
@@ -28,6 +37,7 @@ export interface CgtSummary {
   longTermGains: number;
   totalLosses: number;
   cgtDiscount: number;
+  indexationRelief: number;
   netCapitalGain: number;
   method: SaleAllocationMethod;
   financialYear: string;
@@ -50,6 +60,9 @@ export async function generateCgtReport(
     method || (portfolio.saleAllocationMethod as SaleAllocationMethod);
   const fyStart = new Date(financialYear - 1, portfolio.financialYearEnd, 1);
   const fyEnd = new Date(financialYear, portfolio.financialYearEnd, 0);
+
+  // CPI series for the current-law indexation method (pre-1999 assets).
+  const cpi = await loadCpiMap();
 
   // Get all sells in the financial year
   const sells = await db.transaction.findMany({
@@ -102,17 +115,48 @@ export async function generateCgtReport(
       salePrice,
       brokerage,
       allocationMethod,
-      portfolio.taxEntityType
+      portfolio.taxEntityType,
+      cpi
     );
 
     const totalProceeds = saleQuantity * salePrice - brokerage;
     const totalCostBase = parcelResults.reduce((s, r) => s + r.costBase, 0);
+    const totalIndexedCostBase = parcelResults.reduce(
+      (s, r) => s + r.indexedCostBase,
+      0
+    );
     const totalGain = totalProceeds - totalCostBase;
     const totalDiscountedGain = parcelResults.reduce(
       (s, r) => s + r.discountedGain,
       0
     );
+    const totalAssessableGain = parcelResults.reduce(
+      (s, r) => s + r.assessableGain,
+      0
+    );
     const isLongTerm = parcelResults.every((r) => r.isLongTerm);
+
+    // Split the relief into discount vs indexation buckets (gains only).
+    let cgtDiscount = 0;
+    let indexationRelief = 0;
+    for (const r of parcelResults) {
+      if (r.gain <= 0) continue;
+      if (r.methodUsed === "indexation") {
+        indexationRelief += r.gain - r.indexationGain;
+      } else {
+        cgtDiscount += r.gain - r.discountedGain;
+      }
+    }
+
+    const methods = new Set(
+      parcelResults.filter((r) => r.gain > 0).map((r) => r.methodUsed)
+    );
+    const methodUsed: CgtItem["methodUsed"] =
+      methods.size === 0
+        ? "discount"
+        : methods.size > 1
+          ? "mixed"
+          : ([...methods][0] as "discount" | "indexation");
 
     items.push({
       instrumentCode: sell.holding.instrument.code,
@@ -120,9 +164,14 @@ export async function generateCgtReport(
       quantity: saleQuantity,
       proceeds: totalProceeds,
       costBase: totalCostBase,
+      indexedCostBase: totalIndexedCostBase,
       gain: totalGain,
       isLongTerm,
       discountedGain: totalDiscountedGain,
+      assessableGain: totalAssessableGain,
+      cgtDiscount,
+      indexationRelief,
+      methodUsed,
       parcelDetails: parcelResults,
     });
   }
@@ -136,11 +185,10 @@ export async function generateCgtReport(
   const totalLosses = items
     .filter((i) => i.gain < 0)
     .reduce((s, i) => s + Math.abs(i.gain), 0);
-  const cgtDiscount = items
-    .filter((i) => i.isLongTerm && i.gain > 0)
-    .reduce((s, i) => s + (i.gain - i.discountedGain), 0);
+  const cgtDiscount = items.reduce((s, i) => s + i.cgtDiscount, 0);
+  const indexationRelief = items.reduce((s, i) => s + i.indexationRelief, 0);
   const netCapitalGain =
-    shortTermGains + longTermGains - cgtDiscount - totalLosses;
+    shortTermGains + longTermGains - cgtDiscount - indexationRelief - totalLosses;
 
   return {
     items,
@@ -148,6 +196,7 @@ export async function generateCgtReport(
     longTermGains,
     totalLosses,
     cgtDiscount,
+    indexationRelief,
     netCapitalGain: Math.max(0, netCapitalGain),
     method: allocationMethod,
     financialYear: `FY${financialYear - 1}-${String(financialYear).slice(2)}`,

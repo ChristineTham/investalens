@@ -57,6 +57,7 @@ export default async function CgtPage({
     | "longTermGains"
     | "totalLosses"
     | "cgtDiscount"
+    | "indexationRelief"
     | "netCapitalGain"
     | "method"
     | "financialYear"
@@ -91,12 +92,11 @@ export default async function CgtPage({
     const totalLosses = items
       .filter((i) => i.gain < 0)
       .reduce((s, i) => s + Math.abs(i.gain), 0);
-    const cgtDiscount = items
-      .filter((i) => i.isLongTerm && i.gain > 0)
-      .reduce((s, i) => s + (i.gain - i.discountedGain), 0);
+    const cgtDiscount = items.reduce((s, i) => s + i.cgtDiscount, 0);
+    const indexationRelief = items.reduce((s, i) => s + i.indexationRelief, 0);
     const netCapitalGain = Math.max(
       0,
-      shortTermGains + longTermGains - cgtDiscount - totalLosses
+      shortTermGains + longTermGains - cgtDiscount - indexationRelief - totalLosses
     );
 
     summary = {
@@ -104,6 +104,7 @@ export default async function CgtPage({
       longTermGains,
       totalLosses,
       cgtDiscount,
+      indexationRelief,
       netCapitalGain,
       method: lastMethod as CgtSummary["method"],
       financialYear: lastFY,
@@ -113,7 +114,10 @@ export default async function CgtPage({
   // ATO CGT calculation steps
   const totalGains = summary.shortTermGains + summary.longTermGains;
   const gainsAfterLosses = Math.max(0, totalGains - summary.totalLosses);
-  const netAfterDiscount = Math.max(0, gainsAfterLosses - summary.cgtDiscount);
+  const netAfterDiscount = Math.max(
+    0,
+    gainsAfterLosses - summary.cgtDiscount - summary.indexationRelief
+  );
 
   return (
     <div className="space-y-6">
@@ -172,6 +176,17 @@ export default async function CgtPage({
             -{formatCurrency(summary.cgtDiscount)}
           </p>
         </div>
+        {summary.indexationRelief > 0 && (
+          <div className="rounded-lg border border-border bg-card p-4">
+            <p className="text-xs text-muted-foreground">Indexation Relief</p>
+            <p className="text-lg font-bold">
+              -{formatCurrency(summary.indexationRelief)}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              pre-1999 CPI method
+            </p>
+          </div>
+        )}
         <div className="rounded-lg border border-border bg-card p-4 ring-2 ring-primary/20">
           <p className="text-xs font-medium text-primary">
             Net Capital Gain
@@ -199,9 +214,15 @@ export default async function CgtPage({
             3. Net gains after losses: {formatCurrency(gainsAfterLosses)}
           </li>
           <li>
-            4. Less 50% CGT discount (on long-term gains only): -
+            4. Less 50% CGT discount (on long-term discount-method gains): -
             {formatCurrency(summary.cgtDiscount)}
           </li>
+          {summary.indexationRelief > 0 && (
+            <li>
+              4a. Less CPI indexation relief (pre-1999 assets): -
+              {formatCurrency(summary.indexationRelief)}
+            </li>
+          )}
           <li className="font-medium text-foreground">
             5. Net capital gain (Item 18 tax return):{" "}
             {formatCurrency(netAfterDiscount)}
@@ -270,10 +291,13 @@ export default async function CgtPage({
                   Gain/Loss
                 </th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                  Discounted
+                  Assessable
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
                   Term
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                  Method
                 </th>
               </tr>
             </thead>
@@ -301,10 +325,13 @@ export default async function CgtPage({
                     {formatCurrency(item.gain)}
                   </td>
                   <td className="px-4 py-3 text-right text-sm">
-                    {formatCurrency(item.discountedGain)}
+                    {formatCurrency(item.assessableGain)}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     {item.isLongTerm ? "Long (≥12m)" : "Short (<12m)"}
+                  </td>
+                  <td className="px-4 py-3 text-sm capitalize">
+                    {item.methodUsed}
                   </td>
                 </tr>
               ))}
@@ -329,9 +356,10 @@ export default async function CgtPage({
                 </td>
                 <td className="px-4 py-3 text-right text-sm">
                   {formatCurrency(
-                    items.reduce((s, i) => s + i.discountedGain, 0)
+                    items.reduce((s, i) => s + i.assessableGain, 0)
                   )}
                 </td>
+                <td className="px-4 py-3"></td>
                 <td className="px-4 py-3"></td>
               </tr>
             </tbody>
