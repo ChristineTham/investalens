@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { Layers, ArrowRight } from "lucide-react";
-import {
-  AllocationDonut,
-  ALLOCATION_SWATCH,
-} from "@/components/charts/allocation-donut";
+import { AllocationBar } from "@/components/charts/allocation-bar";
+import { ALLOCATION_SWATCH } from "@/components/charts/allocation-donut";
 import { formatCurrency } from "@/lib/utils";
 
 interface ConsolidatedCardProps {
@@ -22,7 +20,7 @@ export function ConsolidatedCard({
   return (
     <Link
       href="/portfolio/consolidated"
-      className="group flex flex-col rounded-lg border-2 border-primary/40 bg-primary/5 p-5 transition-colors hover:border-primary/70"
+      className="group col-span-full flex flex-col rounded-lg border-2 border-primary/40 bg-primary/5 p-5 transition-colors hover:border-primary/70"
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -35,20 +33,22 @@ export function ConsolidatedCard({
         All portfolios combined
       </p>
 
-      <div className="mt-3">
-        <p className="text-xs text-muted-foreground">Total value</p>
-        <p className="text-2xl font-bold">{formatCurrency(totalValue)}</p>
-        <p className="mt-0.5 text-xs text-muted-foreground">
+      <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-xs text-muted-foreground">Total value</p>
+          <p className="text-3xl font-bold">{formatCurrency(totalValue)}</p>
+        </div>
+        <p className="text-xs text-muted-foreground">
           {byPortfolio.length} portfolios · {totalHoldings} holdings
         </p>
       </div>
 
       {data.length > 0 && (
-        <div className="mt-4 flex items-center gap-3">
-          <div className="pointer-events-none shrink-0">
-            <AllocationDonut data={data} />
+        <div className="mt-4">
+          <div className="pointer-events-none">
+            <AllocationBar data={data} />
           </div>
-          <ul className="min-w-0 flex-1 space-y-1">
+          <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">
             {data.map((a, i) => (
               <li key={a.name} className="flex items-center gap-2 text-xs">
                 <span
@@ -56,8 +56,8 @@ export function ConsolidatedCard({
                     ALLOCATION_SWATCH[i % ALLOCATION_SWATCH.length]
                   }`}
                 />
-                <span className="truncate font-medium">{a.name}</span>
-                <span className="ml-auto text-muted-foreground">
+                <span className="font-medium">{a.name}</span>
+                <span className="text-muted-foreground">
                   {totalValue > 0
                     ? ((a.value / totalValue) * 100).toFixed(0)
                     : 0}
