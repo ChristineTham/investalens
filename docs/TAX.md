@@ -94,6 +94,8 @@ The following reports are accessible from the Tax tab:
 
 Shows all dividend, distribution, and interest income received within a selected date range. Designed to help you complete your Australian tax return by presenting portfolio income in the format required by the ATO.
 
+> **Data source for franking:** franked/unfranked amounts and franking credits are captured from **imported dividend/AMMA statements** or **manual entry**. The price feed (Yahoo Finance) provides only the **gross cash dividend** — auto-fetched dividends are therefore recorded **unclassified** (treated as unfranked with no credits), and ETF/trust distributions are not split into their tax components. To classify a payment, open the holding's **Transaction History** and use the coins icon on the dividend row — you can enter franked/unfranked amounts, franking credits, tax-deferred and foreign tax, and compute the credits from the franked amount at the 30% or 25% company tax rate — or import the relevant statement.
+
 ### Income Categories
 
 Income is grouped into three sections:

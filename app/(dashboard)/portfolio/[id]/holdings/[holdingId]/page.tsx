@@ -160,6 +160,12 @@ export default async function HoldingDetailPage({
             currency={holding.instrument.currency}
           />
         </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Auto-fetched dividends record the gross cash amount only and are{" "}
+          <strong>not</strong> classified for franking. Franked/unfranked amounts
+          and franking credits come from imported statements or manual entry —
+          use the coins icon on a dividend row to add them.
+        </p>
         {transactions.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">
             No transactions recorded yet.

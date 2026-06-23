@@ -72,6 +72,13 @@ export async function updateTransaction(
     price?: number;
     brokerage?: number;
     comments?: string;
+    // Franking / tax classification (dividends & distributions). Auto-fetched
+    // dividends carry none of these — they can only be set from imports or here.
+    frankedAmount?: number | null;
+    unfrankedAmount?: number | null;
+    frankingCredits?: number | null;
+    taxDeferred?: number | null;
+    foreignTax?: number | null;
   }
 ) {
   const session = await auth();
@@ -95,6 +102,17 @@ export async function updateTransaction(
       ...(input.price !== undefined && { price: input.price }),
       ...(input.brokerage !== undefined && { brokerage: input.brokerage }),
       ...(input.comments !== undefined && { comments: input.comments }),
+      ...(input.frankedAmount !== undefined && {
+        frankedAmount: input.frankedAmount,
+      }),
+      ...(input.unfrankedAmount !== undefined && {
+        unfrankedAmount: input.unfrankedAmount,
+      }),
+      ...(input.frankingCredits !== undefined && {
+        frankingCredits: input.frankingCredits,
+      }),
+      ...(input.taxDeferred !== undefined && { taxDeferred: input.taxDeferred }),
+      ...(input.foreignTax !== undefined && { foreignTax: input.foreignTax }),
     },
   });
 

@@ -125,6 +125,18 @@ export default async function TaxableIncomePage({
         />
       </Suspense>
 
+      <div className="rounded-lg border border-border bg-muted/30 p-4 text-xs text-muted-foreground">
+        <span className="font-medium text-foreground">
+          Franking comes from statements or manual entry.
+        </span>{" "}
+        Auto-fetched dividends from the price feed carry the gross cash amount
+        only — they are treated as unfranked with no credits, and ETF/trust
+        distributions are not split into their tax components — until you classify
+        them. Open a holding&apos;s Transaction History and use the coins icon on a
+        dividend to enter franked/unfranked amounts, franking credits, tax-deferred
+        and foreign tax, or import your dividend/AMMA statement.
+      </div>
+
       {/* Summary cards — ATO tax return mapping */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5">
         <div className="rounded-lg border border-border bg-card p-4">
