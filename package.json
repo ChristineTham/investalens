@@ -7,7 +7,8 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
-    "db:cpi": "tsx scripts/fetch-cpi.ts"
+    "db:cpi": "tsx scripts/fetch-cpi.ts",
+    "verify:cgt2027": "tsx scripts/verify-cgt-2027.ts"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"

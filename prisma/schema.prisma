@@ -87,6 +87,14 @@ model Portfolio {
   performanceMethod    String   @default("compound")
   taxEntityType        String   @default("individual")
   saleAllocationMethod String   @default("fifo")
+  // Proposed 1 July 2027 CGT regime (Treasury Laws Amendment (Tax Reform No. 1)
+  // Bill 2026 — not yet law). Opt-in projection settings. See
+  // lib/calculations/cgt-2027.ts.
+  cgtRegime              String   @default("current") // "current" | "proposed_2027"
+  cgtTransitionMethod    String   @default("apportionment") // "market_value" | "apportionment"
+  incomeSupportRecipient Boolean  @default(false) // exempt from the 30% minimum tax
+  isForeignResident      Boolean  @default(false) // no CGT indexation / discount
+  marginalTaxRate        Decimal? @db.Decimal(5, 4) // effective marginal rate on gains, e.g. 0.4700
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
