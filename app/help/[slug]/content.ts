@@ -160,12 +160,16 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
     next: { slug: "reports", title: "Performance & Reporting" },
     sections: [
       {
+        heading: "Portfolio Overview",
+        content: `<p>The Portfolio page shows each portfolio as a summary card with an allocation donut (current value by holding), current value, 1M / 6M / 1Y / 3Y returns, and the three most recent transactions. When you have more than one portfolio, a highlighted <strong>Consolidated View</strong> card leads the grid.</p>`,
+      },
+      {
         heading: "Organisation Tools",
         content: `<table>
 <tr><th>Feature</th><th>Purpose</th><th>How to Access</th></tr>
 <tr><td><strong>Custom Groups</strong></td><td>Group holdings by your own categories</td><td>Sidebar &rarr; Settings &rarr; Custom Groups</td></tr>
 <tr><td><strong>Labels</strong></td><td>Tag holdings for filtered reporting</td><td>Sidebar &rarr; Settings &rarr; Labels</td></tr>
-<tr><td><strong>Consolidated View</strong></td><td>Aggregate view across all portfolios</td><td>Sidebar &rarr; Portfolio &rarr; &ldquo;Consolidated View&rdquo; button</td></tr>
+<tr><td><strong>Consolidated View</strong></td><td>Aggregate view across all portfolios</td><td>Sidebar &rarr; Portfolio &rarr; highlighted &ldquo;Consolidated View&rdquo; card</td></tr>
 <tr><td><strong>Bonds</strong></td><td>Bond analytics, maturity ladder, YTM</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Bonds&rdquo; button</td></tr>
 <tr><td><strong>Cash Accounts</strong></td><td>Cash alongside investments</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Cash&rdquo; button</td></tr>
 </table>`,

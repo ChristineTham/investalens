@@ -5,7 +5,7 @@ A comprehensive portfolio tracker and optimiser for Australian investors. Track 
 ## Features (R1 MVP)
 
 - **Authentication** — Email/password + Google OAuth via NextAuth.js v5
-- **Portfolio Management** — Create, rename, delete, share portfolios with access levels
+- **Portfolio Management** — Rich overview cards (allocation donut, current value, 1M/6M/1Y/3Y returns, recent activity) and a highlighted consolidated card; create, rename, delete, and share portfolios with access levels
 - **Multi-Type Import** — Import hub for shares, bonds, and cash. One-step quick import for known brokers, a category-based guided wizard, and dedicated custom importers (e.g. the FIIG multi-sheet data extract). 9 broker templates (CommSec, SelfWealth, Stake, CMC, Bell Direct, nabtrade, FIIG, IB) plus generic bank-statement templates. All paths resolve duplicates automatically
 - **Market Data** — One-step **Update** (Settings → Market Data) streams live progress while it fetches ASX/share & ETF prices via Yahoo Finance, FIIG rate-sheet bond prices (matched by ISIN), and company information — plus instrument search and a daily price cron
 - **Stock Information** — Rich company data per holding via yfinance (Python): profile & description, key fundamentals, analyst price targets & recommendation trend, upgrades/downgrades, earnings/dividend calendar, recent news, financial statements, and corporate actions

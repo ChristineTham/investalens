@@ -47,6 +47,10 @@ This document covers account setup, portfolio management, sharing, organisation 
 
 InvestaLens portfolio settings are applied to the portfolio you are currently viewing. Settings are selected when you create a new portfolio and most can be edited within the Settings tab.
 
+### Portfolio Overview Cards
+
+The **Portfolio** page presents each portfolio as a summary card showing an allocation donut (current value by holding) with a top-holdings legend, the current value, **1M / 6M / 1Y / 3Y returns** (contribution-adjusted capital return), and the three most recent transactions. With more than one portfolio, a highlighted **Consolidated View** card leads the grid, aggregating total value, portfolio/holding counts, and allocation by portfolio.
+
 ### Portfolio Settings
 
 Access portfolio settings via **Settings > Details**:

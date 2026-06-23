@@ -55,7 +55,7 @@ After signing in, you land on the **Dashboard** (`/dashboard`) which shows your 
 | Sidebar Link   | What It Contains                                                          |
 | -------------- | ------------------------------------------------------------------------- |
 | **Dashboard**  | Summary cards (purchase cost, total value, capital gain, income, total gain, portfolios/holdings), portfolio performance chart, allocation treemap, portfolio summary table, recent activity |
-| **Portfolio**  | Create/manage portfolios, holdings, imports, bonds, cash                  |
+| **Portfolio**  | Portfolio overview cards (allocation donut, returns, recent activity); create/manage portfolios, holdings, imports, bonds, cash |
 | **Reports**    | 10 performance and allocation reports                                     |
 | **Tax**        | Taxable income, CGT, and unrealised CGT reports                           |
 | **Tools**      | Watchlist, FIRE calculator, Share Checker, Market Sentiment, AI Assistant |
@@ -245,13 +245,23 @@ Stock information is fetched together with prices. Go to **Settings → Market D
 
 Organise, share, and manage multiple portfolios.
 
+### Portfolio Overview
+
+The **Portfolio** page shows each portfolio as a rich summary card:
+
+- **Allocation donut** — current value split across the portfolio's holdings, with a top-holdings legend and percentages
+- **Current value** and **1M / 6M / 1Y / 3Y returns** (contribution-adjusted capital return)
+- **Recent activity** — the three most recent transactions
+
+When you hold more than one portfolio, a **highlighted Consolidated View card** leads the grid, showing total value, portfolio/holding counts, and an allocation donut by portfolio. Click it for the combined view, or click any portfolio card to open that portfolio.
+
 ### Organisation Tools
 
 | Feature               | Purpose                                                                                               | How to Access                                      |
 | --------------------- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
 | **Custom Groups**     | Group holdings by your own categories (e.g. "Growth", "Defensive", "Income") — applies to all reports | Sidebar → Settings → Custom Groups                 |
 | **Labels**            | Tag holdings for filtered reporting (e.g. "Advisor A picks", "Tax loss candidates")                   | Sidebar → Settings → Labels                        |
-| **Consolidated View** | Aggregate view across all portfolios                                                                  | Sidebar → Portfolio → "Consolidated View" button   |
+| **Consolidated View** | Aggregate view across all portfolios                                                                  | Sidebar → Portfolio → "Consolidated View" card (highlighted) |
 
 ### Sharing & Collaboration
 
@@ -354,6 +364,7 @@ Australian-focused tax reporting with full CGT calculation, AMIT support, and ta
 - **CGT indexation method** — Cost base indexed by CPI for assets acquired before 21 September 1999; uses whichever method gives the lower gain ✅
 - **Bond CGT treatment** — Traditional bonds exempt from CGT (gains reported as income); listed bonds &amp; hybrids subject to CGT; override per instrument ✅
 - **Proposed 2027 regime projection** — Opt-in toggle modelling cost-base indexation, the 30% minimum tax, and the 1 July 2027 transitional split ✅
+- **Manual franking classification** — Edit any dividend to set franked/unfranked amounts and franking credits (auto-fetched dividends are unclassified); compute credits from the franked amount at the 30% / 25% company tax rate ✅
 - **Lock-in** — Preserve CGT allocation for completed financial years _(⏳ To be Implemented)_
 - **AMIT support** — Enter Annual Tax Statement components for ETFs and trusts _(Schema ready, ⏳ full processing To be Implemented)_
 - **Stapled securities** — Handles dual trust/company distributions _(⏳ To be Implemented)_
