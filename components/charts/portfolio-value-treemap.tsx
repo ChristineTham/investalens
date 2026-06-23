@@ -11,6 +11,9 @@ interface HoldingNode {
   portfolioIndex: number;
   holdingIndex: number;
   holdingCount: number;
+  fullName: string;
+  instrumentType: string;
+  units: number;
   [key: string]: string | number;
 }
 
@@ -24,7 +27,14 @@ interface PortfolioNode {
 export interface PortfolioTreemapData {
   portfolioId: string;
   portfolioName: string;
-  holdings: { id: string; code: string; marketValue: number }[];
+  holdings: {
+    id: string;
+    code: string;
+    name?: string;
+    instrumentType?: string;
+    quantity?: number;
+    marketValue: number;
+  }[];
 }
 
 interface PortfolioValueTreemapProps {
@@ -33,19 +43,46 @@ interface PortfolioValueTreemapProps {
 
 // Base hues for portfolios (HSL hue values)
 const PORTFOLIO_HUES = [210, 150, 340, 30, 270, 180, 60, 300, 120, 0];
+const SAT = 65;
 
 function getPortfolioColor(portfolioIndex: number, opacity: number = 1): string {
   const hue = PORTFOLIO_HUES[portfolioIndex % PORTFOLIO_HUES.length];
-  return `hsla(${hue}, 65%, 45%, ${opacity})`;
+  return `hsla(${hue}, ${SAT}%, 45%, ${opacity})`;
 }
 
-function getHoldingColor(portfolioIndex: number, holdingIndex: number, holdingCount: number): string {
-  const hue = PORTFOLIO_HUES[portfolioIndex % PORTFOLIO_HUES.length];
-  // Vary lightness from 35% to 60% based on position within portfolio
-  const lightness = holdingCount > 1
-    ? 35 + (holdingIndex / (holdingCount - 1)) * 25
-    : 45;
-  return `hsl(${hue}, 65%, ${lightness}%)`;
+// Lightness for a holding tile (kept in a darker band so labels stay legible).
+function holdingLightness(holdingIndex: number, holdingCount: number): number {
+  return holdingCount > 1
+    ? 34 + (holdingIndex / (holdingCount - 1)) * 20 // 34%–54%
+    : 44;
+}
+
+function hslToRgb(h: number, s: number, l: number): [number, number, number] {
+  s /= 100;
+  l /= 100;
+  const k = (n: number) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) =>
+    l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  return [
+    Math.round(255 * f(0)),
+    Math.round(255 * f(8)),
+    Math.round(255 * f(4)),
+  ];
+}
+
+function relativeLuminance(r: number, g: number, b: number): number {
+  const lin = (c: number) => {
+    const x = c / 255;
+    return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+// Choose a legible text colour (and halo) for a given tile lightness/hue.
+function tileTextColor(hue: number, lightness: number): string {
+  const [r, g, b] = hslToRgb(hue, SAT, lightness);
+  return relativeLuminance(r, g, b) > 0.42 ? "#111111" : "#ffffff";
 }
 
 function CustomContent(props: {
@@ -61,11 +98,15 @@ function CustomContent(props: {
   portfolioIndex?: number;
   holdingIndex?: number;
   holdingCount?: number;
+  portfolioId?: string;
+  holdingId?: string;
+  onNavigate?: (portfolioId: string, holdingId: string) => void;
 }) {
   const {
     x = 0, y = 0, width = 0, height = 0,
     name = "", value = 0, root, depth = 0,
     portfolioIndex = 0, holdingIndex = 0, holdingCount = 1,
+    portfolioId, holdingId, onNavigate,
   } = props;
 
   if (depth === 1) {
@@ -83,10 +124,13 @@ function CustomContent(props: {
         />
         {width > 60 && height > 20 && (
           <text
-            x={x + 4}
-            y={y + 14}
-            fill={getPortfolioColor(portfolioIndex)}
-            fontSize={10}
+            x={x + 5}
+            y={y + 15}
+            fill="var(--foreground)"
+            stroke="var(--card)"
+            strokeWidth={3}
+            paintOrder="stroke"
+            fontSize={11}
             fontWeight="bold"
           >
             {name}
@@ -96,13 +140,34 @@ function CustomContent(props: {
     );
   }
 
-  // Holding level - colored by portfolio with shade variation
+  // Holding level - coloured by portfolio with shade variation
   const total = root?.children?.reduce((s, c) => s + c.value, 0) || 1;
   const percent = ((value / total) * 100).toFixed(1);
-  const fillColor = getHoldingColor(portfolioIndex, holdingIndex, holdingCount);
+  const hue = PORTFOLIO_HUES[portfolioIndex % PORTFOLIO_HUES.length];
+  const lightness = holdingLightness(holdingIndex, holdingCount);
+  const fillColor = `hsl(${hue}, ${SAT}%, ${lightness}%)`;
+  const textColor = tileTextColor(hue, lightness);
+  const halo = textColor === "#ffffff" ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.7)";
+
+  const navigate = () => {
+    if (onNavigate && portfolioId && holdingId) onNavigate(portfolioId, holdingId);
+  };
 
   return (
-    <g>
+    <g
+      role="button"
+      tabIndex={0}
+      aria-label={`${name}, ${percent}% of total holdings. Press Enter to open the holding detail page.`}
+      onClick={navigate}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          navigate();
+        }
+      }}
+      className="cursor-pointer"
+    >
+      <title>{`${name} — ${percent}%`}</title>
       <rect
         x={x}
         y={y}
@@ -111,16 +176,18 @@ function CustomContent(props: {
         fill={fillColor}
         stroke="var(--background)"
         strokeWidth={1.5}
-        className="cursor-pointer"
       />
-      {width > 40 && height > 28 && (
+      {width > 40 && height > 30 && (
         <>
           <text
             x={x + width / 2}
-            y={y + height / 2 - 6}
+            y={y + height / 2 - 5}
             textAnchor="middle"
-            fill="white"
-            fontSize={11}
+            fill={textColor}
+            stroke={halo}
+            strokeWidth={2.5}
+            paintOrder="stroke"
+            fontSize={12}
             fontWeight="bold"
             className="pointer-events-none"
           >
@@ -128,11 +195,13 @@ function CustomContent(props: {
           </text>
           <text
             x={x + width / 2}
-            y={y + height / 2 + 8}
+            y={y + height / 2 + 10}
             textAnchor="middle"
-            fill="white"
-            fontSize={9}
-            opacity={0.8}
+            fill={textColor}
+            stroke={halo}
+            strokeWidth={2}
+            paintOrder="stroke"
+            fontSize={10}
             className="pointer-events-none"
           >
             {percent}%
@@ -140,6 +209,48 @@ function CustomContent(props: {
         </>
       )}
     </g>
+  );
+}
+
+function TreemapTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: { payload?: Record<string, unknown> }[];
+}) {
+  if (!active || !payload?.length) return null;
+  const node = payload[0]?.payload;
+  // Only holding (leaf) nodes carry a holdingId.
+  if (!node || typeof node.holdingId !== "string") return null;
+
+  const code = String(node.name ?? "");
+  const fullName = node.fullName ? String(node.fullName) : "";
+  const type = node.instrumentType ? String(node.instrumentType) : "\u2014";
+  const units = Number(node.units ?? 0);
+  const value = Number(node.size ?? 0);
+
+  return (
+    <div className="rounded-lg border border-border bg-card p-3 text-xs shadow-sm">
+      <p className="font-medium text-foreground">
+        {code}
+        {fullName ? (
+          <span className="font-normal text-muted-foreground"> — {fullName}</span>
+        ) : null}
+      </p>
+      <dl className="mt-1.5 grid grid-cols-[auto_1fr] gap-x-4 gap-y-0.5">
+        <dt className="text-muted-foreground">Type</dt>
+        <dd className="text-right">{type}</dd>
+        <dt className="text-muted-foreground">Units</dt>
+        <dd className="text-right">
+          {units.toLocaleString(undefined, { maximumFractionDigits: 4 })}
+        </dd>
+        <dt className="text-muted-foreground">Value</dt>
+        <dd className="text-right">
+          ${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+        </dd>
+      </dl>
+    </div>
   );
 }
 
@@ -160,48 +271,91 @@ export function PortfolioValueTreemap({ data }: PortfolioValueTreemapProps) {
         portfolioIndex: pIdx,
         holdingIndex: hIdx,
         holdingCount: p.holdings.length,
+        fullName: h.name ?? "",
+        instrumentType: h.instrumentType ?? "",
+        units: h.quantity ?? 0,
       })),
     }));
 
+  const navigate = (portfolioId: string, holdingId: string) => {
+    router.push(`/portfolio/${portfolioId}/holdings/${holdingId}`);
+  };
+
   const handleClick = (node: unknown) => {
     const n = node as { portfolioId?: string; holdingId?: string };
-    if (n.portfolioId && n.holdingId) {
-      router.push(`/portfolio/${n.portfolioId}/holdings/${n.holdingId}`);
-    }
+    if (n.portfolioId && n.holdingId) navigate(n.portfolioId, n.holdingId);
   };
 
   if (treemapData.length === 0) return null;
+
+  const grandTotal = treemapData.reduce(
+    (s, p) => s + p.children.reduce((cs, c) => cs + Number(c.size), 0),
+    0
+  );
 
   return (
     <div className="rounded-lg border border-border">
       <div className="border-b border-border p-4">
         <h2 className="font-medium">Portfolio Allocation</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Tile size is the holding&apos;s market value. Click a holding (or focus
+          it and press Enter) to open its detail page.
+        </p>
       </div>
       <div className="p-4">
-        <ResponsiveContainer width="100%" height={350}>
-          <Treemap
-            data={treemapData}
-            dataKey="size"
-            nameKey="name"
-            aspectRatio={4 / 3}
-            stroke="var(--background)"
-            content={<CustomContent />}
-            onClick={handleClick}
-          >
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "var(--card)",
-                border: "1px solid var(--border)",
-                borderRadius: "8px",
-                fontSize: "12px",
-              }}
-              formatter={(value) => [
-                `$${Number(value).toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
-                "Value",
-              ]}
-            />
-          </Treemap>
-        </ResponsiveContainer>
+        <div
+          role="group"
+          aria-label="Portfolio allocation treemap by market value"
+        >
+          <ResponsiveContainer width="100%" height={350}>
+            <Treemap
+              data={treemapData}
+              dataKey="size"
+              nameKey="name"
+              aspectRatio={4 / 3}
+              stroke="var(--background)"
+              content={<CustomContent onNavigate={navigate} />}
+              onClick={handleClick}
+            >
+              <Tooltip content={<TreemapTooltip />} />
+            </Treemap>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Screen-reader accessible breakdown of the treemap */}
+        <table className="sr-only">
+          <caption>Portfolio allocation by holding (market value)</caption>
+          <thead>
+            <tr>
+              <th>Portfolio</th>
+              <th>Holding</th>
+              <th>Market value</th>
+              <th>Share of total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {treemapData.flatMap((p) =>
+              p.children.map((h) => (
+                <tr key={h.holdingId}>
+                  <td>{p.name}</td>
+                  <td>{h.name}</td>
+                  <td>
+                    $
+                    {Number(h.size).toLocaleString(undefined, {
+                      maximumFractionDigits: 0,
+                    })}
+                  </td>
+                  <td>
+                    {grandTotal > 0
+                      ? ((Number(h.size) / grandTotal) * 100).toFixed(1)
+                      : "0.0"}
+                    %
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

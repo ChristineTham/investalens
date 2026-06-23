@@ -39,7 +39,14 @@ export default async function DashboardPage() {
       let portfolioValue = 0;
       let portfolioCost = 0;
       let portfolioIncome = 0;
-      const holdingValues: { id: string; code: string; marketValue: number }[] = [];
+      const holdingValues: {
+        id: string;
+        code: string;
+        name: string;
+        instrumentType: string;
+        quantity: number;
+        marketValue: number;
+      }[] = [];
 
       for (const holding of portfolio.holdings) {
         const latestPrice = await db.price.findFirst({
@@ -68,6 +75,9 @@ export default async function DashboardPage() {
           holdingValues.push({
             id: holding.id,
             code: holding.instrument.code,
+            name: holding.instrument.name,
+            instrumentType: holding.instrument.instrumentType,
+            quantity: position.quantity,
             marketValue: position.marketValue,
           });
         }

@@ -245,7 +245,7 @@ export function PortfolioPerformanceChart() {
                   fontSize: "12px",
                 }}
                 labelFormatter={(label) => String(label)}
-                formatter={(value) => [formatPercent(Number(value))]}
+                formatter={(value, name) => [formatPercent(Number(value)), name]}
               />
               <Legend
                 wrapperStyle={{ fontSize: "12px", paddingTop: "8px" }}
