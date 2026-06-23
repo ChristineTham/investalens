@@ -46,6 +46,14 @@ function daysBetween(a: Date, b: Date): number {
 }
 
 function discountRateFor(taxEntityType: string, isForeignResident: boolean): number {
+  return cgtDiscountRate(taxEntityType, isForeignResident);
+}
+
+/** CGT discount rate by entity type (0 for foreign residents and companies). */
+export function cgtDiscountRate(
+  taxEntityType: string,
+  isForeignResident: boolean
+): number {
   if (isForeignResident) return 0;
   switch (taxEntityType) {
     case "individual":
@@ -243,4 +251,55 @@ export function minimumTaxTopUp(
   if (incomeSupportRecipient || minTaxCapitalGain <= 0) return 0;
   if (marginalRateOnGain >= MINIMUM_TAX_RATE) return 0;
   return (MINIMUM_TAX_RATE - marginalRateOnGain) * minTaxCapitalGain;
+}
+
+export interface LossOrderingInput {
+  /** Discountable pre-2027 gross gains. */
+  discountGains: number;
+  /** Non-discountable pre-2027 gross gains. */
+  nonDiscountGains: number;
+  /** Post-2027 indexed gains. */
+  indexedGains: number;
+  /** Total nominal capital losses (incl. carried-forward). */
+  losses: number;
+  /** CGT discount rate applied to remaining discountable gains. */
+  discountRate: number;
+}
+
+export interface LossOrderingResult {
+  preAssessable: number;
+  postAssessable: number;
+  totalAssessable: number;
+  lossesApplied: number;
+  carryForwardLoss: number;
+}
+
+/**
+ * Apply capital losses under the Bill's prescribed ordering: against discount
+ * (deferred) gains first, then non-discountable pre-2027 gains, then indexed
+ * (post-2027) gains. The CGT discount is applied to the remaining discountable
+ * gains *after* losses. Losses are nominal (never indexed).
+ */
+export function applyLossOrdering(input: LossOrderingInput): LossOrderingResult {
+  let loss = Math.max(0, input.losses);
+  const use = (pool: number) => {
+    const p = Math.max(0, pool);
+    const used = Math.min(loss, p);
+    loss -= used;
+    return p - used;
+  };
+  const remainingDiscount = use(input.discountGains);
+  const remainingNonDiscount = use(input.nonDiscountGains);
+  const remainingIndexed = use(input.indexedGains);
+
+  const preAssessable =
+    remainingDiscount * (1 - input.discountRate) + remainingNonDiscount;
+  const postAssessable = remainingIndexed;
+  return {
+    preAssessable,
+    postAssessable,
+    totalAssessable: preAssessable + postAssessable,
+    lossesApplied: Math.max(0, input.losses) - loss,
+    carryForwardLoss: loss,
+  };
 }

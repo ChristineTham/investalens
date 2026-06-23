@@ -9,6 +9,7 @@
  */
 import {
   assessableUnder2027,
+  applyLossOrdering,
   minimumTaxTopUp,
   TRANSITION_DATE,
   type Cgt2027Input,
@@ -146,6 +147,53 @@ setFactor(new Date("2034-07-31T00:00:00Z"), 1.23);
   check("pre assessable (after 50% discount)", r.preAssessable, 50_000, 100);
   check("post assessable (no indexation)", r.postAssessable, 100_000, 200);
   check("total assessable", r.totalAssessable, 150_000, 200);
+}
+
+// ── Prescribed loss ordering (losses against discount gains first) ──
+{
+  console.log("\nLoss ordering — losses absorbed by discount gains");
+  const r = applyLossOrdering({
+    discountGains: 100_000,
+    nonDiscountGains: 0,
+    indexedGains: 50_000,
+    losses: 40_000,
+    discountRate: 0.5,
+  });
+  // 40k loss against 100k discount → 60k × 50% = 30k; indexed 50k untouched.
+  check("pre assessable (discounted)", r.preAssessable, 30_000);
+  check("post assessable (indexed)", r.postAssessable, 50_000);
+  check("total assessable", r.totalAssessable, 80_000);
+  check("carry-forward loss", r.carryForwardLoss, 0);
+}
+
+{
+  console.log("\nLoss ordering — losses spill into indexed gains");
+  const r = applyLossOrdering({
+    discountGains: 100_000,
+    nonDiscountGains: 0,
+    indexedGains: 50_000,
+    losses: 130_000,
+    discountRate: 0.5,
+  });
+  // 100k wipes discount, 30k spills into indexed → 20k indexed remains.
+  check("pre assessable", r.preAssessable, 0);
+  check("post assessable (indexed)", r.postAssessable, 20_000);
+  check("total assessable", r.totalAssessable, 20_000);
+  check("carry-forward loss", r.carryForwardLoss, 0);
+}
+
+{
+  console.log("\nLoss ordering — excess losses carry forward");
+  const r = applyLossOrdering({
+    discountGains: 20_000,
+    nonDiscountGains: 0,
+    indexedGains: 10_000,
+    losses: 50_000,
+    discountRate: 0.5,
+  });
+  check("total assessable", r.totalAssessable, 0);
+  check("losses applied", r.lossesApplied, 30_000);
+  check("carry-forward loss", r.carryForwardLoss, 20_000);
 }
 
 console.log(

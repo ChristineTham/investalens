@@ -357,6 +357,21 @@ export default async function CgtPage({
                     {formatCurrency(projection.totalAssessable)}
                   </p>
                 </div>
+                {projection.capitalLosses > 0 && (
+                  <div className="rounded-lg border border-border bg-card p-4">
+                    <p className="text-xs text-muted-foreground">
+                      Capital Losses
+                    </p>
+                    <p className="text-lg font-bold">
+                      -{formatCurrency(projection.lossesApplied)}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {projection.carryForwardLoss > 0
+                        ? `${formatCurrency(projection.carryForwardLoss)} carried forward`
+                        : "applied to discount gains first"}
+                    </p>
+                  </div>
+                )}
                 <div className="rounded-lg border border-border bg-card p-4">
                   <p className="text-xs text-muted-foreground">
                     30% Min-Tax Top-Up
@@ -421,13 +436,13 @@ export default async function CgtPage({
                           {formatCurrency(it.proceeds)}
                         </td>
                         <td className="px-4 py-3 text-right text-sm">
-                          {formatCurrency(it.preAssessable)}
+                          {formatCurrency(it.preGain)}
                         </td>
                         <td className="px-4 py-3 text-right text-sm">
-                          {formatCurrency(it.postAssessable)}
+                          {formatCurrency(it.postGain)}
                         </td>
                         <td className="px-4 py-3 text-right text-sm font-medium">
-                          {formatCurrency(it.totalAssessable)}
+                          {formatCurrency(it.preGain + it.postGain)}
                         </td>
                         <td className="px-4 py-3 text-sm">
                           {it.underNewRegime ? "2027 regime" : "current"}

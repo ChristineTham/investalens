@@ -12,6 +12,8 @@ import { isIncomeAsset } from "@/lib/calculations/asset-tax-class";
 import { loadCpiMap } from "@/lib/calculations/indexation";
 import {
   assessableUnder2027,
+  applyLossOrdering,
+  cgtDiscountRate,
   minimumTaxTopUp,
   TRANSITION_DATE,
   type TransitionMethod,
@@ -220,9 +222,10 @@ export interface Cgt2027ProjectionItem {
   costBase: number;
   /** True when the disposal is on/after 1 July 2027 (new regime applies). */
   underNewRegime: boolean;
-  preAssessable: number;
-  postAssessable: number;
-  totalAssessable: number;
+  /** Pre-2027 gross gain/loss (before the 50% discount and loss netting). */
+  preGain: number;
+  /** Post-2027 indexed gain (≥0) or nominal loss (<0). */
+  postGain: number;
   methodUsed: string;
 }
 
@@ -230,6 +233,18 @@ export interface Cgt2027ProjectionSummary {
   /** True when any disposal in the year falls under the proposed regime. */
   applies: boolean;
   items: Cgt2027ProjectionItem[];
+  /** Discountable pre-2027 gross gains (before discount/loss netting). */
+  discountGains: number;
+  /** Non-discountable pre-2027 gross gains. */
+  nonDiscountGains: number;
+  /** Post-2027 indexed gains. */
+  indexedGains: number;
+  /** Total nominal capital losses. */
+  capitalLosses: number;
+  /** Losses applied against gains this year (discount gains first). */
+  lossesApplied: number;
+  /** Unused losses carried forward. */
+  carryForwardLoss: number;
   preAssessable: number;
   postAssessable: number;
   totalAssessable: number;
@@ -292,6 +307,10 @@ export async function generateCgt2027Projection(
   });
 
   const items: Cgt2027ProjectionItem[] = [];
+  let discountGains = 0;
+  let nonDiscountGains = 0;
+  let indexedGains = 0;
+  let capitalLosses = 0;
 
   for (const sell of sells) {
     if (isIncomeAsset(sell.holding.instrument)) continue;
@@ -327,8 +346,8 @@ export async function generateCgt2027Projection(
     const underNewRegime =
       sell.tradeDate.getTime() >= TRANSITION_DATE.getTime();
 
-    let pre = 0;
-    let post = 0;
+    let preGain = 0;
+    let postGain = 0;
     const methods = new Set<string>();
     for (const r of parcelResults) {
       if (underNewRegime) {
@@ -342,12 +361,35 @@ export async function generateCgt2027Projection(
           transitionMethod,
           cpi,
         });
-        pre += res.preAssessable;
-        post += res.postAssessable;
+        preGain += res.preGrossGain;
+        postGain += res.postAssessable;
         methods.add(res.methodUsed);
+
+        // Pool gains/losses for the prescribed loss ordering.
+        const heldDaysTo2027 =
+          (TRANSITION_DATE.getTime() - r.parcel.purchaseDate.getTime()) /
+          (1000 * 60 * 60 * 24);
+        const discountable =
+          heldDaysTo2027 >= 365 &&
+          cgtDiscountRate(
+            portfolio.taxEntityType,
+            portfolio.isForeignResident
+          ) > 0;
+        if (res.preGrossGain > 0) {
+          if (discountable) discountGains += res.preGrossGain;
+          else nonDiscountGains += res.preGrossGain;
+        } else {
+          capitalLosses += -res.preGrossGain;
+        }
+        if (res.postAssessable > 0) indexedGains += res.postAssessable;
+        else capitalLosses += -res.postAssessable;
       } else {
-        pre += r.assessableGain;
+        // Pre-1 Jul 2027 disposal — current law (not expected in projection
+        // years, where every disposal is post-2027). Pooled as a discount gain.
+        preGain += r.assessableGain;
         methods.add("current");
+        if (r.gain > 0) discountGains += r.gain;
+        else capitalLosses += -r.gain;
       }
     }
 
@@ -358,16 +400,31 @@ export async function generateCgt2027Projection(
       proceeds: saleQuantity * salePrice - brokerage,
       costBase: parcelResults.reduce((s, r) => s + r.costBase, 0),
       underNewRegime,
-      preAssessable: pre,
-      postAssessable: post,
-      totalAssessable: pre + post,
+      preGain,
+      postGain,
       methodUsed: [...methods].join("/") || "current",
     });
   }
 
-  const preAssessable = items.reduce((s, i) => s + i.preAssessable, 0);
-  const postAssessable = items.reduce((s, i) => s + i.postAssessable, 0);
-  const totalAssessable = preAssessable + postAssessable;
+  // Prescribed loss ordering (Bill): capital losses apply against discount
+  // (deferred) gains first, then indexed gains; the 50% discount is applied to
+  // the remaining discountable gains afterwards.
+  const discountRate = cgtDiscountRate(
+    portfolio.taxEntityType,
+    portfolio.isForeignResident
+  );
+  const netted = applyLossOrdering({
+    discountGains,
+    nonDiscountGains,
+    indexedGains,
+    losses: capitalLosses,
+    discountRate,
+  });
+  const preAssessable = netted.preAssessable;
+  const postAssessable = netted.postAssessable; // minimum-tax capital gain
+  const totalAssessable = netted.totalAssessable;
+  const lossesApplied = netted.lossesApplied;
+  const carryForwardLoss = netted.carryForwardLoss;
   const minTaxCapitalGain = Math.max(0, postAssessable);
 
   // The minimum-tax gain sits on top of other income and the pre-2027 gains.
@@ -384,6 +441,12 @@ export async function generateCgt2027Projection(
   return {
     applies: items.some((i) => i.underNewRegime),
     items,
+    discountGains,
+    nonDiscountGains,
+    indexedGains,
+    capitalLosses,
+    lossesApplied,
+    carryForwardLoss,
     preAssessable,
     postAssessable,
     totalAssessable,
