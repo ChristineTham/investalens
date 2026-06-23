@@ -2,18 +2,27 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
   generateCgtReport,
+  generateCgt2027Projection,
   type CgtItem,
   type CgtSummary,
+  type Cgt2027ProjectionSummary,
 } from "@/lib/reports/tax/cgt-report";
+import { INCOME_BANDS, taxOnGain } from "@/lib/calculations/income-tax";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { TaxFilter } from "@/components/reports/tax-filter";
+import { Cgt2027Controls } from "@/components/reports/cgt-2027-controls";
 import { Suspense } from "react";
 
 export default async function CgtPage({
   searchParams,
 }: {
-  searchParams: Promise<{ portfolio?: string; year?: string }>;
+  searchParams: Promise<{
+    portfolio?: string;
+    year?: string;
+    proj?: string;
+    income?: string;
+  }>;
 }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
@@ -119,6 +128,26 @@ export default async function CgtPage({
     gainsAfterLosses - summary.cgtDiscount - summary.indexationRelief
   );
 
+  // Proposed 2027 regime projection (opt-in via the ?proj=1 toggle).
+  const showProjection = params.proj === "1";
+  const rawIncomeIndex = params.income ? parseInt(params.income, 10) : 2;
+  const incomeIndex =
+    Number.isFinite(rawIncomeIndex) &&
+    rawIncomeIndex >= 0 &&
+    rawIncomeIndex < INCOME_BANDS.length
+      ? rawIncomeIndex
+      : 2;
+  const otherIncome = INCOME_BANDS[incomeIndex].income;
+  const projection: Cgt2027ProjectionSummary | null =
+    showProjection && selectedPortfolioId
+      ? await generateCgt2027Projection(
+          selectedPortfolioId,
+          selectedYear,
+          otherIncome
+        )
+      : null;
+  const estTaxCurrent = taxOnGain(otherIncome, summary.netCapitalGain);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -137,6 +166,14 @@ export default async function CgtPage({
           selectedPortfolioId={selectedPortfolioId}
           selectedYear={selectedYear}
           availableYears={availableYears}
+        />
+      </Suspense>
+
+      <Suspense>
+        <Cgt2027Controls
+          enabled={showProjection}
+          incomeIndex={incomeIndex}
+          disabled={!selectedPortfolioId}
         />
       </Suspense>
 
@@ -261,6 +298,160 @@ export default async function CgtPage({
           hybrid securities remain subject to CGT.
         </p>
       </div>
+
+      {/* Proposed 2027 regime projection */}
+      {showProjection && (
+        <div className="space-y-4 rounded-lg border border-amber-500/40 bg-amber-500/5 p-4">
+          <div>
+            <h2 className="font-medium">
+              Proposed 2027 CGT regime — projection
+            </h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Models the Treasury Laws Amendment (Tax Reform No. 1) Bill 2026
+              (commences 1 July 2027): the 50% discount is replaced by CPI
+              indexation, with a 30% minimum tax on post-2027 gains.{" "}
+              <span className="font-medium text-foreground">
+                This is proposed law that has not been enacted — for illustration
+                only.
+              </span>
+            </p>
+          </div>
+
+          {!selectedPortfolioId ? (
+            <p className="text-sm text-muted-foreground">
+              Select a single portfolio (above) to view the 2027 projection.
+            </p>
+          ) : !projection || !projection.applies ? (
+            <p className="text-sm text-muted-foreground">
+              No disposals in {summary.financialYear} fall under the proposed
+              regime. It applies to CGT events from 1 July 2027 (FY2027/28
+              onward).
+            </p>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+                <div className="rounded-lg border border-border bg-card p-4">
+                  <p className="text-xs text-muted-foreground">
+                    Pre-2027 (discount)
+                  </p>
+                  <p className="text-lg font-bold">
+                    {formatCurrency(projection.preAssessable)}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4">
+                  <p className="text-xs text-muted-foreground">
+                    Post-2027 (indexed)
+                  </p>
+                  <p className="text-lg font-bold">
+                    {formatCurrency(projection.postAssessable)}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    minimum-tax gain
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4">
+                  <p className="text-xs text-muted-foreground">
+                    Total Assessable
+                  </p>
+                  <p className="text-lg font-bold">
+                    {formatCurrency(projection.totalAssessable)}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4">
+                  <p className="text-xs text-muted-foreground">
+                    30% Min-Tax Top-Up
+                  </p>
+                  <p className="text-lg font-bold">
+                    {formatCurrency(projection.minTaxTopUp)}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {projection.incomeSupportRecipient
+                      ? "exempt (income support)"
+                      : `gain taxed ~${(projection.marginalRateOnGain * 100).toFixed(0)}%`}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4 ring-2 ring-amber-500/30">
+                  <p className="text-xs font-medium">Est. tax: proposed</p>
+                  <p className="text-lg font-bold">
+                    {formatCurrency(projection.estTotalProposedTax)}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    current law {formatCurrency(estTaxCurrent)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="overflow-hidden rounded-lg border border-border">
+                <table className="w-full">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                        Code
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                        Sale Date
+                      </th>
+                      <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                        Proceeds
+                      </th>
+                      <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                        Pre-2027
+                      </th>
+                      <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                        Post-2027
+                      </th>
+                      <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                        Total
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                        Regime
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {projection.items.map((it, i) => (
+                      <tr key={i} className="hover:bg-accent/50">
+                        <td className="px-4 py-3 font-medium">
+                          {it.instrumentCode}
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          {formatDate(it.saleDate)}
+                        </td>
+                        <td className="px-4 py-3 text-right text-sm">
+                          {formatCurrency(it.proceeds)}
+                        </td>
+                        <td className="px-4 py-3 text-right text-sm">
+                          {formatCurrency(it.preAssessable)}
+                        </td>
+                        <td className="px-4 py-3 text-right text-sm">
+                          {formatCurrency(it.postAssessable)}
+                        </td>
+                        <td className="px-4 py-3 text-right text-sm font-medium">
+                          {formatCurrency(it.totalAssessable)}
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          {it.underNewRegime ? "2027 regime" : "current"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <p className="text-xs text-muted-foreground">
+                Transition method:{" "}
+                {projection.transitionMethod === "market_value"
+                  ? "market value at 1 Jul 2027"
+                  : "apportionment (days-based)"}{" "}
+                · other taxable income assumed{" "}
+                {formatCurrency(projection.otherIncome)}. Simplified projection —
+                excludes capital-loss ordering, formal valuations, residency
+                apportionment and tax offsets.
+              </p>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Detail table */}
       {items.length === 0 ? (
