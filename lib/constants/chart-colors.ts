@@ -41,3 +41,32 @@ export const MUTED_COLOR: HoldingColor = {
 export function holdingColor(index: number): HoldingColor {
   return HOLDING_COLORS[index % HOLDING_COLORS.length];
 }
+
+/**
+ * Safelist of every Rosely background swatch class so Tailwind's JIT generates
+ * them — needed because category colours resolve to a class at runtime.
+ */
+export const ALL_ROSELY_SWATCHES = [
+  "bg-[var(--rosely0)]",
+  "bg-[var(--rosely1)]",
+  "bg-[var(--rosely2)]",
+  "bg-[var(--rosely3)]",
+  "bg-[var(--rosely4)]",
+  "bg-[var(--rosely5)]",
+  "bg-[var(--rosely6)]",
+  "bg-[var(--rosely7)]",
+  "bg-[var(--rosely8)]",
+  "bg-[var(--rosely9)]",
+  "bg-[var(--rosely10)]",
+  "bg-[var(--rosely11)]",
+  "bg-[var(--rosely12)]",
+  "bg-[var(--rosely13)]",
+  "bg-[var(--rosely14)]",
+  "bg-[var(--rosely15)]",
+];
+
+/** Map a `var(--roselyN)` colour string to its Tailwind background swatch class. */
+export function roselySwatchClass(colorVar: string | null | undefined): string {
+  const m = colorVar?.match(/--rosely\d+/);
+  return m ? `bg-[var(${m[0]})]` : "bg-[var(--rosely3)]";
+}

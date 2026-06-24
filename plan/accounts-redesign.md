@@ -413,7 +413,28 @@ pnpm lint
 - Default `CashCategory` seeding → **P1b** (UI) via a `seedDefaultCategories(userId)` helper.
 - Auto‑post hooks in portfolio transaction create/update/delete → **P1d/P1e**.
 
-### Next: P1b — Accounts UI (awaiting go‑ahead)
+### P1b — Accounts UI ✅ (coded 2026-06-24)
 
-Sidebar `Accounts` item, `/accounts` list, `/accounts/[id]` detail with the shared chart grid,
-account/card/category CRUD actions, breadcrumbs, and retire `/portfolio/[id]/cash` (redirect).
+Delivered:
+
+- **Actions** ([lib/actions/accounts.ts](../lib/actions/accounts.ts)) — account/transaction/category/
+  card/portfolio-link CRUD + `seedDefaultCategories`; virtual accounts guarded read-only.
+- **Default categories** ([lib/constants/categories.ts](../lib/constants/categories.ts)).
+- **Nav** — `Accounts` sidebar item + breadcrumb label/dynamic name.
+- **List** ([app/(dashboard)/accounts/page.tsx](<../app/(dashboard)/accounts/page.tsx>)) with total-cash
+  card and a create-account dialog.
+- **Detail** ([app/(dashboard)/accounts/[id]/page.tsx](<../app/(dashboard)/accounts/[id]/page.tsx>)) —
+  header, balance/links/cards panels, edit/delete actions, and a client orchestrator
+  ([account-detail-client.tsx](../components/accounts/account-detail-client.tsx)) with a universal
+  timescale, KPI cards, charts (balance / cash flow / category pie), and a transactions table with
+  inline categorisation + add/delete (physical only).
+- **Detail API** ([app/api/v1/accounts/[id]/detail/route.ts](<../app/api/v1/accounts/[id]/detail/route.ts>))
+  and **charts** ([account-charts.tsx](../components/charts/account-charts.tsx)).
+- **Retired** `/portfolio/[id]/cash` → redirects to `/accounts`; portfolio "Cash" button now links there.
+
+Validates clean locally (no type/lint errors). Re-run `pnpm build` in Codespaces to confirm.
+
+### Next: P1c — Import
+
+OFX/QIF parsers (+`ofx-js`, KNOWLEDGE.md), extended CSV mapper, AU bank templates,
+auto-categorisation, the Accounts import wizard, and `fitId`/hash dedup.

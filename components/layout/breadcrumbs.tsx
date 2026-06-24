@@ -8,6 +8,7 @@ import { useBreadcrumbLabels } from "@/components/layout/breadcrumb-context";
 
 const ROUTE_LABELS: Record<string, string> = {
   portfolio: "Portfolios",
+  accounts: "Accounts",
   reports: "Reports",
   tax: "Tax",
   tools: "Tools",
@@ -98,6 +99,14 @@ export function Breadcrumbs() {
       else if (i > 0 && segments[i - 1] === "holdings") {
         crumbs.push({
           label: dynamicLabels[segment] ?? "Holding",
+          href,
+          isCurrent: i === segments.length - 1,
+        });
+      }
+      // If it's an ID after "accounts", use a registered name or fall back.
+      else if (i > 0 && segments[i - 1] === "accounts") {
+        crumbs.push({
+          label: dynamicLabels[segment] ?? "Account",
           href,
           isCurrent: i === segments.length - 1,
         });
