@@ -62,6 +62,24 @@ P1 may be broken into subphases (P1a, P1b, ...) for manageability.
 - [R4-P1.md](R4-P1.md) — Remaining features & polish
 - [R4-P2.md](R4-P2.md) — Final validation & production readiness
 
+### Cross-cutting Feature Plans
+
+Standalone, phased plans for major features that span multiple releases. Same
+P1 (coding, Windows) / P2 (validation, Codespaces) convention.
+
+**Model Portfolios** — virtual weight-based portfolios used across dashboard, optimisation and backtesting:
+
+- [models-overview.md](models-overview.md) — Scope, domain model, architecture, route map
+- [models-P1a.md](models-P1a.md) — Schema + data layer (instantiation engine, model analytics)
+- [models-P1b.md](models-P1b.md) — CRUD actions, sidebar nav, list/detail/create/edit pages
+- [models-P1c.md](models-P1c.md) — `/models` comparison dashboard (scaled consolidated-vs-models)
+- [models-P1d.md](models-P1d.md) — Optimisation (save-as-model) & backtesting (multi-portfolio) integration
+- [models-P1e.md](models-P1e.md) — Default model seed library (ETF strategies + ASX index models) + no-delisted validity guard
+- [models-P1f.md](models-P1f.md) — Cross-feature integrations (frontier, Black-Litterman, what-if, checker, X-ray, reports, tax, dashboard, rebalance)
+- [models-P2.md](models-P2.md) — Codespaces validation (migration, packages, seed, prices, validity, tests)
+
+Other feature plans: [accounts-redesign.md](accounts-redesign.md), [cgt-compliance.md](cgt-compliance.md), [reports-enhancement.md](reports-enhancement.md).
+
 ## Execution Notes
 
 - **P1 agents** receive the plan file + relevant docs + existing source code as context
