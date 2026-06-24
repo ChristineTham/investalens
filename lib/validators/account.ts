@@ -16,6 +16,7 @@ export const CATEGORY_KINDS = [
   "investment",
   "fee",
   "interest",
+  "contribution",
 ] as const;
 
 /** Canonical cash transaction types (see CASH_CREDIT_TYPES for direction). */
@@ -27,6 +28,9 @@ export const CASH_TRANSACTION_TYPES = [
   "transfer_in",
   "transfer_out",
   "dividend_received",
+  "distribution",
+  "contribution",
+  "accounting_fee",
   "buy_settlement",
   "sell_settlement",
   "other",
@@ -60,6 +64,7 @@ export const cashTransactionSchema = z.object({
   date: z.coerce.date(),
   description: z.string().max(500).nullable().optional(),
   categoryId: z.string().nullable().optional(),
+  transferAccountId: z.string().nullable().optional(),
 });
 
 export const debitCardSchema = z.object({

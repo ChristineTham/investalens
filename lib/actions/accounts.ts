@@ -14,6 +14,7 @@ import {
 import { recomputeAccountBalance } from "@/lib/services/accounts";
 import { syncPortfolioLedger } from "@/lib/services/cash-ledger";
 import { DEFAULT_CATEGORIES } from "@/lib/constants/categories";
+import { autoReconcileAccount } from "@/lib/services/reconciliation";
 
 async function requireUser() {
   const session = await auth();
@@ -98,6 +99,7 @@ export async function addAccountTransaction(accountId: string, input: unknown) {
       date: data.date,
       description: data.description ?? null,
       categoryId: data.categoryId ?? null,
+      transferAccountId: data.transferAccountId ?? null,
       source: "manual",
     },
   });
@@ -237,6 +239,12 @@ export async function linkPortfolioAccount(
     create: { portfolioId, cashAccountId: accountId, isDefault },
     update: { isDefault },
   });
+
+  // Attempt auto-reconciliation for high-confidence matches between the
+  // newly-linked portfolio's transactions and existing account transactions.
+  // Runs fire-and-forget — failures don't block the link.
+  autoReconcileAccount(accountId).catch(() => null);
+
   revalidatePath(`/accounts/${accountId}`);
   revalidatePath(`/portfolio/${portfolioId}`);
 }

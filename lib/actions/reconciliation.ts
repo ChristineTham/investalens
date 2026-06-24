@@ -3,7 +3,10 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { recomputeReconciledFlag } from "@/lib/services/reconciliation";
+import {
+  recomputeReconciledFlag,
+  writeBackCategoryAndType,
+} from "@/lib/services/reconciliation";
 
 async function requireUser() {
   const session = await auth();
@@ -21,6 +24,10 @@ export interface ReconcileTarget {
  * Multiple targets create a split (1 bank row → N portfolio entries). The
  * account transaction is flagged reconciled only when the linked cash matches
  * the bank amount within tolerance.
+ *
+ * After linking, the cash transaction's `type` and `categoryId` are updated
+ * to reflect the portfolio transaction type — but only if those fields are
+ * currently unclassified (generic type or null category).
  */
 export async function reconcileTransactions(
   accountTxId: string,
@@ -61,6 +68,19 @@ export async function reconcileTransactions(
       matchType,
     })),
   });
+
+  // Write category + type back using the first (dominant) target's portfolio type.
+  const first = targets[0];
+  let portfolioTxType: string | null = null;
+  if (first.kind === "transaction") {
+    const ptx = await db.transaction.findUnique({
+      where: { id: first.refId },
+      select: { transactionType: true },
+    });
+    portfolioTxType = ptx?.transactionType ?? null;
+  }
+  await writeBackCategoryAndType(accountTxId, userId, first.kind, portfolioTxType);
+
   await recomputeReconciledFlag(accountTxId);
 
   revalidatePath(`/accounts/${accountTx.cashAccountId}/reconcile`);

@@ -15,6 +15,7 @@ import {
 } from "@/lib/import/bank-statement";
 import { suggestCategoryId, normaliseNarrative } from "@/lib/import/categorise";
 import { recomputeAccountBalance } from "@/lib/services/accounts";
+import { autoReconcileAccount } from "@/lib/services/reconciliation";
 
 export type ImportKind = "ofx" | "qif" | "csv";
 
@@ -195,6 +196,8 @@ export async function commitAccountImport(
       })),
     });
     await recomputeAccountBalance(accountId);
+    // Auto-match newly-imported rows against linked portfolio transactions.
+    autoReconcileAccount(accountId).catch(() => null);
   }
 
   revalidatePath(`/accounts/${accountId}`);

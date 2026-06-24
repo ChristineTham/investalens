@@ -466,3 +466,148 @@ export async function recomputeReconciledFlag(cashTxId: string): Promise<void> {
     data: { reconciled },
   });
 }
+
+// ─── Auto-reconcile ────────────────────────────────────────────────────────────
+
+/** Minimum confidence for an automatic (non-interactive) match. */
+const AUTO_RECON_THRESHOLD = 0.80;
+
+/** Map a portfolio transactionType to the canonical cash account type. */
+export const PORTFOLIO_TO_CASH_TYPE: Record<string, string> = {
+  BUY: "buy_settlement",
+  SELL: "sell_settlement",
+  TRANSFER_IN: "transfer_in",
+  TRANSFER_OUT: "transfer_out",
+  DIVIDEND: "dividend_received",
+  INTEREST: "interest",
+  COUPON: "interest",
+  RETURN_OF_CAPITAL: "distribution",
+};
+
+/** Map a portfolio transactionType to the preferred category name (case-insensitive lookup). */
+export const PORTFOLIO_TO_CATEGORY_NAME: Record<string, string> = {
+  BUY: "Purchase",
+  SELL: "Sale",
+  TRANSFER_IN: "Transfer In",
+  TRANSFER_OUT: "Transfer Out",
+  DIVIDEND: "Dividends",
+  INTEREST: "Interest",
+  COUPON: "Interest",
+  RETURN_OF_CAPITAL: "Distributions",
+};
+
+/** Fee candidate preferred category name. */
+export const FEE_CATEGORY_NAME = "Management Fee";
+
+/**
+ * Write-back derived `type` and `categoryId` onto a cash transaction after
+ * reconciliation. Only updates fields that are currently unclassified:
+ * - `type`       — only if currently `withdrawal` or `deposit`
+ * - `categoryId` — only if currently null
+ *
+ * `userId` is required to scope the category lookup to the user's own categories.
+ */
+export async function writeBackCategoryAndType(
+  cashTxId: string,
+  userId: string,
+  kind: "transaction" | "fee",
+  portfolioTxType: string | null
+): Promise<void> {
+  const cashTx = await db.cashTransaction.findUnique({
+    where: { id: cashTxId },
+    select: { type: true, categoryId: true },
+  });
+  if (!cashTx) return;
+
+  const isGenericType = cashTx.type === "withdrawal" || cashTx.type === "deposit";
+  const needsCategory = cashTx.categoryId === null;
+  if (!isGenericType && !needsCategory) return;
+
+  const newCashType =
+    kind === "transaction" && portfolioTxType
+      ? (PORTFOLIO_TO_CASH_TYPE[portfolioTxType] ?? null)
+      : null;
+  const categoryName =
+    kind === "fee"
+      ? FEE_CATEGORY_NAME
+      : portfolioTxType
+        ? (PORTFOLIO_TO_CATEGORY_NAME[portfolioTxType] ?? null)
+        : null;
+
+  let resolvedCategoryId: string | null = null;
+  if (categoryName) {
+    const cat = await db.cashCategory.findFirst({
+      where: { userId, name: { equals: categoryName, mode: "insensitive" } },
+      select: { id: true },
+    });
+    resolvedCategoryId = cat?.id ?? null;
+  }
+
+  const update: Record<string, unknown> = {};
+  if (isGenericType && newCashType) update.type = newCashType;
+  if (needsCategory && resolvedCategoryId) update.categoryId = resolvedCategoryId;
+  if (Object.keys(update).length > 0) {
+    await db.cashTransaction.update({ where: { id: cashTxId }, data: update });
+  }
+}
+
+/**
+ * Runs the reconciliation scoring engine for every unreconciled account
+ * transaction and commits all single-candidate suggestions whose confidence
+ * meets or exceeds {@link AUTO_RECON_THRESHOLD}.
+ *
+ * Safe to call repeatedly — already-matched candidates are excluded via
+ * `usedTxIds` / `usedFeeIds` and the scorer only proposes same-direction
+ * single matches (no speculative combos).
+ *
+ * Returns the count of links created.
+ */
+export async function autoReconcileAccount(accountId: string): Promise<number> {
+  // Need the account's userId for category lookup.
+  const account = await db.cashAccount.findUnique({
+    where: { id: accountId },
+    select: { userId: true },
+  });
+  if (!account) return 0;
+
+  const data = await getReconciliationData(accountId);
+  const unmatched = data.accountTxs.filter(
+    (t) => t.status !== "reconciled" && t.suggestion !== null
+  );
+
+  let linked = 0;
+  for (const t of unmatched) {
+    const suggestion = t.suggestion!;
+    // Only commit single-candidate high-confidence matches automatically.
+    if (suggestion.keys.length !== 1) continue;
+    if (suggestion.confidence < AUTO_RECON_THRESHOLD) continue;
+
+    const [kind, refId] = suggestion.keys[0].split(":");
+
+    await db.reconciliation.create({
+      data: {
+        cashTransactionId: t.id,
+        transactionId: kind === "transaction" ? refId : null,
+        feeId: kind === "fee" ? refId : null,
+        matchType: "auto",
+      },
+    });
+
+    // Derive portfolio transaction type for write-back.
+    let portfolioTxType: string | null = null;
+    if (kind === "transaction") {
+      const candidate = data.candidates.find((c) => c.key === suggestion.keys[0]);
+      portfolioTxType = candidate?.transactionType ?? null;
+    }
+    await writeBackCategoryAndType(
+      t.id,
+      account.userId,
+      kind as "transaction" | "fee",
+      portfolioTxType
+    );
+
+    await recomputeReconciledFlag(t.id);
+    linked++;
+  }
+  return linked;
+}

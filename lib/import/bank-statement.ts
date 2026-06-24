@@ -24,6 +24,8 @@ export const CREDIT_TYPES = new Set([
   "deposit",
   "interest",
   "dividend_received",
+  "distribution",
+  "contribution",
   "transfer_in",
   "sell_settlement",
 ]);

@@ -103,6 +103,10 @@ function MatchCard({
   );
   const [busy, setBusy] = useState(false);
 
+  // Derive the refId of the selected DIVIDEND candidate (if any) — pure computed value.
+  const dividendCandKey = [...selected].find((k) => candByKey.get(k)?.transactionType === "DIVIDEND") ?? null;
+  const frankingRefId = dividendCandKey ? dividendCandKey.split(":")[1] : null;
+
   // Only same-direction candidates can cover the remaining amount.
   const pool = candidates
     .filter((c) => Math.sign(c.cashAmount) === Math.sign(tx.remaining))
@@ -245,6 +249,18 @@ function MatchCard({
             ))
           )}
         </div>
+
+        {/* Franking panel — shown inline when a DIVIDEND candidate is selected */}
+        {frankingRefId && (
+          <div className="mt-2 rounded-md border border-amber-200 bg-amber-50/60 p-3 dark:border-amber-900/40 dark:bg-amber-950/20">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">
+              Dividend tax components (portfolio record only — not reflected in account cash)
+            </p>
+            <FrankingFields
+              transaction={{ id: frankingRefId }}
+            />
+          </div>
+        )}
 
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
           <p className="text-xs text-muted-foreground tabular-nums">

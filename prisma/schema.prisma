@@ -446,44 +446,49 @@ model CashAccount {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  portfolio      Portfolio?         @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
-  transactions   CashTransaction[]
-  cards          DebitCard[]
-  portfolioLinks PortfolioAccount[]
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  portfolio         Portfolio?         @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  transactions      CashTransaction[]  @relation("AccountTransactions")
+  incomingTransfers CashTransaction[]  @relation("TransferCounterparty")
+  cards             DebitCard[]
+  portfolioLinks    PortfolioAccount[]
 
   @@index([userId])
   @@index([portfolioId])
 }
 
 model CashTransaction {
-  id             String   @id @default(cuid())
-  cashAccountId  String
-  type           String
-  amount         Decimal  @db.Decimal(18, 2) // positive magnitude; direction derived from type
-  date           DateTime
-  description    String?
-  categoryId     String?
+  id                String   @id @default(cuid())
+  cashAccountId     String
+  type              String
+  amount            Decimal  @db.Decimal(18, 2) // positive magnitude; direction derived from type
+  date              DateTime
+  description       String?
+  categoryId        String?
+  // For transfer_in / transfer_out: the other cash account in the transfer.
+  transferAccountId String?
   // Origin of the row: manual entry, statement import, portfolio auto-post, or accrued interest.
-  source         String   @default("manual") // manual|import|portfolio|interest
+  source            String   @default("manual") // manual|import|portfolio|interest
   // OFX Financial Institution Transaction ID — stable id for idempotent import + reconciliation.
-  fitId          String?
+  fitId             String?
   // Dedup key for QIF/CSV rows lacking a FITID (date|amount|type|description hash).
-  importHash     String?
+  importHash        String?
   // Running balance reported on the statement, if provided.
-  runningBalance Decimal? @db.Decimal(18, 2)
-  reconciled     Boolean  @default(false)
-  importJobId    String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @default(now()) @updatedAt
+  runningBalance    Decimal? @db.Decimal(18, 2)
+  reconciled        Boolean  @default(false)
+  importJobId       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
 
-  cashAccount     CashAccount      @relation(fields: [cashAccountId], references: [id], onDelete: Cascade)
-  category        CashCategory?    @relation(fields: [categoryId], references: [id])
-  reconciliations Reconciliation[]
+  cashAccount      CashAccount      @relation("AccountTransactions", fields: [cashAccountId], references: [id], onDelete: Cascade)
+  transferAccount  CashAccount?     @relation("TransferCounterparty", fields: [transferAccountId], references: [id], onDelete: SetNull)
+  category         CashCategory?    @relation(fields: [categoryId], references: [id])
+  reconciliations  Reconciliation[]
 
   @@unique([cashAccountId, fitId])
   @@index([cashAccountId, date])
   @@index([cashAccountId, importHash])
+  @@index([transferAccountId])
 }
 
 /// Debit / payment cards associated with a cash account.

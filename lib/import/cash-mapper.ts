@@ -120,8 +120,11 @@ function mapCashType(
     DEBIT: "withdrawal",
     INTEREST: "interest",
     FEE: "fee",
+    "ACCOUNTING FEE": "accounting_fee",
     DIVIDEND: "dividend_received",
     "DIVIDEND RECEIVED": "dividend_received",
+    DISTRIBUTION: "distribution",
+    CONTRIBUTION: "contribution",
     "TRANSFER IN": "transfer_in",
     "TRANSFER OUT": "transfer_out",
   };

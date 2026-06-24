@@ -16,6 +16,8 @@ export const CREDIT_TYPES = new Set([
   "deposit",
   "interest",
   "dividend_received",
+  "distribution",
+  "contribution",
   "transfer_in",
   "sell_settlement",
 ]);
@@ -129,9 +131,12 @@ export async function getAccountDetail(id: string) {
         include: { portfolio: { select: { id: true, name: true } } },
       },
       transactions: {
-        include: { category: true },
-        orderBy: { date: "desc" },
-      },
+          include: {
+            category: true,
+            transferAccount: { select: { id: true, name: true } },
+          },
+          orderBy: { date: "desc" },
+        },
     },
   });
 

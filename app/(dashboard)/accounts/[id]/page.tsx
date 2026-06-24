@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, Landmark, CreditCard, Upload, Link2 } from "lucide-react";
-import { getAccountDetail } from "@/lib/services/accounts";
+import { getAccountDetail, getAccountsOverview } from "@/lib/services/accounts";
 import { getCategories, syncVirtualLedger } from "@/lib/actions/accounts";
 import { AccountActions } from "@/components/accounts/account-actions";
 import { AccountDetailClient } from "@/components/accounts/account-detail-client";
@@ -34,7 +34,10 @@ export default async function AccountDetailPage({
     await syncVirtualLedger(id);
     account = await getAccountDetail(id);
   }
-  const cats = await getCategories();
+  const [cats, accountsOverview] = await Promise.all([
+    getCategories(),
+    getAccountsOverview(),
+  ]);
 
   const meta = {
     id: account.id,
@@ -52,11 +55,17 @@ export default async function AccountDetailPage({
     description: t.description,
     categoryId: t.categoryId,
     categoryName: t.category?.name ?? null,
+    transferAccountId: t.transferAccountId ?? null,
+    transferAccountName: t.transferAccount?.name ?? null,
     source: t.source,
     reconciled: t.reconciled,
   }));
 
   const categories = cats.map((c) => ({ id: c.id, name: c.name, kind: c.kind }));
+  // Exclude the current account from the transfer picker
+  const transferAccounts = accountsOverview.accounts
+    .filter((a) => a.id !== id && !a.isVirtual)
+    .map((a) => ({ id: a.id, name: a.name }));
 
   const subtitle = [
     account.institution,
@@ -187,7 +196,7 @@ export default async function AccountDetailPage({
         </div>
       </div>
 
-      <AccountDetailClient account={meta} transactions={txRows} categories={categories} />
+      <AccountDetailClient account={meta} transactions={txRows} categories={categories} transferAccounts={transferAccounts} />
     </div>
   );
 }

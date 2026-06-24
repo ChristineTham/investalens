@@ -35,6 +35,8 @@ export interface TxRow {
   description: string | null;
   categoryId: string | null;
   categoryName: string | null;
+  transferAccountId: string | null;
+  transferAccountName: string | null;
   source: string;
   reconciled: boolean;
 }
@@ -42,6 +44,10 @@ export interface CategoryOption {
   id: string;
   name: string;
   kind: string;
+}
+export interface TransferAccountOption {
+  id: string;
+  name: string;
 }
 
 interface DetailData {
@@ -55,6 +61,8 @@ const CREDIT_TYPES = new Set([
   "deposit",
   "interest",
   "dividend_received",
+  "distribution",
+  "contribution",
   "transfer_in",
   "sell_settlement",
 ]);
@@ -81,10 +89,12 @@ export function AccountDetailClient({
   account,
   transactions,
   categories,
+  transferAccounts,
 }: {
   account: AccountMeta;
   transactions: TxRow[];
   categories: CategoryOption[];
+  transferAccounts: TransferAccountOption[];
 }) {
   const router = useRouter();
   const [range, setRange] = useState<ChartRange>("1Y");
@@ -185,7 +195,7 @@ export function AccountDetailClient({
 
       {/* Add transaction (physical accounts only) */}
       {!account.isVirtual && (
-        <AddTransactionForm accountId={account.id} categories={categories} />
+        <AddTransactionForm accountId={account.id} categories={categories} transferAccounts={transferAccounts} />
       )}
 
       {/* Transactions table */}
@@ -218,7 +228,14 @@ export function AccountDetailClient({
                       <td className="px-3 py-2.5 text-sm text-muted-foreground tabular-nums">
                         {t.date}
                       </td>
-                      <td className="px-3 py-2.5 text-sm">{t.description ?? "—"}</td>
+                    <td className="px-3 py-2.5 text-sm">
+                        {t.description ?? "—"}
+                        {(t.type === "transfer_in" || t.type === "transfer_out") && t.transferAccountName && (
+                          <span className="ml-1.5 text-xs text-muted-foreground">
+                            ({t.type === "transfer_in" ? "from" : "to"} {t.transferAccountName})
+                          </span>
+                        )}
+                      </td>
                       <td className="px-3 py-2.5 text-sm capitalize text-muted-foreground">
                         {t.type.replace(/_/g, " ")}
                       </td>
@@ -285,9 +302,11 @@ export function AccountDetailClient({
 function AddTransactionForm({
   accountId,
   categories,
+  transferAccounts,
 }: {
   accountId: string;
   categories: CategoryOption[];
+  transferAccounts: TransferAccountOption[];
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -297,7 +316,10 @@ function AddTransactionForm({
     amount: "",
     description: "",
     categoryId: "",
+    transferAccountId: "",
   });
+
+  const isTransfer = form.type === "transfer_in" || form.type === "transfer_out";
 
   function set<K extends keyof typeof form>(key: K, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -314,8 +336,9 @@ function AddTransactionForm({
         date: form.date,
         description: form.description || null,
         categoryId: form.categoryId || null,
+        transferAccountId: form.transferAccountId || null,
       });
-      setForm((f) => ({ ...f, amount: "", description: "" }));
+      setForm((f) => ({ ...f, amount: "", description: "", transferAccountId: "" }));
       router.refresh();
     } finally {
       setLoading(false);
@@ -375,6 +398,26 @@ function AddTransactionForm({
           className="h-8 w-full rounded-md border border-input bg-background px-2 text-sm"
         />
       </div>
+      {isTransfer && (
+        <div>
+          <label className="mb-1 block text-[10px] font-medium text-muted-foreground">
+            Transfer account
+          </label>
+          <select
+            value={form.transferAccountId}
+            onChange={(e) => set("transferAccountId", e.target.value)}
+            aria-label="Transfer account"
+            className="h-8 rounded-md border border-input bg-background px-2 text-sm"
+          >
+            <option value="">— Select account —</option>
+            {transferAccounts.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
       <div>
         <label className="mb-1 block text-[10px] font-medium text-muted-foreground">Category</label>
         <select

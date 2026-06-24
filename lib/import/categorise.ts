@@ -20,19 +20,37 @@ const RULES: Rule[] = [
   { category: "Health", keywords: ["pharmacy", "chemist", "medical", "doctor", "dental", "physio", "hospital", "health"] },
   { category: "Shopping", keywords: ["amazon", "ebay", "kmart", "target", "big w", "bunnings", "jb hi-fi", "officeworks"] },
   { category: "Salary", keywords: ["salary", "payroll", "wage", "pay - "] },
-  { category: "Interest", keywords: ["interest"] },
+  { category: "Interest", keywords: ["interest paid", "interest earned"] },
   { category: "Dividends", keywords: ["dividend"] },
-  { category: "Bank Fees", keywords: ["fee", "service charge", "account keeping"] },
-  { category: "Transfer", keywords: ["transfer", "osko", "payid", "bpay"] },
+  { category: "Distributions", keywords: ["distribution", "bsub dst", "dst "] },
+  // ── SMSF contributions ──────────────────────────────────────────────────────
+  { category: "Concessional Contribution", keywords: ["superchoice", "sgc", "employer contribution", " concessional"] },
+  { category: "Non-Concessional Contribution", keywords: ["non concessional", "nonconcess", "non-concess", "non-concessional", "member contribution"] },
+  { category: "Rollover", keywords: ["mercer", "plum superannu", "msf plum", "rollover", "mcrss"] },
+  // ── Fees ────────────────────────────────────────────────────────────────────
+  { category: "Accounting Fee", keywords: ["icare", "asic", "audit", "accountant", "accounting"] },
+  { category: "Management Fee", keywords: ["management fee", "admin fee", "platform fee"] },
+  { category: "Bank Fees", keywords: ["account keeping", "service charge"] },
+  // ── Portfolio settlements ────────────────────────────────────────────────────
+  { category: "Purchase", keywords: ["buy settlement", "mot cnt", "bd cnt", " buy "] },
+  { category: "Sale", keywords: ["sell settlement", "sale settlement"] },
+  // ── Transfers ───────────────────────────────────────────────────────────────
+  { category: "Transfer In", keywords: ["transfer in", "from cwk", "from smsf"] },
+  { category: "Transfer Out", keywords: ["transfer out", "to cwk", "to smsf"] },
 ];
 
 /** Type-driven category fallbacks (canonical cash type → category name). */
 const TYPE_CATEGORY: Record<string, string> = {
   interest: "Interest",
   fee: "Bank Fees",
+  accounting_fee: "Accounting Fee",
   dividend_received: "Dividends",
-  transfer_in: "Transfer",
-  transfer_out: "Transfer",
+  distribution: "Distributions",
+  contribution: "Concessional Contribution",
+  transfer_in: "Transfer In",
+  transfer_out: "Transfer Out",
+  buy_settlement: "Purchase",
+  sell_settlement: "Sale",
 };
 
 /**
