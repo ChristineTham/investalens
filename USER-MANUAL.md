@@ -55,7 +55,8 @@ After signing in, you land on the **Dashboard** (`/dashboard`) which shows your 
 | Sidebar Link   | What It Contains                                                          |
 | -------------- | ------------------------------------------------------------------------- |
 | **Dashboard**  | Summary cards (purchase cost, total value, capital gain, income, total gain, portfolios/holdings), consolidated charts (performance, value, movement, allocation) with a universal timescale selector, portfolio summary table, recent activity |
-| **Portfolio**  | Portfolio overview cards (allocation donut, returns, recent activity); create/manage portfolios, holdings, imports, bonds, cash |
+| **Portfolio**  | Portfolio overview cards (allocation donut, returns, recent activity); create/manage portfolios, holdings, imports, bonds; link cash accounts |
+| **Accounts**   | First-class bank &amp; cash accounts: balances, transactions, categories, statement import (OFX/QIF/CSV), and reconciliation |
 | **Reports**    | 10 performance and allocation reports                                     |
 | **Tax**        | Taxable income, CGT, and unrealised CGT reports                           |
 | **Tools**      | Watchlist, FIRE calculator, Share Checker, Market Sentiment, AI Assistant |
@@ -73,7 +74,7 @@ After signing in, you land on the **Dashboard** (`/dashboard`) which shows your 
 
 The Dashboard gives you an instant overview of every portfolio combined:
 
-- **Summary cards** — Purchase Cost, Total Value, Capital Gain, Income (dividends/interest/coupons, net of accrued interest), Total Gain (capital gain + income − fees, with %), and Portfolios / Holdings count
+- **Summary cards** — Purchase Cost, Total Value, Capital Gain, Income (dividends/interest/coupons, net of accrued interest), Total Gain (capital gain + income − fees, with %), Portfolios / Holdings count, **Cash** (across bank accounts), and **Net Worth** (investments + cash)
 - **Consolidated charts** — A responsive grid of charts broken down **by portfolio**, all driven by one **universal timescale selector** (1M, 6M, YTD, current financial year, previous financial year, 1Y, 3Y, 5Y, 10Y, All):
   - **Performance chart** — each portfolio's value over time plus a consolidated total line, indexed to percentage gain/loss from the start of the selected range so portfolios and the benchmark share a common baseline. Pick a benchmark (ASX 200, S&P 500, MSCI World, and more) shown as a dotted reference line
   - **Total value over time** — each portfolio stacked as an area with the overall total drawn as a bold line on top
@@ -307,6 +308,16 @@ Share portfolio access with advisers, accountants, or family (Sidebar → Settin
 ### Transferring Holdings
 
 Move securities between portfolios by recording a sell at cost base in the source and a buy at cost base in the destination.
+
+### Linked Cash Accounts
+
+Each portfolio detail page has a **Linked accounts** panel for connecting one or more real bank
+accounts (many-to-many) and choosing a **default** settlement account. Every portfolio also keeps a
+**virtual cash ledger** that is auto-posted from its buys, sells, income and fees — open it from the
+panel for a running cash view without importing a statement. Real linked accounts are reconciled
+against portfolio transactions instead of auto-posted, to avoid double-counting.
+
+> **Full guide:** [Accounts](docs/ACCOUNTS.md)
 
 > **Full guide:** [Account & Portfolio Management](docs/ACCOUNT.md)
 
@@ -649,4 +660,5 @@ curl http://localhost:3000/api/v1/portfolios \
 | [Corporate Actions](docs/ACTIONS.md)       | Splits, mergers, demergers, IPOs, rights issues, DRP                           |
 | [Advanced Analytics](docs/ADVANCED.md)     | Backtesting, Monte Carlo, optimisation, factor analysis, stress testing        |
 | [API](docs/API.md)                         | REST API authentication, endpoints, webhooks, SDKs                             |
+| [Accounts](docs/ACCOUNTS.md)               | Bank/cash accounts, statement import, categories, linking, reconciliation      |
 | [Gaps & Roadmap](docs/GAPS.md)             | Every unimplemented and partial feature, gathered in one place                 |

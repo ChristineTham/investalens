@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, Landmark, CreditCard, Upload, Link2 } from "lucide-react";
 import { getAccountDetail } from "@/lib/services/accounts";
-import { getCategories } from "@/lib/actions/accounts";
+import { getCategories, syncVirtualLedger } from "@/lib/actions/accounts";
 import { AccountActions } from "@/components/accounts/account-actions";
 import { AccountDetailClient } from "@/components/accounts/account-detail-client";
 import { BreadcrumbLabel } from "@/components/layout/breadcrumb-context";
@@ -28,7 +28,13 @@ export default async function AccountDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [account, cats] = await Promise.all([getAccountDetail(id), getCategories()]);
+  let account = await getAccountDetail(id);
+  // Virtual ledgers are derived: rebuild from the portfolio's transactions on view.
+  if (account.isVirtual && account.portfolioId) {
+    await syncVirtualLedger(id);
+    account = await getAccountDetail(id);
+  }
+  const cats = await getCategories();
 
   const meta = {
     id: account.id,

@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { ArrowLeft, Plus, Upload, Banknote, Landmark } from "lucide-react";
 import { getPortfolioDetail } from "@/lib/services/portfolio-detail";
+import { getPortfolioAccountLinks } from "@/lib/services/accounts";
 import { getPortfolios } from "@/lib/actions/portfolio";
 import { PortfolioActions } from "@/components/forms/portfolio-actions";
 import { PortfolioDetailClient } from "@/components/portfolio/portfolio-detail-client";
+import { PortfolioAccountsPanel } from "@/components/portfolio/portfolio-accounts-panel";
 import { BreadcrumbLabel } from "@/components/layout/breadcrumb-context";
 import { formatCurrency } from "@/lib/utils";
 
@@ -56,6 +58,7 @@ export default async function PortfolioDetailPage({
   const { id } = await params;
   const detail = await getPortfolioDetail(id);
   const allPortfolios = await getPortfolios();
+  const accountLinks = await getPortfolioAccountLinks(id);
   const otherPortfolios = allPortfolios
     .filter((p) => p.id !== id)
     .map((p) => ({ id: p.id, name: p.name }));
@@ -218,6 +221,9 @@ export default async function PortfolioDetailPage({
           <ReturnTile label="Max" value={returns.max} />
         </div>
       </div>
+
+      {/* Linked accounts */}
+      <PortfolioAccountsPanel portfolioId={id} links={accountLinks} />
 
       {/* Charts, performers and holdings table */}
       <PortfolioDetailClient detail={detail} />

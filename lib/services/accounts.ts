@@ -236,3 +236,72 @@ export async function getUserCashTotal(): Promise<number> {
   });
   return accounts.reduce((sum, a) => sum + Number(a.balance), 0);
 }
+
+// ─── Portfolio ↔ account links ──────────────────────────────────────────────
+
+export interface PortfolioAccountLinks {
+  linked: {
+    linkId: string;
+    accountId: string;
+    name: string;
+    isDefault: boolean;
+    balance: number;
+    currency: string;
+  }[];
+  available: { id: string; name: string }[];
+  virtualAccountId: string | null;
+}
+
+/** Linked physical accounts + available accounts + the virtual ledger id. */
+export async function getPortfolioAccountLinks(
+  portfolioId: string
+): Promise<PortfolioAccountLinks> {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const portfolio = await db.portfolio.findFirst({
+    where: { id: portfolioId, userId: session.user.id },
+    select: { id: true },
+  });
+  if (!portfolio) throw new Error("Portfolio not found");
+
+  const [links, virtual, available] = await Promise.all([
+    db.portfolioAccount.findMany({
+      where: { portfolioId },
+      include: {
+        cashAccount: {
+          select: { id: true, name: true, balance: true, currency: true },
+        },
+      },
+      orderBy: { isDefault: "desc" },
+    }),
+    db.cashAccount.findFirst({
+      where: { portfolioId, isVirtual: true },
+      select: { id: true },
+    }),
+    db.cashAccount.findMany({
+      where: {
+        userId: session.user.id,
+        isVirtual: false,
+        archived: false,
+        portfolioLinks: { none: { portfolioId } },
+      },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+  ]);
+
+  return {
+    linked: links.map((l) => ({
+      linkId: l.id,
+      accountId: l.cashAccount.id,
+      name: l.cashAccount.name,
+      isDefault: l.isDefault,
+      balance: Number(l.cashAccount.balance),
+      currency: l.cashAccount.currency,
+    })),
+    available: available.map((a) => ({ id: a.id, name: a.name })),
+    virtualAccountId: virtual?.id ?? null,
+  };
+}
+

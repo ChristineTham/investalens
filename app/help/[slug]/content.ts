@@ -157,7 +157,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
   "portfolio": {
     title: "Portfolio Management",
     prev: { slug: "assets", title: "Supported Assets" },
-    next: { slug: "reports", title: "Performance & Reporting" },
+    next: { slug: "accounts", title: "Accounts & Cash" },
     sections: [
       {
         heading: "Portfolio Overview",
@@ -192,7 +192,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <tr><td><strong>Labels</strong></td><td>Tag holdings for filtered reporting</td><td>Sidebar &rarr; Settings &rarr; Labels</td></tr>
 <tr><td><strong>Consolidated View</strong></td><td>Aggregate view across all portfolios</td><td>Sidebar &rarr; Portfolio &rarr; highlighted &ldquo;Consolidated View&rdquo; card</td></tr>
 <tr><td><strong>Bonds</strong></td><td>Bond analytics, maturity ladder, YTM</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Bonds&rdquo; button</td></tr>
-<tr><td><strong>Cash Accounts</strong></td><td>Cash alongside investments</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Cash&rdquo; button</td></tr>
+<tr><td><strong>Cash Accounts</strong></td><td>Bank &amp; cash accounts as first-class entities, with import &amp; reconciliation</td><td>Sidebar &rarr; Accounts (or a portfolio&rsquo;s &ldquo;Linked accounts&rdquo; panel)</td></tr>
 </table>`,
       },
       {
@@ -215,9 +215,66 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
     ],
   },
 
+  "accounts": {
+    title: "Accounts & Cash",
+    prev: { slug: "portfolio", title: "Portfolio Management" },
+    next: { slug: "reports", title: "Performance & Reporting" },
+    sections: [
+      {
+        heading: "What Accounts Are",
+        content: `<p><strong>Accounts</strong> are first-class bank and cash accounts &mdash; like portfolios &mdash; reached from <strong>Accounts</strong> in the sidebar. The list shows your <strong>total cash</strong> plus a card per account (institution, type, masked number, balance, and linked portfolios).</p>
+<p>There are two kinds:</p>
+<ul>
+<li><strong>Real accounts</strong> &mdash; you create them or import statements; they have transactions, categories, balance, and optional debit cards.</li>
+<li><strong>Virtual accounts</strong> &mdash; an auto-maintained, read-only cash ledger for a portfolio with no real account linked. Their balance is excluded from total cash (the underlying income still counts in portfolio returns).</li>
+</ul>`,
+      },
+      {
+        heading: "Account Detail",
+        content: `<p>An account page shows current balance and interest rate, linked portfolios, and cards, plus charts driven by the universal timescale selector:</p>
+<ul>
+<li><strong>Balance over time</strong></li>
+<li><strong>Monthly cash flow</strong> (money in vs out)</li>
+<li><strong>Spending by category</strong></li>
+</ul>
+<p>The transactions table lets you set an <strong>inline category</strong>, and add or delete transactions on real accounts. A default category set (Salary, Dividends, Interest, Groceries, Utilities, Housing, &hellip;) is seeded on first use; you can add your own.</p>`,
+      },
+      {
+        heading: "Importing Statements",
+        content: `<p>Open an account &rarr; <strong>Import</strong>. Supported formats:</p>
+<table>
+<tr><th>Format</th><th>Notes</th></tr>
+<tr><td><strong>OFX / QFX</strong></td><td>Richest format &mdash; de-duplicated by the bank&rsquo;s stable transaction id (FITID)</td></tr>
+<tr><td><strong>QIF</strong></td><td>Quicken format</td></tr>
+<tr><td><strong>CSV</strong></td><td>Bank templates (CommBank, NAB, ANZ, Westpac, ING, Macquarie) or a generic signed / debit-credit layout</td></tr>
+</table>
+<p>The wizard flags duplicates (re-importing the same statement is safe), suggests categories, and lets you choose which rows to import.</p>`,
+      },
+      {
+        heading: "Linking to Portfolios",
+        content: `<p>A portfolio&rsquo;s detail page has a <strong>Linked accounts</strong> panel to connect real accounts (many-to-many) and set a <strong>default</strong> settlement account. Every portfolio also has a <strong>virtual cash ledger</strong> auto-posted from its buys, sells, income and fees &mdash; open it from the panel. Real accounts are reconciled (not auto-posted) to avoid double-counting.</p>`,
+      },
+      {
+        heading: "Reconciliation",
+        content: `<p>Open a real account &rarr; <strong>Reconcile</strong> to match bank transactions to portfolio buys, sells, income and fees using fuzzy logic:</p>
+<ul>
+<li><strong>Settlement-aware dates</strong> &mdash; a bank movement usually posts a few days after the trade (T+2/T+3), so a small date offset still matches.</li>
+<li><strong>Amount tolerance</strong> for rounding.</li>
+<li><strong>Split matching</strong> &mdash; one bank amount can match a combination of portfolio transactions (e.g. several buys settled together, or multiple same-day dividends); a partial status tracks the remaining amount.</li>
+<li><strong>Franking</strong> &mdash; for dividend matches, classify franked/unfranked split and franking credits right in the reconcile step.</li>
+</ul>
+<p>Because imports are idempotent, reconciliations persist across future statement re-imports.</p>`,
+      },
+      {
+        heading: "Dashboard",
+        content: `<p>The Dashboard shows <strong>Cash</strong> (total across real accounts) and <strong>Net Worth</strong> (investments + cash) alongside the consolidated portfolio charts.</p>`,
+      },
+    ],
+  },
+
   "reports": {
     title: "Performance & Reporting",
-    prev: { slug: "portfolio", title: "Portfolio Management" },
+    prev: { slug: "accounts", title: "Accounts & Cash" },
     next: { slug: "tax", title: "Tax Reporting" },
     sections: [
       {

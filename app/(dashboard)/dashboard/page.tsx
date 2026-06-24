@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
 import { calculatePosition, calculateIncome } from "@/lib/calculations/position";
+import { getUserCashTotal } from "@/lib/services/accounts";
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
 import { FetchPricesButton } from "@/components/forms/fetch-prices-button";
 import {
@@ -117,6 +118,8 @@ export default async function DashboardPage() {
   const totalIncome = portfolioSummaries.reduce((sum, p) => sum + p.income, 0);
   const totalFees = portfolioSummaries.reduce((sum, p) => sum + p.fees, 0);
   const totalHoldings = portfolioSummaries.reduce((sum, p) => sum + p.holdingCount, 0);
+  const cashTotal = await getUserCashTotal();
+  const netWorth = totalValue + cashTotal;
 
   // Recent transactions (last 10 across all portfolios)
   const recentTransactions = await db.transaction.findMany({
@@ -288,6 +291,26 @@ export default async function DashboardPage() {
           <p className="mt-2 text-2xl font-bold">
             {portfolios.length} / {totalHoldings}
           </p>
+        </div>
+        <div className="rounded-lg border border-border bg-card p-6">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Wallet className="h-4 w-4" />
+            Cash
+          </div>
+          <p className="mt-2 text-2xl font-bold">
+            ${cashTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">Across bank accounts</p>
+        </div>
+        <div className="rounded-lg border border-border bg-card p-6">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <DollarSign className="h-4 w-4" />
+            Net Worth
+          </div>
+          <p className="mt-2 text-2xl font-bold">
+            ${netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">Investments + cash</p>
         </div>
       </div>
 

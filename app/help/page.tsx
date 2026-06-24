@@ -12,6 +12,7 @@ import {
   LineChart,
   Download,
   Code,
+  Wallet,
 } from "lucide-react";
 
 const HELP_SECTIONS = [
@@ -19,6 +20,7 @@ const HELP_SECTIONS = [
   { slug: "importing", title: "Adding &amp; Importing", icon: Upload, description: "CSV import, broker templates, AI importer" },
   { slug: "assets", title: "Supported Assets", icon: Coins, description: "Equities, ETFs, bonds, crypto, custom investments" },
   { slug: "portfolio", title: "Portfolio Management", icon: FolderOpen, description: "Detail charts, broker details, merge, groups, labels, sharing" },
+  { slug: "accounts", title: "Accounts &amp; Cash", icon: Wallet, description: "Bank accounts, statement import, categories, linking, reconciliation" },
   { slug: "reports", title: "Performance &amp; Reporting", icon: BarChart3, description: "10 reports, risk analysis, drawdown" },
   { slug: "tax", title: "Tax Reporting", icon: Calculator, description: "CGT, taxable income, AMIT, allocation methods" },
   { slug: "corporate-actions", title: "Corporate Actions", icon: GitBranch, description: "Splits, bonus, mergers, rights issues" },

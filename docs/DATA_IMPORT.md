@@ -139,12 +139,33 @@ New templates can be contributed by users or added over time.
 
 ### 1a. Cash / Bank Statement Import
 
-Under **Guided Import → Cash / Bank Statement**, you can import a bank or cash-account statement into a named cash account (created automatically if it doesn't exist). The mapper supports either:
+Open an account under **Accounts** → **Import** (or, for a quick start, **Guided Import → Cash /
+Bank Statement**) to import a statement. Three file types are supported:
+
+| Format        | Notes                                                                                                  |
+| ------------- | ------------------------------------------------------------------------------------------------------ |
+| **OFX / QFX** | Bank/Quicken interchange format. Each row carries a stable transaction id (**FITID**) used to de-duplicate, so re-importing the same statement never creates duplicates. |
+| **QIF**       | Quicken Interchange Format (date / amount / payee / memo).                                              |
+| **CSV**       | Choose a **bank template** or a generic layout (see below).                                             |
+
+**CSV layouts.** Built-in Australian bank templates — **CommBank, NAB, ANZ, Westpac, ING,
+Macquarie** — map each bank's columns automatically. Generic layouts also work:
 
 - A single **signed Amount** column (positive = money in, negative = money out), or
 - Separate **Debit** (money out) and **Credit** (money in) columns
 
-An optional Type column is mapped to canonical cash types (deposit, withdrawal, interest, fee, dividend received, transfer in/out); when absent the direction is inferred from the sign. Account balances are updated automatically and duplicate rows (same date, amount, type, description) are skipped.
+An optional Type column is mapped to canonical cash types (deposit, withdrawal, interest, fee,
+dividend received, transfer in/out, buy/sell settlement); when absent the direction is inferred from
+the sign. The wizard **auto-suggests a category** from the narrative (e.g. *Woolworths → Groceries*),
+flags duplicates, and lets you choose which rows to import. Account balances update automatically.
+
+> Imported rows are de-duplicated by FITID (OFX) or a content hash (QIF/CSV), so re-importing an
+> overlapping statement is safe and preserves any reconciliations.
+
+> **⏳ Not yet:** saving a custom CSV column mapping as a reusable template; ISO 20022 **CAMT.053**
+> and SWIFT **MT940**. See [GAPS.md](GAPS.md).
+
+See [Accounts](ACCOUNTS.md) for categories, linking to portfolios, and reconciliation.
 
 ### 1b. Custom Importers (Complex Files)
 

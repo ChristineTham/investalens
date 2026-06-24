@@ -33,6 +33,7 @@ the feature docs; each item is flagged in place and gathered here for visibility
 | Feature | Status | 🎯 Target | Source |
 | ------- | ------ | --------- | ------ |
 | Save a custom column mapping as a reusable template | ⏳ Planned | — | [DATA_IMPORT](DATA_IMPORT.md), [GETTING-STARTED](GETTING-STARTED.md) |
+| Bank statement import — ISO 20022 CAMT.053 / SWIFT MT940 | ⏳ Planned | — | [ACCOUNTS](ACCOUNTS.md), [DATA_IMPORT](DATA_IMPORT.md) |
 | Broker API sync (direct broker integrations) | ⏳ Planned | R4 | [GETTING-STARTED](GETTING-STARTED.md), [DATA_IMPORT](DATA_IMPORT.md) |
 | Sharesight API import | ⏳ Planned | R4 | [GETTING-STARTED](GETTING-STARTED.md), [DATA_IMPORT](DATA_IMPORT.md) |
 | Trade-confirmation email import | ⏳ Planned | — | [GETTING-STARTED](GETTING-STARTED.md) |
@@ -41,7 +42,9 @@ the feature docs; each item is flagged in place and gathered here for visibility
 | Auto portfolio creation on signup | ⏳ Planned | — | [GETTING-STARTED](GETTING-STARTED.md) |
 
 > **Implemented today:** Quick Import (recognised brokers), Guided Import (category wizard),
-> Custom Import (FIIG multi-sheet), Manual entry, and the AI Importer (from pasted text).
+> Custom Import (FIIG multi-sheet), Manual entry, the AI Importer (from pasted text), and
+> **bank statement import** (OFX/QFX, QIF, and CSV with AU bank templates) with fuzzy/split
+> [reconciliation](ACCOUNTS.md#reconciliation).
 
 ## Dividends & Corporate Actions
 

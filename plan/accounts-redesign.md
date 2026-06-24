@@ -503,3 +503,27 @@ re-imports. Validates clean locally.
 Portfolio↔account linking UI + auto-post of portfolio transactions to the settlement account
 (with bank-statement merge suggestions), dashboard cash/net-worth + chart series, and docs
 (new `docs/ACCOUNTS.md`, USER-MANUAL/ACCOUNT/DATA_IMPORT/GAPS updates, help pages).
+
+### P1e — Linking, auto-post, dashboard & docs ✅ (coded 2026-06-24)
+
+- **Portfolio↔account linking** — `getPortfolioAccountLinks` service (returns linked / available /
+  virtualAccountId) + `PortfolioAccountsPanel` client (link, unlink, set-default, "view cash
+  ledger"); `linkPortfolioAccount` / `unlinkPortfolioAccount` actions. Wired into the portfolio
+  detail page above `PortfolioDetailClient`.
+- **Auto-post (virtual accounts only)** — `lib/services/cash-ledger.ts` `syncPortfolioLedger`
+  rebuilds the portfolio's virtual cash ledger idempotently from its Transactions + Fees
+  (BUY→buy_settlement, SELL→sell_settlement, DIVIDEND→dividend_received, INTEREST/COUPON→interest,
+  RETURN_OF_CAPITAL→deposit, TRANSFER_IN/OUT, Fee→fee) then `recomputeAccountBalance`. Exposed via
+  `syncVirtualLedger` action and run when a virtual account detail page is opened. **Design
+  decision:** physical/real accounts are **not** auto-posted — they use import + fuzzy/split
+  reconciliation to avoid double-counting; this is documented in `docs/ACCOUNTS.md`.
+- **Dashboard** — `getUserCashTotal` (real accounts only, `isVirtual:false`) feeds new **Cash** and
+  **Net Worth** (= portfolio value + cash) summary cards.
+- **Docs** — new `docs/ACCOUNTS.md`; updated `USER-MANUAL.md` (sidebar, dashboard cards, linked-cash
+  subsection, doc map), `docs/DATA_IMPORT.md` (OFX/QFX/QIF + AU bank CSV templates + idempotent
+  dedup + reconciliation pointer), `docs/GAPS.md` (bank import marked implemented; CAMT.053/MT940 +
+  mapping-template-save flagged future); help pages (new `accounts` page + index card + search
+  keywords). Per project rule, unimplemented items are flagged as future, not removed.
+
+Local `get_errors` clean on all P1e files. **Codespaces must run** `pnpm install` (ofx-js dep),
+`pnpm prisma migrate deploy`, `pnpm prisma generate`, then `pnpm build` / `pnpm lint`.
