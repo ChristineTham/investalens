@@ -464,3 +464,42 @@ Validates clean locally. Re-run `pnpm install && pnpm build` in Codespaces to co
 
 Auto-match engine (`lib/services/reconciliation.ts`), reconcile UI, shared `franking-fields.tsx`,
 merge franking classification into reconciliation, and unreconcile.
+
+### P1d — Reconciliation ✅ (coded 2026-06-24)
+
+Delivered:
+
+- **Shared franking** — extracted [franking-fields.tsx](../components/forms/franking-fields.tsx)
+  (split/credits + 30%/25% gross-up); [transaction-row.tsx](../components/forms/transaction-row.tsx)
+  refactored to use it (single implementation).
+- **Auto-match engine** — [reconciliation.ts](../lib/services/reconciliation.ts): generates
+  portfolio transaction/fee candidates (with signed expected cash), scores each unreconciled
+  account row by amount tolerance + date window + instrument-code token, and suggests the best.
+- **Actions** — [reconciliation.ts](../lib/actions/reconciliation.ts): `reconcileTransaction`
+  (link, sets `reconciled`) and `unreconcile`.
+- **UI** — [reconcile-client.tsx](../components/accounts/reconcile-client.tsx) +
+  [/accounts/[id]/reconcile](<../app/(dashboard)/accounts/[id]/reconcile/page.tsx>): unreconciled rows
+  with pre-selected suggestions + confidence, manual match picker, and a reconciled list with
+  unlink. **Franking is merged in** — dividends expose the shared `FrankingFields` inline.
+- **Reconcile** button on the account detail header (physical accounts with linked portfolios).
+
+Persistence: because imports are idempotent (`fitId`/`importHash`), reconciliations survive
+re-imports. Validates clean locally.
+
+#### P1d fuzzy + split enhancement (2026-06-24)
+
+- **Settlement-aware fuzzy dates** — `dateWeight` accepts a window of −3…+7 days and treats a
+  small positive offset (bank posts on the settlement date, ~T+2/T+3) as a full match rather than
+  a penalty.
+- **Split matching (1 bank row → N portfolio txs)** — `findCombo` searches 2–3 candidate
+  combinations whose cash sums to the bank amount; the engine now tracks `linkedTotal`/`remaining`
+  and a `partial` status, and suggests splits. `reconcileTransactions` accepts multiple targets;
+  the reconciled flag is set only when the linked cash matches within tolerance
+  (`recomputeReconciledFlag`). The reconcile UI uses a multi-select picker with a running
+  selected-vs-remaining total.
+
+### Next: P1e — Linking, auto-post, dashboard & docs
+
+Portfolio↔account linking UI + auto-post of portfolio transactions to the settlement account
+(with bank-statement merge suggestions), dashboard cash/net-worth + chart series, and docs
+(new `docs/ACCOUNTS.md`, USER-MANUAL/ACCOUNT/DATA_IMPORT/GAPS updates, help pages).
