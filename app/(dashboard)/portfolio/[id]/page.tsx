@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, Plus, Upload, Banknote, Landmark } from "lucide-react";
 import { getPortfolioDetail } from "@/lib/services/portfolio-detail";
+import { getPortfolios } from "@/lib/actions/portfolio";
 import { PortfolioActions } from "@/components/forms/portfolio-actions";
 import { PortfolioDetailClient } from "@/components/portfolio/portfolio-detail-client";
 import { BreadcrumbLabel } from "@/components/layout/breadcrumb-context";
@@ -54,8 +55,18 @@ export default async function PortfolioDetailPage({
 }) {
   const { id } = await params;
   const detail = await getPortfolioDetail(id);
+  const allPortfolios = await getPortfolios();
+  const otherPortfolios = allPortfolios
+    .filter((p) => p.id !== id)
+    .map((p) => ({ id: p.id, name: p.name }));
 
   const { returns } = detail;
+
+  const hasDetails =
+    detail.brokerName ||
+    detail.brokerWebsite ||
+    detail.clientNumber ||
+    detail.accountNumber;
 
   return (
     <div className="space-y-6">
@@ -72,7 +83,17 @@ export default async function PortfolioDetailPage({
             holding{detail.holdingsCount === 1 ? "" : "s"}
           </p>
         </div>
-        <PortfolioActions portfolioId={id} currentName={detail.name} />
+        <PortfolioActions
+          portfolioId={id}
+          portfolio={{
+            name: detail.name,
+            brokerName: detail.brokerName,
+            brokerWebsite: detail.brokerWebsite,
+            clientNumber: detail.clientNumber,
+            accountNumber: detail.accountNumber,
+          }}
+          otherPortfolios={otherPortfolios}
+        />
         <Link
           href={`/portfolio/${id}/bonds`}
           className="inline-flex items-center gap-2 rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent"
@@ -102,6 +123,56 @@ export default async function PortfolioDetailPage({
           Add Holding
         </Link>
       </div>
+
+      {/* Broker / account details */}
+      {hasDetails && (
+        <div className="flex flex-wrap gap-x-8 gap-y-2 rounded-lg border border-border bg-card p-4 text-sm">
+          {detail.brokerName && (
+            <div>
+              <p className="text-xs text-muted-foreground">Broker</p>
+              <p className="font-medium">
+                {detail.brokerWebsite ? (
+                  <a
+                    href={detail.brokerWebsite}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    {detail.brokerName}
+                  </a>
+                ) : (
+                  detail.brokerName
+                )}
+              </p>
+            </div>
+          )}
+          {!detail.brokerName && detail.brokerWebsite && (
+            <div>
+              <p className="text-xs text-muted-foreground">Broker website</p>
+              <a
+                href={detail.brokerWebsite}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-primary hover:underline"
+              >
+                {detail.brokerWebsite}
+              </a>
+            </div>
+          )}
+          {detail.clientNumber && (
+            <div>
+              <p className="text-xs text-muted-foreground">Client number</p>
+              <p className="font-medium tabular-nums">{detail.clientNumber}</p>
+            </div>
+          )}
+          {detail.accountNumber && (
+            <div>
+              <p className="text-xs text-muted-foreground">Account number</p>
+              <p className="font-medium tabular-nums">{detail.accountNumber}</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Summary KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

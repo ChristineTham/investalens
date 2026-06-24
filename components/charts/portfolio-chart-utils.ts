@@ -1,10 +1,13 @@
 "use client";
 
-/** Shared types and helpers for the portfolio-detail client charts. */
+/** Shared types and helpers for the dashboard & portfolio-detail charts. */
 
-export type ChartRange = "1M" | "6M" | "1Y" | "3Y" | "5Y" | "10Y" | "MAX";
+import { type ChartRange, isShortRange } from "@/lib/constants/chart-ranges";
 
-export interface HoldingMeta {
+export type { ChartRange };
+
+/** A stacked series (a holding or a portfolio) with its consistent colour. */
+export interface SeriesMeta {
   id: string;
   code: string;
   colorVar: string;
@@ -37,7 +40,8 @@ export interface SparkPoint {
 
 export interface PortfolioDetailSeries {
   range: ChartRange;
-  holdings: HoldingMeta[];
+  /** Stacked series (holdings for a portfolio, portfolios for the dashboard). */
+  series: SeriesMeta[];
   valueSeries: ValuePoint[];
   performanceSeries: PerformancePoint[];
   movementSeries: MovementPoint[];
@@ -55,11 +59,6 @@ export function compactCurrency(value: number): string {
 
 /** Format an ISO date for an axis tick, scaled to the selected range. */
 export function formatAxisDate(date: string, range: ChartRange): string {
-  if (range === "1M" || range === "6M") return date.slice(5); // MM-DD
+  if (isShortRange(range)) return date.slice(5); // MM-DD
   return date.slice(0, 7); // YYYY-MM
-}
-
-/** Format a YYYY-MM bucket for the movement axis. */
-export function formatMonth(period: string): string {
-  return period; // already YYYY-MM
 }

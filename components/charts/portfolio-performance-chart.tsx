@@ -13,14 +13,8 @@ import {
   ComposedChart,
 } from "recharts";
 import { BENCHMARKS } from "@/lib/constants/benchmarks";
-
-const RANGE_OPTIONS = [
-  { value: "1Y", label: "1Y" },
-  { value: "3Y", label: "3Y" },
-  { value: "5Y", label: "5Y" },
-  { value: "10Y", label: "10Y" },
-  { value: "MAX", label: "All" },
-] as const;
+import { RangeSelector } from "@/components/charts/range-selector";
+import type { ChartRange } from "@/lib/constants/chart-ranges";
 
 const PORTFOLIO_COLORS = [
   "var(--rosely14)",
@@ -68,8 +62,14 @@ function formatCurrency(value: number): string {
   return `$${Math.abs(value).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 }
 
-export function PortfolioPerformanceChart() {
-  const [range, setRange] = useState<string>("1Y");
+export function PortfolioPerformanceChart({
+  range: rangeProp,
+}: {
+  range?: ChartRange;
+} = {}) {
+  const [internalRange, setInternalRange] = useState<ChartRange>("1Y");
+  const range = rangeProp ?? internalRange;
+  const controlled = rangeProp !== undefined;
   const [benchmark, setBenchmark] = useState<string>("");
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [portfolioNames, setPortfolioNames] = useState<string[]>([]);
@@ -105,9 +105,9 @@ export function PortfolioPerformanceChart() {
     };
   }, [range, benchmark]);
 
-  const handleRangeChange = (value: string) => {
+  const handleRangeChange = (value: ChartRange) => {
     setLoading(true);
-    setRange(value);
+    setInternalRange(value);
   };
 
   const handleBenchmarkChange = (value: string) => {
@@ -128,23 +128,10 @@ export function PortfolioPerformanceChart() {
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border p-4">
         <h2 className="font-medium">Portfolio Performance</h2>
         <div className="flex flex-wrap items-center gap-3">
-          {/* Time Range Selector */}
-          <div className="flex rounded-md border border-border">
-            {RANGE_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                  range === opt.value
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-accent"
-                } ${opt.value === "1Y" ? "rounded-l-md" : ""} ${opt.value === "MAX" ? "rounded-r-md" : ""}`}
-                onClick={() => handleRangeChange(opt.value)}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
+          {/* Time Range Selector (hidden when controlled by a parent) */}
+          {!controlled && (
+            <RangeSelector value={range} onChange={handleRangeChange} />
+          )}
 
           {/* Benchmark Selector */}
           <select

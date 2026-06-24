@@ -13,7 +13,7 @@ import {
 import { formatCurrency } from "@/lib/utils";
 import {
   type ChartRange,
-  type HoldingMeta,
+  type SeriesMeta,
   type ValuePoint,
   compactCurrency,
   formatAxisDate,
@@ -21,7 +21,7 @@ import {
 
 interface PortfolioAreaChartProps {
   data: ValuePoint[];
-  holdings: HoldingMeta[];
+  series: SeriesMeta[];
   currency: string;
   range: ChartRange;
   height: number;
@@ -38,17 +38,17 @@ function AreaTooltip({
   payload,
   label,
   currency,
-  holdings,
+  series,
 }: {
   active?: boolean;
   payload?: TooltipEntry[];
   label?: string;
   currency: string;
-  holdings: HoldingMeta[];
+  series: SeriesMeta[];
 }) {
   if (!active || !payload || payload.length === 0) return null;
   const total = payload.find((p) => p.dataKey === "Total")?.value ?? 0;
-  const rows = holdings
+  const rows = series
     .map((h) => ({
       code: h.code,
       swatch: h.colorSwatch,
@@ -90,7 +90,7 @@ function AreaTooltip({
  */
 export function PortfolioAreaChart({
   data,
-  holdings,
+  series,
   currency,
   range,
   height,
@@ -122,10 +122,10 @@ export function PortfolioAreaChart({
         />
         <Tooltip
           content={
-            <AreaTooltip currency={currency} holdings={holdings} />
+            <AreaTooltip currency={currency} series={series} />
           }
         />
-        {holdings.map((h) => (
+        {series.map((h) => (
           <Area
             key={h.id}
             type="monotone"

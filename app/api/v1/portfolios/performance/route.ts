@@ -2,10 +2,14 @@ import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import {
-  getPortfolioTimeSeries,
-  getBenchmarkTimeSeries,
+  getPortfolioTimeSeriesBetween,
+  getBenchmarkTimeSeriesBetween,
   getPortfolioPeriodMetricsFromSeries,
 } from "@/lib/services/analytics-data";
+import {
+  type ChartRange,
+  resolveChartRange,
+} from "@/lib/constants/chart-ranges";
 
 export async function GET(request: Request) {
   const session = await auth();
@@ -14,19 +18,22 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const range = (searchParams.get("range") || "1Y") as "1Y" | "3Y" | "5Y" | "10Y" | "MAX";
+  const range = (searchParams.get("range") || "1Y") as ChartRange;
   const benchmarkCode = searchParams.get("benchmark") || "";
 
   // Get all user portfolios
   const portfolios = await db.portfolio.findMany({
     where: { userId: session.user.id },
-    select: { id: true, name: true },
+    select: { id: true, name: true, financialYearEnd: true },
   });
+
+  const fye = portfolios[0]?.financialYearEnd ?? 6;
+  const { from, to } = resolveChartRange(range, fye);
 
   // Get time series + period metrics for each portfolio
   const portfolioSeries = await Promise.all(
     portfolios.map(async (p) => {
-      const ts = await getPortfolioTimeSeries(p.id, range);
+      const ts = await getPortfolioTimeSeriesBetween(p.id, from, to);
       const metrics = await getPortfolioPeriodMetricsFromSeries(p.id, ts);
       return { id: p.id, name: p.name, ...ts, metrics };
     })
@@ -77,7 +84,11 @@ export async function GET(request: Request) {
   let benchmarkSeries = null;
   if (benchmarkCode) {
     try {
-      benchmarkSeries = await getBenchmarkTimeSeries(benchmarkCode, range);
+      benchmarkSeries = await getBenchmarkTimeSeriesBetween(
+        benchmarkCode,
+        from,
+        to
+      );
     } catch {
       // Benchmark not found or no data - ignore
     }

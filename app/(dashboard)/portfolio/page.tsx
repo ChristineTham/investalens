@@ -42,7 +42,7 @@ export default async function PortfolioPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-3">
           {cards.length > 1 && (
             <ConsolidatedCard
               totalValue={totalValue}

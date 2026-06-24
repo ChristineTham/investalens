@@ -3,8 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
 import { calculatePosition, calculateIncome } from "@/lib/calculations/position";
-import { PortfolioPerformanceChart } from "@/components/charts/portfolio-performance-chart";
-import { PortfolioValueTreemap } from "@/components/charts/portfolio-value-treemap";
+import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
 import { FetchPricesButton } from "@/components/forms/fetch-prices-button";
 import {
   Briefcase,
@@ -292,8 +291,15 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Portfolio Performance Chart */}
-      <PortfolioPerformanceChart />
+      {/* Consolidated charts with a universal timescale selector */}
+      <DashboardCharts
+        currency="AUD"
+        treemapData={portfolioSummaries.map((p) => ({
+          portfolioId: p.id,
+          portfolioName: p.name,
+          holdings: p.holdings,
+        }))}
+      />
 
       {/* Returns methodology note */}
       <div className="rounded-lg border border-border bg-muted/30 p-4 text-xs text-muted-foreground">
@@ -317,15 +323,6 @@ export default async function DashboardPage() {
           September 1999).
         </p>
       </div>
-
-      {/* Portfolio Allocation Treemap */}
-      <PortfolioValueTreemap
-        data={portfolioSummaries.map((p) => ({
-          portfolioId: p.id,
-          portfolioName: p.name,
-          holdings: p.holdings,
-        }))}
-      />
 
       {/* Portfolio Summary Table */}
       {portfolioSummaries.length > 0 && (

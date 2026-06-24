@@ -3,6 +3,7 @@
 import { useState, useEffect, type ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 import { ChartCard } from "@/components/charts/chart-card";
+import { RangeSelector } from "@/components/charts/range-selector";
 import { AllocationPie } from "@/components/charts/allocation-pie";
 import { PortfolioAreaChart } from "@/components/charts/portfolio-area-chart";
 import { PortfolioPerformanceDetailChart } from "@/components/charts/portfolio-performance-detail-chart";
@@ -20,20 +21,8 @@ import type {
   PortfolioDetail,
   HoldingMetric,
 } from "@/lib/services/portfolio-detail";
-import type {
-  ChartRange,
-  PortfolioDetailSeries,
-} from "@/components/charts/portfolio-chart-utils";
-
-const RANGE_OPTIONS: { value: ChartRange; label: string }[] = [
-  { value: "1M", label: "1M" },
-  { value: "6M", label: "6M" },
-  { value: "1Y", label: "1Y" },
-  { value: "3Y", label: "3Y" },
-  { value: "5Y", label: "5Y" },
-  { value: "10Y", label: "10Y" },
-  { value: "MAX", label: "All" },
-];
+import type { ChartRange } from "@/lib/constants/chart-ranges";
+import type { PortfolioDetailSeries } from "@/components/charts/portfolio-chart-utils";
 
 function ChartLoader() {
   return (
@@ -104,7 +93,7 @@ export function PortfolioDetailClient({ detail }: { detail: PortfolioDetail }) {
     ? BENCHMARKS[benchmark as keyof typeof BENCHMARKS]?.name
     : undefined;
 
-  const holdingsMeta = series?.holdings ?? [];
+  const holdingsMeta = series?.series ?? [];
   const valueSeries = series?.valueSeries ?? [];
   const performanceSeries = series?.performanceSeries ?? [];
   const movementSeries = series?.movementSeries ?? [];
@@ -134,27 +123,7 @@ export function PortfolioDetailClient({ detail }: { detail: PortfolioDetail }) {
         <p className="text-sm font-medium text-muted-foreground">
           Charts &amp; analysis
         </p>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Timescale</span>
-          <div className="flex rounded-md border border-border">
-            {RANGE_OPTIONS.map((opt, i) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setRange(opt.value)}
-                className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                  range === opt.value
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-accent"
-                } ${i === 0 ? "rounded-l-md" : ""} ${
-                  i === RANGE_OPTIONS.length - 1 ? "rounded-r-md" : ""
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <RangeSelector value={range} onChange={setRange} label="Timescale" />
       </div>
 
       {/* Responsive chart grid */}
@@ -169,7 +138,7 @@ export function PortfolioDetailClient({ detail }: { detail: PortfolioDetail }) {
             withLoader(
               <PortfolioAreaChart
                 data={valueSeries}
-                holdings={holdingsMeta}
+                series={holdingsMeta}
                 currency={detail.currency}
                 range={range}
                 height={h}
@@ -222,7 +191,7 @@ export function PortfolioDetailClient({ detail }: { detail: PortfolioDetail }) {
             withLoader(
               <PortfolioMovementChart
                 data={movementSeries}
-                holdings={holdingsMeta}
+                series={holdingsMeta}
                 currency={detail.currency}
                 height={h}
               />

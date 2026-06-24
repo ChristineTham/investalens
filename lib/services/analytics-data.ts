@@ -72,6 +72,14 @@ export async function getPortfolioTimeSeries(
 ): Promise<TimeSeriesResult> {
   const from = dateRangeToFrom(dateRange);
   const to = new Date();
+  return getPortfolioTimeSeriesBetween(portfolioId, from, to);
+}
+
+export async function getPortfolioTimeSeriesBetween(
+  portfolioId: string,
+  from: Date,
+  to: Date
+): Promise<TimeSeriesResult> {
 
   // Get all holdings with their instruments
   const holdings = await db.holding.findMany({
@@ -305,7 +313,14 @@ export async function getBenchmarkTimeSeries(
 ): Promise<TimeSeriesResult> {
   const from = dateRangeToFrom(dateRange);
   const to = new Date();
+  return getBenchmarkTimeSeriesBetween(benchmarkCode, from, to);
+}
 
+export async function getBenchmarkTimeSeriesBetween(
+  benchmarkCode: string,
+  from: Date,
+  to: Date
+): Promise<TimeSeriesResult> {
   // Find the benchmark instrument
   const instrument = await db.instrument.findFirst({
     where: { code: benchmarkCode },

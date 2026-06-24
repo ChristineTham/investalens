@@ -12,14 +12,14 @@ import {
 } from "recharts";
 import { formatCurrency } from "@/lib/utils";
 import {
-  type HoldingMeta,
+  type SeriesMeta,
   type MovementPoint,
   compactCurrency,
 } from "@/components/charts/portfolio-chart-utils";
 
 interface MovementChartProps {
   data: MovementPoint[];
-  holdings: HoldingMeta[];
+  series: SeriesMeta[];
   currency: string;
   height: number;
 }
@@ -34,16 +34,16 @@ function MovementTooltip({
   payload,
   label,
   currency,
-  holdings,
+  series,
 }: {
   active?: boolean;
   payload?: TooltipEntry[];
   label?: string;
   currency: string;
-  holdings: HoldingMeta[];
+  series: SeriesMeta[];
 }) {
   if (!active || !payload || payload.length === 0) return null;
-  const rows = holdings
+  const rows = series
     .map((h) => ({
       code: h.code,
       swatch: h.colorSwatch,
@@ -90,7 +90,7 @@ function MovementTooltip({
  */
 export function PortfolioMovementChart({
   data,
-  holdings,
+  series,
   currency,
   height,
 }: MovementChartProps) {
@@ -120,10 +120,10 @@ export function PortfolioMovementChart({
         />
         <Tooltip
           cursor={{ fill: "var(--accent)", opacity: 0.3 }}
-          content={<MovementTooltip currency={currency} holdings={holdings} />}
+          content={<MovementTooltip currency={currency} series={series} />}
         />
         <ReferenceLine y={0} stroke="var(--muted-foreground)" />
-        {holdings.map((h) => (
+        {series.map((h) => (
           <Bar
             key={h.id}
             dataKey={h.code}

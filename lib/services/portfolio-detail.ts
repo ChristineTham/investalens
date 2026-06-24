@@ -64,6 +64,10 @@ export interface PortfolioDetail {
   currency: string;
   entityType: string;
   holdingsCount: number;
+  brokerName: string | null;
+  brokerWebsite: string | null;
+  clientNumber: string | null;
+  accountNumber: string | null;
   currentValue: number;
   costBase: number;
   capitalGain: number;
@@ -334,6 +338,10 @@ export async function getPortfolioDetail(
     currency: portfolio.baseCurrency,
     entityType: portfolio.taxEntityType,
     holdingsCount: portfolio.holdings.length,
+    brokerName: portfolio.brokerName,
+    brokerWebsite: portfolio.brokerWebsite,
+    clientNumber: portfolio.clientNumber,
+    accountNumber: portfolio.accountNumber,
     currentValue,
     costBase,
     capitalGain,

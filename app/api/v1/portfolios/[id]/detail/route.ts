@@ -1,30 +1,16 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getBenchmarkTimeSeries } from "@/lib/services/analytics-data";
+import { getBenchmarkTimeSeriesBetween } from "@/lib/services/analytics-data";
 import { holdingColor } from "@/lib/constants/chart-colors";
-
-type DateRange = "1M" | "6M" | "1Y" | "3Y" | "5Y" | "10Y" | "MAX";
-
-const RANGE_DAYS: Record<DateRange, number | null> = {
-  "1M": 31,
-  "6M": 183,
-  "1Y": 365,
-  "3Y": 1095,
-  "5Y": 1825,
-  "10Y": 3650,
-  MAX: null,
-};
+import {
+  type ChartRange,
+  resolveChartRange,
+} from "@/lib/constants/chart-ranges";
 
 const INCOME_TYPES = new Set(["DIVIDEND", "INTEREST", "COUPON"]);
 const BUY_TYPES = new Set(["BUY", "TRANSFER_IN"]);
 const SELL_TYPES = new Set(["SELL", "TRANSFER_OUT", "RETURN_OF_CAPITAL"]);
-
-function rangeFrom(range: DateRange): Date {
-  const days = RANGE_DAYS[range];
-  if (days == null) return new Date(2000, 0, 1);
-  return new Date(Date.now() - days * 86_400_000);
-}
 
 function num(v: unknown): number {
   return v == null ? 0 : Number(v);
@@ -51,7 +37,7 @@ export async function GET(
 
   const { id } = await params;
   const { searchParams } = new URL(request.url);
-  const range = (searchParams.get("range") || "1Y") as DateRange;
+  const range = (searchParams.get("range") || "1Y") as ChartRange;
   const benchmarkCode = searchParams.get("benchmark") || "";
 
   const portfolio = await db.portfolio.findFirst({
@@ -76,8 +62,7 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const from = rangeFrom(range);
-  const to = new Date();
+  const { from, to } = resolveChartRange(range, portfolio.financialYearEnd);
   const instrumentIds = portfolio.holdings.map((h) => h.instrumentId);
 
   // Latest prices (for colour ordering by current market value).
@@ -200,10 +185,11 @@ export async function GET(
   let benchmarkSeries: { dates: string[]; values: number[] } | null = null;
   if (benchmarkCode) {
     try {
-      const bRange = (
-        ["1Y", "3Y", "5Y", "10Y", "MAX"].includes(range) ? range : "1Y"
-      ) as "1Y" | "3Y" | "5Y" | "10Y" | "MAX";
-      benchmarkSeries = await getBenchmarkTimeSeries(benchmarkCode, bRange);
+      benchmarkSeries = await getBenchmarkTimeSeriesBetween(
+        benchmarkCode,
+        from,
+        to
+      );
     } catch {
       benchmarkSeries = null;
     }
@@ -301,7 +287,7 @@ export async function GET(
 
   return NextResponse.json({
     range,
-    holdings: holdingsMeta,
+    series: holdingsMeta,
     valueSeries,
     performanceSeries,
     movementSeries,

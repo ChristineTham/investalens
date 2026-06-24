@@ -44,7 +44,7 @@ export function PortfolioSummaryCard({ card }: { card: PortfolioCard }) {
   return (
     <Link
       href={`/portfolio/${card.id}`}
-      className="group flex flex-col rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/40"
+      className="group flex h-full flex-col rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/40"
     >
       <div>
         <h3 className="font-medium group-hover:text-primary">{card.name}</h3>

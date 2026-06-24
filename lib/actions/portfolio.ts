@@ -91,3 +91,73 @@ export async function deletePortfolio(id: string) {
   revalidatePath("/portfolio");
   redirect("/portfolio");
 }
+
+/**
+ * Merge a source portfolio into a target portfolio: all holdings, transactions,
+ * fees and cash accounts move to the target, then the source is deleted. Target
+ * administrative details (name, broker, account numbers, tax settings) are kept.
+ * Holdings of the same instrument are consolidated into the target's holding.
+ */
+export async function mergePortfolio(sourceId: string, targetId: string) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+  if (sourceId === targetId) throw new Error("Cannot merge a portfolio into itself");
+
+  const [source, target] = await Promise.all([
+    db.portfolio.findFirst({
+      where: { id: sourceId, userId: session.user.id },
+      include: { holdings: { select: { id: true, instrumentId: true } } },
+    }),
+    db.portfolio.findFirst({
+      where: { id: targetId, userId: session.user.id },
+      include: { holdings: { select: { id: true, instrumentId: true } } },
+    }),
+  ]);
+
+  if (!source) throw new Error("Source portfolio not found");
+  if (!target) throw new Error("Target portfolio not found");
+
+  const targetByInstrument = new Map(
+    target.holdings.map((h) => [h.instrumentId, h.id])
+  );
+
+  await db.$transaction(async (tx) => {
+    for (const holding of source.holdings) {
+      const existing = targetByInstrument.get(holding.instrumentId);
+      if (existing) {
+        // Target already holds this instrument — move the transactions across
+        // and drop the now-empty source holding.
+        await tx.transaction.updateMany({
+          where: { holdingId: holding.id },
+          data: { holdingId: existing },
+        });
+        await tx.holding.delete({ where: { id: holding.id } });
+      } else {
+        // Reassign the whole holding (and its transactions) to the target.
+        await tx.holding.update({
+          where: { id: holding.id },
+          data: { portfolioId: targetId },
+        });
+        targetByInstrument.set(holding.instrumentId, holding.id);
+      }
+    }
+
+    // Move portfolio-level records, then remove the emptied source.
+    await tx.fee.updateMany({
+      where: { portfolioId: sourceId },
+      data: { portfolioId: targetId },
+    });
+    await tx.cashAccount.updateMany({
+      where: { portfolioId: sourceId },
+      data: { portfolioId: targetId },
+    });
+    await tx.importJob.updateMany({
+      where: { portfolioId: sourceId },
+      data: { portfolioId: targetId },
+    });
+    await tx.portfolio.delete({ where: { id: sourceId } });
+  });
+
+  revalidatePath("/portfolio");
+  revalidatePath(`/portfolio/${targetId}`);
+}
