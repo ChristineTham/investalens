@@ -655,6 +655,20 @@
 - **Install**: `pnpm add papaparse` + `pnpm add -D @types/papaparse`
 - **Key facts**: CSV parser for browser and Node.js. Used for import pipeline.
 
+### ofx-js
+
+- **Source**: https://www.npmjs.com/package/ofx-js (v1.1.1, verified 2026-06-24)
+- **Install**: `pnpm add ofx-js`
+- **Key facts**: Parses OFX/QFX bank statement files (SGML v1.x + XML v2.x) into a JS object.
+  Zero runtime dependencies, built-in TypeScript types, **parse-only** (no serialisation), works
+  in any JS environment (serverless-safe). Use `import { parseStrict } from "ofx-js"`.
+- **Statement path**: `data.OFX.BANKMSGSRSV1.STMTTRNRS.STMTRS` →
+  `BANKACCTFROM.{BANKID (BSB), ACCTID}`, `CURDEF`, `BANKTRANLIST.STMTTRN[]`. Each `STMTTRN` has
+  `DTPOSTED` (YYYYMMDD[HHMMSS]), `TRNAMT` (signed), `FITID` (**stable unique id** — use for
+  idempotent dedup + reconciliation), `NAME`, `MEMO`, `TRNTYPE`.
+- **Gotchas**: `STMTTRN` may be a single object or an array; statement responses may be wrapped in
+  arrays; the SGML→XML coercion is best-effort, so wrap parsing in try/catch and fall back to CSV.
+
 ### react-dropzone
 
 - **Source**: https://react-dropzone.js.org

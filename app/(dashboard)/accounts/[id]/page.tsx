@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Landmark, CreditCard } from "lucide-react";
+import { ArrowLeft, Landmark, CreditCard, Upload } from "lucide-react";
 import { getAccountDetail } from "@/lib/services/accounts";
 import { getCategories } from "@/lib/actions/accounts";
 import { AccountActions } from "@/components/accounts/account-actions";
@@ -95,6 +95,15 @@ export default async function AccountDetailPage({
               notes: account.notes,
             }}
           />
+        )}
+        {!account.isVirtual && (
+          <Link
+            href={`/accounts/${id}/import`}
+            className="inline-flex items-center gap-2 rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent"
+          >
+            <Upload className="h-4 w-4" />
+            Import
+          </Link>
         )}
       </div>
 

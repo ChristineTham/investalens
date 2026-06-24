@@ -438,3 +438,29 @@ Validates clean locally (no type/lint errors). Re-run `pnpm build` in Codespaces
 
 OFX/QIF parsers (+`ofx-js`, KNOWLEDGE.md), extended CSV mapper, AU bank templates,
 auto-categorisation, the Accounts import wizard, and `fitId`/hash dedup.
+
+### P1c — Import ✅ (coded 2026-06-24)
+
+Delivered:
+
+- **`ofx-js`** added to [package.json](../package.json) + documented in
+  [docs/KNOWLEDGE.md](../docs/KNOWLEDGE.md). _(Run `pnpm install` in Codespaces before building.)_
+- **Parsers** — [ofx-parser.ts](../lib/import/ofx-parser.ts) (OFX/QFX bank + credit-card, with
+  `FITID`), [qif-parser.ts](../lib/import/qif-parser.ts), shared
+  [bank-statement.ts](../lib/import/bank-statement.ts) (signed amounts, canonical types, `importHash`).
+- **CSV** — AU bank templates (CommBank, NAB, ANZ, Westpac, ING, Macquarie) added to
+  [templates.ts](../lib/import/templates.ts); reuses `mapCashRows`.
+- **Auto-categorisation** — [categorise.ts](../lib/import/categorise.ts) (keyword + type rules).
+- **Import action** — [account-import.ts](../lib/actions/account-import.ts): `previewAccountImport`
+  (dedup flags + category suggestions) and `commitAccountImport` (idempotent via `fitId`/`importHash`,
+  `source="import"`, balance recompute).
+- **Wizard** — [account-import-wizard.tsx](../components/accounts/account-import-wizard.tsx) +
+  [/accounts/[id]/import](<../app/(dashboard)/accounts/[id]/import/page.tsx>); "Import" button on the
+  account detail header (physical accounts only).
+
+Validates clean locally. Re-run `pnpm install && pnpm build` in Codespaces to confirm.
+
+### Next: P1d — Reconciliation
+
+Auto-match engine (`lib/services/reconciliation.ts`), reconcile UI, shared `franking-fields.tsx`,
+merge franking classification into reconciliation, and unreconcile.

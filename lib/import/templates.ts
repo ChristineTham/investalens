@@ -191,6 +191,60 @@ export const cashTemplates: Record<string, CashImportConfig> = {
     dateFormat: "dd/mm/yyyy",
     decimalSeparator: ".",
   },
+  // ── Australian banks ──────────────────────────────────────────────────────
+  commbank: {
+    mapping: { date: "Date", amount: "Amount", description: "Description", type: null },
+    dateFormat: "dd/mm/yyyy",
+    decimalSeparator: ".",
+  },
+  nab: {
+    mapping: {
+      date: "Date",
+      amount: "Amount",
+      type: "Transaction Type",
+      description: "Transaction Details",
+    },
+    dateFormat: "dd/mm/yyyy",
+    decimalSeparator: ".",
+  },
+  anz: {
+    mapping: { date: "Date", amount: "Amount", description: "Description", type: null },
+    dateFormat: "dd/mm/yyyy",
+    decimalSeparator: ".",
+  },
+  westpac: {
+    mapping: {
+      date: "Effective Date",
+      debit: "Debit Amount",
+      credit: "Credit Amount",
+      description: "Narrative",
+      type: null,
+    },
+    dateFormat: "dd/mm/yyyy",
+    decimalSeparator: ".",
+  },
+  ing: {
+    mapping: {
+      date: "Date",
+      debit: "Debit",
+      credit: "Credit",
+      description: "Description",
+      type: null,
+    },
+    dateFormat: "dd/mm/yyyy",
+    decimalSeparator: ".",
+  },
+  macquarie: {
+    mapping: {
+      date: "Date",
+      debit: "Debit",
+      credit: "Credit",
+      description: "Description",
+      type: null,
+    },
+    dateFormat: "dd/mm/yyyy",
+    decimalSeparator: ".",
+  },
 };
 
 // ─── Template registry (metadata-driven) ─────────────────────────────────────
@@ -281,6 +335,52 @@ export const importTemplates: ImportTemplate[] = [
     category: "cash",
     cashConfig: cashTemplates.generic_debit_credit,
     description: "Separate Debit and Credit columns",
+  },
+  {
+    id: "commbank",
+    name: "CommBank",
+    category: "cash",
+    cashConfig: cashTemplates.commbank,
+    quickImport: true,
+    description: "CommBank CSV export (Date, Amount, Description)",
+  },
+  {
+    id: "nab",
+    name: "NAB",
+    category: "cash",
+    cashConfig: cashTemplates.nab,
+    quickImport: true,
+    description: "NAB transaction export",
+  },
+  {
+    id: "anz",
+    name: "ANZ",
+    category: "cash",
+    cashConfig: cashTemplates.anz,
+    quickImport: true,
+    description: "ANZ CSV export",
+  },
+  {
+    id: "westpac",
+    name: "Westpac",
+    category: "cash",
+    cashConfig: cashTemplates.westpac,
+    quickImport: true,
+    description: "Westpac CSV (Debit/Credit columns)",
+  },
+  {
+    id: "ing",
+    name: "ING",
+    category: "cash",
+    cashConfig: cashTemplates.ing,
+    description: "ING CSV export",
+  },
+  {
+    id: "macquarie",
+    name: "Macquarie",
+    category: "cash",
+    cashConfig: cashTemplates.macquarie,
+    description: "Macquarie CSV export",
   },
 ];
 
