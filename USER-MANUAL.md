@@ -54,7 +54,7 @@ After signing in, you land on the **Dashboard** (`/dashboard`) which shows your 
 
 | Sidebar Link   | What It Contains                                                          |
 | -------------- | ------------------------------------------------------------------------- |
-| **Dashboard**  | Summary cards (purchase cost, total value, capital gain, income, total gain, portfolios/holdings), portfolio performance chart, allocation treemap, portfolio summary table, recent activity |
+| **Dashboard**  | Summary cards (purchase cost, total value, capital gain, income, total gain, portfolios/holdings), consolidated charts (performance, value, movement, allocation) with a universal timescale selector, portfolio summary table, recent activity |
 | **Portfolio**  | Portfolio overview cards (allocation donut, returns, recent activity); create/manage portfolios, holdings, imports, bonds, cash |
 | **Reports**    | 10 performance and allocation reports                                     |
 | **Tax**        | Taxable income, CGT, and unrealised CGT reports                           |
@@ -74,8 +74,11 @@ After signing in, you land on the **Dashboard** (`/dashboard`) which shows your 
 The Dashboard gives you an instant overview of every portfolio combined:
 
 - **Summary cards** — Purchase Cost, Total Value, Capital Gain, Income (dividends/interest/coupons, net of accrued interest), Total Gain (capital gain + income − fees, with %), and Portfolios / Holdings count
-- **Portfolio Performance chart** — An area/line chart of each portfolio's value over time with a consolidated total line. Indexed to percentage gain/loss from the start of the selected time range so portfolios and the benchmark share a common baseline. Pick a benchmark (ASX 200, S&P 500, MSCI World, and more) shown as a dotted reference line, and switch the timescale (1Y, 3Y, 5Y, 10Y, All)
-- **Portfolio Allocation treemap** — Current value broken down by portfolio, then by holding, with each portfolio in its own colour and holdings as shades of that colour. Click any holding to open its detail page
+- **Consolidated charts** — A responsive grid of charts broken down **by portfolio**, all driven by one **universal timescale selector** (1M, 6M, YTD, current financial year, previous financial year, 1Y, 3Y, 5Y, 10Y, All):
+  - **Performance chart** — each portfolio's value over time plus a consolidated total line, indexed to percentage gain/loss from the start of the selected range so portfolios and the benchmark share a common baseline. Pick a benchmark (ASX 200, S&P 500, MSCI World, and more) shown as a dotted reference line
+  - **Total value over time** — each portfolio stacked as an area with the overall total drawn as a bold line on top
+  - **Movement** — net monthly cash flow (buys / sells / distributions) stacked by portfolio
+  - **Allocation treemap** — current value broken down by portfolio, then by holding, with each portfolio in its own colour and holdings as shades of that colour. Click any holding to open its detail page
 - **Portfolio Summary table** — Cost base, market value, capital gain, income, fees, and total gain per portfolio
 - **Recent Activity** — The latest activity across all portfolios (trades, dividends, coupons, and custody fees) with date, instrument, type, quantity, price, fees, and amount. Every row links to its holding (or the Bonds page for custody fees), and a "View All" button opens the full activity history
 
@@ -233,7 +236,7 @@ Each share and ETF holding shows rich, periodically-refreshed company informatio
 
 ### How to Refresh Stock Information
 
-Stock information is fetched together with prices. Go to **Settings → Market Data** and click **"Update"** — in one step InvestaLens updates share and ETF prices (Yahoo Finance), bond prices (FIIG rate sheet), and the company information for your share/ETF holdings. A live progress bar shows each phase (shares & ETFs → bonds → company info) and the current ticker as it works. Bonds, cash, and currencies are skipped for company info. The panel shows when the data was last updated.
+Stock information is fetched together with prices. Go to **Settings → Market Data** and click **"Update"** — in one step InvestaLens updates share and ETF prices (Yahoo Finance), bond prices (FIIG rate sheet), and the company information for your share/ETF holdings. A live progress bar shows each phase (shares & ETFs → bonds → company info) and the current ticker as it works. Bonds, cash, and currencies are skipped for company info. The panel shows when the data was last updated. The same **Update** control appears in the Market Data section of the Dashboard, and when it finishes the Dashboard refreshes automatically so the summary cards and charts reflect the latest prices.
 
 > **Note (self-hosted on Vercel):** company information is computed by the Python `yfinance` backend, which the app calls server-to-server. If your deployment has **Deployment Protection** enabled, enable **Protection Bypass for Automation** (Settings → Deployment Protection) so these internal calls aren't blocked with a 401, then redeploy.
 
@@ -247,13 +250,31 @@ Organise, share, and manage multiple portfolios.
 
 ### Portfolio Overview
 
-The **Portfolio** page shows each portfolio as a rich summary card:
+The **Portfolio** page shows each portfolio as an equal-height summary card:
 
 - **Allocation donut** — current value split across the portfolio's holdings, with a top-holdings legend and percentages
 - **Current value** and **1M / 6M / 1Y / 3Y returns** (contribution-adjusted capital return)
 - **Recent activity** — the three most recent transactions
 
 When you hold more than one portfolio, a **highlighted Consolidated View card** leads the grid, showing total value, portfolio/holding counts, and an allocation donut by portfolio. Click it for the combined view, or click any portfolio card to open that portfolio.
+
+### Portfolio Detail Page
+
+Opening a portfolio shows its **name in the breadcrumb**, KPI cards (current value, capital gain, income, total gain), and **trailing returns** for 1M / 6M / 1Y / 3Y / 5Y / 10Y / All. Any broker / account details you have entered appear under the header (the broker name links to the website).
+
+Below that is a **responsive grid of charts** driven by a single **universal timescale selector** — covering 1M, 6M, **YTD**, **current financial year (FYTD)**, **previous financial year (Prev FY)**, 1Y, 3Y, 5Y, 10Y, and All. Changing the timescale updates every chart at once:
+
+- **Value over time** — each holding stacked as an area, with the overall portfolio value as a bold line on top
+- **Performance (gain / loss)** — total-gain %, optionally compared with a benchmark; the tooltip breaks the gain down as capital gain + income = total gain
+- **Allocation by holding** — a pie grouped by sector, with a rich hover tooltip (name, type, sector, purchase amount, current value, capital gain, income)
+- **Movement** — net monthly cash flow (buys / sells / distributions) stacked by holding
+- **Top & bottom performers** — the best and worst three holdings by total return
+
+Every chart has a **maximise** button that opens it in a larger modal. The **holdings table** shows sector, current price, purchase amount, current value, capital gain, income, total gain, annualised return, and a mini price **sparkline**, with each holding in a **consistent colour** (a swatch matches the charts).
+
+### Edit Details & Merge
+
+Use the **edit (pencil)** button on the detail page to set the portfolio name and administrative details — **broker name, broker website, client number, and account number**. To combine two portfolios, use the **merge** button: all holdings and transactions move into the portfolio you choose, holdings of the same instrument are consolidated, the target's details are kept, and the source portfolio is deleted (see [Merge Portfolios](docs/ACCOUNT.md#merge-portfolios)).
 
 ### Organisation Tools
 
@@ -275,6 +296,7 @@ Share portfolio access with advisers, accountants, or family (Sidebar → Settin
 
 | Setting                | Impact                                                                      |
 | ---------------------- | --------------------------------------------------------------------------- |
+| Portfolio Details      | Editable name plus broker name, broker website, client number, account number |
 | Tax Residency          | Determines currency, tax rules, reports (permanent — cannot change)         |
 | Tax Entity Type        | Determines CGT discount rate (Individual 50%, SMSF 33⅓%, Company 0%)        |
 | Sale Allocation Method | How cost base parcels are matched to sells (FIFO, LIFO, Minimise CGT, etc.) |
@@ -627,3 +649,4 @@ curl http://localhost:3000/api/v1/portfolios \
 | [Corporate Actions](docs/ACTIONS.md)       | Splits, mergers, demergers, IPOs, rights issues, DRP                           |
 | [Advanced Analytics](docs/ADVANCED.md)     | Backtesting, Monte Carlo, optimisation, factor analysis, stress testing        |
 | [API](docs/API.md)                         | REST API authentication, endpoints, webhooks, SDKs                             |
+| [Gaps & Roadmap](docs/GAPS.md)             | Every unimplemented and partial feature, gathered in one place                 |

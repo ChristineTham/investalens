@@ -6,7 +6,7 @@
 >
 > | Feature                              | Status                                  |
 > | ------------------------------------ | --------------------------------------- |
-> | Performance Report (MWR, annualised) | ✅ Implemented                          |
+> | Performance Report (simple/nominal)  | ✅ Implemented                          |
 > | Contribution Analysis                | ✅ Implemented                          |
 > | Multi-Period Report                  | ✅ Implemented (server action, stub UI) |
 > | Sold Securities Report               | ✅ Implemented                          |
@@ -28,7 +28,7 @@
 
 InvestaLens contains a number of powerful performance, asset allocation, and tax/compliance reports that you can run against your investment portfolio.
 
-> **Note:** InvestaLens calculates percentage returns using a money-weighted return methodology (taking account of the size and timing of cash flows).
+> **Note:** InvestaLens currently calculates returns as **simple, nominal** figures — capital gain + income, net of fees — indexed from the start of the selected period. They are **not** time-weighted or money-weighted (IRR), and **not** inflation-indexed. The per-portfolio Performance Method setting (simple vs compound) only affects how the percentage is compounded. True time-weighted / money-weighted returns are a planned enhancement — see [GAPS.md](GAPS.md).
 
 Reports and tools fall into these categories:
 

@@ -60,7 +60,7 @@ InvestaLens uses a **dual-runtime architecture**: a Next.js application for the 
 ### Performance Calculation
 
 1. Historical prices fetched from market data APIs (cached in DB)
-2. Money-weighted returns calculated per holding and portfolio
+2. Simple, nominal returns calculated per holding and portfolio (capital gain + income, net of fees); time-weighted / money-weighted (IRR) returns are a planned enhancement
 3. FX rates applied for multi-currency portfolios
 4. Results cached for dashboard display with configurable TTL
 

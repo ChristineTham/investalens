@@ -12,9 +12,12 @@
 > | Add holdings via instrument search | ✅ Implemented                   |
 > | Manual transaction entry           | ✅ Implemented                   |
 > | CSV import with field mapping      | ✅ Implemented                   |
-> | DRP recording                      | ✅ Implemented (server action)   |
+> | DRP recording (manual)             | ✅ Implemented (server action)   |
+> | Automatic DRP (registry reconcile) | ⏳ To be Implemented              |
 > | Labels                             | ✅ Implemented                   |
-> | Performance calculation (MWR)      | ✅ Implemented                   |
+> | Performance calc (simple/nominal)  | ✅ Implemented                   |
+> | Time-weighted / money-weighted (IRR) returns | ⏳ To be Implemented   |
+> | Sharesight API import              | ⏳ To be Implemented (R4)        |
 > | Broker API sync                    | ⏳ To be Implemented (R4)        |
 > | Auto portfolio creation on signup  | ⏳ To be Implemented             |
 
@@ -68,7 +71,7 @@ All import paths automatically resolve duplicates, so re-importing the same file
 
 Importing a CSV spreadsheet containing your historical buy and sell trades is the most flexible way to populate your portfolio. Almost every broker and financial institution allows you to download your transaction history as a spreadsheet.
 
-InvestaLens supports **custom field mapping**, meaning you can import from any broker regardless of their CSV format. You map your file's columns to InvestaLens fields, and can save these mappings as templates for future imports.
+InvestaLens supports **custom field mapping**, meaning you can import from any broker regardless of their CSV format. You map your file's columns to InvestaLens fields. _(Saving your own column mapping as a reusable template is ⏳ not yet implemented; recognised brokers already have built-in templates via Quick Import.)_
 
 See [DATA_IMPORT.md](DATA_IMPORT.md) for the full list of supported fields and mapping capabilities.
 
@@ -104,25 +107,23 @@ For your spreadsheet to successfully import:
 
 1. Log into your broker and download your historical trades as a spreadsheet file
 2. Open the downloaded file and verify it has the 5 compulsory fields, column headings on the first row, and the correct data format
-3. In InvestaLens, click **+ Add Investment**
-4. Select the **Upload via file** option
-5. Click inside the upload box and select your spreadsheet file
-6. Select **Individual trades** as the import type
-7. Click **Confirm Upload**
-8. Select the date and price format used in your file and click **Next**
-9. Map your spreadsheet columns to InvestaLens fields — ensure the 5 compulsory fields are matched. For columns that aren't needed, select "-". Optionally save this mapping as a template for future imports from the same broker.
-10. Review the itemised list of trades being imported
-11. Fix any rejected trades by clicking on the incorrect data and making adjustments
-12. Click **Import** to finalise
-13. Click **Go to Portfolio** to view your imported holdings
+3. In InvestaLens, open **Portfolio → select your portfolio → "Import"**
+4. Choose **Quick Import** (if your broker is recognised) or **Guided Import**
+5. **Upload** your spreadsheet file (.csv, .txt, or .xlsx)
+6. **Configure** — select the category (e.g. Share Transactions) and confirm the date and price format
+7. **Map** your spreadsheet columns to InvestaLens fields — ensure the 5 compulsory fields are matched; for columns that aren't needed, select "-"
+8. **Review** the parsed rows (green = valid, red = error) and fix any rejected rows
+9. Click **Import** to finalise, then open your portfolio to view the imported holdings
 
-After import, InvestaLens will calculate performance using a money-weighted return methodology (taking account of the size and timing of cash flows) and will automatically create dividends and corporate actions for the imported holdings. See [ACTIONS.md](ACTIONS.md) for details on how corporate actions are handled.
+After import, InvestaLens calculates performance as **simple, nominal** returns (capital gain + income, net of fees) and records any dividend, coupon, and corporate-action transactions contained in the import. See [ACTIONS.md](ACTIONS.md) for details on how corporate actions are handled.
 
 #### Opening Balances
 
 If you do not have all of your historical buy and sell transactions, you can import with **Opening Balances** instead. This sets up your current positions without full trade history.
 
-### Method 2: Import via Sharesight API
+### Method 2: Import via Sharesight API ⏳ Not yet implemented
+
+> **⏳ Planned (R4).** Sharesight connection is not yet available. The steps below describe the intended experience.
 
 If you have a Sharesight account, you can connect it to InvestaLens:
 
@@ -134,7 +135,9 @@ If you have a Sharesight account, you can connect it to InvestaLens:
 
 This is entirely optional — InvestaLens works without Sharesight.
 
-### Method 3: Import from a Supported Broker
+### Method 3: Import from a Supported Broker ⏳ Not yet implemented
+
+> **⏳ Planned (R4).** Direct broker API sync is not yet available — use Quick Import with a downloaded CSV instead. The steps below describe the intended experience.
 
 If InvestaLens has a direct integration with your broker:
 
@@ -147,7 +150,7 @@ If InvestaLens has a direct integration with your broker:
 
 To add a new holding that isn't in your portfolio yet:
 
-1. Click **Add Investment** (or **Add Holding** from the investments page)
+1. From your portfolio, click **Add Holding**
 2. Search for the holding by company name or ticker code
 3. Enter the trade details:
    - **Trade date** — the date of the original purchase
@@ -165,10 +168,10 @@ Once your portfolio is set up, there are multiple ways to keep it current:
 
 ### Adding Trades
 
-- **Broker import** — Automatically sync new trades from supported brokers
+- **Broker import** — Automatically sync new trades from supported brokers _(⏳ Not yet implemented — R4)_
 - **CSV import** — Bulk import new trades from a spreadsheet
 - **Manual entry** — Add individual buy/sell trades from a holding's detail page
-- **Trade confirmation emails** — Forward broker trade confirmations to automatically import trades
+- **Trade confirmation emails** — Forward broker trade confirmations to automatically import trades _(⏳ Not yet implemented)_
 
 ### Dividends and Adjustments
 
@@ -187,7 +190,9 @@ The dividend reinvestment feature allows you to record DRP transactions. When a 
 
 InvestaLens picks up market buy and sell transactions from your broker, but if your share registry reinvests dividends instead of paying them as cash, you need to reflect that in InvestaLens — otherwise your holding quantity and cost base will be inaccurate.
 
-### Automatic DRP
+### Automatic DRP ⏳ Not yet implemented
+
+> **⏳ Planned.** Automatic DRP reconciliation against the share registry is not yet available — use **Manual DRP** below. The steps here describe the intended experience.
 
 Automatic DRP is available for select ASX and NZX listed holdings where the company offers a Dividend Reinvestment Plan and InvestaLens has the DRP data available.
 
@@ -259,14 +264,18 @@ Once your portfolio is populated:
 
 ## Performance Calculation
 
-InvestaLens uses a money-weighted return methodology, meaning investment performance takes account of the size and timing of cash flows. This gives you a true picture of your actual investment experience, including the impact of when you added or withdrew funds.
+InvestaLens currently reports **simple, nominal** returns: capital gain (market value − cost base) plus income (dividends, interest, and coupons, net of accrued interest), less brokerage and custody/management fees, indexed from the start of the selected period. Returns are **not** time-weighted or money-weighted (they do not neutralise the size and timing of contributions and withdrawals) and are **not** inflation-indexed. The per-portfolio **Performance Method** setting (Simple or Compound) only controls how the percentage is compounded.
 
-Performance is calculated including:
+> **⏳ Planned enhancement:** true time-weighted and money-weighted (IRR) return methodologies. See [GAPS.md](GAPS.md).
 
-- Capital gains and losses
-- Dividend and distribution income
-- Currency fluctuations (for foreign holdings)
-- Brokerage and fees
+Performance figures include:
+
+- Capital gains and losses (market value − cost base)
+- Dividend, interest, and distribution income (net of accrued interest)
+- Brokerage and custody/management fees
+- Currency conversion for foreign holdings _(automatic FX for CGT and valuation is ⏳ planned — R3)_
+
+For an inflation-indexed (CPI) view, the Tax reports apply the ATO capital-gains methodology, including the indexation method for eligible assets (acquired before 21 September 1999).
 
 ---
 

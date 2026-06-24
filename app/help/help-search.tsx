@@ -9,7 +9,7 @@ const SEARCH_INDEX: Record<string, string[]> = {
   "getting-started": ["account", "register", "login", "portfolio", "create", "setup", "first", "google", "oauth", "password"],
   "importing": ["csv", "import", "broker", "commsec", "selfwealth", "stake", "template", "upload", "map", "ai importer", "gemini", "pdf"],
   "assets": ["shares", "etf", "bonds", "crypto", "property", "superannuation", "term deposit", "coupon", "yield", "maturity", "duration"],
-  "portfolio": ["groups", "labels", "sharing", "consolidated", "transfer", "custom", "organisation"],
+  "portfolio": ["groups", "labels", "sharing", "consolidated", "transfer", "custom", "organisation", "merge", "broker", "account number", "client number", "charts", "timescale", "allocation", "movement", "detail"],
   "reports": ["performance", "contribution", "diversity", "drawdown", "future income", "sold securities", "multi-period", "calendar", "historical cost", "risk", "exposure"],
   "tax": ["cgt", "capital gains", "taxable income", "ato", "discount", "fifo", "lifo", "minimise", "franking", "amit", "unrealised"],
   "corporate-actions": ["split", "bonus", "return of capital", "rights issue", "merger", "consolidation", "drp"],

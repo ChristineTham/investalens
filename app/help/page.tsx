@@ -18,7 +18,7 @@ const HELP_SECTIONS = [
   { slug: "getting-started", title: "Getting Started", icon: Rocket, description: "Account setup, portfolio creation, first import" },
   { slug: "importing", title: "Adding &amp; Importing", icon: Upload, description: "CSV import, broker templates, AI importer" },
   { slug: "assets", title: "Supported Assets", icon: Coins, description: "Equities, ETFs, bonds, crypto, custom investments" },
-  { slug: "portfolio", title: "Portfolio Management", icon: FolderOpen, description: "Groups, labels, sharing, consolidated view" },
+  { slug: "portfolio", title: "Portfolio Management", icon: FolderOpen, description: "Detail charts, broker details, merge, groups, labels, sharing" },
   { slug: "reports", title: "Performance &amp; Reporting", icon: BarChart3, description: "10 reports, risk analysis, drawdown" },
   { slug: "tax", title: "Tax Reporting", icon: Calculator, description: "CGT, taxable income, AMIT, allocation methods" },
   { slug: "corporate-actions", title: "Corporate Actions", icon: GitBranch, description: "Splits, bonus, mergers, rights issues" },

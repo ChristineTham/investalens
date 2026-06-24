@@ -165,7 +165,6 @@ export default function AboutPage() {
                   "Emergency fund tracker",
                   "Net worth tracker (assets minus liabilities)",
                   "Broker API integrations (automatic sync)",
-                  "Holdings, transactions, reports REST API endpoints",
                   "SDKs for API consumers",
                   "Sharesight data import",
                   "Mobile-responsive optimisation",

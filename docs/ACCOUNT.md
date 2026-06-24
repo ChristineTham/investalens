@@ -7,6 +7,9 @@
 > | Feature                              | Status                              |
 > | ------------------------------------ | ----------------------------------- |
 > | Create/rename/delete portfolios      | ✅ Implemented                      |
+> | Broker / account details (editable)  | ✅ Implemented                      |
+> | Merge one portfolio into another     | ✅ Implemented                      |
+> | Portfolio detail charts & timescale  | ✅ Implemented                      |
 > | Tax residency & entity type settings | ✅ Implemented                      |
 > | Sale allocation method (5 methods)   | ✅ Implemented                      |
 > | CGT indexation method (pre-1999)     | ✅ Implemented                      |
@@ -17,7 +20,7 @@
 > | Labels (create, assign to holdings)  | ✅ Implemented (server action + UI) |
 > | Consolidated view                    | ✅ Implemented (page)               |
 > | Share transfers between portfolios   | ✅ Supported via TRANSFER_IN/OUT    |
-> | AI Importer                          | ⏳ To be Implemented (R2)           |
+> | AI Importer                          | ✅ Implemented (R2)                 |
 > | Emergency Fund tracker               | ⏳ To be Implemented (R4)           |
 
 ## Overview
@@ -28,6 +31,8 @@ This document covers account setup, portfolio management, sharing, organisation 
 
 - [Manage Portfolios](#manage-portfolios)
 - [Add a Portfolio](#add-a-portfolio)
+- [Portfolio Detail Page](#portfolio-detail-page)
+- [Merge Portfolios](#merge-portfolios)
 - [Portfolio Settings](#portfolio-settings)
 - [Tax Residency](#tax-residency)
 - [Tax Settings](#tax-settings)
@@ -49,7 +54,21 @@ InvestaLens portfolio settings are applied to the portfolio you are currently vi
 
 ### Portfolio Overview Cards
 
-The **Portfolio** page presents each portfolio as a summary card showing an allocation donut (current value by holding) with a top-holdings legend, the current value, **1M / 6M / 1Y / 3Y returns** (contribution-adjusted capital return), and the three most recent transactions. With more than one portfolio, a highlighted **Consolidated View** card leads the grid, aggregating total value, portfolio/holding counts, and allocation by portfolio.
+The **Portfolio** page presents each portfolio as an equal-height summary card showing an allocation donut (current value by holding) with a top-holdings legend, the current value, **1M / 6M / 1Y / 3Y returns** (contribution-adjusted capital return), and the three most recent transactions. Click a card to open the full **portfolio detail page**. With more than one portfolio, a highlighted **Consolidated View** card leads the grid, aggregating total value, portfolio/holding counts, and allocation by portfolio.
+
+### Portfolio Detail Page
+
+Opening a portfolio shows its **name in the breadcrumb**, a row of KPI cards (current value, capital gain, income, total gain), and **trailing returns** for 1M / 6M / 1Y / 3Y / 5Y / 10Y / All. If broker or account details have been entered, they appear under the header (the broker name links to the broker website).
+
+Below that is a **responsive grid of charts** driven by a single **universal timescale selector** — covering 1M, 6M, **YTD**, **current financial year (FYTD)**, **previous financial year (Prev FY)**, 1Y, 3Y, 5Y, 10Y, and All. Changing the timescale updates every chart at once:
+
+- **Value over time** — each holding stacked as an area, with the overall portfolio value as a bold line on top
+- **Performance (gain / loss)** — total-gain %, optionally compared with a benchmark (ASX 200, S&P 500, MSCI World, etc.); the tooltip breaks the gain down as capital gain + income = total gain
+- **Allocation by holding** — a pie grouped by sector, with a rich hover tooltip (name, type, sector, purchase amount, current value, capital gain, income)
+- **Movement** — net monthly cash flow (buys / sells / distributions) stacked by holding
+- **Top & bottom performers** — the best and worst three holdings by total return, with the same hover detail
+
+Any chart can be expanded to a larger **modal** using its maximise button. The **holdings table** adds sector, current price, purchase amount, current value, capital gain, income, total gain, annualised return, and a mini price **sparkline** (following the selected timescale). Each holding keeps a **consistent colour**, shown as a swatch in the table and used across every chart.
 
 ### Portfolio Settings
 
@@ -58,10 +77,16 @@ Access portfolio settings via **Settings > Details**:
 | Setting                        | Description                                            | Editable           |
 | ------------------------------ | ------------------------------------------------------ | ------------------ |
 | Portfolio Name                 | Display name used within InvestaLens                   | Yes                |
+| Broker Name                    | Broker / platform name (links to the website)          | Yes                |
+| Broker Website                 | URL of the broker / platform                           | Yes                |
+| Client Number                  | Your client reference with the broker                  | Yes                |
+| Account Number                 | Your account number with the broker                    | Yes                |
 | Tax Residency                  | Country determining currency, tax rules, and reporting | **No** (permanent) |
 | Financial Year End             | Month marking end of financial year                    | Yes                |
 | Performance Calculation Method | Simple or Compound percentage return calculation       | Yes                |
 | Tax Entity Type                | Determines CGT discount applied (AU only)              | Yes                |
+
+On the portfolio detail page, click the **edit (pencil)** button to update the name and broker / account details in one dialog.
 
 ---
 
@@ -93,6 +118,20 @@ After creation, you can add investments by:
 - Importing from a CSV file
 - Connecting via an API integration (e.g. Sharesight)
 - Manually adding holdings
+
+---
+
+## Merge Portfolios
+
+Consolidate two portfolios into one — for example after moving holdings between brokers, or when collapsing duplicate accounts.
+
+1. Open the **source** portfolio (the one you want to merge away) and click the **merge** button in the header
+2. Choose the **target** portfolio to merge into
+3. Confirm
+
+InvestaLens moves **all holdings and transactions** (plus custody fees, cash accounts, and import history) from the source into the target. Holdings of the same instrument are **consolidated** into the target's holding. The target portfolio's **details are kept** (name, broker, account numbers, tax settings), and the **source portfolio is then deleted**.
+
+> **This cannot be undone.** Export a backup first (Settings → Export) if you want a copy of the original structure.
 
 ---
 
@@ -375,12 +414,11 @@ The AI Importer is an AI-powered file importer that can read trade data from alm
 
 The standard file importer requires files to be in an exact format. A small change to a broker's export layout can cause import failures. The AI Importer removes this barrier by reading and interpreting data intelligently, as long as the key trade details are present.
 
-### Supported File Types
+### Supported Input
 
-- Broker spreadsheets (any format, including unsupported layouts)
-- PDF trade confirmations
-- Screenshots of trade history
-- Images of statements or contract notes
+- Pasted text from broker statements, contract notes, dividend statements, and trade confirmations (any layout)
+
+> **⏳ Planned:** direct upload of PDFs, screenshots, and images. Today, copy the document's text and paste it into the AI Importer.
 
 ### Who Is It Most Useful For?
 
@@ -393,21 +431,18 @@ The standard file importer requires files to be in an exact format. A small chan
 
 ### How to Use
 
-1. From your portfolio, click **Add Investment**
-2. Select **Upload via a file**
-3. Select **Upload any file format** (AI Importer)
-4. Upload your file (spreadsheet, PDF, image, or screenshot)
-5. The AI Importer reads the file and maps trade data
-6. Review the trades before confirming the import
+1. From your portfolio, open **Import**, then click the **"✨ AI Import"** button
+2. Select the document type (Contract Note, Trade Confirmation, Dividend Statement, etc.)
+3. Paste the document text into the text area
+4. Click **Parse with AI** — Gemini extracts the transactions
+5. Review the parsed transactions table
+6. Click **Import** to confirm
+
+> **⏳ Note:** direct PDF / image / screenshot upload is a planned enhancement — the current AI Importer works from pasted document text.
 
 ### Enabling the AI Importer
 
-To use the AI Importer, enable these settings under **Account > Account Preferences**:
-
-- Enable beta features
-- Enable AI features
-
-Both must be turned on. You can disable the AI Importer at any time by turning off either setting.
+The AI Importer requires the `GOOGLE_GENERATIVE_AI_API_KEY` environment variable to be configured for the deployment. When it is not set, the AI Import option is unavailable.
 
 ---
 
