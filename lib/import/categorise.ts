@@ -36,6 +36,20 @@ const TYPE_CATEGORY: Record<string, string> = {
 };
 
 /**
+ * Normalise a transaction narrative into a stable key for carry-forward
+ * categorisation: lower-cased, with digits and punctuation stripped so that
+ * "WOOLWORTHS 1234 SYDNEY" and "WOOLWORTHS 5678 PERTH" collapse to one merchant.
+ */
+export function normaliseNarrative(description: string | null | undefined): string {
+  return (description || "")
+    .toLowerCase()
+    .replace(/[0-9]+/g, " ")
+    .replace(/[^a-z\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
  * Suggest a category id for a transaction by matching its description against
  * keyword rules, then falling back to its canonical type.
  */

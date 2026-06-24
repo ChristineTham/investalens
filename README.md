@@ -6,7 +6,8 @@ A comprehensive portfolio tracker and optimiser for Australian investors. Track 
 
 - **Authentication** — Email/password + Google OAuth via NextAuth.js v5
 - **Portfolio Management** — Equal-height overview cards (allocation donut, current value, 1M/6M/1Y/3Y returns, recent activity) and a highlighted consolidated card; a rich **portfolio detail page** with KPI cards, trailing returns, and a responsive chart grid (value over time, performance vs benchmark, allocation by sector, movement) driven by a **universal timescale selector** (incl. YTD, current/previous financial year); create, rename, delete, share, **edit broker/account details**, and **merge** portfolios
-- **Multi-Type Import** — Import hub for shares, bonds, and cash. One-step quick import for known brokers, a category-based guided wizard, and dedicated custom importers (e.g. the FIIG multi-sheet data extract). 9 broker templates (CommSec, SelfWealth, Stake, CMC, Bell Direct, nabtrade, FIIG, IB) plus generic bank-statement templates. All paths resolve duplicates automatically
+- **Multi-Type Import** — Import hub for shares, bonds, and cash. One-step quick import for known brokers, a category-based guided wizard, and dedicated custom importers (e.g. the FIIG multi-sheet data extract). 9 broker templates (CommSec, SelfWealth, Stake, CMC, Bell Direct, nabtrade, FIIG, IB) plus bank-statement import (**OFX/QFX, QIF, and CSV** with AU bank templates). All paths resolve duplicates automatically
+- **Accounts & Cash** — First-class bank & cash accounts at `/accounts`: balances, debit/credit transactions, personal-finance categories, and debit cards; statement import (OFX/QFX, QIF, CSV); **portfolio linking** with auto-posted **virtual** cash ledgers; **reconciliation** with fuzzy settlement-aware + split matching that merges dividend franking; and a Dashboard **Cash** + **Net Worth** view
 - **Market Data** — One-step **Update** (Settings → Market Data) streams live progress while it fetches ASX/share & ETF prices via Yahoo Finance, FIIG rate-sheet bond prices (matched by ISIN), and company information — plus instrument search and a daily price cron
 - **Stock Information** — Rich company data per holding via yfinance (Python): profile & description, key fundamentals, analyst price targets & recommendation trend, upgrades/downgrades, earnings/dividend calendar, recent news, financial statements, and corporate actions
 - **Reports** — Performance, Contribution, Diversity, Future Income, Sold Securities, All Trades, Drawdown, Multi-Period, Calendar, Historical Cost
@@ -98,8 +99,9 @@ pnpm run dev
 app/                    # Next.js App Router pages
   (auth)/               # Login, register (unauthenticated)
   (dashboard)/          # All authenticated pages
-    dashboard/          # Summary dashboard (cards, consolidated charts with universal timescale, allocation treemap, recent activity, all transactions)
-    portfolio/          # Portfolio CRUD, holdings, import, bonds, cash
+    dashboard/          # Summary dashboard (cards incl. cash & net worth, consolidated charts with universal timescale, allocation treemap, recent activity, all transactions)
+    portfolio/          # Portfolio CRUD, holdings, import, bonds; linked cash accounts
+    accounts/           # First-class bank & cash accounts: statement import, categories, reconciliation, portfolio linking
     reports/            # 10 report pages
     tax/                # Tax reports (taxable income, CGT, unrealised)
     tools/              # Watchlist, FIRE, Share Checker, Sentiment, AI Assistant
@@ -117,6 +119,7 @@ components/
   ui/                   # shadcn/ui components (17 installed)
   charts/               # Recharts + custom chart components (15)
   analytics/            # Analytics UI components (selectors, metric cards)
+  accounts/             # Accounts list/detail, import wizard, reconcile, portfolio linking
   forms/                # Import wizard, transaction form, etc.
   layout/               # Sidebar, header, breadcrumbs
 lib/
@@ -125,14 +128,14 @@ lib/
   constants/            # Shared constants (benchmarks)
   data/                 # Static data (exchange registry)
   reports/              # Report generators (performance, tax, etc.)
-  import/               # CSV parser, mapper, cash mapper, dedup, broker + cash templates, custom importers (FIIG)
+  import/               # CSV/OFX/QIF parsers, mapper, cash mapper, dedup, broker + cash templates, auto-categorisation, custom importers (FIIG)
   providers/            # Yahoo Finance, FIIG bond rates, instrument search, FX rates
-  services/             # Price, analytics data, benchmark, ETF X-ray, share checker, sentiment, factor data, stock info
+  services/             # Price, analytics data, benchmark, ETF X-ray, share checker, sentiment, factor data, stock info, accounts, reconciliation, cash ledger
   export/               # CSV/JSON export functions
   api/                  # API middleware, rate limiting
   validators/           # Zod schemas
 prisma/
-  schema.prisma         # 24 models
+  schema.prisma         # 30 models
   migrations/           # Database migrations
   seed.ts               # Test data seeder
 scripts/                # Standalone scripts (seed benchmarks, fetch prices, test pipeline)
@@ -231,6 +234,7 @@ The app sends this secret as the `x-vercel-protection-bypass` header on internal
 - [User Manual](USER-MANUAL.md) — Complete feature guide
 - [Getting Started](docs/GETTING-STARTED.md) — Account setup and import
 - [Data Import](docs/DATA_IMPORT.md) — CSV mapping and broker templates
+- [Accounts](docs/ACCOUNTS.md) — Bank & cash accounts, statement import, reconciliation
 - [Tax Reporting](docs/TAX.md) — CGT, taxable income, AMIT
 - [API Reference](docs/API.md) — REST API endpoints
 - [Architecture](docs/ARCHITECTURE.md) — Technical design decisions

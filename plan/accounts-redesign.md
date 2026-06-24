@@ -527,3 +527,34 @@ Portfolio↔account linking UI + auto-post of portfolio transactions to the sett
 
 Local `get_errors` clean on all P1e files. **Codespaces must run** `pnpm install` (ofx-js dep),
 `pnpm prisma migrate deploy`, `pnpm prisma generate`, then `pnpm build` / `pnpm lint`.
+
+### P1 review & gap resolution ✅ (2026-06-24)
+
+Full review of the implementation against §1–§14. Two gaps fixed:
+
+- **Merge action data-loss (correctness)** — [lib/actions/portfolio.ts](../lib/actions/portfolio.ts)
+  `mergePortfolios` previously did `cashAccount.updateMany({ portfolioId })`, which moved the
+  source's **virtual** ledger onto the target (producing a duplicate virtual account) and silently
+  dropped physical-account `PortfolioAccount` links (they cascade-delete with the source portfolio).
+  Now it **migrates `PortfolioAccount` links** to the target (deduping on `[portfolioId,
+  cashAccountId]`, preserving a single default) and lets the source's virtual ledger cascade-delete
+  (the target rebuilds its own from the merged transactions).
+- **Carry-forward categorisation (plan §6)** — [lib/actions/account-import.ts](../lib/actions/account-import.ts)
+  `previewAccountImport` now learns category-by-merchant from the user's previously categorised
+  transactions and prefers that over the keyword/type rules. Added `normaliseNarrative` to
+  [lib/import/categorise.ts](../lib/import/categorise.ts) (strips digits/punctuation so
+  "WOOLWORTHS 1234" ≡ "WOOLWORTHS 5678").
+
+**Intentional deferrals (requirements already satisfied):**
+
+- **Dashboard cash _time-series_ (§9, "can optionally include a Cash series")** — req 6 ("dashboard
+  incorporates account balances") is met by the **Cash** and **Net Worth** summary cards. A cash
+  band is deliberately kept out of the per-portfolio stacked value chart because it would change the
+  chart's "Total" semantics (portfolio value → net worth) and must exclude virtual accounts to avoid
+  double-counting. Flagged future.
+- **Generic `/accounts/import` route (§6/§7)** — the per-account wizard `/accounts/[id]/import` is
+  the supported path; a top-level import landing page is unnecessary. Flagged future.
+- **Standalone "recalculate balance" action (§13)** — `recomputeAccountBalance` already runs
+  automatically on every import/edit/auto-post; a manual button is not required.
+
+Local `get_errors` clean on the changed files.

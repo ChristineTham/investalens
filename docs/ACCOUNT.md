@@ -494,6 +494,7 @@ The Emergency Fund is shown on the main dashboard alongside your portfolio value
 | ---------------------------------------- | --------------------------------------------------------- |
 | [GETTING-STARTED.md](GETTING-STARTED.md) | Portfolio setup, CSV import guide, and adding investments |
 | [DATA_IMPORT.md](DATA_IMPORT.md)         | Full import architecture and field mapping                |
+| [ACCOUNTS.md](ACCOUNTS.md)               | Bank & cash accounts, statement import, and reconciliation |
 | [TOOLS.md](TOOLS.md)                     | All performance, allocation, and tax reports              |
 | [TAX.md](TAX.md)                         | Australian tax reporting, CGT calculations, and AMIT      |
 | [ASSETS.md](ASSETS.md)                   | Supported asset types, custom investments, and exchanges  |

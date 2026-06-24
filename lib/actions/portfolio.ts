@@ -147,10 +147,34 @@ export async function mergePortfolio(sourceId: string, targetId: string) {
       where: { portfolioId: sourceId },
       data: { portfolioId: targetId },
     });
-    await tx.cashAccount.updateMany({
-      where: { portfolioId: sourceId },
-      data: { portfolioId: targetId },
-    });
+
+    // Move physical-account links to the target, deduping against links the
+    // target already has. The source's VIRTUAL cash ledger is intentionally not
+    // moved — it cascade-deletes with the source portfolio, and the target keeps
+    // (and rebuilds) its own virtual ledger from the merged transactions.
+    const [sourceLinks, targetLinks] = await Promise.all([
+      tx.portfolioAccount.findMany({ where: { portfolioId: sourceId } }),
+      tx.portfolioAccount.findMany({
+        where: { portfolioId: targetId },
+        select: { cashAccountId: true, isDefault: true },
+      }),
+    ]);
+    const targetAccountIds = new Set(targetLinks.map((l) => l.cashAccountId));
+    let targetHasDefault = targetLinks.some((l) => l.isDefault);
+    for (const link of sourceLinks) {
+      if (targetAccountIds.has(link.cashAccountId)) {
+        await tx.portfolioAccount.delete({ where: { id: link.id } });
+        continue;
+      }
+      const keepDefault = link.isDefault && !targetHasDefault;
+      await tx.portfolioAccount.update({
+        where: { id: link.id },
+        data: { portfolioId: targetId, isDefault: keepDefault },
+      });
+      targetAccountIds.add(link.cashAccountId);
+      if (keepDefault) targetHasDefault = true;
+    }
+
     await tx.importJob.updateMany({
       where: { portfolioId: sourceId },
       data: { portfolioId: targetId },

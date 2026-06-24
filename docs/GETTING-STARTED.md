@@ -33,7 +33,7 @@ You can choose to record either all of your previous historical buy and sell tra
 
 When you create your account, a default portfolio is automatically created with the settings of your selected tax residency country. InvestaLens portfolios represent tax entities — the base currency, tax settings and reporting are all related to the tax residency country.
 
-> **Note:** InvestaLens only imports buy and sell trades. Cash balances and cash transactions are never imported automatically. To track your cash alongside your investments, set up a Cash Account.
+> **Note:** InvestaLens only imports buy and sell trades. Cash balances and cash transactions are never imported automatically. To track your cash alongside your investments, set up a Cash Account under **Accounts** — you can import bank statements (OFX/QFX, QIF, or CSV) and reconcile them against your portfolio trades. See [ACCOUNTS.md](ACCOUNTS.md).
 
 ### Portfolio Structure Recommendations
 
@@ -286,6 +286,7 @@ For an inflation-indexed (CPI) view, the Tax reports apply the ATO capital-gains
 | [DATA_IMPORT.md](DATA_IMPORT.md) | Full import architecture, CSV field mapping, and broker templates |
 | [TOOLS.md](TOOLS.md)             | All performance, allocation, and tax reports                      |
 | [ACCOUNT.md](ACCOUNT.md)         | Portfolio settings, sharing, custom groups, and labels            |
+| [ACCOUNTS.md](ACCOUNTS.md)       | Bank & cash accounts, statement import, categories, reconciliation |
 | [ASSETS.md](ASSETS.md)           | Supported asset types and stock exchanges                         |
 | [TAX.md](TAX.md)                 | Australian tax reporting (CGT, taxable income, AMIT)              |
 | [ACTIONS.md](ACTIONS.md)         | Corporate actions (splits, mergers, demergers, rights issues)     |

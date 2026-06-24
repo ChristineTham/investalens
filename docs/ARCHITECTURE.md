@@ -551,6 +551,7 @@ Used for:
 | [TOOLS.md](TOOLS.md)                     | Reports and analysis tools                                                      |
 | [ASSETS.md](ASSETS.md)                   | Supported asset types and exchanges                                             |
 | [ACCOUNT.md](ACCOUNT.md)                 | Account, portfolio management, and sharing                                      |
+| [ACCOUNTS.md](ACCOUNTS.md)               | Bank & cash accounts, statement import, categories, linking, reconciliation     |
 | [TAX.md](TAX.md)                         | Australian tax reporting                                                        |
 | [ACTIONS.md](ACTIONS.md)                 | Corporate actions handling                                                      |
 | [API.md](API.md)                         | Public REST API reference                                                       |

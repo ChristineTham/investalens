@@ -13,7 +13,7 @@ import {
   importHash,
   type BankStatementTransaction,
 } from "@/lib/import/bank-statement";
-import { suggestCategoryId } from "@/lib/import/categorise";
+import { suggestCategoryId, normaliseNarrative } from "@/lib/import/categorise";
 import { recomputeAccountBalance } from "@/lib/services/accounts";
 
 export type ImportKind = "ofx" | "qif" | "csv";
@@ -111,6 +111,23 @@ export async function previewAccountImport(
     }),
   ]);
 
+  // Carry-forward: learn category by merchant narrative from previously
+  // categorised transactions across the user's accounts (most recent wins).
+  const categorised = await db.cashTransaction.findMany({
+    where: { cashAccount: { userId }, categoryId: { not: null } },
+    select: { description: true, categoryId: true },
+    orderBy: { date: "desc" },
+    take: 500,
+  });
+  const validCategoryIds = new Set(categories.map((c) => c.id));
+  const learned = new Map<string, string>();
+  for (const c of categorised) {
+    const key = normaliseNarrative(c.description);
+    if (key && c.categoryId && validCategoryIds.has(c.categoryId) && !learned.has(key)) {
+      learned.set(key, c.categoryId);
+    }
+  }
+
   const existingFit = new Set(existing.map((e) => e.fitId).filter(Boolean) as string[]);
   const existingHash = new Set(
     existing.map((e) => e.importHash).filter(Boolean) as string[]
@@ -130,7 +147,9 @@ export async function previewAccountImport(
       fitId: t.fitId ?? null,
       importHash: hash,
       isDuplicate,
-      suggestedCategoryId: suggestCategoryId(t.description, t.type, categories),
+      suggestedCategoryId:
+        learned.get(normaliseNarrative(t.description)) ??
+        suggestCategoryId(t.description, t.type, categories),
     };
   });
 
