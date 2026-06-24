@@ -23,6 +23,8 @@ model User {
   sessions   Session[]
   portfolios Portfolio[]
   apiTokens  ApiToken[]
+  cashAccounts   CashAccount[]
+  cashCategories CashCategory[]
 }
 
 model Account {
@@ -109,6 +111,7 @@ model Portfolio {
   shares       PortfolioShare[]
   importJobs   ImportJob[]
   fees         Fee[]
+  accountLinks PortfolioAccount[]
 
   @@index([userId])
 }
@@ -253,6 +256,7 @@ model Transaction {
 
   holding   Holding    @relation(fields: [holdingId], references: [id], onDelete: Cascade)
   importJob ImportJob? @relation(fields: [importJobId], references: [id])
+  reconciliations Reconciliation[]
 
   @@index([holdingId, tradeDate])
   @@index([holdingId, transactionType])
@@ -346,6 +350,7 @@ model Fee {
 
   portfolio Portfolio  @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
   importJob ImportJob? @relation(fields: [importJobId], references: [id])
+  reconciliations Reconciliation[]
 
   @@index([portfolioId, invoiceDate])
 }
@@ -419,31 +424,137 @@ model HoldingLabel {
 
 model CashAccount {
   id          String   @id @default(cuid())
-  portfolioId String
+  userId      String
+  // Owning portfolio for VIRTUAL accounts and legacy migrated accounts. Physical
+  // user accounts link to portfolios many-to-many via PortfolioAccount.
+  portfolioId String?
   name        String
+  institution String? // bank / platform name
+  bsb         String? // AU 6-digit Bank-State-Branch (OFX BANKID)
+  accountNumber String?
+  accountType String   @default("transaction") // transaction|savings|offset|term_deposit|credit_card|cash
+  // Virtual portfolio cash ledger: auto-maintained from portfolio transactions,
+  // read-only, and excluded from total portfolio value (income still counts).
+  isVirtual   Boolean  @default(false)
   currency    String   @default("AUD")
-  balance     Decimal  @default(0) @db.Decimal(18, 2)
+  openingBalance Decimal @default(0) @db.Decimal(18, 2)
+  balance     Decimal  @default(0) @db.Decimal(18, 2) // cached current balance
+  interestRate Decimal? @db.Decimal(8, 4)
+  website     String?
+  notes       String?
+  archived    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  portfolio    Portfolio          @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
-  transactions CashTransaction[]
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  portfolio      Portfolio?         @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  transactions   CashTransaction[]
+  cards          DebitCard[]
+  portfolioLinks PortfolioAccount[]
 
+  @@index([userId])
   @@index([portfolioId])
 }
 
 model CashTransaction {
+  id             String   @id @default(cuid())
+  cashAccountId  String
+  type           String
+  amount         Decimal  @db.Decimal(18, 2) // positive magnitude; direction derived from type
+  date           DateTime
+  description    String?
+  categoryId     String?
+  // Origin of the row: manual entry, statement import, portfolio auto-post, or accrued interest.
+  source         String   @default("manual") // manual|import|portfolio|interest
+  // OFX Financial Institution Transaction ID — stable id for idempotent import + reconciliation.
+  fitId          String?
+  // Dedup key for QIF/CSV rows lacking a FITID (date|amount|type|description hash).
+  importHash     String?
+  // Running balance reported on the statement, if provided.
+  runningBalance Decimal? @db.Decimal(18, 2)
+  reconciled     Boolean  @default(false)
+  importJobId    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now()) @updatedAt
+
+  cashAccount     CashAccount      @relation(fields: [cashAccountId], references: [id], onDelete: Cascade)
+  category        CashCategory?    @relation(fields: [categoryId], references: [id])
+  reconciliations Reconciliation[]
+
+  @@unique([cashAccountId, fitId])
+  @@index([cashAccountId, date])
+  @@index([cashAccountId, importHash])
+}
+
+/// Debit / payment cards associated with a cash account.
+model DebitCard {
   id            String   @id @default(cuid())
   cashAccountId String
-  type          String
-  amount        Decimal  @db.Decimal(18, 2)
-  date          DateTime
-  description   String?
+  label         String?
+  last4         String?
+  network       String? // visa|mastercard|eftpos|amex
+  expiry        String? // MM/YY
   createdAt     DateTime @default(now())
 
   cashAccount CashAccount @relation(fields: [cashAccountId], references: [id], onDelete: Cascade)
 
-  @@index([cashAccountId, date])
+  @@index([cashAccountId])
+}
+
+/// Many-to-many link between portfolios and (physical) cash accounts. The default
+/// link is the portfolio's settlement account for auto-posted cash movements.
+model PortfolioAccount {
+  id            String   @id @default(cuid())
+  portfolioId   String
+  cashAccountId String
+  isDefault     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  portfolio   Portfolio   @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  cashAccount CashAccount @relation(fields: [cashAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, cashAccountId])
+  @@index([cashAccountId])
+}
+
+/// User-defined (and system) categories for personal-finance categorisation of
+/// cash transactions.
+model CashCategory {
+  id       String  @id @default(cuid())
+  userId   String
+  name     String
+  kind     String  @default("expense") // income|expense|transfer|investment|fee|interest
+  color    String?
+  parentId String?
+  isSystem Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent       CashCategory?     @relation("CashCategoryTree", fields: [parentId], references: [id])
+  children     CashCategory[]    @relation("CashCategoryTree")
+  transactions CashTransaction[]
+
+  @@index([userId])
+}
+
+/// Persistent link between an imported/auto-posted cash transaction and a portfolio
+/// transaction or fee. Survives re-imports because cash transactions are keyed by
+/// (cashAccountId, fitId) / importHash and never recreated.
+model Reconciliation {
+  id                String   @id @default(cuid())
+  cashTransactionId String
+  transactionId     String? // portfolio Transaction (buy/sell/dividend/interest/...)
+  feeId             String? // portfolio custody Fee
+  matchType         String   @default("manual") // auto|manual
+  confidence        Float?
+  createdAt         DateTime @default(now())
+
+  cashTransaction CashTransaction @relation(fields: [cashTransactionId], references: [id], onDelete: Cascade)
+  transaction     Transaction?    @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+  fee             Fee?            @relation(fields: [feeId], references: [id], onDelete: SetNull)
+
+  @@index([cashTransactionId])
+  @@index([transactionId])
 }
 
 // ─── WATCHLIST ───────────────────────────────────────────────────────────────
