@@ -66,11 +66,12 @@ export function PortfolioDetailClient({ detail }: { detail: PortfolioDetail }) {
   const [range, setRange] = useState<ChartRange>("1Y");
   const [benchmark, setBenchmark] = useState("");
   const [series, setSeries] = useState<PortfolioDetailSeries | null>(null);
-  const [loading, setLoading] = useState(true);
+  const requestKey = `${range}|${benchmark}`;
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
+  const loading = loadedKey !== requestKey;
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
 
     const params = new URLSearchParams({ range });
     if (benchmark) params.set("benchmark", benchmark);
@@ -81,13 +82,13 @@ export function PortfolioDetailClient({ detail }: { detail: PortfolioDetail }) {
         if (!cancelled && d) setSeries(d);
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setLoadedKey(requestKey);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [detail.id, range, benchmark]);
+  }, [detail.id, range, benchmark, requestKey]);
 
   const benchmarkName = benchmark
     ? BENCHMARKS[benchmark as keyof typeof BENCHMARKS]?.name

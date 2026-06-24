@@ -46,11 +46,11 @@ function ChartLoader() {
 export function DashboardCharts({ currency, treemapData }: DashboardChartsProps) {
   const [range, setRange] = useState<ChartRange>("1Y");
   const [data, setData] = useState<DashboardSeries | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loadedRange, setLoadedRange] = useState<ChartRange | null>(null);
+  const loading = loadedRange !== range;
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
 
     fetch(`/api/v1/dashboard/detail?range=${range}`)
       .then((r) => (r.ok ? r.json() : null))
@@ -58,7 +58,7 @@ export function DashboardCharts({ currency, treemapData }: DashboardChartsProps)
         if (!cancelled && d) setData(d);
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setLoadedRange(range);
       });
 
     return () => {
