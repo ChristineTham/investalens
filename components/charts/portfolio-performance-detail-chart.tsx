@@ -1,0 +1,162 @@
+"use client";
+
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ReferenceLine,
+  ResponsiveContainer,
+} from "recharts";
+import { formatCurrency } from "@/lib/utils";
+import {
+  type ChartRange,
+  type PerformancePoint,
+  formatAxisDate,
+} from "@/components/charts/portfolio-chart-utils";
+
+interface PerformanceChartProps {
+  data: PerformancePoint[];
+  currency: string;
+  range: ChartRange;
+  benchmarkName?: string;
+  height: number;
+}
+
+interface TooltipEntry {
+  dataKey?: string | number;
+  value?: number;
+  payload?: PerformancePoint;
+}
+
+function PerfTooltip({
+  active,
+  payload,
+  label,
+  currency,
+  benchmarkName,
+}: {
+  active?: boolean;
+  payload?: TooltipEntry[];
+  label?: string;
+  currency: string;
+  benchmarkName?: string;
+}) {
+  if (!active || !payload || payload.length === 0) return null;
+  const point = payload[0]?.payload;
+  if (!point) return null;
+  const benchEntry = payload.find((p) => p.dataKey === "Benchmark");
+
+  return (
+    <div className="rounded-md border border-border bg-card p-2.5 text-xs shadow-md">
+      <p className="mb-1 font-medium">{label}</p>
+      <div className="space-y-0.5">
+        <div className="flex items-center justify-between gap-6">
+          <span className="text-muted-foreground">Capital gain</span>
+          <span
+            className={`font-medium tabular-nums ${point.capitalGain >= 0 ? "text-green-600" : "text-red-600"}`}
+          >
+            {formatCurrency(point.capitalGain, currency)}
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-6">
+          <span className="text-muted-foreground">+ Income</span>
+          <span className="font-medium tabular-nums text-green-600">
+            {formatCurrency(point.income, currency)}
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-6 border-t border-border pt-0.5">
+          <span className="text-muted-foreground">= Total gain</span>
+          <span
+            className={`font-semibold tabular-nums ${point.totalGain >= 0 ? "text-green-600" : "text-red-600"}`}
+          >
+            {formatCurrency(point.totalGain, currency)} (
+            {point.Portfolio >= 0 ? "+" : ""}
+            {point.Portfolio.toFixed(1)}%)
+          </span>
+        </div>
+        {benchEntry?.value != null && (
+          <div className="flex items-center justify-between gap-6 border-t border-border pt-0.5">
+            <span className="text-muted-foreground">
+              {benchmarkName ?? "Benchmark"}
+            </span>
+            <span className="font-medium tabular-nums">
+              {Number(benchEntry.value) >= 0 ? "+" : ""}
+              {Number(benchEntry.value).toFixed(1)}%
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Portfolio performance (% gain/loss) over the selected range, with optional
+ * benchmark comparison. The tooltip breaks the gain down as
+ * capital gain + income = total gain.
+ */
+export function PortfolioPerformanceDetailChart({
+  data,
+  currency,
+  range,
+  benchmarkName,
+  height,
+}: PerformanceChartProps) {
+  if (data.length === 0) {
+    return (
+      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+        No performance history in this range.
+      </div>
+    );
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height={height}>
+      <LineChart data={data} margin={{ top: 5, right: 8, left: 8, bottom: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+        <XAxis
+          dataKey="date"
+          stroke="var(--muted-foreground)"
+          fontSize={11}
+          tickFormatter={(d) => formatAxisDate(String(d), range)}
+          minTickGap={28}
+        />
+        <YAxis
+          stroke="var(--muted-foreground)"
+          fontSize={11}
+          tickFormatter={(v) => `${Number(v).toFixed(0)}%`}
+          width={44}
+        />
+        <Tooltip
+          content={
+            <PerfTooltip currency={currency} benchmarkName={benchmarkName} />
+          }
+        />
+        <ReferenceLine y={0} stroke="var(--muted-foreground)" strokeDasharray="2 2" />
+        <Line
+          type="monotone"
+          dataKey="Portfolio"
+          stroke="var(--rosely14)"
+          strokeWidth={2.5}
+          dot={false}
+          isAnimationActive={false}
+        />
+        {benchmarkName && (
+          <Line
+            type="monotone"
+            dataKey="Benchmark"
+            stroke="var(--rosely11)"
+            strokeWidth={1.5}
+            strokeDasharray="4 3"
+            dot={false}
+            connectNulls
+            isAnimationActive={false}
+          />
+        )}
+      </LineChart>
+    </ResponsiveContainer>
+  );
+}

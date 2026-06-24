@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { RefreshCw, X, Copy, Check } from "lucide-react";
 
 // Mirrors lib/services/price-sync.ts SyncEvent (kept local to avoid importing
@@ -74,6 +75,7 @@ function widthClass(pct: number): string {
 }
 
 export function FetchPricesButton() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState<Progress | null>(null);
   const [stockResult, setStockResult] = useState<StockResult | null>(null);
@@ -186,6 +188,10 @@ export function FetchPricesButton() {
       if (logLines.length > 2) {
         setErrorLog(logLines.concat("", "=== End of log ===").join("\n"));
       }
+
+      // Re-fetch the server-rendered dashboard so summary cards, charts and
+      // holding values reflect the prices just written to the database.
+      router.refresh();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Fetch failed.";
       setTopError(message);

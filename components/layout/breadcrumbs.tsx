@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronRight, Home } from "lucide-react";
 import { Fragment } from "react";
+import { useBreadcrumbLabels } from "@/components/layout/breadcrumb-context";
 
 const ROUTE_LABELS: Record<string, string> = {
   portfolio: "Portfolios",
@@ -69,6 +70,7 @@ function isId(segment: string): boolean {
 
 export function Breadcrumbs() {
   const pathname = usePathname();
+  const dynamicLabels = useBreadcrumbLabels();
 
   // Don't show breadcrumbs on top-level pages
   const segments = pathname.split("/").filter(Boolean);
@@ -84,18 +86,18 @@ export function Breadcrumbs() {
 
     // Skip rendering IDs as labels but keep them in the path
     if (isId(segment)) {
-      // If it's an ID after "portfolio", label it generically
+      // If it's an ID after "portfolio", use a registered name or fall back.
       if (i > 0 && segments[i - 1] === "portfolio") {
         crumbs.push({
-          label: "Portfolio",
+          label: dynamicLabels[segment] ?? "Portfolio",
           href,
           isCurrent: i === segments.length - 1,
         });
       }
-      // If it's an ID after "holdings", label it
+      // If it's an ID after "holdings", use a registered name or fall back.
       else if (i > 0 && segments[i - 1] === "holdings") {
         crumbs.push({
-          label: "Holding",
+          label: dynamicLabels[segment] ?? "Holding",
           href,
           isCurrent: i === segments.length - 1,
         });
