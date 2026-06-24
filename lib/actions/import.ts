@@ -298,8 +298,13 @@ async function findCashAccount(portfolioId: string, accountName: string) {
     where: { portfolioId, name: accountName },
   });
   if (!account) {
+    const portfolio = await db.portfolio.findUnique({
+      where: { id: portfolioId },
+      select: { userId: true },
+    });
+    if (!portfolio) throw new Error("Portfolio not found");
     account = await db.cashAccount.create({
-      data: { portfolioId, name: accountName },
+      data: { portfolioId, name: accountName, userId: portfolio.userId },
     });
   }
   return account;

@@ -214,6 +214,7 @@ async function main() {
       name: "Trading Account",
       currency: "AUD",
       balance: 15000,
+      userId: user.id,
     },
   });
 

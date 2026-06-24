@@ -18,7 +18,7 @@ export async function createCashAccount(
   if (!portfolio) throw new Error("Portfolio not found");
 
   const account = await db.cashAccount.create({
-    data: { portfolioId, name, currency },
+    data: { portfolioId, name, currency, userId: session.user.id },
   });
 
   revalidatePath(`/portfolio/${portfolioId}/cash`);
