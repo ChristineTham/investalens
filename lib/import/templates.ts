@@ -236,14 +236,17 @@ export const cashTemplates: Record<string, CashImportConfig> = {
   },
   macquarie: {
     mapping: {
-      date: "Date",
+      date: "Transaction Date",
       debit: "Debit",
       credit: "Credit",
-      description: "Description",
-      type: null,
+      description: "Details",
+      type: "Category",
     },
-    dateFormat: "dd/mm/yyyy",
+    dateFormat: "dd mmm yyyy",
     decimalSeparator: ".",
+    typeMap: {
+      Fees: "fee",
+    },
   },
 };
 
@@ -282,13 +285,6 @@ export const importTemplates: ImportTemplate[] = [
     config: brokerTemplates.cmc_invest,
     quickImport: true,
     description: "CMC Invest trade confirmations",
-  },
-  {
-    id: "cmc_markets",
-    name: "CMC Markets",
-    category: "transactions",
-    config: brokerTemplates.cmc_markets,
-    description: "CMC Markets transaction export",
   },
   {
     id: "bell_direct",
@@ -377,10 +373,11 @@ export const importTemplates: ImportTemplate[] = [
   },
   {
     id: "macquarie",
-    name: "Macquarie",
+    name: "Macquarie CMA",
     category: "cash",
     cashConfig: cashTemplates.macquarie,
-    description: "Macquarie CSV export",
+    quickImport: true,
+    description: "Macquarie Cash Management Account CSV export",
   },
 ];
 

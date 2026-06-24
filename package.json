@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
+    "clean": "rm -rf .next generated node_modules tsconfig.tsbuildinfo",
     "lint": "eslint",
     "db:cpi": "tsx scripts/fetch-cpi.ts",
     "verify:cgt2027": "tsx scripts/verify-cgt-2027.ts"
