@@ -219,7 +219,6 @@ export function AccountDetailClient({
                   <th className="px-3 py-2.5 text-left">Description</th>
                   <th className="px-3 py-2.5 text-left">Type</th>
                   <th className="px-3 py-2.5 text-left">Category</th>
-                  <th className="px-3 py-2.5 text-left">Counterparty</th>
                   <th className="px-3 py-2.5 text-right">Amount</th>
                   <th className="px-3 py-2.5 text-center">Status</th>
                   {!account.isVirtual && <th className="px-3 py-2.5" />}
@@ -229,6 +228,8 @@ export function AccountDetailClient({
                 {transactions.map((t) => {
                   const credit = CREDIT_TYPES.has(t.type);
                   const signed = credit ? t.amount : -t.amount;
+                  const selectedCatKind = categories.find((c) => c.id === t.categoryId)?.kind ?? null;
+                  const isTransferCat = selectedCatKind === "transfer";
                   return (
                     <tr key={t.id} className="hover:bg-accent/50">
                       <td className="px-3 py-2.5 text-sm text-muted-foreground tabular-nums">
@@ -246,50 +247,38 @@ export function AccountDetailClient({
                         {t.type.replace(/_/g, " ")}
                       </td>
                       <td className="px-3 py-2.5">
-                        {/* Counterparty account — only relevant for transfer rows */}
-                        {(t.type === "transfer_in" || t.type === "transfer_out") ? (
-                          account.isVirtual ? (
-                            <span className="text-sm text-muted-foreground">
-                              {t.transferAccountName ?? "—"}
-                            </span>
-                          ) : (
+                        <select
+                          value={t.categoryId ?? ""}
+                          onChange={(e) => handleCategory(t.id, e.target.value)}
+                          aria-label="Category"
+                          className="rounded-md border border-input bg-background px-1.5 py-1 text-xs"
+                        >
+                          <option value="">Uncategorised</option>
+                          {categories.map((c) => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                          ))}
+                        </select>
+                        {isTransferCat && !account.isVirtual && (
+                          <div className="mt-1">
                             <select
                               value={t.transferAccountId ?? ""}
                               onChange={(e) => handleTransferAccount(t.id, e.target.value)}
                               aria-label="Counterparty account"
-                              className="rounded-md border border-input bg-background px-1.5 py-1 text-xs"
+                              className="rounded-md border border-input bg-background px-1.5 py-1 text-xs text-muted-foreground"
                             >
-                              <option value="">— no counterparty —</option>
+                              <option value="">— counterparty account —</option>
                               {transferAccounts.map((a) => (
                                 <option key={a.id} value={a.id}>{a.name}</option>
                               ))}
                             </select>
-                          )
-                        ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
+                          </div>
+                        )}
+                        {isTransferCat && account.isVirtual && t.transferAccountName && (
+                          <p className="mt-0.5 text-[10px] text-muted-foreground">→ {t.transferAccountName}</p>
                         )}
                       </td>
-                      <td className="px-3 py-2.5">
-                        {account.isVirtual ? (
-                          <span className="text-sm text-muted-foreground">
-                            {t.categoryName ?? "—"}
-                          </span>
-                        ) : (
-                          <select
-                            value={t.categoryId ?? ""}
-                            onChange={(e) => handleCategory(t.id, e.target.value)}
-                            aria-label="Category"
-                            className="rounded-md border border-input bg-background px-1.5 py-1 text-xs"
-                          >
-                            <option value="">Uncategorised</option>
-                            {categories.map((c) => (
-                              <option key={c.id} value={c.id}>
-                                {c.name}
-                              </option>
-                            ))}
-                          </select>
-                        )}
-                      </td>
+
+
                       <td
                         className={`px-3 py-2.5 text-right text-sm font-medium tabular-nums ${credit ? "text-green-600" : "text-red-600"}`}
                       >
