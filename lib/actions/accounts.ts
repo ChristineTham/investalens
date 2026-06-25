@@ -253,10 +253,17 @@ export async function setTransactionTransferAccount(
 
 /** Seed the default category set for a user if they have none. */
 export async function seedDefaultCategories(userId: string) {
-  const count = await db.cashCategory.count({ where: { userId } });
-  if (count > 0) return;
+  const existing = await db.cashCategory.findMany({
+    where: { userId },
+    select: { name: true },
+  });
+  const existingNames = new Set(existing.map((e) => e.name));
+
+  const missing = DEFAULT_CATEGORIES.filter((c) => !existingNames.has(c.name));
+  if (missing.length === 0) return;
+
   await db.cashCategory.createMany({
-    data: DEFAULT_CATEGORIES.map((c) => ({
+    data: missing.map((c) => ({
       userId,
       name: c.name,
       kind: c.kind,

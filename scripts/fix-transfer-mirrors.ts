@@ -107,11 +107,22 @@ async function main() {
       continue;
     }
 
+    const txDate = new Date(tx.date);
+    const windowStart = new Date(txDate);
+    windowStart.setDate(windowStart.getDate() - 3);
+    const windowEnd = new Date(txDate);
+    windowEnd.setDate(windowEnd.getDate() + 3);
+
     // Check whether the counterparty already has a back-link to this account.
     const backLink = await db.cashTransaction.findFirst({
       where: {
         cashAccountId: counterpartyAccountId,
         transferAccountId: tx.cashAccountId,
+        date: { gte: windowStart, lte: windowEnd },
+        amount: {
+          gte: new Prisma.Decimal(Number(tx.amount) - 0.01),
+          lte: new Prisma.Decimal(Number(tx.amount) + 0.01),
+        },
       },
       select: { id: true },
     });
@@ -124,11 +135,6 @@ async function main() {
 
     // Look for an unlinked transaction in the counterparty that looks like the
     // same transfer: same amount (±$0.01), within 3 calendar days.
-    const txDate = new Date(tx.date);
-    const windowStart = new Date(txDate);
-    windowStart.setDate(windowStart.getDate() - 3);
-    const windowEnd = new Date(txDate);
-    windowEnd.setDate(windowEnd.getDate() + 3);
 
     const candidate = await db.cashTransaction.findFirst({
       where: {
