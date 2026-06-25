@@ -13,6 +13,7 @@ import {
 } from "@/components/charts/account-charts";
 import {
   setTransactionCategory,
+  setTransactionTransferAccount,
   deleteAccountTransaction,
   addAccountTransaction,
 } from "@/lib/actions/accounts";
@@ -125,6 +126,10 @@ export function AccountDetailClient({
     await setTransactionCategory(txId, categoryId || null);
     router.refresh();
   }
+  async function handleTransferAccount(txId: string, transferAccountId: string) {
+    await setTransactionTransferAccount(txId, transferAccountId || null);
+    router.refresh();
+  }
   async function handleDeleteTx(txId: string) {
     if (!confirm("Delete this transaction?")) return;
     await deleteAccountTransaction(txId);
@@ -214,6 +219,7 @@ export function AccountDetailClient({
                   <th className="px-3 py-2.5 text-left">Description</th>
                   <th className="px-3 py-2.5 text-left">Type</th>
                   <th className="px-3 py-2.5 text-left">Category</th>
+                  <th className="px-3 py-2.5 text-left">Counterparty</th>
                   <th className="px-3 py-2.5 text-right">Amount</th>
                   <th className="px-3 py-2.5 text-center">Status</th>
                   {!account.isVirtual && <th className="px-3 py-2.5" />}
@@ -238,6 +244,30 @@ export function AccountDetailClient({
                       </td>
                       <td className="px-3 py-2.5 text-sm capitalize text-muted-foreground">
                         {t.type.replace(/_/g, " ")}
+                      </td>
+                      <td className="px-3 py-2.5">
+                        {/* Counterparty account — only relevant for transfer rows */}
+                        {(t.type === "transfer_in" || t.type === "transfer_out") ? (
+                          account.isVirtual ? (
+                            <span className="text-sm text-muted-foreground">
+                              {t.transferAccountName ?? "—"}
+                            </span>
+                          ) : (
+                            <select
+                              value={t.transferAccountId ?? ""}
+                              onChange={(e) => handleTransferAccount(t.id, e.target.value)}
+                              aria-label="Counterparty account"
+                              className="rounded-md border border-input bg-background px-1.5 py-1 text-xs"
+                            >
+                              <option value="">— no counterparty —</option>
+                              {transferAccounts.map((a) => (
+                                <option key={a.id} value={a.id}>{a.name}</option>
+                              ))}
+                            </select>
+                          )
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
                       </td>
                       <td className="px-3 py-2.5">
                         {account.isVirtual ? (

@@ -139,6 +139,33 @@ export async function setTransactionCategory(
   revalidatePath(`/accounts/${tx.cashAccountId}`);
 }
 
+export async function setTransactionTransferAccount(
+  txId: string,
+  transferAccountId: string | null
+) {
+  const userId = await requireUser();
+  const tx = await db.cashTransaction.findFirst({
+    where: { id: txId, cashAccount: { userId } },
+    select: { id: true, cashAccountId: true },
+  });
+  if (!tx) throw new Error("Transaction not found");
+
+  // Validate the target account belongs to the same user (if provided).
+  if (transferAccountId) {
+    const target = await db.cashAccount.findFirst({
+      where: { id: transferAccountId, userId },
+      select: { id: true },
+    });
+    if (!target) throw new Error("Target account not found");
+  }
+
+  await db.cashTransaction.update({
+    where: { id: txId },
+    data: { transferAccountId },
+  });
+  revalidatePath(`/accounts/${tx.cashAccountId}`);
+}
+
 // ─── Categories ─────────────────────────────────────────────────────────────
 
 /** Seed the default category set for a user if they have none. */
