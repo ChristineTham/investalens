@@ -139,30 +139,113 @@ export async function setTransactionCategory(
   revalidatePath(`/accounts/${tx.cashAccountId}`);
 }
 
+/** Opposite transfer direction. */
+function mirrorType(type: string): string {
+  if (type === "transfer_out") return "transfer_in";
+  if (type === "transfer_in") return "transfer_out";
+  // For generic withdrawal/deposit categorised as transfer:
+  if (type === "withdrawal" || type === "buy_settlement") return "deposit";
+  return "withdrawal";
+}
+
 export async function setTransactionTransferAccount(
   txId: string,
   transferAccountId: string | null
 ) {
   const userId = await requireUser();
+
   const tx = await db.cashTransaction.findFirst({
     where: { id: txId, cashAccount: { userId } },
-    select: { id: true, cashAccountId: true },
+    select: {
+      id: true,
+      cashAccountId: true,
+      type: true,
+      amount: true,
+      date: true,
+      description: true,
+      categoryId: true,
+      // Previously set counterparty — needed to clean up old mirror.
+      transferAccountId: true,
+    },
   });
   if (!tx) throw new Error("Transaction not found");
 
-  // Validate the target account belongs to the same user (if provided).
+  // ── 1. Remove a previously auto-created mirror if counterparty changes. ──
+  const prevCounterpartyId = tx.transferAccountId;
+  if (prevCounterpartyId && prevCounterpartyId !== transferAccountId) {
+    await db.cashTransaction.deleteMany({
+      where: {
+        cashAccountId: prevCounterpartyId,
+        transferAccountId: tx.cashAccountId,
+        source: "mirror",
+      },
+    });
+    await recomputeAccountBalance(prevCounterpartyId);
+  }
+
+  // ── 2. Save the new counterparty on the source transaction. ──
+  await db.cashTransaction.update({
+    where: { id: txId },
+    data: { transferAccountId },
+  });
+
+  // ── 3. Create mirror in counterparty account (if linking, not clearing). ──
   if (transferAccountId) {
+    // Validate the target account belongs to the same user.
     const target = await db.cashAccount.findFirst({
       where: { id: transferAccountId, userId },
       select: { id: true },
     });
     if (!target) throw new Error("Target account not found");
+
+    // Check whether a matching transaction already exists in the counterparty
+    // (e.g. both accounts imported their bank statements). Tolerance: ±$0.01,
+    // within 3 calendar days, already pointing back or unlinked.
+    const txDate = new Date(tx.date);
+    const windowStart = new Date(txDate);
+    windowStart.setDate(windowStart.getDate() - 3);
+    const windowEnd = new Date(txDate);
+    windowEnd.setDate(windowEnd.getDate() + 3);
+
+    const existingMirror = await db.cashTransaction.findFirst({
+      where: {
+        cashAccountId: transferAccountId,
+        date: { gte: windowStart, lte: windowEnd },
+        amount: { gte: Number(tx.amount) - 0.01, lte: Number(tx.amount) + 0.01 },
+        OR: [
+          { transferAccountId: tx.cashAccountId },
+          { transferAccountId: null, source: { not: "mirror" } },
+        ],
+      },
+      select: { id: true, transferAccountId: true },
+    });
+
+    if (existingMirror) {
+      // Cross-link the existing counterparty transaction back to this account.
+      await db.cashTransaction.update({
+        where: { id: existingMirror.id },
+        data: { transferAccountId: tx.cashAccountId },
+      });
+    } else {
+      // No matching transaction — create one automatically.
+      await db.cashTransaction.create({
+        data: {
+          cashAccountId: transferAccountId,
+          type: mirrorType(tx.type),
+          amount: tx.amount,
+          date: tx.date,
+          description: tx.description,
+          categoryId: tx.categoryId,
+          transferAccountId: tx.cashAccountId,
+          source: "mirror",
+        },
+      });
+    }
+    await recomputeAccountBalance(transferAccountId);
+    revalidatePath(`/accounts/${transferAccountId}`);
   }
 
-  await db.cashTransaction.update({
-    where: { id: txId },
-    data: { transferAccountId },
-  });
+  await recomputeAccountBalance(tx.cashAccountId);
   revalidatePath(`/accounts/${tx.cashAccountId}`);
 }
 
