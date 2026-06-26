@@ -40,10 +40,36 @@ async function main() {
 
   let totalStored = 0;
   let totalSkipped = 0;
+  let failed = 0;
+
+  const total = instruments.length;
+  const isTTY = Boolean(process.stdout.isTTY);
+  const BAR_WIDTH = 24;
+
+  function drawBar(current: number, label: string) {
+    const pct = total > 0 ? current / total : 0;
+    const filled = Math.round(pct * BAR_WIDTH);
+    const tally = `+${totalStored} prices, ${failed} failed`;
+    const body = `[${"█".repeat(filled)}${"░".repeat(BAR_WIDTH - filled)}] ${current}/${total} ${Math.round(pct * 100)
+      .toString()
+      .padStart(3)}% · ${tally} · ${label}`;
+    if (isTTY) {
+      process.stdout.write(`\r\x1b[K${body}`);
+    } else if (current === total || current % 10 === 0) {
+      // Non-interactive (CI): emit an occasional plain progress line.
+      console.log(body);
+    }
+  }
+
+  /** Print a message above the live bar without leaving a stray fragment. */
+  function note(msg: string) {
+    if (isTTY) process.stdout.write("\r\x1b[K");
+    console.log(msg);
+  }
 
   for (let i = 0; i < instruments.length; i++) {
     const inst = instruments[i];
-    const progress = `[${i + 1}/${instruments.length}]`;
+    drawBar(i, `${inst.code} …`);
 
     const existingCount = await db.price.count({
       where: { instrumentId: inst.id, date: { gte: from, lte: to } },
@@ -60,36 +86,25 @@ async function main() {
         (to.getTime() - latestPrice.date.getTime()) / (1000 * 60 * 60 * 24)
       );
       if (daysSinceLatest <= 3) {
-        console.log(
-          `${progress} ${inst.code} (${inst.name}) — ${existingCount} prices exist, up to date ✓`
-        );
         totalSkipped += existingCount;
+        drawBar(i + 1, `${inst.code} up to date ✓`);
         continue;
       }
       const fetchFrom = new Date(latestPrice.date);
       fetchFrom.setDate(fetchFrom.getDate() + 1);
-      console.log(
-        `${progress} ${inst.code} (${inst.name}) — ${existingCount} exist, fetching from ${fetchFrom.toISOString().split("T")[0]}...`
-      );
       try {
-        const stored = await fetchHistoricalPrices(
+        totalStored += await fetchHistoricalPrices(
           inst.id,
           inst.code,
           inst.marketCode,
           fetchFrom,
           to
         );
-        totalStored += stored;
-        console.log(`     ✓ +${stored} new prices`);
       } catch (err) {
-        console.error(
-          `     ✗ Failed: ${err instanceof Error ? err.message : err}`
-        );
+        failed++;
+        note(`  ✗ ${inst.code}: ${err instanceof Error ? err.message : err}`);
       }
     } else {
-      console.log(
-        `${progress} ${inst.code} (${inst.name}) — fetching full ${years}Y history...`
-      );
       try {
         const stored = await fetchHistoricalPrices(
           inst.id,
@@ -100,22 +115,21 @@ async function main() {
         );
         totalStored += stored;
         if (stored === 0) {
-          console.log(
-            `     ⚠ 0 prices returned — ticker may not exist on Yahoo Finance`
-          );
-        } else {
-          console.log(`     ✓ ${stored} prices stored`);
+          note(`  ⚠ ${inst.code}: 0 prices returned — may not exist on Yahoo Finance`);
         }
       } catch (err) {
-        console.error(
-          `     ✗ Failed: ${err instanceof Error ? err.message : err}`
-        );
+        failed++;
+        note(`  ✗ ${inst.code}: ${err instanceof Error ? err.message : err}`);
       }
     }
+
+    drawBar(i + 1, inst.code);
 
     // Respect Yahoo Finance rate limits.
     await new Promise((r) => setTimeout(r, 2000));
   }
+
+  if (isTTY) process.stdout.write("\n");
 
   console.log(`\n${"─".repeat(50)}`);
   console.log(
