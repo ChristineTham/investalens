@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { ArrowLeft, Landmark, CreditCard, Upload, Link2 } from "lucide-react";
 import { getAccountDetail, getAccountsOverview } from "@/lib/services/accounts";
-import { getCategories, syncVirtualLedger } from "@/lib/actions/accounts";
+import { getCategories } from "@/lib/actions/accounts";
+import { syncPortfolioLedger } from "@/lib/services/cash-ledger";
 import { AccountActions } from "@/components/accounts/account-actions";
 import { AccountDetailClient } from "@/components/accounts/account-detail-client";
 import { ConvertVirtualButton } from "@/components/accounts/convert-virtual-button";
@@ -31,8 +32,10 @@ export default async function AccountDetailPage({
   const { id } = await params;
   let account = await getAccountDetail(id);
   // Virtual ledgers are derived: rebuild from the portfolio's transactions on view.
+  // Call the service directly (not the server action) — revalidatePath is not
+  // allowed during a Server Component render.
   if (account.isVirtual && account.portfolioId) {
-    await syncVirtualLedger(id);
+    await syncPortfolioLedger(account.portfolioId);
     account = await getAccountDetail(id);
   }
   const [cats, accountsOverview] = await Promise.all([
