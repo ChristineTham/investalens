@@ -8,7 +8,7 @@
  * The ETF tickers, ASX-20/50 membership and any weights below are a STARTING
  * SPECIFICATION. Before seeding (P2, Codespaces) verify each ticker exists on
  * Yahoo Finance and that index membership is current, then record findings in
- * docs/KNOWLEDGE.md. The seed guard (`scripts/validate-models.ts`) rejects any
+ * docs/KNOWLEDGE.md. The seed guard (`scripts/validate.ts`) rejects any
  * model containing a delisted / period-invalid constituent, so broken defaults
  * cannot ship.
  *

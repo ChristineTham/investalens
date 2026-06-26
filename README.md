@@ -235,12 +235,10 @@ The app sends this secret as the `x-vercel-protection-bypass` header on internal
 | `pnpm exec prisma migrate dev`| Create/apply migrations  |
 | `pnpm exec prisma db seed`    | Seed test data           |
 | `pnpm exec prisma studio`     | Visual database browser  |
-| `pnpm db:cpi`                 | Load/refresh RBA CPI data (CGT indexation)  |
+| `pnpm update`                 | Update all market data (CPI, prices, dividends, bonds, company info) for every user — CLI equivalent of the dashboard **Update** button |
+| `pnpm validate`               | Validate the whole database — referential integrity, transfer/mirror links, orphans, cached balances, system-model coverage (add `--fix` to repair) |
 | `pnpm verify:cgt2027`         | Verify the proposed 2027 CGT engine         |
 | `pnpm seed:models`            | Seed/refresh the default (system) model library |
-| `pnpm fetch:model-prices`     | Fetch ~10y daily prices for all model constituents |
-| `pnpm validate:models`        | Guard: system models valid across lookback (no delisted names) |
-| `pnpm tsx scripts/check-referential-integrity.ts` | Validate database referential integrity (add `--fix` to repair) |
 
 ## Documentation
 

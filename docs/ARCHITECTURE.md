@@ -89,7 +89,7 @@ _instantiated_ on demand as a pure computation over the `Price` table (whole-uni
 or `?source=benchmark&code=<code>` — returns a **byte-compatible** matrix (weights as a
 `number[]` aligned to assets) so the Python analytics layer treats a model exactly like a real
 portfolio. System (default) models have `userId = null` and are guarded against delisted
-constituents at seed time (`scripts/validate-models.ts`).
+constituents at seed time (`scripts/validate.ts`).
 
 ---
 

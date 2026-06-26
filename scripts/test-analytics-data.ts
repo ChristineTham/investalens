@@ -74,7 +74,7 @@ async function main() {
       console.log(`  Last close:  ${bts.values[bts.values.length - 1]?.toFixed(2)}`);
       console.log(`  Cum. return: ${(bts.cumReturns[bts.cumReturns.length - 1] * 100).toFixed(2)}%`);
     } else {
-      console.log("  ⚠ No benchmark price data found. Run fetch-benchmark-prices.ts first.");
+      console.log("  ⚠ No benchmark price data found. Run `pnpm update` first.");
     }
     console.log("  ✓ OK\n");
   } catch (err) {

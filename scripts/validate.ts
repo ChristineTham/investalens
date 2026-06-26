@@ -1,10 +1,15 @@
 /**
- * scripts/check-referential-integrity.ts
+ * scripts/validate.ts
  *
- * Comprehensive database soundness checker for InvestaLens. Validates both
- * hard (FK-enforced) and soft (application-level) referential integrity across
- * the whole schema, plus domain invariants (transfer mirrors, cached balances,
- * default settlement accounts, category trees, reconciliations).
+ * Comprehensive database validator for InvestaLens — the single source of truth
+ * for data soundness. Replaces the former check-referential-integrity.ts and
+ * validate-models.ts. Validates:
+ *   • Soft foreign keys (no DB constraint — real orphan risk)
+ *   • Hard foreign keys (DB-enforced — should always be 0)
+ *   • Transfer & mirror integrity (linked/mirrored cash transactions)
+ *   • Category trees, settlement accounts, reconciliations
+ *   • Cached account balances
+ *   • System model coverage (every constituent priced across lookback, not delisted)
  *
  * Read-only by default. Pass --fix to repair every issue it can safely resolve:
  *   - nulls dangling nullable references,
@@ -12,10 +17,11 @@
  *   - forges / repairs the hard transfer-mirror link,
  *   - deletes orphaned auto-mirrors and empty reconciliations,
  *   - normalises negative amounts and recomputes cached balances.
+ * (Model-coverage gaps are reported but not auto-fixable — run `pnpm update`.)
  *
  * Usage:
- *   pnpm tsx scripts/check-referential-integrity.ts
- *   pnpm tsx scripts/check-referential-integrity.ts --fix
+ *   pnpm validate
+ *   pnpm validate --fix
  */
 
 import { PrismaClient } from "../generated/prisma/client";
@@ -30,6 +36,10 @@ const adapter = new PrismaPg(pool);
 const db = new PrismaClient({ adapter });
 
 const FIX = process.argv.includes("--fix");
+
+// System model constituents priced more than this many days ago are treated as
+// stale ⇒ likely delisted.
+const STALE_DAYS = 10;
 
 // Canonical credit (balance-increasing) cash types, mirrored from
 // lib/import/bank-statement.ts. Used to derive signed amounts for balances.
@@ -93,7 +103,7 @@ async function check(opts: {
 
 async function main() {
   console.log(
-    FIX ? "🔧  Referential integrity — FIX mode\n" : "🔍  Referential integrity — read-only (pass --fix to repair)\n"
+    FIX ? "🔧  Validation — FIX mode\n" : "🔍  Validation — read-only (pass --fix to repair)\n"
   );
 
   // ── A. Soft foreign keys (no DB constraint — real orphan risk) ──────────────
@@ -327,6 +337,79 @@ async function main() {
     `${drift === 0 ? "✅" : "⚠️ "}  Cached account balance drift: ${drift}${FIX && balancesFixed > 0 ? `  → fixed ${balancesFixed}` : ""}`
   );
 
+  // ── H. System model coverage (replaces validate-models.ts) ─────────────────
+  // Every system-model constituent must be priced on/before its purchase date
+  // (today − lookbackYears) AND still actively priced today (not stale ⇒ not
+  // delisted). Not auto-fixable: run `pnpm update` to backfill prices or
+  // `pnpm seed:models` to refresh membership.
+  console.log("\n── System model coverage (lookback / not delisted) ──");
+
+  const models = await db.modelPortfolio.findMany({
+    where: { isSystem: true },
+    select: {
+      slug: true,
+      defaultLookbackYears: true,
+      constituents: {
+        select: { instrumentId: true, instrument: { select: { code: true } } },
+      },
+    },
+  });
+
+  if (models.length === 0) {
+    console.log("⚠️   No system models found (run `pnpm seed:models`).");
+  }
+
+  const today = new Date();
+  const staleCutoff = new Date(today);
+  staleCutoff.setDate(staleCutoff.getDate() - STALE_DAYS);
+
+  let invalidConstituents = 0;
+  for (const m of models) {
+    const periodStart = new Date(today);
+    periodStart.setFullYear(periodStart.getFullYear() - m.defaultLookbackYears);
+
+    const invalidCodes: string[] = [];
+    for (const c of m.constituents) {
+      const first = await db.price.findFirst({
+        where: { instrumentId: c.instrumentId },
+        orderBy: { date: "asc" },
+        select: { date: true },
+      });
+      const last = await db.price.findFirst({
+        where: { instrumentId: c.instrumentId },
+        orderBy: { date: "desc" },
+        select: { date: true },
+      });
+      const coversStart = first ? first.date <= periodStart : false;
+      const stale = last ? last.date < staleCutoff : true;
+      if (!(coversStart && !stale)) invalidCodes.push(c.instrument.code);
+    }
+
+    const label = m.slug ?? "(no slug)";
+    if (invalidCodes.length > 0) {
+      invalidConstituents += invalidCodes.length;
+      console.log(
+        `❌  ${label}: ${invalidCodes.length} invalid/delisted → ${invalidCodes.join(", ")}`
+      );
+    } else {
+      console.log(`✅  ${label}: valid across ${m.defaultLookbackYears}y lookback`);
+    }
+  }
+  results.push({
+    name: "System model constituents invalid/delisted",
+    severity: "error",
+    found: invalidConstituents,
+    fixed: 0,
+    note: invalidConstituents > 0
+      ? "not auto-fixable — run `pnpm update` to backfill prices, or `pnpm seed:models` to refresh membership"
+      : undefined,
+  });
+  if (invalidConstituents > 0) {
+    console.log(
+      "   ↳ not auto-fixable: run `pnpm update` (backfill prices) or `pnpm seed:models` (refresh membership)."
+    );
+  }
+
   // ── Summary ────────────────────────────────────────────────────────────────
   const totalFound = results.reduce((s, r) => s + r.found, 0);
   const totalFixed = results.reduce((s, r) => s + r.fixed, 0);
@@ -347,7 +430,7 @@ Summary${FIX ? " (FIX mode)" : ""}
   if (remaining > 0 && !FIX) {
     console.log("Run with --fix to repair the resolvable issues.\n");
   }
-  // Non-zero exit when unresolved hard-integrity errors remain (useful for CI).
+  // Non-zero exit when unresolved hard-integrity / model errors remain (CI).
   if (errorsRemaining > 0) process.exitCode = 1;
 }
 

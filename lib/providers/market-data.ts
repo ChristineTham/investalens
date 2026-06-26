@@ -21,6 +21,14 @@ export interface DividendPoint {
   amount: number;
 }
 
+export interface SplitPoint {
+  date: Date;
+  numerator: number;
+  denominator: number;
+  /** Split factor (numerator / denominator), e.g. 2 for a 2-for-1 split. */
+  ratio: number;
+}
+
 export interface InstrumentSearchResult {
   code: string;
   name: string;
@@ -42,6 +50,12 @@ export interface MarketDataProvider {
     from: Date,
     to: Date
   ): Promise<DividendPoint[]>;
+  getHistoricalSplits(
+    code: string,
+    market: string,
+    from: Date,
+    to: Date
+  ): Promise<SplitPoint[]>;
   searchInstruments(
     query: string,
     market?: string

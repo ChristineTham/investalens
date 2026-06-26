@@ -3,6 +3,7 @@ import type {
   Quote,
   PricePoint,
   DividendPoint,
+  SplitPoint,
   InstrumentSearchResult,
 } from "./market-data";
 import { yahooRateLimiter } from "./rate-limiter";
@@ -150,6 +151,45 @@ export const yahooFinance: MarketDataProvider = {
         }
       }
       return dividends;
+    } catch {
+      return [];
+    }
+  },
+
+  async getHistoricalSplits(
+    code: string,
+    market: string,
+    from: Date,
+    to: Date
+  ): Promise<SplitPoint[]> {
+    const symbol = toYahooSymbol(code, market);
+    const period1 = Math.floor(from.getTime() / 1000);
+    const period2 = Math.floor(to.getTime() / 1000);
+
+    try {
+      const res = await fetchWithRetry(
+        `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?period1=${period1}&period2=${period2}&interval=1d&events=split`
+      );
+      const data = await res.json();
+      const result = data.chart?.result?.[0];
+      const splitsObj = result?.events?.splits;
+      if (!splitsObj) return [];
+
+      const splits: SplitPoint[] = [];
+      for (const key of Object.keys(splitsObj)) {
+        const s = splitsObj[key];
+        if (!s || typeof s.date !== "number") continue;
+        const numerator = Number(s.numerator) || 0;
+        const denominator = Number(s.denominator) || 0;
+        if (numerator <= 0 || denominator <= 0) continue;
+        splits.push({
+          date: new Date(s.date * 1000),
+          numerator,
+          denominator,
+          ratio: numerator / denominator,
+        });
+      }
+      return splits;
     } catch {
       return [];
     }

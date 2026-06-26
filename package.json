@@ -8,11 +8,10 @@
     "start": "next start",
     "clean": "rm -rf .next generated node_modules tsconfig.tsbuildinfo",
     "lint": "eslint",
-    "db:cpi": "tsx scripts/fetch-cpi.ts",
+    "update": "tsx scripts/update.ts",
+    "validate": "tsx scripts/validate.ts",
     "verify:cgt2027": "tsx scripts/verify-cgt-2027.ts",
-    "seed:models": "tsx scripts/seed-models.ts",
-    "fetch:model-prices": "tsx scripts/fetch-model-prices.ts",
-    "validate:models": "tsx scripts/validate-models.ts"
+    "seed:models": "tsx scripts/seed-models.ts"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
