@@ -28,7 +28,7 @@ const COLORS = [
   "hsl(150, 60%, 40%)",
 ];
 
-export function RollingMetricsChart({ data }: RollingMetricsChartProps) {
+export function RollingMetricsChart({ data, height = 300 }: RollingMetricsChartProps) {
   if (data.length === 0 || data[0].dates.length === 0) return null;
 
   // Merge all series into chart data
