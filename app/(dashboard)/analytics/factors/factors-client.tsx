@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { DateRangeSelector, type DateRange } from "@/components/analytics/date-range-selector";
 import { MetricCard } from "@/components/analytics/metric-card";
+import { SourcePicker, type SourceValue } from "@/components/analytics/source-picker";
+import { fetchAnalyticsMatrix } from "@/lib/hooks/use-analytics-matrix";
 
 interface PCAResult {
   type: "pca";
@@ -14,10 +16,16 @@ interface PCAResult {
 
 export function FactorsClient({
   portfolios,
+  models,
 }: {
   portfolios: { id: string; name: string }[];
+  models: { id: string; name: string }[];
 }) {
-  const [portfolioId, setPortfolioId] = useState(portfolios[0].id);
+  const [src, setSrc] = useState<SourceValue>(
+    portfolios.length > 0
+      ? { source: "portfolio", id: portfolios[0].id }
+      : { source: "model", id: models[0]?.id ?? "" }
+  );
   const [dateRange, setDateRange] = useState<DateRange>("3Y");
   const [modelType] = useState("pca");
   const [running, setRunning] = useState(false);
@@ -28,9 +36,7 @@ export function FactorsClient({
     setRunning(true);
     setError(null);
     try {
-      const matrixRes = await fetch(`/api/v1/analytics/matrix?portfolio=${portfolioId}&range=${dateRange}`);
-      if (!matrixRes.ok) throw new Error("Failed to load portfolio data");
-      const matrix = await matrixRes.json();
+      const matrix = await fetchAnalyticsMatrix(src, dateRange);
 
       const res = await fetch("/api/analytics/factor-analysis", {
         method: "POST",
@@ -54,12 +60,12 @@ export function FactorsClient({
       </div>
 
       <div className="flex flex-wrap items-end gap-4">
-        <div>
-          <label className="text-sm font-medium">Portfolio</label>
-          <select className="mt-1 block rounded-md border border-input bg-background px-3 py-2 text-sm" value={portfolioId} onChange={(e) => setPortfolioId(e.target.value)}>
-            {portfolios.map((p) => (<option key={p.id} value={p.id}>{p.name}</option>))}
-          </select>
-        </div>
+        <SourcePicker
+          portfolios={portfolios}
+          models={models}
+          value={src}
+          onChange={setSrc}
+        />
         <DateRangeSelector selected={dateRange} onChange={setDateRange} />
         <button type="button" className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50" onClick={handleRun} disabled={running}>
           {running ? "Analyzing..." : "Run Analysis"}

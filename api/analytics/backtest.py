@@ -204,6 +204,100 @@ async def cross_validate(request: Request):
     return make_serializable({"models": results})
 
 
+@router.post("/backtest/portfolios")
+async def backtest_portfolios(request: Request):
+    """Compare whole portfolios (real and/or model) plus an optional benchmark.
+
+    Each input series is a pre-collapsed weighted daily return series. We align
+    all series on the intersection of their dates, rebase each cumulative return
+    to 100, and report per-series risk/return metrics.
+
+    Input:
+      { "series": [{ "label": str, "dates": [...], "returns": [...] }, ...],
+        "benchmark": { "label": str, "dates": [...], "returns": [...] } | null }
+    """
+    data = await request.json()
+    series_in = data.get("series", [])
+    benchmark_in = data.get("benchmark")
+
+    if not series_in:
+        error_response(400, "No portfolio series supplied")
+
+    # Build a pandas Series (indexed by date) per input.
+    named = []
+    for s in series_in:
+        try:
+            ser = pd.Series(
+                s["returns"], index=pd.to_datetime(s["dates"])
+            ).sort_index()
+            named.append((s["label"], ser))
+        except Exception as e:  # noqa: BLE001
+            error_response(400, f"Invalid series '{s.get('label')}': {e}")
+
+    if benchmark_in and benchmark_in.get("dates"):
+        try:
+            bser = pd.Series(
+                benchmark_in["returns"],
+                index=pd.to_datetime(benchmark_in["dates"]),
+            ).sort_index()
+            named.append((benchmark_in["label"], bser))
+        except Exception as e:  # noqa: BLE001
+            error_response(400, f"Invalid benchmark series: {e}")
+
+    # Align on the intersection of all dates.
+    combined = pd.concat({label: ser for label, ser in named}, axis=1)
+    combined = combined.dropna(how="any")
+    if combined.shape[0] < 2:
+        error_response(400, "Series do not overlap on enough common dates")
+
+    dates_out = [d.isoformat() for d in combined.index]
+    equity_curves = {}
+    metrics = {}
+
+    for label in combined.columns:
+        r = combined[label].values
+        cumulative = np.cumprod(1 + r)
+        rebased = (cumulative / cumulative[0]) * 100.0
+        equity_curves[label] = rebased.tolist()
+
+        ann_return = (
+            float(cumulative[-1] ** (252 / len(r)) - 1) if len(r) > 0 else 0
+        )
+        ann_vol = float(r.std() * np.sqrt(252)) if len(r) > 1 else 0
+        sharpe = ann_return / ann_vol if ann_vol > 0 else 0
+
+        peak = np.maximum.accumulate(cumulative)
+        drawdown = (cumulative - peak) / peak
+        max_dd = float(drawdown.min())
+
+        downside = r[r < 0]
+        sortino = (
+            float(ann_return / (downside.std() * np.sqrt(252)))
+            if len(downside) > 1 and downside.std() > 0
+            else 0
+        )
+        calmar = float(ann_return / abs(max_dd)) if max_dd != 0 else 0
+
+        metrics[label] = {
+            "annualizedReturn": ann_return,
+            "annualizedVolatility": ann_vol,
+            "sharpeRatio": sharpe,
+            "maxDrawdown": max_dd,
+            "calmarRatio": calmar,
+            "sortinoRatio": sortino,
+            "drawdownSeries": drawdown.tolist(),
+        }
+
+    return make_serializable(
+        {
+            "dates": dates_out,
+            "labels": list(combined.columns),
+            "equityCurves": equity_curves,
+            "metrics": metrics,
+        }
+    )
+
+
 def _compute_weights(strategy: str, train_returns: pd.DataFrame, n_assets: int) -> np.ndarray:
     """Compute portfolio weights based on strategy."""
     if strategy == "equal_weighted":

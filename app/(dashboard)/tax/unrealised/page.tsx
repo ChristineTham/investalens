@@ -7,6 +7,7 @@ import {
 import { formatCurrency } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { TaxFilter } from "@/components/reports/tax-filter";
+import { RebalanceToModel } from "./rebalance-to-model";
 import { Suspense } from "react";
 
 export default async function UnrealisedCgtPage({
@@ -318,6 +319,11 @@ export default async function UnrealisedCgtPage({
           </li>
         </ul>
       </div>
+
+      <RebalanceToModel
+        portfolios={portfolios.map((p) => ({ id: p.id, name: p.name }))}
+        initialPortfolioId={selectedPortfolioId}
+      />
     </div>
   );
 }

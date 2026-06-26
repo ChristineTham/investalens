@@ -5,6 +5,7 @@ import Link from "next/link";
 import { calculatePosition, calculateIncome } from "@/lib/calculations/position";
 import { getUserCashTotal } from "@/lib/services/accounts";
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
+import { VsModelCard } from "@/components/dashboard/vs-model-card";
 import { FetchPricesButton } from "@/components/forms/fetch-prices-button";
 import {
   Briefcase,
@@ -323,6 +324,9 @@ export default async function DashboardPage() {
           holdings: p.holdings,
         }))}
       />
+
+      {/* Teaser: consolidated vs a default benchmark model */}
+      <VsModelCard userId={session.user.id} />
 
       {/* Returns methodology note */}
       <div className="rounded-lg border border-border bg-muted/30 p-4 text-xs text-muted-foreground">

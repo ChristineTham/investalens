@@ -4,6 +4,8 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { MetricCard } from "@/components/analytics/metric-card";
 import { DateRangeSelector, type DateRange } from "@/components/analytics/date-range-selector";
+import { SourcePicker, type SourceValue } from "@/components/analytics/source-picker";
+import { fetchAnalyticsMatrix } from "@/lib/hooks/use-analytics-matrix";
 
 const ScenarioWaterfall = dynamic(
   () => import("@/components/charts/scenario-waterfall").then((m) => m.ScenarioWaterfall),
@@ -23,10 +25,16 @@ const TABS = ["Historical", "Custom", "Factor"] as const;
 
 export function StressTestClient({
   portfolios,
+  models,
 }: {
   portfolios: { id: string; name: string }[];
+  models: { id: string; name: string }[];
 }) {
-  const [portfolioId, setPortfolioId] = useState(portfolios[0].id);
+  const [src, setSrc] = useState<SourceValue>(
+    portfolios.length > 0
+      ? { source: "portfolio", id: portfolios[0].id }
+      : { source: "model", id: models[0]?.id ?? "" }
+  );
   const [dateRange, setDateRange] = useState<DateRange>("3Y");
   const [tab, setTab] = useState<(typeof TABS)[number]>("Historical");
   const [running, setRunning] = useState(false);
@@ -36,9 +44,7 @@ export function StressTestClient({
   const [error, setError] = useState<string | null>(null);
 
   async function fetchMatrix() {
-    const res = await fetch(`/api/v1/analytics/matrix?portfolio=${portfolioId}&range=${dateRange}`);
-    if (!res.ok) throw new Error("Failed to load portfolio data");
-    return res.json();
+    return fetchAnalyticsMatrix(src, dateRange);
   }
 
   async function runHistorical() {
@@ -88,15 +94,12 @@ export function StressTestClient({
           <p className="text-sm text-muted-foreground">Historical scenarios, custom shocks, and factor stress</p>
         </div>
         <div className="flex items-center gap-3">
-          <select
-            className="rounded-md border border-input bg-background px-3 py-1.5 text-sm"
-            value={portfolioId}
-            onChange={(e) => setPortfolioId(e.target.value)}
-          >
-            {portfolios.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
+          <SourcePicker
+            portfolios={portfolios}
+            models={models}
+            value={src}
+            onChange={setSrc}
+          />
           <DateRangeSelector selected={dateRange} onChange={setDateRange} />
         </div>
       </div>
@@ -182,6 +185,7 @@ export function StressTestClient({
               value={factorShock}
               onChange={(e) => setFactorShock(Number(e.target.value))}
               className="w-48"
+              aria-label="Market shock percentage"
             />
             <span className="text-sm font-bold">{factorShock}%</span>
             <button

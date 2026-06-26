@@ -175,6 +175,20 @@ export default async function AboutPage() {
                   "Return & covariance estimation (4 return methods, 5 covariance methods)",
                 ]}
               />
+
+              <ReleaseBlock
+                title="Model Portfolios"
+                status="complete"
+                items={[
+                  "Weight-based model portfolios instantiated (notionally bought) with whole units over a configurable historical period, respecting a strategic minimum cash reserve",
+                  "/models route group: list, create, edit, detail (target-weight pie, instantiation table, value-over-time) and a comparison dashboard scaling the consolidated portfolio against selected models to a common start",
+                  "Seeded library of system models (diversified-ETF blends, all-in-one funds, an income/high-yield model, and ASX 10/20/50 index models) — read-only and guarded against delisted names",
+                  "Time-period validity coverage check with green/amber/red health badge; the market-data Update button now also refreshes prices & info for model constituents",
+                  "Optimiser: start from a real or model portfolio and save optimal weights as new model(s); backtest a mix of real + model portfolios against a benchmark",
+                  "Model source picker across correlations, factors, efficient frontier (model point overlay) and stress testing; Black-Litterman model prior; What-If load-from-model",
+                  "ETF X-ray look-through for models, a Model Comparison report, a Rebalancing & Drift tool, a 'rebalance to model' CGT estimate, and a dashboard 'vs model' card",
+                ]}
+              />
             </div>
           </section>
 

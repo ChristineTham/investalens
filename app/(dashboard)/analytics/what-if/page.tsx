@@ -1,7 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { formatCurrency, formatPercent } from "@/lib/utils";
+import {
+  listModelsForPicker,
+  getModelWhatIfHoldings,
+} from "@/lib/actions/model";
 
 interface Scenario {
   name: string;
@@ -56,6 +60,36 @@ export default function WhatIfPage() {
     setHoldings(holdings.filter((_, i) => i !== index));
   }
 
+  // Model picker for "Load from model".
+  const [models, setModels] = useState<{ id: string; name: string }[]>([]);
+  const [modelId, setModelId] = useState("");
+  const [loadingModel, setLoadingModel] = useState(false);
+
+  useEffect(() => {
+    listModelsForPicker()
+      .then((list) => {
+        setModels(list);
+        if (list[0]) setModelId(list[0].id);
+      })
+      .catch(() => {});
+  }, []);
+
+  async function loadFromModel() {
+    if (!modelId) return;
+    setLoadingModel(true);
+    try {
+      const rows = await getModelWhatIfHoldings(modelId);
+      if (rows.length > 0) {
+        setHoldings(rows);
+        setSelectedScenario(null);
+      }
+    } catch {
+      /* ignore */
+    } finally {
+      setLoadingModel(false);
+    }
+  }
+
   const marketMove = selectedScenario
     ? selectedScenario.marketMove
     : Number(customMove);
@@ -86,6 +120,36 @@ export default function WhatIfPage() {
           holding&apos;s beta sensitivity.
         </p>
       </div>
+
+      {/* Load from model */}
+      {models.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border p-4">
+          <span className="text-sm font-medium">Load from model</span>
+          <select
+            aria-label="Model to load"
+            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            value={modelId}
+            onChange={(e) => setModelId(e.target.value)}
+          >
+            {models.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={loadFromModel}
+            disabled={loadingModel || !modelId}
+            className="h-9 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          >
+            {loadingModel ? "Loading..." : "Load holdings"}
+          </button>
+          <span className="text-xs text-muted-foreground">
+            Replaces the rows below with the instantiated model holdings.
+          </span>
+        </div>
+      )}
 
       {/* Scenario selection */}
       <div className="rounded-lg border border-border p-4">

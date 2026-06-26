@@ -56,6 +56,11 @@ const reports = [
     title: "All Trades",
     desc: "Complete transaction history",
   },
+  {
+    href: "/reports/model-comparison",
+    title: "Model Comparison",
+    desc: "Your portfolio vs a model over time",
+  },
 ];
 
 export default async function ReportsPage({

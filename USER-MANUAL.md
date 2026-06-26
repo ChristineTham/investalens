@@ -22,6 +22,7 @@ Welcome to InvestaLens — a comprehensive portfolio tracker and optimiser for i
 > | Planning Tools (FIRE Calculator)                               | ✅ Implemented (R2)          |
 > | Advanced Analytics (backtesting, Monte Carlo, optimisation)    | ✅ Implemented (R2)          |
 > | AI Importer + AI Chat Assistant                                | ✅ Implemented (R2)          |
+> | Model Portfolios (target-weight models, comparison, optimise/backtest, rebalance) | ✅ Implemented |
 > | Emergency Fund, Net Worth                                      | ⏳ To be Implemented (R4)    |
 > | PDF Export & Automated Backups                                 | ⏳ To be Implemented (R4)    |
 > | Webhooks                                                       | ⏳ To be Implemented (R4)    |
@@ -34,6 +35,7 @@ Welcome to InvestaLens — a comprehensive portfolio tracker and optimiser for i
 2. [Adding & Importing Investments](#2-adding--importing-investments)
 3. [Supported Assets](#3-supported-assets)
 4. [Portfolio Management](#4-portfolio-management)
+   - [Model Portfolios](#model-portfolios)
 5. [Performance & Reporting](#5-performance--reporting)
 6. [Tax Reporting](#6-tax-reporting)
 7. [Corporate Actions](#7-corporate-actions)
@@ -56,6 +58,7 @@ After signing in, you land on the **Dashboard** (`/dashboard`) which shows your 
 | -------------- | ------------------------------------------------------------------------- |
 | **Dashboard**  | Summary cards (purchase cost, total value, capital gain, income, total gain, portfolios/holdings), consolidated charts (performance, value, movement, allocation) with a universal timescale selector, portfolio summary table, recent activity |
 | **Portfolio**  | Portfolio overview cards (allocation donut, returns, recent activity); create/manage portfolios, holdings, imports, bonds; link cash accounts |
+| **Models**     | Weight-based model portfolios: list, create, edit, detail (target weights, instantiation, value-over-time, health badge), and a scaled consolidated-vs-models comparison dashboard |
 | **Accounts**   | First-class bank &amp; cash accounts: balances, inline-editable transactions with a running balance, categories, statement import (OFX/QIF/CSV), and reconciliation |
 | **Reports**    | 10 performance and allocation reports                                     |
 | **Tax**        | Taxable income, CGT, and unrealised CGT reports                           |
@@ -82,6 +85,7 @@ The Dashboard gives you an instant overview of every portfolio combined:
   - **Allocation treemap** — current value broken down by portfolio, then by holding, with each portfolio in its own colour and holdings as shades of that colour. Click any holding to open its detail page
 - **Portfolio Summary table** — Cost base, market value, capital gain, income, fees, and total gain per portfolio
 - **Recent Activity** — The latest activity across all portfolios (trades, dividends, coupons, and custody fees) with date, instrument, type, quantity, price, fees, and amount. Every row links to its holding (or the Bonds page for custody fees), and a "View All" button opens the full activity history
+- **vs Model card** — overlays your consolidated value against a chosen benchmark model (scaled to a common start), with a model picker and a link to `/models`
 
 ### Key Concepts
 
@@ -328,6 +332,61 @@ directly.
 
 ---
 
+## Model Portfolios
+
+Model portfolios are virtual, **weight-based target portfolios** you can compare against your real holdings. They don't hold transactions — instead they are _instantiated_ (notionally bought) over a historical period. Open them from the sidebar **Models** item.
+
+### What a Model Is
+
+| Concept | Description |
+| --- | --- |
+| **Constituents** | Instruments each with a target **weight** (0–1); non-cash weights sum to 100% |
+| **Notional capital** | Opening cash used to notionally buy the model (default AUD $1,000,000, configurable) |
+| **Min cash weight** | Optional strategic cash reserve; allocatable = `notional × (1 − minCash)` |
+| **Lookback** | Default instantiation period — 3 years before today, configurable |
+
+### Instantiation
+
+When a model is viewed it is instantiated with **whole units**: a purchase date is set at `today − lookback`, each constituent's budget is `allocatable × weight`, `units = floor(budget ÷ price)`, and the remainder becomes **residual cash** (always ≥ the strategic reserve). The detail page shows the target-weight pie, an **instantiation table** (price @ date, units, cost, actual %, residual cash), and value-over-time. You can change the as-of date / notional capital and re-instantiate.
+
+### Default (System) Models
+
+InvestaLens seeds a read-only library, badged by category:
+
+- **Diversified-ETF blends** — conservative, moderately conservative, balanced, growth, high growth (VAS/VGS/VGE/VAF/GOLD)
+- **All-in-one funds** — Vanguard VDCO / VDBA / VDGR / VDHG and Betashares DHHF
+- **Income / high yield** — VHY / IHD / RDV / VGS / VAF
+- **ASX index** — ASX 10/20/50, equal- and market-cap weighted
+
+### Validity & Health
+
+A model is **valid across the period** only if every constituent has price history starting on/before the purchase date **and** is still actively priced (not delisted). System models are guaranteed valid by a seed-time guard; your own models surface a warning and a green/amber/red **health badge** (also shown by the Share Checker model mode). The market-data **Update** button now also refreshes prices and company info for all model constituents.
+
+### Comparison Dashboard
+
+The `/models` dashboard overlays your **consolidated portfolio** against any models you select, **scaled** so all series start at the same value — differences are pure relative performance. A range selector (1Y/3Y/5Y/10Y/All) and per-series stat cards (total return, CAGR, max drawdown, volatility) complete the view.
+
+### Creating & Editing
+
+From **Models → New Model**, set the metadata (category, provider, notional, min cash, lookback) and add constituents with weights — use **Normalise weights** so they total 100% (enforced on save). **Duplicate** a system model to get an editable copy; system defaults are read-only.
+
+### Using Models Across the App
+
+| Feature | What a model unlocks |
+| --- | --- |
+| **Optimise** | Start from a real or model portfolio; run several strategies and **Save as model** (one per strategy) |
+| **Backtest** | Compare a mix of real + model portfolios against a benchmark |
+| **Correlations / Factors / Frontier / Stress** | A **source picker** analyses a model; the frontier plots each model as a labelled point |
+| **Black-Litterman** | Seed the equilibrium **prior** from a model's weights |
+| **What-If** | **Load from model** pre-fills holdings from an instantiated model |
+| **ETF X-ray** | Weighted look-through of a model's ETF constituents (detail page) |
+| **Reports** | **Model Comparison** report: your portfolio vs a model over time |
+| **Tax** | **Rebalance to model** CGT estimate on the Unrealised CGT page |
+| **Dashboard** | A **vs model** card overlays your consolidated value against a chosen model |
+| **Tools** | **Rebalancing & Drift**: target vs actual weights with buy/sell deltas |
+
+---
+
 ## 5. Performance & Reporting
 
 Comprehensive reporting suite covering performance, allocation, risk, and compliance.
@@ -355,6 +414,7 @@ Bond market value uses the latest stored price per $1 of face value, so refreshi
 | **Sold Securities**       | Realised gains/losses on closed positions                      | ✅ `/reports/sold-securities` |
 | **Future Income**         | Projected dividends and interest (up to 36 months)             | ✅ `/reports/future-income`   |
 | **Calendar**              | Month-by-month dividend schedule                               | ✅ Server action (stub UI)    |
+| **Model Comparison**      | Your portfolio vs a model over time (scaled, with metrics)     | ✅ `/reports/model-comparison` |
 
 ### Asset Allocation Reports
 
@@ -403,6 +463,7 @@ Australian-focused tax reporting with full CGT calculation, AMIT support, and ta
 - **Bond CGT treatment** — Traditional bonds exempt from CGT (gains reported as income); listed bonds &amp; hybrids subject to CGT; override per instrument ✅
 - **Proposed 2027 regime projection** — Opt-in toggle modelling cost-base indexation, the 30% minimum tax, and the 1 July 2027 transitional split ✅
 - **Manual franking classification** — Edit any dividend to set franked/unfranked amounts and franking credits (auto-fetched dividends are unclassified); compute credits from the franked amount at the 30% / 25% company tax rate ✅
+- **Rebalance to model** — Estimate the CGT of moving a portfolio to a model's target weights (sells required, assessable gain, estimated tax, net proceeds to reinvest) on the Unrealised CGT page ✅
 - **Lock-in** — Preserve CGT allocation for completed financial years _(⏳ To be Implemented)_
 - **AMIT support** — Enter Annual Tax Statement components for ETFs and trusts _(Schema ready, ⏳ full processing To be Implemented)_
 - **Stapled securities** — Handles dual trust/company distributions _(⏳ To be Implemented)_
@@ -465,9 +526,10 @@ All research tools are accessible via **Sidebar → Tools**:
 | Tool                 | Purpose                                                                           | How to Access             |
 | -------------------- | --------------------------------------------------------------------------------- | ------------------------- |
 | **Watchlist**        | Monitor potential investments with price alerts and research notes                | Tools → Watchlist         |
-| **Share Checker**    | Automated portfolio health checks — concentration, stale data, duplicates         | Tools → Share Checker     |
+| **Share Checker**    | Automated portfolio health checks — concentration, stale data, duplicates, plus **model validity / health** | Tools → Share Checker     |
 | **Market Sentiment** | Fear & Greed Index, VIX, ASX summary, sector heatmap                              | Tools → Market Sentiment  |
 | **AI Assistant**     | Chat-based portfolio Q&A powered by Gemini                                        | Tools → AI Assistant      |
+| **Rebalancing & Drift** | Target (model) vs actual weights with buy/sell deltas to realign               | Tools → Rebalancing & Drift |
 
 ### Financial Planning
 
@@ -487,6 +549,10 @@ The FIRE Calculator runs entirely client-side for instant feedback. It supports 
 
 Quantitative tools for portfolio construction, optimisation, and forward-looking analysis. All analytics tools are accessible via **Sidebar → Analytics**. The Python analytics backend (`api/analytics/`) provides computation via FastAPI on Vercel Services.
 
+### Using a Model as the Source
+
+Most analytics tools accept a **model portfolio** as the source as well as a real portfolio — pick **Portfolio | Model** in the source selector. This lights up correlations, factor analysis, the efficient frontier (each model also plotted as a labelled point), and stress testing. The optimiser and backtester additionally let you **start from a model**, and Black-Litterman can seed its **prior** from a model's weights.
+
 ### Portfolio Backtesting (Analytics → Backtesting)
 
 Test hypothetical allocations against history:
@@ -495,6 +561,7 @@ Test hypothetical allocations against history:
 - Walk-forward methodology with configurable rebalancing (monthly, quarterly, annually)
 - Full output: CAGR, Sharpe, Sortino, max drawdown, Calmar ratio, equity curve, drawdown chart
 - Strategy comparison and model selection via cross-validation
+- Compare a mix of **real + model portfolios** plus a benchmark (multi-select); deep links `?model=` / `?portfolio=` prefill the selection
 
 ### Monte Carlo Simulation (Analytics → Monte Carlo Simulation)
 
@@ -525,7 +592,7 @@ Real benchmark comparison using ASX 200, S&P 500, MSCI World, and ETF proxies.
 | **Hierarchical**            | Hierarchical Risk Parity (HRP) with dendrogram     |
 | **Risk Parity**             | Inverse volatility / risk budgeting                |
 
-Weight constraints (min/max per asset), current vs recommended comparison chart, and rebalancing trade calculator.
+Weight constraints (min/max per asset), current vs recommended comparison chart, and rebalancing trade calculator. You can run **multiple strategies** at once, start from a real **or** model portfolio, and **save** each result as a new model.
 
 ### Efficient Frontier (Analytics → Efficient Frontier)
 
@@ -534,6 +601,7 @@ Interactive scatter plot showing the risk-return tradeoff curve:
 - 50-point frontier with individual assets plotted
 - Max Sharpe and Min Risk special points highlighted
 - Hover to see allocation weights at any frontier point
+- Overlay selected **models** as labelled points to see where they sit relative to the frontier
 
 ### Black-Litterman Model (Analytics → Black-Litterman)
 
@@ -543,6 +611,7 @@ Combine market equilibrium with your personal investment views:
 - Per-view confidence sliders
 - Prior vs posterior expected returns comparison table
 - Optimal weights under BL model
+- Seed the equilibrium **prior** from a model's target weights (Prior: Market | Model)
 
 ### Estimation Methods
 

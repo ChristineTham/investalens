@@ -24,7 +24,21 @@ async def black_litterman(request: Request):
     n_assets = returns_df.shape[1]
     asset_names = returns_df.columns.tolist()
     cov = returns_df.cov().values * 252  # annualized
-    market_weights = np.ones(n_assets) / n_assets  # equal weight as market cap proxy
+
+    # Market (prior) weights. Default: equal weight as a market-cap proxy.
+    # When `config.priorWeights` is supplied (e.g. a model portfolio's target
+    # weights keyed by asset code), use those as the equilibrium prior instead.
+    prior_weights = config.get("priorWeights")
+    if prior_weights:
+        market_weights = np.array(
+            [float(prior_weights.get(name, 0.0)) for name in asset_names]
+        )
+        total = market_weights.sum()
+        market_weights = (
+            market_weights / total if total > 0 else np.ones(n_assets) / n_assets
+        )
+    else:
+        market_weights = np.ones(n_assets) / n_assets
 
     # Equilibrium (prior) returns: π = δΣw
     pi = risk_aversion * cov @ market_weights

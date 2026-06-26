@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   Briefcase,
+  Target,
   Wallet,
   BarChart3,
   FileText,
@@ -20,6 +21,7 @@ import {
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/portfolio", label: "Portfolio", icon: Briefcase },
+  { href: "/models", label: "Models", icon: Target },
   { href: "/accounts", label: "Accounts", icon: Wallet },
   { href: "/reports", label: "Reports", icon: FileText },
   { href: "/tax", label: "Tax", icon: Calculator },

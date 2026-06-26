@@ -33,6 +33,7 @@ InvestaLens includes a suite of advanced analytical tools for portfolio construc
 - [Portfolio Optimisation](#portfolio-optimisation)
 - [Efficient Frontier](#efficient-frontier)
 - [Black-Litterman Model](#black-litterman-model)
+- [Model Portfolios](#model-portfolios)
 - [Estimation Methods](#estimation-methods)
 - [Model Validation & Selection](#model-validation--selection)
 - [Factor Analysis](#factor-analysis)
@@ -634,6 +635,34 @@ Override defaults with your own views:
 - Monte Carlo simulation (forecasted returns model)
 - Black-Litterman model (as the equilibrium baseline)
 - FIRE Calculator (return assumption sensitivity)
+
+---
+
+## Model Portfolios
+
+**Model portfolios** are virtual, weight-based target portfolios that plug into the analytics
+engine exactly like a real portfolio. Each model is _instantiated_ (notionally bought with
+whole units over a configurable lookback) and exposes the same returns matrix shape as a real
+portfolio, so the Python compute layer is unchanged.
+
+### Capabilities
+
+| Surface | What a model adds |
+| --- | --- |
+| **Source picker** | Optimise, Backtest, Correlations, Factor Analysis, Efficient Frontier and Stress Testing accept `Portfolio | Model` as the source (shared `/api/v1/analytics/matrix?source=model` route) |
+| **Optimiser** | Start from a model and **save** optimal weights as new model(s) — one per selected strategy |
+| **Backtest** | Compare a mix of real + model portfolios against a benchmark (`POST /api/analytics/backtest/portfolios`) |
+| **Efficient frontier** | Each selected model is plotted as a labelled (risk, return) point vs the curve |
+| **Black-Litterman** | Seed the equilibrium **prior** from a model's target weights instead of cap/equal weights |
+| **Comparison dashboard** | `/models` overlays the consolidated portfolio against models, scaled to a common start |
+| **ETF X-ray** | Weighted look-through of a model's ETF constituents into underlying exposures |
+
+### Validity guard
+
+A model is valid across its period only if every constituent has price history covering the
+purchase date and is still actively priced (not delisted). System/default models are guarded
+at seed time; user models surface a green/amber/red health badge. See
+[the model portfolios overview](../plan/models-overview.md) for the full design.
 
 ---
 

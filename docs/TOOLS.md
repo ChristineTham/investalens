@@ -516,6 +516,23 @@ Customise alert thresholds via **Settings > Risk Preferences**:
 
 ---
 
+## Model Portfolios
+
+**Model portfolios** are virtual, weight-based target portfolios (a set of instruments with target weights summing to 100%) that you compare against your real, consolidated portfolio. They are managed from the sidebar **Models** item and surface across several tools and reports.
+
+| Surface | Where | What it does |
+| --- | --- | --- |
+| **Models dashboard** | `/models` | Scaled comparison of your consolidated portfolio vs selected models, with a range selector and per-series stat cards (total return, CAGR, max drawdown, volatility) |
+| **Model detail** | `/models/[id]` | Target-weight pie, instantiation table (whole units + residual cash), value-over-time, ETF look-through, and a green/amber/red health badge |
+| **Rebalancing & Drift** | Tools → Rebalancing & Drift | Pick a portfolio + target model; see target vs actual weights, the drift (Δ), and the buy/sell deltas (value and units) to realign |
+| **Model Comparison report** | Reports → Model Comparison | "How would my money have performed in model X vs my actual portfolio?" — scaled value curves + metrics |
+| **Share Checker (model mode)** | Tools → Share Checker | Runs concentration / data-quality checks plus the time-period validity check over a model's weights, with a health badge |
+| **Rebalance-to-model CGT** | Tax → Unrealised CGT | Estimates the sells and CGT to move a real portfolio to a model's target weights |
+
+Model portfolios also act as a **source** for Optimise, Backtest, Correlations, Factor Analysis, Efficient Frontier, Stress Testing, Black-Litterman and What-If — see [ADVANCED.md](ADVANCED.md#model-portfolios).
+
+---
+
 ## Common Report Features
 
 ### Grouping Options

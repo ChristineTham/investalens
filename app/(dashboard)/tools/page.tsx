@@ -17,6 +17,11 @@ const tools = [
     desc: "Portfolio health checks — duplicates, concentration, stale data.",
   },
   {
+    href: "/tools/rebalance",
+    title: "Rebalancing & Drift",
+    desc: "Compare actual vs a model's target weights with buy/sell deltas.",
+  },
+  {
     href: "/tools/sentiment",
     title: "Market Sentiment",
     desc: "Fear & Greed index, VIX, and market breadth indicators.",

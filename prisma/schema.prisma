@@ -16,6 +16,10 @@ model User {
   emailVerified DateTime?
   image         String?
   passwordHash  String?
+  // Preferred model portfolio for the dashboard "vs model" comparison card.
+  // Null ⇒ fall back to a seeded default (blend-balanced). Stores the model id
+  // (no FK so a deleted model simply falls back).
+  dashboardModelId String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -25,6 +29,7 @@ model User {
   apiTokens  ApiToken[]
   cashAccounts   CashAccount[]
   cashCategories CashCategory[]
+  modelPortfolios ModelPortfolio[]
 }
 
 model Account {
@@ -177,6 +182,7 @@ model Instrument {
   holdings Holding[]
   prices   Price[]
   info     InstrumentInfo?
+  modelConstituents ModelConstituent[]
 
   @@unique([code, marketCode])
   @@index([code])
@@ -614,4 +620,74 @@ model CronLog {
 
   @@index([job, startedAt])
   @@index([startedAt])
+}
+
+// ─── MODEL PORTFOLIOS ────────────────────────────────────────────────────────
+
+model ModelPortfolio {
+  id          String  @id @default(cuid())
+  // null userId ⇒ system/default (seeded) model, readable by every user.
+  userId      String?
+  name        String
+  // Stable slug for seeded defaults (e.g. "vanguard-balanced", "asx20-equal").
+  slug        String? @unique
+  description String?
+  // conservative | moderately_conservative | balanced | growth | high_growth | high_yield | index
+  category    String  @default("balanced")
+  // Vanguard | Betashares | ASX | Custom
+  provider    String?
+  isSystem    Boolean @default(false)
+  archived    Boolean @default(false)
+
+  baseCurrency         String  @default("AUD")
+  // Notional opening cash used to "buy" the model. Default AUD $1m.
+  notionalCapital      Decimal @default(1000000) @db.Decimal(18, 2)
+  // Strategic minimum cash reserve as a fraction (0..1) of notional capital.
+  minCashWeight        Decimal @default(0) @db.Decimal(9, 6)
+  // Default instantiation lookback in whole years before "today".
+  defaultLookbackYears Int     @default(3)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user           User?                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  constituents   ModelConstituent[]
+  instantiations ModelInstantiation[]
+
+  @@index([userId])
+  @@index([category])
+}
+
+model ModelConstituent {
+  id               String  @id @default(cuid())
+  modelPortfolioId String
+  instrumentId     String
+  // Target weight as a fraction (0..1). Non-cash weights sum to 1.
+  targetWeight     Decimal @db.Decimal(9, 6)
+  notes            String?
+  createdAt        DateTime @default(now())
+
+  modelPortfolio ModelPortfolio @relation(fields: [modelPortfolioId], references: [id], onDelete: Cascade)
+  instrument     Instrument     @relation(fields: [instrumentId], references: [id])
+
+  @@unique([modelPortfolioId, instrumentId])
+  @@index([modelPortfolioId])
+}
+
+// Optional cache of a computed instantiation (whole-unit purchase) at a date.
+// Computed lazily; safe to delete/rebuild. Keyed by model + date + capital.
+model ModelInstantiation {
+  id               String   @id @default(cuid())
+  modelPortfolioId String
+  asOfDate         DateTime @db.Date
+  notionalCapital  Decimal  @db.Decimal(18, 2)
+  // [{ instrumentId, code, units, price, cost, weight }]
+  holdings         Json
+  residualCash     Decimal  @db.Decimal(18, 2)
+  createdAt        DateTime @default(now())
+
+  modelPortfolio ModelPortfolio @relation(fields: [modelPortfolioId], references: [id], onDelete: Cascade)
+
+  @@unique([modelPortfolioId, asOfDate, notionalCapital])
+  @@index([modelPortfolioId])
 }

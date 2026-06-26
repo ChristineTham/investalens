@@ -79,6 +79,18 @@ InvestaLens uses a **dual-runtime architecture**: a Next.js application for the 
 3. Optimisation solver runs selected strategy (mean-variance, HRP, HERC, etc.)
 4. Results include efficient frontier, optimal weights, and comparison to current allocation
 
+### Model Portfolios
+
+Model portfolios are weight-based targets stored as `ModelPortfolio` + `ModelConstituent`
+(plus an optional `ModelInstantiation` cache). They hold no transactions: a model is
+_instantiated_ on demand as a pure computation over the `Price` table (whole-unit purchase at
+`today − lookback`, with residual cash). A shared returns-matrix route —
+`GET /api/v1/analytics/matrix` with `?source=portfolio` (default), `?source=model&model=<id>`
+or `?source=benchmark&code=<code>` — returns a **byte-compatible** matrix (weights as a
+`number[]` aligned to assets) so the Python analytics layer treats a model exactly like a real
+portfolio. System (default) models have `userId = null` and are guarded against delisted
+constituents at seed time (`scripts/validate-models.ts`).
+
 ---
 
 ## Tech Stack Decisions

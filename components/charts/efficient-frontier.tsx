@@ -30,6 +30,8 @@ interface EfficientFrontierChartProps {
   maxSharpe?: FrontierPoint | null;
   minRisk?: FrontierPoint | null;
   currentPortfolio?: { return: number; risk: number } | null;
+  /** Selected model portfolios plotted as labelled points. */
+  modelPoints?: { name: string; return: number; risk: number }[];
 }
 
 export function EfficientFrontierChart({
@@ -38,6 +40,7 @@ export function EfficientFrontierChart({
   maxSharpe,
   minRisk,
   currentPortfolio,
+  modelPoints,
 }: EfficientFrontierChartProps) {
   const frontierData = frontier.map((p) => ({
     risk: p.risk * 100,
@@ -73,6 +76,12 @@ export function EfficientFrontierChart({
       name: "Current",
     });
   }
+
+  const modelData = (modelPoints ?? []).map((m) => ({
+    risk: m.risk * 100,
+    return: m.return * 100,
+    name: m.name,
+  }));
 
   return (
     <ResponsiveContainer width="100%" height={400}>
@@ -120,6 +129,14 @@ export function EfficientFrontierChart({
             data={specialPoints}
             fill="hsl(var(--destructive))"
             shape="star"
+          />
+        )}
+        {modelData.length > 0 && (
+          <Scatter
+            name="Models"
+            data={modelData}
+            fill="var(--rosely11)"
+            shape="triangle"
           />
         )}
       </ScatterChart>

@@ -157,7 +157,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
   "portfolio": {
     title: "Portfolio Management",
     prev: { slug: "assets", title: "Supported Assets" },
-    next: { slug: "accounts", title: "Accounts & Cash" },
+    next: { slug: "models", title: "Model Portfolios" },
     sections: [
       {
         heading: "Portfolio Overview",
@@ -216,9 +216,67 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
     ],
   },
 
+  "models": {
+    title: "Model Portfolios",
+    prev: { slug: "portfolio", title: "Portfolio Management" },
+    next: { slug: "accounts", title: "Accounts & Cash" },
+    sections: [
+      {
+        heading: "What Model Portfolios Are",
+        content: `<p>A <strong>model portfolio</strong> is a virtual, weight-based target portfolio &mdash; a set of instruments each with a target weight (summing to 100%). Models do not hold real transactions; instead they are <strong>instantiated</strong> (notionally &ldquo;bought&rdquo;) over a historical period so you can compare them against your real, consolidated portfolio. Open them from the sidebar <strong>Models</strong> item.</p>
+<p>InvestaLens ships a library of read-only <strong>system models</strong> &mdash; diversified-ETF blends (conservative &rarr; high growth), all-in-one funds (Vanguard VDCO/VDBA/VDGR/VDHG, Betashares DHHF), an income / high-yield model, and ASX 10/20/50 index models (equal- and market-weighted). You can also create your own.</p>`,
+      },
+      {
+        heading: "How Instantiation Works",
+        content: `<ol>
+<li>A purchase date is chosen as <code>today &minus; lookback years</code> (default 3 years, configurable).</li>
+<li>Allocatable capital = <code>notional capital &times; (1 &minus; min cash weight)</code> (default notional AUD $1,000,000).</li>
+<li>Each constituent&rsquo;s budget = <code>allocatable &times; target weight</code>; units = <code>floor(budget / price)</code> &mdash; <strong>whole units only</strong>.</li>
+<li>Residual cash = notional &minus; total cost, always at least the strategic minimum reserve.</li>
+<li>Value over time = &Sigma;(units &times; price) + residual cash.</li>
+</ol>
+<p>The detail page shows the target-weight pie, an <strong>instantiation table</strong> (price, whole units, cost, actual %, residual cash) and a value-over-time chart. You can change the as-of date and notional capital and re-instantiate.</p>`,
+      },
+      {
+        heading: "Validity & Health",
+        content: `<p>A model is <strong>valid across the period</strong> only if every constituent has price history starting on/before the purchase date <em>and</em> is still actively priced today. Delisted/acquired names (e.g. NCM) or too-recent listings fail this check. System models are guaranteed valid by a seed-time guard; your own models surface a warning on the constituent and detail pages, and a green/amber/red <strong>health badge</strong> (also shown by Share Checker&rsquo;s model mode).</p>
+<p>The market-data <strong>Update</strong> button (Settings &rarr; Market Data) now also refreshes prices and company info for every model constituent over a window covering the lookback.</p>`,
+      },
+      {
+        heading: "Comparison Dashboard",
+        content: `<p>The <strong>/models</strong> dashboard overlays your consolidated portfolio against any models you select, <strong>scaled</strong> so every series starts at the same value &mdash; so differences are pure relative performance. A range selector (1Y/3Y/5Y/10Y/All) and per-series stat cards (total return, CAGR, max drawdown, volatility) complete the view. Model cards below link to each model&rsquo;s detail page.</p>`,
+      },
+      {
+        heading: "Creating & Editing",
+        content: `<ol>
+<li>Sidebar &rarr; <strong>Models</strong> &rarr; <strong>New Model</strong>.</li>
+<li>Set name, category, provider, base currency, notional capital, min cash reserve and lookback.</li>
+<li>Search and add instruments, set each weight, then use <strong>Normalise weights</strong> so they sum to 100% (enforced on save). Inline warnings flag delisted/short-history constituents.</li>
+<li><strong>Duplicate</strong> a system model to get an editable copy; system defaults themselves are read-only.</li>
+</ol>`,
+      },
+      {
+        heading: "Using Models Across the App",
+        content: `<table>
+<tr><th>Feature</th><th>What a model unlocks</th></tr>
+<tr><td><strong>Optimise</strong></td><td>Start from a real <em>or</em> model portfolio; run several strategies and <strong>Save as model</strong> (one per strategy)</td></tr>
+<tr><td><strong>Backtest</strong></td><td>Compare a mix of real + model portfolios against a benchmark</td></tr>
+<tr><td><strong>Correlations / Factors / Frontier / Stress</strong></td><td>A <strong>source picker</strong> analyses a model; the frontier plots each model as a labelled point</td></tr>
+<tr><td><strong>Black-Litterman</strong></td><td>Seed the equilibrium <strong>prior</strong> from a model&rsquo;s target weights</td></tr>
+<tr><td><strong>What-If</strong></td><td><strong>Load from model</strong> pre-fills holdings from an instantiated model</td></tr>
+<tr><td><strong>ETF X-ray</strong></td><td>Weighted look-through of a model&rsquo;s ETF constituents on the detail page</td></tr>
+<tr><td><strong>Reports</strong></td><td><strong>Model Comparison</strong> report: your portfolio vs a model over time</td></tr>
+<tr><td><strong>Tax</strong></td><td><strong>Rebalance to model</strong> CGT estimate on the Unrealised CGT page</td></tr>
+<tr><td><strong>Dashboard</strong></td><td>A <strong>vs model</strong> card overlays your consolidated value against a chosen model</td></tr>
+<tr><td><strong>Tools</strong></td><td><strong>Rebalancing &amp; Drift</strong>: target vs actual weights with buy/sell deltas</td></tr>
+</table>`,
+      },
+    ],
+  },
+
   "accounts": {
     title: "Accounts & Cash",
-    prev: { slug: "portfolio", title: "Portfolio Management" },
+    prev: { slug: "models", title: "Model Portfolios" },
     next: { slug: "reports", title: "Performance & Reporting" },
     sections: [
       {

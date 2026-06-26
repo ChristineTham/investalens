@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { checkPortfolio } from "@/lib/services/share-checker";
+import { ModelChecker } from "./model-checker";
 
 export default async function CheckerPage() {
   const session = await auth();
@@ -14,9 +15,14 @@ export default async function CheckerPage() {
 
   if (portfolios.length === 0) {
     return (
-      <div className="space-y-4">
-        <h1 className="font-serif text-2xl font-bold">Share Checker</h1>
-        <p className="text-muted-foreground">Create a portfolio first.</p>
+      <div className="space-y-6">
+        <div>
+          <h1 className="font-serif text-2xl font-bold">Share Checker</h1>
+          <p className="text-muted-foreground">
+            Create a portfolio to check your holdings, or check a model below.
+          </p>
+        </div>
+        <ModelChecker />
       </div>
     );
   }
@@ -49,6 +55,8 @@ export default async function CheckerPage() {
             : `Found ${totalIssues} issue${totalIssues > 1 ? "s" : ""} across your portfolios.`}
         </p>
       </div>
+
+      <ModelChecker />
 
       {results.map((r) => {
         const checks = r.checks;

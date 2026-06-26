@@ -99,6 +99,13 @@ the feature docs; each item is flagged in place and gathered here for visibility
 > Black-Litterman, estimation methods, factor analysis, tactical allocation, stress testing,
 > risk metrics) is **implemented**.
 
+> **Model Portfolios** (weight-based target models, scaled comparison dashboard, default model
+> library with validity guard, optimise/backtest integration, model source picker, frontier
+> model points, Black-Litterman prior, What-If load-from-model, ETF look-through, Model
+> Comparison report, Rebalancing & Drift tool, rebalance-to-model CGT estimate, dashboard
+> vs-model card) is **implemented**. Deferred: auto-rebalancing / drift alerts, one-click
+> "convert model → real portfolio" trade tickets, and model sharing between users.
+
 ## API
 
 | Feature | Status | 🎯 Target | Source |

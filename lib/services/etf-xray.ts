@@ -1,3 +1,5 @@
+import { db } from "@/lib/db";
+
 // Common AU ETF top holdings (hardcoded — refresh monthly)
 const ETF_HOLDINGS: Record<string, { name: string; weight: number; sector: string }[]> = {
   "VAS.AX": [
@@ -123,4 +125,26 @@ export async function xrayPortfolio(
     overlap,
     concentrationAlerts,
   };
+}
+
+/**
+ * Weighted look-through of a model portfolio: decompose each ETF constituent
+ * into its underlying holdings, weighted by the constituent's target weight.
+ * Direct shares pass through unchanged.
+ */
+export async function getModelLookThrough(
+  modelId: string
+): Promise<XrayResult> {
+  const model = await db.modelPortfolio.findUnique({
+    where: { id: modelId },
+    include: { constituents: { include: { instrument: true } } },
+  });
+  if (!model) throw new Error("Model not found");
+
+  const holdings = model.constituents.map((c) => ({
+    code: c.instrument.code,
+    weight: Number(c.targetWeight),
+  }));
+
+  return xrayPortfolio(holdings);
 }

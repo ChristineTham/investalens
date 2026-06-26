@@ -3,6 +3,13 @@
 import { useState } from "react";
 import { DateRangeSelector, type DateRange } from "@/components/analytics/date-range-selector";
 import { EfficientFrontierChart } from "@/components/charts/efficient-frontier";
+import { SourcePicker, type SourceValue } from "@/components/analytics/source-picker";
+import { fetchAnalyticsMatrix } from "@/lib/hooks/use-analytics-matrix";
+import {
+  collapseToReturnSeries,
+  type ReturnsMatrixLike,
+} from "@/lib/calculations/returns-matrix";
+import { cn } from "@/lib/utils";
 
 interface FrontierPoint {
   return: number;
@@ -18,26 +25,61 @@ interface FrontierResult {
   minRisk: FrontierPoint | null;
 }
 
+interface ModelPoint {
+  name: string;
+  return: number;
+  risk: number;
+}
+
+/** Annualised (return, risk) from a daily return series. */
+function annualise(returns: number[]): { return: number; risk: number } {
+  if (returns.length < 2) return { return: 0, risk: 0 };
+  const mean = returns.reduce((a, r) => a + r, 0) / returns.length;
+  const variance =
+    returns.reduce((a, r) => a + (r - mean) ** 2, 0) / (returns.length - 1);
+  return { return: mean * 252, risk: Math.sqrt(variance) * Math.sqrt(252) };
+}
+
 export function FrontierClient({
   portfolios,
+  models,
 }: {
   portfolios: { id: string; name: string }[];
+  models: { id: string; name: string }[];
 }) {
-  const [portfolioId, setPortfolioId] = useState(portfolios[0].id);
+  const [src, setSrc] = useState<SourceValue>(
+    portfolios.length > 0
+      ? { source: "portfolio", id: portfolios[0].id }
+      : { source: "model", id: models[0]?.id ?? "" }
+  );
   const [dateRange, setDateRange] = useState<DateRange>("3Y");
+  const [compareModelIds, setCompareModelIds] = useState<string[]>([]);
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<FrontierResult | null>(null);
+  const [modelPoints, setModelPoints] = useState<ModelPoint[]>([]);
+  const [currentPoint, setCurrentPoint] = useState<{
+    return: number;
+    risk: number;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  function toggleCompare(id: string) {
+    setCompareModelIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  }
 
   async function handleRun() {
     setRunning(true);
     setError(null);
     try {
-      const matrixRes = await fetch(
-        `/api/v1/analytics/matrix?portfolio=${portfolioId}&range=${dateRange}`
-      );
-      if (!matrixRes.ok) throw new Error("Failed to load portfolio data");
-      const matrix = await matrixRes.json();
+      const matrix = (await fetchAnalyticsMatrix(
+        src,
+        dateRange
+      )) as ReturnsMatrixLike;
+
+      // The source's own (risk, return) point.
+      setCurrentPoint(annualise(collapseToReturnSeries(matrix).returns));
 
       const res = await fetch("/api/analytics/frontier", {
         method: "POST",
@@ -49,6 +91,22 @@ export function FrontierClient({
         throw new Error(err.detail || `Frontier failed: ${res.status}`);
       }
       setResult(await res.json());
+
+      // Plot each selected comparison model as a labelled point.
+      const points = await Promise.all(
+        compareModelIds.map(async (id) => {
+          const m = models.find((x) => x.id === id)!;
+          const mMatrix = (await fetchAnalyticsMatrix(
+            { source: "model", id },
+            dateRange
+          )) as ReturnsMatrixLike;
+          const { return: ret, risk } = annualise(
+            collapseToReturnSeries(mMatrix).returns
+          );
+          return { name: m.name, return: ret, risk };
+        })
+      );
+      setModelPoints(points);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
@@ -66,18 +124,12 @@ export function FrontierClient({
       </div>
 
       <div className="flex flex-wrap items-end gap-4">
-        <div>
-          <label className="text-sm font-medium">Portfolio</label>
-          <select
-            className="mt-1 block rounded-md border border-input bg-background px-3 py-2 text-sm"
-            value={portfolioId}
-            onChange={(e) => setPortfolioId(e.target.value)}
-          >
-            {portfolios.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
-        </div>
+        <SourcePicker
+          portfolios={portfolios}
+          models={models}
+          value={src}
+          onChange={setSrc}
+        />
         <div>
           <label className="text-sm font-medium">Date Range</label>
           <div className="mt-1">
@@ -94,6 +146,29 @@ export function FrontierClient({
         </button>
       </div>
 
+      {models.length > 0 && (
+        <div>
+          <span className="text-sm font-medium">Compare models</span>
+          <div className="mt-1 flex flex-wrap gap-2">
+            {models.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => toggleCompare(m.id)}
+                className={cn(
+                  "rounded-full border px-3 py-1 text-xs transition-colors",
+                  compareModelIds.includes(m.id)
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border text-muted-foreground hover:bg-accent"
+                )}
+              >
+                {m.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {error && (
         <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
           {error}
@@ -107,6 +182,8 @@ export function FrontierClient({
             assets={result.assets}
             maxSharpe={result.maxSharpe}
             minRisk={result.minRisk}
+            currentPortfolio={currentPoint}
+            modelPoints={modelPoints}
           />
 
           {result.maxSharpe && (

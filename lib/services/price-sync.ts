@@ -49,6 +49,67 @@ const BENCHMARK_SEED = [
   { code: "SPY", marketCode: "NYSE", name: "SPDR S&P 500 ETF Trust", instrumentType: "ETF", currency: "USD", country: "US" },
 ];
 
+// ─── Model-portfolio constituents ────────────────────────────────────────────
+// Models have no transactions, so there is no earliest-trade date to anchor a
+// backfill. Use a lookback-aware floor so prices cover the whole instantiation
+// period (default 3y + buffer).
+const MIN_MODEL_YEARS = 5;
+
+interface ModelInstrument {
+  id: string;
+  code: string;
+  marketCode: string;
+  currency: string;
+  instrumentType: string;
+  /** Max instantiation lookback (years) of any model referencing this instrument. */
+  maxLookback: number;
+}
+
+/**
+ * Distinct instruments referenced by any model the user can see (own + system),
+ * each tagged with the maximum lookback of the models that reference it.
+ */
+async function getModelInstruments(
+  userId: string
+): Promise<Map<string, ModelInstrument>> {
+  const rows = await db.modelConstituent.findMany({
+    where: { modelPortfolio: { OR: [{ userId }, { userId: null }] } },
+    select: {
+      modelPortfolio: { select: { defaultLookbackYears: true } },
+      instrument: {
+        select: {
+          id: true,
+          code: true,
+          marketCode: true,
+          currency: true,
+          instrumentType: true,
+        },
+      },
+    },
+  });
+
+  const map = new Map<string, ModelInstrument>();
+  for (const r of rows) {
+    const inst = r.instrument;
+    const lookback = r.modelPortfolio.defaultLookbackYears;
+    const existing = map.get(inst.id);
+    if (existing) {
+      existing.maxLookback = Math.max(existing.maxLookback, lookback);
+    } else {
+      map.set(inst.id, { ...inst, maxLookback: lookback });
+    }
+  }
+  return map;
+}
+
+/** Lookback-aware backfill start for a model instrument with no transactions. */
+function modelWindowStart(maxLookback: number, now = new Date()): Date {
+  const years = Math.max(MIN_MODEL_YEARS, maxLookback + 1);
+  const windowStart = new Date(now);
+  windowStart.setFullYear(windowStart.getFullYear() - years);
+  return windowStart;
+}
+
 // ─── Phase 1: Shares & ETFs (Yahoo Finance) ──────────────────────────────────
 
 async function fetchHistoricalRange(
@@ -123,7 +184,20 @@ export async function syncSharePrices(
     },
   });
 
-  const total = benchmarks.length + holdings.length;
+  // Model constituents (own + system) that are equities/ETFs and not already
+  // covered by a benchmark or holding above. Deduped to avoid double-fetching.
+  const coveredIds = new Set<string>([
+    ...benchmarks.map((b) => b.id),
+    ...holdings.map((h) => h.instrument.id),
+  ]);
+  const modelInstruments = await getModelInstruments(userId);
+  const modelShareList = [...modelInstruments.values()].filter(
+    (m) =>
+      !coveredIds.has(m.id) &&
+      !["bond", "fixed_interest"].includes(m.instrumentType)
+  );
+
+  const total = benchmarks.length + holdings.length + modelShareList.length;
   emit({ type: "phase", phase: "shares", label: "Shares & ETFs", total });
 
   let fetched = 0;
@@ -253,7 +327,33 @@ export async function syncSharePrices(
     }
   }
 
-  const result = { fetched, failed, total: holdings.length };
+  // Model-only constituents: fetch prices only (no dividend auto-posting —
+  // that logic is holding-specific). Lookback-aware backfill start.
+  for (const m of modelShareList) {
+    current++;
+    emit({ type: "item", phase: "shares", current, total, label: m.code });
+    try {
+      const latestPrice = await db.price.findFirst({
+        where: { instrumentId: m.id },
+        orderBy: { date: "desc" },
+        select: { date: true },
+      });
+      const from = latestPrice
+        ? new Date(latestPrice.date.getTime() + 86400000)
+        : modelWindowStart(m.maxLookback, now);
+      fetched += await fetchHistoricalRange(
+        m.id,
+        m.code,
+        m.marketCode,
+        from,
+        now
+      );
+    } catch {
+      failed++;
+    }
+  }
+
+  const result = { fetched, failed, total: holdings.length + modelShareList.length };
   emit({ type: "result", section: "shares", data: result });
   return result;
 }
@@ -306,6 +406,21 @@ export async function syncBondPrices(
 
   const instruments = new Map<string, (typeof holdings)[number]["instrument"]>();
   for (const h of holdings) instruments.set(h.instrument.id, h.instrument);
+
+  // Model constituents (own + system) that are bonds/fixed interest, deduped
+  // against the holding bonds above.
+  const modelBondRows = await db.modelConstituent.findMany({
+    where: {
+      modelPortfolio: { OR: [{ userId }, { userId: null }] },
+      instrument: { instrumentType: { in: ["bond", "fixed_interest"] } },
+    },
+    select: {
+      instrument: {
+        select: { id: true, code: true, couponRate: true, maturityDate: true, sector: true },
+      },
+    },
+  });
+  for (const r of modelBondRows) instruments.set(r.instrument.id, r.instrument);
 
   const list = [...instruments.values()];
   emit({ type: "phase", phase: "bonds", label: "Bond prices", total: list.length });
@@ -430,6 +545,20 @@ export async function syncStockInfo(
   for (const h of holdings) {
     if (supportsStockInfo(h.instrument.instrumentType)) {
       instruments.set(h.instrument.id, h.instrument);
+    }
+  }
+
+  // Model constituents (own + system) so model detail/X-ray views show company
+  // info. Deduped against holdings above.
+  const modelInstruments = await getModelInstruments(userId);
+  for (const m of modelInstruments.values()) {
+    if (!instruments.has(m.id) && supportsStockInfo(m.instrumentType)) {
+      instruments.set(m.id, {
+        id: m.id,
+        code: m.code,
+        marketCode: m.marketCode,
+        instrumentType: m.instrumentType,
+      });
     }
   }
 

@@ -256,6 +256,17 @@ Calculates unrealised capital gains in your portfolio and the resulting taxable 
 
 > **Note:** InvestaLens does not automatically account for capital losses from previous tax years. Carry forward losses must be entered manually and are not saved between report runs.
 
+### Rebalance to a Model (CGT estimate)
+
+The Unrealised CGT page includes a **Rebalance to model** estimator. Pick a portfolio and a
+[model portfolio](TOOLS.md#model-portfolios); InvestaLens computes the **sells** required to
+move from your actual weights to the model's target weights and estimates the **CGT impact**
+by taking each holding's unrealised gain proportionally (honouring the discount/indexation
+figures already computed for the Unrealised CGT report). The output shows the sell value,
+assessable gain, estimated tax at your marginal rate, and the net proceeds available to
+reinvest. This is an **estimate only** — it does not select specific parcels or generate trade
+tickets.
+
 ---
 
 ## CGT Methods, Indexation & Bonds

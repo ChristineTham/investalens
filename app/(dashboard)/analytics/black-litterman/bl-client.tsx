@@ -21,13 +21,17 @@ interface BLResult {
 
 export function BlackLittermanClient({
   portfolios,
+  models,
   assets,
 }: {
   portfolios: { id: string; name: string }[];
+  models: { id: string; name: string }[];
   assets: { code: string; name: string }[];
 }) {
   const [portfolioId, setPortfolioId] = useState(portfolios[0].id);
   const [dateRange, setDateRange] = useState<DateRange>("3Y");
+  const [priorMode, setPriorMode] = useState<"market" | "model">("market");
+  const [priorModelId, setPriorModelId] = useState(models[0]?.id ?? "");
   const [views, setViews] = useState<View[]>([]);
   const [tau, setTau] = useState(0.05);
   const [riskAversion, setRiskAversion] = useState(2.5);
@@ -66,12 +70,30 @@ export function BlackLittermanClient({
       if (!matrixRes.ok) throw new Error("Failed to load portfolio data");
       const matrix = await matrixRes.json();
 
+      // Optionally seed the equilibrium prior from a model's target weights.
+      let priorWeights: Record<string, number> | undefined;
+      if (priorMode === "model" && priorModelId) {
+        const mRes = await fetch(
+          `/api/v1/analytics/matrix?source=model&model=${priorModelId}&range=${dateRange}`
+        );
+        if (mRes.ok) {
+          const mMatrix = await mRes.json();
+          // Model matrix weights are an array aligned to `assets`; build a
+          // code→weight map for the BL prior.
+          const codes: string[] = mMatrix.assets ?? [];
+          const arr: number[] = mMatrix.weights ?? [];
+          priorWeights = Object.fromEntries(
+            codes.map((c, i) => [c, Number(arr[i] ?? 0)])
+          );
+        }
+      }
+
       const res = await fetch("/api/analytics/black-litterman", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...matrix,
-          config: { views, tau, riskAversion },
+          config: { views, tau, riskAversion, priorWeights },
         }),
       });
       if (!res.ok) {
@@ -139,6 +161,53 @@ export function BlackLittermanClient({
             onChange={(e) => setRiskAversion(Number(e.target.value))}
           />
         </div>
+        <div>
+          <span className="text-sm font-medium">Prior</span>
+          <div className="mt-1 flex rounded-md border border-input">
+            <button
+              type="button"
+              onClick={() => setPriorMode("market")}
+              className={`rounded-l-md px-3 py-2 text-sm font-medium ${
+                priorMode === "market"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent"
+              }`}
+            >
+              Market
+            </button>
+            <button
+              type="button"
+              onClick={() => setPriorMode("model")}
+              disabled={models.length === 0}
+              className={`rounded-r-md px-3 py-2 text-sm font-medium disabled:opacity-40 ${
+                priorMode === "model"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent"
+              }`}
+            >
+              Model
+            </button>
+          </div>
+        </div>
+        {priorMode === "model" && (
+          <div>
+            <label className="text-sm font-medium" htmlFor="prior-model">
+              Prior Model
+            </label>
+            <select
+              id="prior-model"
+              className="mt-1 block rounded-md border border-input bg-background px-3 py-2 text-sm"
+              value={priorModelId}
+              onChange={(e) => setPriorModelId(e.target.value)}
+            >
+              {models.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       {/* Views */}

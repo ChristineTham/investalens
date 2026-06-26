@@ -38,6 +38,14 @@ A comprehensive portfolio tracker and optimiser for Australian investors. Track 
 - **AI Importer** — Parse financial documents with Gemini AI (optional)
 - **AI Chat Assistant** — Portfolio Q&A powered by Gemini (optional)
 
+## Features (Model Portfolios)
+
+- **Model Portfolios** — Weight-based target portfolios, _instantiated_ (notionally bought with whole units) over a configurable historical period and compared against your real consolidated portfolio. A new **Models** sidebar item opens list, create, edit, detail, and a **comparison dashboard** that scales the consolidated portfolio against selected models to a common start (range selector + stat cards)
+- **Default model library** — Seeded, read-only **system models**: diversified-ETF blends (conservative → high growth), all-in-one funds (Vanguard VDCO/VDBA/VDGR/VDHG, Betashares DHHF), an income/high-yield model, and ASX 10/20/50 index models (equal- & market-weighted)
+- **Validity & health** — Time-period coverage check (no delisted names; system models guarded at seed time) surfaced as a green/amber/red health badge; the market-data **Update** flow also refreshes prices & info for all model constituents
+- **Optimise & backtest** — Start the optimiser from a real **or** model portfolio and **save optimal weights as new model(s)**; backtest a mix of real + model portfolios against a benchmark
+- **Cross-feature integrations** — Model **source picker** across correlations, factors, efficient frontier (model-point overlay) and stress testing; **Black-Litterman model prior**; What-If **load from model**; **ETF X-ray look-through**; a **Model Comparison** report; a **Rebalancing & Drift** tool; a **rebalance-to-model CGT estimate**; and a dashboard **vs-model** card
+
 ## Tech Stack
 
 | Layer      | Technology                                                |
@@ -101,6 +109,7 @@ app/                    # Next.js App Router pages
   (dashboard)/          # All authenticated pages
     dashboard/          # Summary dashboard (cards incl. cash & net worth, consolidated charts with universal timescale, allocation treemap, recent activity, all transactions)
     portfolio/          # Portfolio CRUD, holdings, import, bonds; linked cash accounts
+    models/             # Model portfolios: list, detail, create, edit, comparison dashboard
     accounts/           # First-class bank & cash accounts: statement import, categories, reconciliation, portfolio linking
     reports/            # 10 report pages
     tax/                # Tax reports (taxable income, CGT, unrealised)
@@ -130,15 +139,15 @@ lib/
   reports/              # Report generators (performance, tax, etc.)
   import/               # CSV/OFX/QIF parsers, mapper, cash mapper, dedup, broker + cash templates, auto-categorisation, custom importers (FIIG)
   providers/            # Yahoo Finance, FIIG bond rates, instrument search, FX rates
-  services/             # Price, analytics data, benchmark, ETF X-ray, share checker, sentiment, factor data, stock info, accounts, reconciliation, cash ledger
+  services/             # Price, analytics data, benchmark, ETF X-ray, share checker, sentiment, factor data, stock info, accounts, reconciliation, cash ledger, model portfolio/analytics/compare, rebalance/drift
   export/               # CSV/JSON export functions
   api/                  # API middleware, rate limiting
   validators/           # Zod schemas
 prisma/
-  schema.prisma         # 30 models
+  schema.prisma         # 33 models
   migrations/           # Database migrations
   seed.ts               # Test data seeder
-scripts/                # Standalone scripts (seed benchmarks, fetch prices, test pipeline)
+scripts/                # Standalone scripts (seed benchmarks/models, fetch prices, validate models, test pipeline)
 test-data/              # Sample broker CSVs for testing
 ```
 
@@ -228,6 +237,9 @@ The app sends this secret as the `x-vercel-protection-bypass` header on internal
 | `pnpm exec prisma studio`     | Visual database browser  |
 | `pnpm db:cpi`                 | Load/refresh RBA CPI data (CGT indexation)  |
 | `pnpm verify:cgt2027`         | Verify the proposed 2027 CGT engine         |
+| `pnpm seed:models`            | Seed/refresh the default (system) model library |
+| `pnpm fetch:model-prices`     | Fetch ~10y daily prices for all model constituents |
+| `pnpm validate:models`        | Guard: system models valid across lookback (no delisted names) |
 | `pnpm tsx scripts/check-referential-integrity.ts` | Validate database referential integrity (add `--fix` to repair) |
 
 ## Documentation
