@@ -252,13 +252,12 @@ export function CategoryBar({
       </div>
     );
   }
-  const total = data.reduce((s, d) => s + d.value, 0);
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart
         data={data}
         layout="vertical"
-        margin={{ top: 5, right: 12, left: 8, bottom: 5 }}
+        margin={{ top: 5, right: 16, left: 8, bottom: 5 }}
       >
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
         <XAxis
@@ -273,18 +272,44 @@ export function CategoryBar({
           stroke="var(--muted-foreground)"
           fontSize={11}
           width={112}
-          tickFormatter={(v) => String(v)}
         />
         <Tooltip
           cursor={{ fill: "var(--accent)", opacity: 0.3 }}
-          content={<CategoryTooltip currency={currency} total={total} />}
+          content={<DirectionTooltip currency={currency} />}
         />
-        <Bar dataKey="value" radius={[0, 4, 4, 0]} isAnimationActive={false}>
-          {data.map((d, i) => (
-            <Cell key={d.name} fill={d.color ?? holdingColor(i).var} />
+        <ReferenceLine x={0} stroke="var(--muted-foreground)" />
+        <Bar dataKey="value" radius={2} isAnimationActive={false}>
+          {data.map((d) => (
+            <Cell
+              key={d.name}
+              fill={d.value >= 0 ? "var(--rosely14)" : "var(--rosely11)"}
+            />
           ))}
         </Bar>
       </BarChart>
     </ResponsiveContainer>
+  );
+}
+
+/** Tooltip for the diverging category bar: shows direction + magnitude. */
+function DirectionTooltip({
+  active,
+  payload,
+  currency,
+}: {
+  active?: boolean;
+  payload?: { payload: CategoryDatum }[];
+  currency: string;
+}) {
+  if (!active || !payload || payload.length === 0) return null;
+  const d = payload[0].payload;
+  const inflow = d.value >= 0;
+  return (
+    <div className="rounded-md border border-border bg-card p-2.5 text-xs shadow-md">
+      <p className="font-medium">{d.name}</p>
+      <p className="tabular-nums">
+        {inflow ? "Inflow" : "Outflow"}: {formatCurrency(Math.abs(d.value), currency)}
+      </p>
+    </div>
   );
 }
