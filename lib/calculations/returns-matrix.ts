@@ -18,7 +18,8 @@ export function resolveWeights(matrix: ReturnsMatrixLike): number[] {
   let weights: number[];
 
   if (Array.isArray(matrix.weights)) {
-    weights = matrix.assets.map((_, i) => Number(matrix.weights[i] ?? 0));
+    const arr = matrix.weights;
+    weights = matrix.assets.map((_, i) => Number(arr[i] ?? 0));
   } else {
     const map = matrix.weights as Record<string, number>;
     weights = matrix.assets.map((code) => Number(map[code] ?? 0));
