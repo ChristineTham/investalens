@@ -146,7 +146,7 @@ export function calculateHoldingPerformance(
   const totalReturnPercent = costBase > 0 ? (totalReturn / costBase) * 100 : 0;
 
   const days = (dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24);
-  const annualisedReturn = annualiseReturn(totalReturnPercent / 100, days);
+  const annualisedReturn = annualiseReturn(totalReturnPercent, days);
 
   return {
     holdingId: "",
@@ -207,9 +207,4 @@ export function calculatePortfolioPerformance(
     dividendIncome,
     currencyGains,
   };
-}
-
-export function annualiseReturn(totalReturn: number, days: number): number {
-  if (days <= 0 || totalReturn <= -1) return 0;
-  return (Math.pow(1 + totalReturn, 365.25 / days) - 1) * 100;
 }
