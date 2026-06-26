@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Treemap, ResponsiveContainer, Tooltip } from "recharts";
 
@@ -308,12 +308,13 @@ function TreemapTooltip({
 export function PortfolioValueTreemap({ data }: PortfolioValueTreemapProps) {
   const router = useRouter();
 
-  // Resolve each portfolio's chosen colour to an HSL hue after mount (client
-  // only, to avoid an SSR/hydration mismatch). Falls back to PORTFOLIO_HUES.
-  const [hues, setHues] = useState<(number | null)[]>([]);
-  useEffect(() => {
-    setHues(data.map((p) => (p.color ? cssColorToHue(p.color) : null)));
-  }, [data]);
+  // Resolve each portfolio's chosen colour to an HSL hue. `cssColorToHue`
+  // returns null during SSR; the treemap only renders once ResponsiveContainer
+  // has a measured width on the client, so no hydration mismatch occurs.
+  const hues = useMemo(
+    () => data.map((p) => (p.color ? cssColorToHue(p.color) : null)),
+    [data]
+  );
 
   const visible = useMemo(() => data.filter((p) => p.holdings.length > 0), [data]);
 
