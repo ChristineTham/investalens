@@ -65,7 +65,7 @@ export function SignedBarChart({
         />
         <Tooltip
           cursor={{ fill: "var(--muted)" }}
-          formatter={(v: number) => [fmt(v), ""]}
+          formatter={(v) => [fmt(Number(v)), ""]}
           contentStyle={{
             fontSize: 12,
             borderRadius: 8,
