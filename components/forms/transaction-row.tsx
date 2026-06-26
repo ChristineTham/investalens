@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   deleteTransaction,
   updateTransaction,
@@ -25,11 +27,21 @@ interface TransactionRowProps {
     foreignTax?: unknown;
   };
   currency: string;
+  /** Optional security code shown as an extra column for a portfolio-wide list. */
+  securityCode?: string;
+  /** Optional link target for the security code (e.g. the holding page). */
+  securityHref?: string;
 }
 
 const INCOME_TYPES = ["DIVIDEND", "INTEREST", "COUPON"];
 
-export function TransactionRow({ transaction: tx, currency }: TransactionRowProps) {
+export function TransactionRow({
+  transaction: tx,
+  currency,
+  securityCode,
+  securityHref,
+}: TransactionRowProps) {
+  const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -58,7 +70,7 @@ export function TransactionRow({ transaction: tx, currency }: TransactionRowProp
     setDeleting(true);
     try {
       await deleteTransaction(tx.id);
-      window.location.reload();
+      router.refresh();
     } catch {
       setDeleting(false);
     }
@@ -75,7 +87,7 @@ export function TransactionRow({ transaction: tx, currency }: TransactionRowProp
         brokerage: Number(brokerage),
       });
       setEditing(false);
-      window.location.reload();
+      router.refresh();
     } catch {
       setSaving(false);
     }
@@ -93,6 +105,11 @@ export function TransactionRow({ transaction: tx, currency }: TransactionRowProp
             className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
           />
         </td>
+        {securityCode && (
+          <td className="px-4 py-2 text-sm font-medium text-muted-foreground">
+            {securityCode}
+          </td>
+        )}
         <td className="px-4 py-2">
           <select
             value={transactionType}
@@ -175,6 +192,17 @@ export function TransactionRow({ transaction: tx, currency }: TransactionRowProp
     <>
       <tr className="group hover:bg-accent/50">
         <td className="px-4 py-3 text-sm">{formatDate(tx.tradeDate)}</td>
+        {securityCode && (
+          <td className="px-4 py-3 text-sm font-medium">
+            {securityHref ? (
+              <Link href={securityHref} className="text-primary hover:underline">
+                {securityCode}
+              </Link>
+            ) : (
+              securityCode
+            )}
+          </td>
+        )}
         <td className="px-4 py-3 text-sm font-medium">
           {tx.transactionType}
           {unclassified && (
@@ -229,10 +257,13 @@ export function TransactionRow({ transaction: tx, currency }: TransactionRowProp
 
       {frankingOpen && (
         <tr className="bg-muted/30">
-          <td colSpan={6} className="px-4 py-3">
+          <td colSpan={securityCode ? 7 : 6} className="px-4 py-3">
             <FrankingFields
               transaction={tx}
-              onSaved={() => window.location.reload()}
+              onSaved={() => {
+                setFrankingOpen(false);
+                router.refresh();
+              }}
               onCancel={() => setFrankingOpen(false)}
             />
           </td>

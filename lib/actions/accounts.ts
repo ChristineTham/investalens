@@ -572,8 +572,9 @@ export async function linkPortfolioAccount(
 
   // Attempt auto-reconciliation for high-confidence matches between the
   // newly-linked portfolio's transactions and existing account transactions.
-  // Runs fire-and-forget — failures don't block the link.
-  autoReconcileAccount(accountId).catch(() => null);
+  // Awaited so the results are reflected immediately after linking; failures
+  // are swallowed so they never block the link itself.
+  await autoReconcileAccount(accountId).catch(() => null);
 
   revalidatePath(`/accounts/${accountId}`);
   revalidatePath(`/portfolio/${portfolioId}`);
@@ -602,4 +603,59 @@ export async function syncVirtualLedger(accountId: string) {
   if (!account?.isVirtual || !account.portfolioId) return;
   await syncPortfolioLedger(account.portfolioId);
   revalidatePath(`/accounts/${accountId}`);
+}
+
+/**
+ * Convert a portfolio's virtual cash ledger into a real, editable account.
+ *
+ * The derived auto-posted rows (`source: "portfolio"`) become independent
+ * `manual` transactions, the account is promoted (`isVirtual = false`) and
+ * detached from its derived `portfolioId` ownership, and it is linked to the
+ * originating portfolio via `PortfolioAccount` (as default when the portfolio
+ * has no default yet). Reconciliation is then run against the portfolio.
+ */
+export async function convertVirtualAccount(accountId: string) {
+  const userId = await requireUser();
+  const account = await db.cashAccount.findFirst({
+    where: { id: accountId, userId },
+    select: { id: true, isVirtual: true, portfolioId: true },
+  });
+  if (!account) throw new Error("Account not found");
+  if (!account.isVirtual) throw new Error("Account is already a real account");
+
+  const portfolioId = account.portfolioId;
+
+  await db.$transaction(async (tx) => {
+    // Promote to a real account and drop the derived single-portfolio ownership.
+    await tx.cashAccount.update({
+      where: { id: accountId },
+      data: { isVirtual: false, portfolioId: null },
+    });
+    // Auto-posted ledger rows become real, editable manual transactions so they
+    // are no longer wiped by future ledger rebuilds.
+    await tx.cashTransaction.updateMany({
+      where: { cashAccountId: accountId, source: "portfolio" },
+      data: { source: "manual" },
+    });
+    // Link the account to its originating portfolio (default if none exists yet).
+    if (portfolioId) {
+      const existingDefault = await tx.portfolioAccount.findFirst({
+        where: { portfolioId, isDefault: true },
+        select: { id: true },
+      });
+      await tx.portfolioAccount.upsert({
+        where: { portfolioId_cashAccountId: { portfolioId, cashAccountId: accountId } },
+        create: { portfolioId, cashAccountId: accountId, isDefault: !existingDefault },
+        update: {},
+      });
+    }
+  });
+
+  await recomputeAccountBalance(accountId);
+  // Reconcile the now-real account against its portfolio's transactions.
+  await autoReconcileAccount(accountId).catch(() => null);
+
+  if (portfolioId) revalidatePath(`/portfolio/${portfolioId}`);
+  revalidatePath(`/accounts/${accountId}`);
+  revalidatePath("/accounts");
 }

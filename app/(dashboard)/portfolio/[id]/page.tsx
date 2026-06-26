@@ -3,9 +3,11 @@ import { ArrowLeft, Plus, Upload, Banknote, Landmark } from "lucide-react";
 import { getPortfolioDetail } from "@/lib/services/portfolio-detail";
 import { getPortfolioAccountLinks } from "@/lib/services/accounts";
 import { getPortfolios } from "@/lib/actions/portfolio";
+import { getPortfolioTransactions } from "@/lib/actions/transaction";
 import { PortfolioActions } from "@/components/forms/portfolio-actions";
 import { PortfolioDetailClient } from "@/components/portfolio/portfolio-detail-client";
 import { PortfolioAccountsPanel } from "@/components/portfolio/portfolio-accounts-panel";
+import { TransactionRow } from "@/components/forms/transaction-row";
 import { BreadcrumbLabel } from "@/components/layout/breadcrumb-context";
 import { formatCurrency } from "@/lib/utils";
 
@@ -59,6 +61,7 @@ export default async function PortfolioDetailPage({
   const detail = await getPortfolioDetail(id);
   const allPortfolios = await getPortfolios();
   const accountLinks = await getPortfolioAccountLinks(id);
+  const transactions = await getPortfolioTransactions(id);
   const otherPortfolios = allPortfolios
     .filter((p) => p.id !== id)
     .map((p) => ({ id: p.id, name: p.name }));
@@ -105,7 +108,7 @@ export default async function PortfolioDetailPage({
           Bonds
         </Link>
         <Link
-          href="/accounts"
+          href={`/portfolio/${id}/cash`}
           className="inline-flex items-center gap-2 rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent"
         >
           <Banknote className="h-4 w-4" />
@@ -227,6 +230,47 @@ export default async function PortfolioDetailPage({
 
       {/* Charts, performers and holdings table */}
       <PortfolioDetailClient detail={detail} />
+
+      {/* Transactions across all holdings (inline editable, incl. franking) */}
+      <div>
+        <h2 className="mb-2 font-serif text-lg font-semibold">Transactions</h2>
+        <p className="mb-3 text-sm text-muted-foreground">
+          Edit any transaction inline. Use the coins icon on income rows to assign
+          franking and tax components. Changes flow through to linked cash accounts.
+        </p>
+        {transactions.length === 0 ? (
+          <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            No transactions yet.
+          </p>
+        ) : (
+          <div className="overflow-x-auto rounded-lg border border-border">
+            <table className="w-full min-w-200">
+              <thead className="bg-muted/50 text-xs font-medium text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-2.5 text-left">Date</th>
+                  <th className="px-4 py-2.5 text-left">Security</th>
+                  <th className="px-4 py-2.5 text-left">Type</th>
+                  <th className="px-4 py-2.5 text-right">Quantity</th>
+                  <th className="px-4 py-2.5 text-right">Price</th>
+                  <th className="px-4 py-2.5 text-right">Brokerage</th>
+                  <th className="px-4 py-2.5" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {transactions.map((tx) => (
+                  <TransactionRow
+                    key={tx.id}
+                    transaction={tx}
+                    currency={tx.holding.instrument.currency}
+                    securityCode={tx.holding.instrument.code}
+                    securityHref={`/portfolio/${id}/holdings/${tx.holdingId}`}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

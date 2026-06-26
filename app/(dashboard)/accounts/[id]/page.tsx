@@ -4,6 +4,7 @@ import { getAccountDetail, getAccountsOverview } from "@/lib/services/accounts";
 import { getCategories, syncVirtualLedger } from "@/lib/actions/accounts";
 import { AccountActions } from "@/components/accounts/account-actions";
 import { AccountDetailClient } from "@/components/accounts/account-detail-client";
+import { ConvertVirtualButton } from "@/components/accounts/convert-virtual-button";
 import { BreadcrumbLabel } from "@/components/layout/breadcrumb-context";
 import { formatCurrency } from "@/lib/utils";
 
@@ -132,9 +133,12 @@ export default async function AccountDetailPage({
       </div>
 
       {account.isVirtual && (
-        <div className="rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
-          This is an auto-maintained portfolio cash ledger. It is read-only, and its balance is
-          excluded from total cash and portfolio value (income is still counted).
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
+          <p>
+            This is an auto-maintained portfolio cash ledger. It is read-only, and its balance is
+            excluded from total cash and portfolio value (income is still counted).
+          </p>
+          <ConvertVirtualButton accountId={id} />
         </div>
       )}
 
