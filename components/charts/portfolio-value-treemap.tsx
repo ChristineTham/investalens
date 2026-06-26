@@ -195,10 +195,9 @@ function CustomContent(props: {
   // Holding level - coloured by portfolio with shade variation
   const total = root?.children?.reduce((s, c) => s + c.value, 0) || 1;
   const percent = ((value / total) * 100).toFixed(1);
-  const hue = hueVal;
   const lightness = holdingLightness(holdingIndex, holdingCount);
-  const fillColor = `hsl(${hue}, ${SAT}%, ${lightness}%)`;
-  const textColor = tileTextColor(hue, lightness);
+  const fillColor = `hsl(${hueVal}, ${SAT}%, ${lightness}%)`;
+  const textColor = tileTextColor(hueVal, lightness);
   const halo = textColor === "#ffffff" ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.7)";
 
   const navigate = () => {
