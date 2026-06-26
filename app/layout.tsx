@@ -1,20 +1,9 @@
 import type { Metadata } from "next";
-import { Noto_Sans, Noto_Serif, Noto_Sans_Mono } from "next/font/google";
+import "@fontsource-variable/noto-sans/wght.css";
+import "@fontsource-variable/noto-serif/wght.css";
+import "@fontsource-variable/noto-sans-mono/wght.css";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
-
-const notoSans = Noto_Sans({
-  subsets: ["latin"],
-  variable: "--font-noto-sans",
-});
-const notoSerif = Noto_Serif({
-  subsets: ["latin"],
-  variable: "--font-noto-serif",
-});
-const notoMono = Noto_Sans_Mono({
-  subsets: ["latin"],
-  variable: "--font-noto-mono",
-});
 
 export const metadata: Metadata = {
   title: "InvestaLens — Portfolio Tracker & Optimiser",
@@ -31,11 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={`${notoSans.variable} ${notoSerif.variable} ${notoMono.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="en" suppressHydrationWarning>
       <body className="antialiased">
         <ThemeProvider
           attribute="class"

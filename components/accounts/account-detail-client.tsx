@@ -8,7 +8,7 @@ import { RangeSelector } from "@/components/charts/range-selector";
 import {
   AccountBalanceChart,
   AccountCashflowChart,
-  CategoryPie,
+  CategoryBar,
   type CategoryDatum,
 } from "@/components/charts/account-charts";
 import {
@@ -41,6 +41,7 @@ export interface TxRow {
   transferAccountName: string | null;
   source: string;
   reconciled: boolean;
+  runningBalance: number;
 }
 export interface CategoryOption {
   id: string;
@@ -189,7 +190,7 @@ export function AccountDetailClient({
         <ChartCard title="Spending by category" height={260}>
           {(h) =>
             withLoader(
-              <CategoryPie
+              <CategoryBar
                 data={data?.categoryBreakdown ?? []}
                 currency={ccy}
                 height={h}
@@ -216,6 +217,7 @@ export function AccountDetailClient({
                   <th className="px-3 py-2.5 text-left">Type</th>
                   <th className="px-3 py-2.5 text-left">Category</th>
                   <th className="px-3 py-2.5 text-right">Amount</th>
+                  <th className="px-3 py-2.5 text-right">Balance</th>
                   <th className="px-3 py-2.5 text-center">Status</th>
                   {!account.isVirtual && <th className="px-3 py-2.5" />}
                 </tr>
@@ -232,7 +234,7 @@ export function AccountDetailClient({
                 {transactions.length === 0 && !account.isVirtual && (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={8}
                       className="px-3 py-6 text-center text-sm text-muted-foreground"
                     >
                       No transactions yet — add one above.
@@ -332,9 +334,16 @@ function EditableTxRow({
     }
   }
 
-  // The category + counterparty cell is shared by both modes (these fields save
-  // dynamically on change via their own actions).
-  const categoryCell = (
+  // The category + counterparty cell. Virtual ledgers are read-only, so they show
+  // the auto-assigned category as plain text; real accounts get editable selects.
+  const categoryCell = account.isVirtual ? (
+    <td className="px-3 py-2.5 text-sm text-muted-foreground">
+      {t.categoryName ?? "—"}
+      {isTransferCat && t.transferAccountName && (
+        <p className="mt-0.5 text-[10px] text-muted-foreground">→ {t.transferAccountName}</p>
+      )}
+    </td>
+  ) : (
     <td className="px-3 py-2.5">
       <select
         value={t.categoryId ?? ""}
@@ -349,7 +358,7 @@ function EditableTxRow({
           </option>
         ))}
       </select>
-      {isTransferCat && !account.isVirtual && (
+      {isTransferCat && (
         <div className="mt-1">
           <select
             value={t.transferAccountId ?? ""}
@@ -365,9 +374,6 @@ function EditableTxRow({
             ))}
           </select>
         </div>
-      )}
-      {isTransferCat && account.isVirtual && t.transferAccountName && (
-        <p className="mt-0.5 text-[10px] text-muted-foreground">→ {t.transferAccountName}</p>
       )}
     </td>
   );
@@ -419,6 +425,9 @@ function EditableTxRow({
             required
           />
         </td>
+        <td className="px-3 py-2.5 text-right text-sm tabular-nums text-muted-foreground">
+          {formatCurrency(t.runningBalance, ccy)}
+        </td>
         <td className="px-3 py-2.5 text-center" />
         <td className="px-3 py-2.5 text-right">
           <div className="flex items-center justify-end gap-1">
@@ -469,6 +478,9 @@ function EditableTxRow({
         className={`px-3 py-2.5 text-right text-sm font-medium tabular-nums ${credit ? "text-green-600" : "text-red-600"}`}
       >
         {formatCurrency(signed, ccy)}
+      </td>
+      <td className="px-3 py-2.5 text-right text-sm tabular-nums text-muted-foreground">
+        {formatCurrency(t.runningBalance, ccy)}
       </td>
       <td className="px-3 py-2.5 text-center">
         {t.reconciled ? (
@@ -633,6 +645,7 @@ function AddTransactionRow({
           className="h-8 w-28 rounded-md border border-input bg-background px-2 text-right text-sm"
         />
       </td>
+      <td className="px-3 py-2.5" />
       <td className="px-3 py-2.5 text-center" />
       <td className="px-3 py-2.5 text-right">
         <button

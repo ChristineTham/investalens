@@ -82,10 +82,11 @@
 
 @theme inline {
   --font-sans:
-    "Noto Sans", "Noto Sans Fallback", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Noto Serif", "Noto Serif Fallback", ui-serif, Georgia, serif;
+    "Noto Sans Variable", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif:
+    "Noto Serif Variable", "Noto Serif", ui-serif, Georgia, serif;
   --font-mono:
-    "Noto Sans Mono", "Noto Sans Mono Fallback", ui-monospace, monospace;
+    "Noto Sans Mono Variable", "Noto Sans Mono", ui-monospace, monospace;
 
   --color-rosely-night: var(--rosely0);
   --color-rosely-dusk: var(--rosely1);

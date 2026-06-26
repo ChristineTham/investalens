@@ -595,3 +595,23 @@ model WatchlistItem {
 
   @@unique([watchlistId, instrumentId])
 }
+
+// ─── OPERATIONS ──────────────────────────────────────────────────────────────
+
+/// A record of a scheduled (cron) job run — for observability on the About page.
+model CronLog {
+  id         String    @id @default(cuid())
+  job        String // e.g. "prices"
+  status     String // "success" | "error"
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+  durationMs Int?
+  total      Int?
+  succeeded  Int?
+  failed     Int?
+  message    String?
+  createdAt  DateTime  @default(now())
+
+  @@index([job, startedAt])
+  @@index([startedAt])
+}

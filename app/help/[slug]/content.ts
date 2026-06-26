@@ -26,7 +26,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <tr><td><strong>Tax</strong></td><td>Taxable income, CGT, and unrealised CGT reports</td></tr>
 <tr><td><strong>Tools</strong></td><td>Watchlist, FIRE calculator, Share Checker, Market Sentiment, AI Assistant</td></tr>
 <tr><td><strong>Analytics</strong></td><td>13 quantitative analysis tools</td></tr>
-<tr><td><strong>Settings</strong></td><td>Groups, labels, sharing, export, API tokens</td></tr>
+<tr><td><strong>Settings</strong></td><td>Groups, labels, categories, sharing, export, API tokens</td></tr>
 </table>`,
       },
       {
@@ -173,7 +173,8 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <li><strong>Movement</strong> &mdash; net monthly cash flow (buys / sells / distributions) stacked by holding</li>
 <li><strong>Top &amp; bottom performers</strong> &mdash; the best and worst three holdings by total return</li>
 </ul>
-<p>Any chart can be expanded to a larger modal with the maximise button. The holdings table adds sector, current price, purchase amount, current value, capital gain, income, total gain, annualised return, and a mini price sparkline &mdash; each holding keeps a consistent colour (shown as a swatch) across every chart.</p>`,
+<p>Any chart can be expanded to a larger modal with the maximise button. The holdings table adds sector, current price, purchase amount, current value, capital gain, income, total gain, annualised return, and a mini price sparkline &mdash; each holding keeps a consistent colour (shown as a swatch) across every chart.</p>
+<p>Below the holdings, a <strong>Transactions</strong> list spans every holding. Edit any row inline (date, type, quantity, price, brokerage), and use the coins icon on income rows to <strong>assign franking</strong> to dividends. When the portfolio is linked to cash accounts, these edits rebuild the virtual ledger and re-reconcile linked real accounts automatically.</p>`,
       },
       {
         heading: "Timescale Selector",
@@ -227,7 +228,8 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <ul>
 <li><strong>Real accounts</strong> &mdash; you create them or import statements; they have transactions, categories, balance, and optional debit cards.</li>
 <li><strong>Virtual accounts</strong> &mdash; an auto-maintained, read-only cash ledger for a portfolio with no real account linked. Their balance is excluded from total cash (the underlying income still counts in portfolio returns).</li>
-</ul>`,
+</ul>
+<p>A portfolio&rsquo;s <strong>Cash</strong> button opens its linked settlement account, or its virtual ledger when none is linked. A virtual ledger can be <strong>converted into a real, editable account</strong> from its page when you want to manage it directly.</p>`,
       },
       {
         heading: "Account Detail",
@@ -235,9 +237,9 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <ul>
 <li><strong>Balance over time</strong></li>
 <li><strong>Monthly cash flow</strong> (money in vs out)</li>
-<li><strong>Spending by category</strong></li>
+<li><strong>Spending by category</strong> &mdash; a bar chart broken down by category</li>
 </ul>
-<p>The transactions table lets you set an <strong>inline category</strong>, and add or delete transactions on real accounts. A default category set (Salary, Dividends, Interest, Groceries, Utilities, Housing, &hellip;) is seeded on first use; you can add your own.</p>`,
+<p>The transactions table shows date, description, type, category, amount, and a <strong>running balance</strong> column. On real accounts you can <strong>add a transaction inline</strong> (the row at the top of the table), <strong>edit</strong> any row in place (date, type, amount, description), set its category, and delete it. Virtual ledgers are read-only: their categories are assigned automatically from the originating portfolio transactions and shown as text. Categories themselves are managed under <strong>Settings &rarr; Categories</strong>.</p>`,
       },
       {
         heading: "Importing Statements",
@@ -252,7 +254,8 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
       },
       {
         heading: "Linking to Portfolios",
-        content: `<p>A portfolio&rsquo;s detail page has a <strong>Linked accounts</strong> panel to connect real accounts (many-to-many) and set a <strong>default</strong> settlement account. Every portfolio also has a <strong>virtual cash ledger</strong> auto-posted from its buys, sells, income and fees &mdash; open it from the panel. Real accounts are reconciled (not auto-posted) to avoid double-counting.</p>`,
+        content: `<p>A portfolio&rsquo;s detail page has a <strong>Linked accounts</strong> panel to connect real accounts (many-to-many) and set a <strong>default</strong> settlement account. Every portfolio also has a <strong>virtual cash ledger</strong> auto-posted from its buys, sells, income and fees &mdash; open it from the panel. Real accounts are reconciled (not auto-posted) to avoid double-counting.</p>
+<p>Editing a portfolio transaction (including assigning dividend franking) flows through to its linked accounts: the virtual ledger is rebuilt and real linked accounts are re-reconciled. <strong>Linking a new account</strong> to a portfolio immediately runs reconciliation against that portfolio&rsquo;s transactions.</p>`,
       },
       {
         heading: "Reconciliation",
@@ -263,7 +266,19 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <li><strong>Split matching</strong> &mdash; one bank amount can match a combination of portfolio transactions (e.g. several buys settled together, or multiple same-day dividends); a partial status tracks the remaining amount.</li>
 <li><strong>Franking</strong> &mdash; for dividend matches, classify franked/unfranked split and franking credits right in the reconcile step.</li>
 </ul>
-<p>Because imports are idempotent, reconciliations persist across future statement re-imports.</p>`,
+<p>Because imports are idempotent, reconciliations persist across future statement re-imports.</p>
+<p>Transfers between your own accounts are mirrored automatically. Importing a statement into an account that already holds the other side of a transfer <strong>reconciles against the existing mirror instead of creating a duplicate</strong> (keeping the more descriptive narrative). Editing or deleting one side of a transfer updates its mirror so the two never drift apart.</p>`,
+      },
+      {
+        heading: "Managing Categories",
+        content: `<p>Transaction categories are a <strong>per-user</strong> setting at <strong>Settings &rarr; Categories</strong>. You can:</p>
+<ul>
+<li><strong>Add, edit and delete</strong> categories (name, kind, colour).</li>
+<li><strong>Reassign on delete</strong> &mdash; if a category is in use, nominate another category (or leave uncategorised) to reclassify its transactions.</li>
+<li><strong>Merge</strong> a category into another &mdash; its transactions are reclassified to the target and the source is removed.</li>
+<li><strong>Reset to defaults</strong> &mdash; restore the seeded category set.</li>
+</ul>
+<p>Virtual portfolio ledgers reuse these categories: portfolio buys, sells, dividends, interest and fees are auto-categorised (Purchase, Sale, Dividends, Interest, Management Fee, &hellip;).</p>`,
       },
       {
         heading: "Dashboard",

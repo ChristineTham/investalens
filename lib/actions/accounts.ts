@@ -11,6 +11,7 @@ import {
   updateCashTransactionSchema,
   debitCardSchema,
   categorySchema,
+  updateCategorySchema,
 } from "@/lib/validators/account";
 import { recomputeAccountBalance } from "@/lib/services/accounts";
 import { syncPortfolioLedger } from "@/lib/services/cash-ledger";
@@ -494,6 +495,16 @@ export async function getCategories() {
   });
 }
 
+/** Categories with the count of transactions using each — for the manager UI. */
+export async function getCategoriesWithUsage() {
+  const userId = await requireUser();
+  return db.cashCategory.findMany({
+    where: { userId },
+    orderBy: [{ kind: "asc" }, { name: "asc" }],
+    include: { _count: { select: { transactions: true } } },
+  });
+}
+
 export async function createCategory(input: unknown) {
   const userId = await requireUser();
   const data = categorySchema.parse(input);
@@ -506,12 +517,94 @@ export async function createCategory(input: unknown) {
       parentId: data.parentId ?? null,
     },
   });
+  revalidatePath("/settings/categories");
   revalidatePath("/accounts");
 }
 
-export async function deleteCategory(id: string) {
+export async function updateCategory(id: string, input: unknown) {
   const userId = await requireUser();
+  const data = updateCategorySchema.parse(input);
+  const existing = await db.cashCategory.findFirst({
+    where: { id, userId },
+    select: { id: true },
+  });
+  if (!existing) throw new Error("Category not found");
+  await db.cashCategory.update({
+    where: { id },
+    data: {
+      ...(data.name !== undefined && { name: data.name }),
+      ...(data.kind !== undefined && { kind: data.kind }),
+      ...(data.color !== undefined && { color: data.color }),
+    },
+  });
+  revalidatePath("/settings/categories");
+  revalidatePath("/accounts");
+}
+
+export async function deleteCategory(id: string, reassignToId?: string | null) {
+  const userId = await requireUser();
+  const cat = await db.cashCategory.findFirst({
+    where: { id, userId },
+    select: { id: true },
+  });
+  if (!cat) throw new Error("Category not found");
+
+  if (reassignToId) {
+    if (reassignToId === id) throw new Error("Cannot reassign to the category being deleted");
+    const target = await db.cashCategory.findFirst({
+      where: { id: reassignToId, userId },
+      select: { id: true },
+    });
+    if (!target) throw new Error("Target category not found");
+    // Reclassify the deleted category's transactions to the nominated one.
+    await db.cashTransaction.updateMany({
+      where: { categoryId: id, cashAccount: { userId } },
+      data: { categoryId: reassignToId },
+    });
+  }
+  // Otherwise remaining transactions fall back to uncategorised (FK SetNull).
   await db.cashCategory.deleteMany({ where: { id, userId } });
+  revalidatePath("/settings/categories");
+  revalidatePath("/accounts");
+}
+
+/**
+ * Merge `sourceId` into `targetId`: reclassify the source category's transactions
+ * (and re-parent its children) onto the target, then delete the source.
+ */
+export async function mergeCategories(sourceId: string, targetId: string) {
+  const userId = await requireUser();
+  if (sourceId === targetId) throw new Error("Cannot merge a category into itself");
+
+  const [source, target] = await Promise.all([
+    db.cashCategory.findFirst({ where: { id: sourceId, userId }, select: { id: true } }),
+    db.cashCategory.findFirst({ where: { id: targetId, userId }, select: { id: true } }),
+  ]);
+  if (!source || !target) throw new Error("Category not found");
+
+  await db.cashTransaction.updateMany({
+    where: { categoryId: sourceId, cashAccount: { userId } },
+    data: { categoryId: targetId },
+  });
+  await db.cashCategory.updateMany({
+    where: { parentId: sourceId, userId, id: { not: targetId } },
+    data: { parentId: targetId },
+  });
+  await db.cashCategory.delete({ where: { id: sourceId } });
+
+  revalidatePath("/settings/categories");
+  revalidatePath("/accounts");
+}
+
+/**
+ * Replace the user's categories with the default set. Removing the existing
+ * categories nulls any transactions that referenced them (FK onDelete: SetNull).
+ */
+export async function resetCategoriesToDefault() {
+  const userId = await requireUser();
+  await db.cashCategory.deleteMany({ where: { userId } });
+  await seedDefaultCategories(userId);
+  revalidatePath("/settings/categories");
   revalidatePath("/accounts");
 }
 

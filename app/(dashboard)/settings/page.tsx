@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Users, Tag, FolderTree, Download, Key, Calculator, Scale } from "lucide-react";
+import { Users, Tag, Tags, FolderTree, Download, Key, Calculator, Scale } from "lucide-react";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -69,6 +69,16 @@ export default async function SettingsPage() {
           <h3 className="mt-2 font-medium">Labels</h3>
           <p className="mt-1 text-sm text-muted-foreground">
             Tag and filter holdings
+          </p>
+        </Link>
+        <Link
+          href="/settings/categories"
+          className="rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent"
+        >
+          <Tags className="h-5 w-5 text-primary" />
+          <h3 className="mt-2 font-medium">Categories</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Manage cash transaction categories
           </p>
         </Link>
         <Link

@@ -70,6 +70,8 @@ Below that is a **responsive grid of charts** driven by a single **universal tim
 
 Any chart can be expanded to a larger **modal** using its maximise button. The **holdings table** adds sector, current price, purchase amount, current value, capital gain, income, total gain, annualised return, and a mini price **sparkline** (following the selected timescale). Each holding keeps a **consistent colour**, shown as a swatch in the table and used across every chart.
 
+Below the holdings is a **Transactions** list spanning every holding in the portfolio. Each row is **editable inline** — change the date, type, quantity, price or brokerage, and use the coins icon on income rows to **assign franking** (franked/unfranked split and franking credits) to dividends. When the portfolio is linked to cash accounts, these edits rebuild the virtual cash ledger and re-reconcile linked real accounts automatically.
+
 ### Portfolio Settings
 
 Access portfolio settings via **Settings > Details**:

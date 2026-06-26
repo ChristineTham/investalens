@@ -234,3 +234,57 @@ export function CategoryPie({
     </div>
   );
 }
+
+/** Spending by category as a horizontal bar chart, sorted largest-first. */
+export function CategoryBar({
+  data,
+  currency,
+  height,
+}: {
+  data: CategoryDatum[];
+  currency: string;
+  height: number;
+}) {
+  if (data.length === 0) {
+    return (
+      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+        No categorised spending in this range.
+      </div>
+    );
+  }
+  const total = data.reduce((s, d) => s + d.value, 0);
+  return (
+    <ResponsiveContainer width="100%" height={height}>
+      <BarChart
+        data={data}
+        layout="vertical"
+        margin={{ top: 5, right: 12, left: 8, bottom: 5 }}
+      >
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+        <XAxis
+          type="number"
+          stroke="var(--muted-foreground)"
+          fontSize={11}
+          tickFormatter={(v) => compactCurrency(Number(v))}
+        />
+        <YAxis
+          type="category"
+          dataKey="name"
+          stroke="var(--muted-foreground)"
+          fontSize={11}
+          width={112}
+          tickFormatter={(v) => String(v)}
+        />
+        <Tooltip
+          cursor={{ fill: "var(--accent)", opacity: 0.3 }}
+          content={<CategoryTooltip currency={currency} total={total} />}
+        />
+        <Bar dataKey="value" radius={[0, 4, 4, 0]} isAnimationActive={false}>
+          {data.map((d, i) => (
+            <Cell key={d.name} fill={d.color ?? holdingColor(i).var} />
+          ))}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}

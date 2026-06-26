@@ -14,6 +14,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const startedAt = new Date();
+
   try {
     // Get all instruments that have active holdings
     const holdingInstruments = await db.instrument.findMany({
@@ -86,6 +88,22 @@ export async function GET(request: Request) {
       }
     }
 
+    await db.cronLog.create({
+      data: {
+        job: "prices",
+        status: "success",
+        startedAt,
+        finishedAt: new Date(),
+        durationMs: Date.now() - startedAt.getTime(),
+        total: instruments.length,
+        succeeded: fetched,
+        failed,
+        message: `Updated ${fetched}/${instruments.length} prices${
+          failed ? `, ${failed} failed` : ""
+        }`,
+      },
+    });
+
     return NextResponse.json({
       success: true,
       fetched,
@@ -93,9 +111,19 @@ export async function GET(request: Request) {
       total: instruments.length,
     });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
-    );
+    const message = error instanceof Error ? error.message : "Unknown error";
+    await db.cronLog
+      .create({
+        data: {
+          job: "prices",
+          status: "error",
+          startedAt,
+          finishedAt: new Date(),
+          durationMs: Date.now() - startedAt.getTime(),
+          message,
+        },
+      })
+      .catch(() => null);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

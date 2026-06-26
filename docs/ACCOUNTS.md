@@ -16,6 +16,13 @@
 > | AU bank CSV templates (CommBank, NAB, ANZ, …)      | ✅ Implemented |
 > | Portfolio ↔ account linking                        | ✅ Implemented |
 > | Reconciliation (fuzzy + split matching)            | ✅ Implemented |
+> | Inline edit / add of account transactions          | ✅ Implemented |
+> | Running-balance column                             | ✅ Implemented |
+> | Spending-by-category bar chart                     | ✅ Implemented |
+> | Per-user category management (add/edit/delete/merge/reset) | ✅ Implemented |
+> | Auto-categorised virtual ledgers                   | ✅ Implemented |
+> | Convert virtual ledger → real account              | ✅ Implemented |
+> | Transfer mirroring + import dedup against mirrors   | ✅ Implemented |
 > | Dashboard cash & net worth                         | ✅ Implemented |
 > | Mapping template save/load (custom CSV)            | ⏳ To be Implemented |
 > | CAMT.053 / MT940 import                            | ⏳ To be Implemented |
@@ -31,7 +38,10 @@ There are two kinds:
   balance, debit/credit transactions, categories, and optional cards.
 - **Virtual accounts** — an auto-maintained cash ledger for a portfolio that has no real account
   linked. They are **read-only** (no manual entry or import) and their balance is **excluded** from
-  total cash and portfolio value (the underlying income is still counted in portfolio returns).
+  total cash and portfolio value (the underlying income is still counted in portfolio returns). Their
+  transactions are **auto-categorised** from the originating portfolio activity, and a virtual ledger
+  can be **converted into a real, editable account** from its page (the **Convert to real account**
+  button) when you want to manage it directly.
 
 ## The Accounts list (`/accounts`)
 
@@ -45,9 +55,12 @@ masked account number, balance, a *Virtual* badge where applicable, and linked p
   **Reconcile** actions (real accounts only).
 - **Panels** — current balance (and interest rate), linked portfolios, and cards.
 - **Charts** (driven by a universal timescale selector) — **balance over time**, **monthly cash
-  flow** (money in vs out), and **spending by category**.
-- **Transactions table** — date, description, type, **inline category** selector, signed amount,
-  and a reconciled / auto-posted status. Real accounts can add and delete transactions.
+  flow** (money in vs out), and **spending by category** (a bar chart broken down by category).
+- **Transactions table** — date, description, type, category, signed amount, a **running balance**
+  column, and a reconciled / auto-posted status. On real accounts you can **add a transaction
+  inline** (the row at the top of the table), **edit** any row in place (date, type, amount,
+  description), set its category, and delete it. Virtual ledgers are read-only and show their
+  auto-assigned category as plain text.
 
 ### Account fields
 
@@ -63,10 +76,20 @@ masked account number, balance, a *Virtual* badge where applicable, and linked p
 
 ### Categories
 
-Transactions can be categorised like a personal-finance manager. A default set (Salary, Dividends,
-Interest, Groceries, Utilities, Housing, Transport, Dining, Shopping, Health, Insurance, Bank Fees,
-Transfer, …) is seeded on first use; you can add your own. Imports auto-suggest a category from the
-narrative (e.g. *Woolworths → Groceries*) and from the transaction type.
+Transactions can be categorised like a personal-finance manager. A default set (Dividends,
+Distributions, Interest, Salary, Purchase, Sale, Management Fee, Transfer In/Out, Insurance, …) is
+seeded on first use. Imports auto-suggest a category from the narrative (e.g. *Woolworths →
+Groceries*) and from the transaction type, and **virtual ledger** rows are auto-categorised from the
+portfolio activity that posted them.
+
+Categories are a **per-user** setting managed at **Settings → Categories**, where you can:
+
+- **Add, edit and delete** categories (name, kind, colour);
+- **Reassign on delete** — if a category is in use, nominate another category (or leave
+  uncategorised) and its transactions are reclassified before it is removed;
+- **Merge** a category into another — its transactions (and child categories) move to the target and
+  the source is deleted;
+- **Reset to defaults** — restore the seeded set.
 
 ## Importing statements
 
@@ -89,11 +112,15 @@ suggests categories, and lets you choose which rows to import. See [DATA_IMPORT.
 On a portfolio's detail page, the **Linked accounts** panel links real accounts to the portfolio
 (many-to-many) and sets a **default** settlement account. A portfolio always has a **virtual cash
 ledger** too — auto-posted from its buys, sells, income and fees — which you can open from the panel.
+The portfolio header's **Cash** button opens the default linked account, or the virtual ledger when
+no real account is linked.
 
 - **Auto-post (virtual):** the virtual ledger is rebuilt from the portfolio's transactions, so it
-  always reflects the cash impact of portfolio activity.
+  always reflects the cash impact of portfolio activity. **Editing a portfolio transaction**
+  (including assigning dividend franking) rebuilds the ledger and re-reconciles linked real accounts.
 - **Real accounts:** import the actual bank statement and **reconcile** it against the portfolio's
-  transactions (below) rather than auto-posting, to avoid double-counting.
+  transactions (below) rather than auto-posting, to avoid double-counting. **Linking a new account**
+  immediately runs reconciliation against the portfolio's transactions.
 
 ## Reconciliation
 
@@ -115,6 +142,15 @@ right in the reconcile step — the same classifier used on the holdings page.
 
 Because imports are idempotent (FITID / content hash), **reconciliations persist** across future
 statement re-imports.
+
+### Transfers between your own accounts
+
+Recording a transfer between two of your accounts automatically creates a **mirror** transaction in
+the counterparty account, linked one-to-one so the pair stays consistent. Editing or deleting one
+side updates (or removes) its mirror, and changing the counterparty moves the mirror to the new
+account — referential integrity is preserved throughout. When you later import a statement into the
+other account, the import **reconciles each row against an existing transfer mirror instead of
+creating a duplicate** (within ±$0.01 and ±3 days), keeping the more descriptive narrative.
 
 ## Dashboard
 

@@ -97,6 +97,12 @@ export const categorySchema = z.object({
   parentId: z.string().nullable().optional(),
 });
 
+export const updateCategorySchema = z.object({
+  name: z.string().min(1).max(80).optional(),
+  kind: z.enum(CATEGORY_KINDS).optional(),
+  color: z.string().max(32).nullable().optional(),
+});
+
 export type CreateAccountInput = z.infer<typeof createAccountSchema>;
 export type UpdateAccountInput = z.infer<typeof updateAccountSchema>;
 export type CashTransactionInput = z.infer<typeof cashTransactionSchema>;

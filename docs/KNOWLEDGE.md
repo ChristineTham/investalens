@@ -122,6 +122,26 @@
 
 ---
 
+## Fonts — Fontsource (self-hosted)
+
+- **Source**: https://fontsource.org/docs/getting-started/install (verified 2026-06-26)
+- **Why**: `next/font/google` downloads fonts from `fonts.gstatic.com` at build time, which fails behind the corporate proxy. Fontsource bundles the font files inside npm packages, so builds need **no network** once installed.
+- **Packages** (variable):
+  - `@fontsource-variable/noto-sans` (`^5.2.10`)
+  - `@fontsource-variable/noto-sans-mono` (`^5.2.10`)
+  - `@fontsource-variable/noto-serif` (`^5.2.9`)
+- **Install**: `pnpm add @fontsource-variable/noto-sans @fontsource-variable/noto-sans-mono @fontsource-variable/noto-serif`
+- **Usage** (App Router): import the weight-axis CSS once in `app/layout.tsx`:
+  ```ts
+  import "@fontsource-variable/noto-sans/wght.css";      // weights 100–900
+  import "@fontsource-variable/noto-serif/wght.css";
+  import "@fontsource-variable/noto-sans-mono/wght.css";
+  ```
+- **Family names** (reference these in CSS / `@theme`): `"Noto Sans Variable"`, `"Noto Serif Variable"`, `"Noto Sans Mono Variable"`. Set in `globals.css` `@theme inline` as `--font-sans` / `--font-serif` / `--font-mono`.
+- **Gotcha**: variable packages expose `…/wght.css` (single axis). The `…/index.css` default import pulls every weight/style — avoid it.
+
+---
+
 ## ORM — Prisma v7
 
 - **Source**: https://www.prisma.io/docs/prisma-orm/quickstart/postgresql + https://www.prisma.io/docs/guides/upgrade-prisma-orm/v7

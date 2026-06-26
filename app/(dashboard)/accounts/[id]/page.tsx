@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, Landmark, CreditCard, Upload, Link2 } from "lucide-react";
-import { getAccountDetail, getAccountsOverview } from "@/lib/services/accounts";
+import { getAccountDetail, getAccountsOverview, signedAmount } from "@/lib/services/accounts";
 import { getCategories } from "@/lib/actions/accounts";
 import { syncPortfolioLedger } from "@/lib/services/cash-ledger";
 import { AccountActions } from "@/components/accounts/account-actions";
@@ -51,6 +51,16 @@ export default async function AccountDetailPage({
     balance: Number(account.balance),
   };
 
+  // Running balance per transaction, computed chronologically (oldest first)
+  // from the opening balance. `account.transactions` is ordered newest-first.
+  const opening = Number(account.openingBalance);
+  const runningById = new Map<string, number>();
+  let running = opening;
+  for (const t of [...account.transactions].reverse()) {
+    running += signedAmount(t.type, Number(t.amount));
+    runningById.set(t.id, running);
+  }
+
   const txRows = account.transactions.map((t) => ({
     id: t.id,
     date: t.date.toISOString().split("T")[0],
@@ -63,6 +73,7 @@ export default async function AccountDetailPage({
     transferAccountName: t.transferAccount?.name ?? null,
     source: t.source,
     reconciled: t.reconciled,
+    runningBalance: runningById.get(t.id) ?? opening,
   }));
 
   const categories = cats.map((c) => ({ id: c.id, name: c.name, kind: c.kind }));

@@ -56,12 +56,12 @@ After signing in, you land on the **Dashboard** (`/dashboard`) which shows your 
 | -------------- | ------------------------------------------------------------------------- |
 | **Dashboard**  | Summary cards (purchase cost, total value, capital gain, income, total gain, portfolios/holdings), consolidated charts (performance, value, movement, allocation) with a universal timescale selector, portfolio summary table, recent activity |
 | **Portfolio**  | Portfolio overview cards (allocation donut, returns, recent activity); create/manage portfolios, holdings, imports, bonds; link cash accounts |
-| **Accounts**   | First-class bank &amp; cash accounts: balances, transactions, categories, statement import (OFX/QIF/CSV), and reconciliation |
+| **Accounts**   | First-class bank &amp; cash accounts: balances, inline-editable transactions with a running balance, categories, statement import (OFX/QIF/CSV), and reconciliation |
 | **Reports**    | 10 performance and allocation reports                                     |
 | **Tax**        | Taxable income, CGT, and unrealised CGT reports                           |
 | **Tools**      | Watchlist, FIRE calculator, Share Checker, Market Sentiment, AI Assistant |
 | **Analytics**  | 13 quantitative analysis tools (backtesting, optimisation, Monte Carlo, etc.) |
-| **Settings**   | Groups, labels, sharing, export, API tokens, market data (fetch share &amp; bond prices and company information), Tax &amp; CGT (entity type, allocation, 2027 regime), Instrument Tax (CGT vs income) |
+| **Settings**   | Groups, labels, categories, sharing, export, API tokens, market data (fetch share &amp; bond prices and company information), Tax &amp; CGT (entity type, allocation, 2027 regime), Instrument Tax (CGT vs income) |
 
 ### What You'll Do First
 
@@ -273,6 +273,8 @@ Below that is a **responsive grid of charts** driven by a single **universal tim
 
 Every chart has a **maximise** button that opens it in a larger modal. The **holdings table** shows sector, current price, purchase amount, current value, capital gain, income, total gain, annualised return, and a mini price **sparkline**, with each holding in a **consistent colour** (a swatch matches the charts).
 
+Below the holdings is a **Transactions** list spanning every holding in the portfolio. Each row is **editable inline** — change the date, type, quantity, price or brokerage, and use the coins icon on income rows to **assign franking** (franked/unfranked split and franking credits) to dividends. When the portfolio is linked to cash accounts, these edits flow through automatically: the virtual ledger is rebuilt and linked real accounts are re-reconciled.
+
 ### Edit Details & Merge
 
 Use the **edit (pencil)** button on the detail page to set the portfolio name and administrative details — **broker name, broker website, client number, and account number**. To combine two portfolios, use the **merge** button: all holdings and transactions move into the portfolio you choose, holdings of the same instrument are consolidated, the target's details are kept, and the source portfolio is deleted (see [Merge Portfolios](docs/ACCOUNT.md#merge-portfolios)).
@@ -313,9 +315,12 @@ Move securities between portfolios by recording a sell at cost base in the sourc
 
 Each portfolio detail page has a **Linked accounts** panel for connecting one or more real bank
 accounts (many-to-many) and choosing a **default** settlement account. Every portfolio also keeps a
-**virtual cash ledger** that is auto-posted from its buys, sells, income and fees — open it from the
-panel for a running cash view without importing a statement. Real linked accounts are reconciled
-against portfolio transactions instead of auto-posted, to avoid double-counting.
+**virtual cash ledger** that is auto-posted (and auto-categorised) from its buys, sells, income and
+fees — open it from the panel, or via the header **Cash** button, for a running cash view without
+importing a statement. Real linked accounts are reconciled against portfolio transactions instead of
+auto-posted, to avoid double-counting, and linking an account triggers reconciliation immediately.
+A virtual ledger can be **converted into a real, editable account** when you want to manage it
+directly.
 
 > **Full guide:** [Accounts](docs/ACCOUNTS.md)
 

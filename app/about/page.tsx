@@ -1,7 +1,55 @@
 import Link from "next/link";
-import { CheckCircle2, Clock, ArrowLeft } from "lucide-react";
+import { CheckCircle2, Clock, ArrowLeft, GitCommit, AlertTriangle } from "lucide-react";
+import { getRecentCronLogs } from "@/lib/services/cron-logs";
 
-export default function AboutPage() {
+// Cron logs are live data — render at request time rather than prerendering.
+export const dynamic = "force-dynamic";
+
+interface ChangelogEntry {
+  hash: string;
+  date: string;
+  subject: string;
+}
+
+function fmtWhen(d: Date): string {
+  return (
+    new Date(d).toLocaleString("en-AU", {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: "UTC",
+    })
+  );
+}
+
+function fmtDuration(ms: number | null): string {
+  if (ms == null) return "—";
+  return ms >= 1000 ? `${(ms / 1000).toFixed(1)}s` : `${ms} ms`;
+}
+
+function getBuildInfo() {
+  const version = process.env.APP_VERSION ?? "dev";
+  const buildTimeRaw = process.env.APP_BUILD_TIME ?? "";
+  let buildTime = "—";
+  if (buildTimeRaw) {
+    buildTime =
+      new Date(buildTimeRaw).toLocaleString("en-AU", {
+        dateStyle: "medium",
+        timeStyle: "short",
+        timeZone: "UTC",
+      }) + " UTC";
+  }
+  let changelog: ChangelogEntry[] = [];
+  try {
+    changelog = JSON.parse(process.env.APP_CHANGELOG ?? "[]") as ChangelogEntry[];
+  } catch {
+    changelog = [];
+  }
+  return { version, buildTime, changelog };
+}
+
+export default async function AboutPage() {
+  const { version, buildTime, changelog } = getBuildInfo();
+  const cronLogs = await getRecentCronLogs();
   return (
     <div className="min-h-screen bg-background">
       {/* Skip link */}
@@ -62,6 +110,10 @@ export default function AboutPage() {
         >
           About InvestaLens
         </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Version <span className="font-medium text-foreground tabular-nums">{version}</span>
+          {" · "}Built <span className="font-medium text-foreground">{buildTime}</span>
+        </p>
 
         <div className="mt-8 space-y-12">
           {/* Purpose */}
@@ -198,9 +250,94 @@ export default function AboutPage() {
             </div>
           </section>
 
-          {/* Open Source */}
+          {/* Pricing */}
           <section>
-            <h2 className="font-serif text-2xl font-bold">Open Source</h2>
+            <h2 className="font-serif text-2xl font-bold">Pricing</h2>
+            <p className="mt-3 leading-relaxed text-muted-foreground">
+              InvestaLens is <span className="font-medium text-foreground">free to use
+              during beta testing</span>. Once the app is commercialised, continued
+              access may require a paid subscription. Existing beta users will be
+              given advance notice before any pricing takes effect.
+            </p>
+          </section>
+
+          {/* Recent changes */}
+          {changelog.length > 0 && (
+            <section>
+              <h2 className="font-serif text-2xl font-bold">Recent changes</h2>
+              <ul className="mt-4 space-y-2.5">
+                {changelog.map((c) => (
+                  <li key={c.hash} className="flex items-start gap-3 text-sm">
+                    <GitCommit
+                      className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"
+                      aria-hidden="true"
+                    />
+                    <div className="min-w-0">
+                      <span className="text-foreground">{c.subject}</span>
+                      <span className="ml-2 text-xs text-muted-foreground tabular-nums">
+                        {c.date} · {c.hash}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {/* Background jobs */}
+          {cronLogs.length > 0 && (
+            <section>
+              <h2 className="font-serif text-2xl font-bold">Background jobs</h2>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Recent scheduled (cron) runs that keep market data up to date.
+              </p>
+              <div className="mt-4 overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b text-left text-muted-foreground">
+                      <th className="py-2 pr-6 font-medium">When (UTC)</th>
+                      <th className="py-2 pr-6 font-medium">Job</th>
+                      <th className="py-2 pr-6 font-medium">Status</th>
+                      <th className="py-2 pr-6 font-medium">Result</th>
+                      <th className="py-2 font-medium">Duration</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {cronLogs.map((l) => (
+                      <tr key={l.id}>
+                        <td className="py-2 pr-6 text-muted-foreground tabular-nums">
+                          {fmtWhen(l.startedAt)}
+                        </td>
+                        <td className="py-2 pr-6">{l.job}</td>
+                        <td className="py-2 pr-6">
+                          <span
+                            className={`inline-flex items-center gap-1 text-xs font-medium ${
+                              l.status === "success" ? "text-success" : "text-destructive"
+                            }`}
+                          >
+                            {l.status === "success" ? (
+                              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                            ) : (
+                              <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
+                            )}
+                            {l.status}
+                          </span>
+                        </td>
+                        <td className="py-2 pr-6 text-muted-foreground">{l.message ?? "—"}</td>
+                        <td className="py-2 text-muted-foreground tabular-nums">
+                          {fmtDuration(l.durationMs)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          {/* Credits */}
+          <section>
+            <h2 className="font-serif text-2xl font-bold">Credits</h2>
             <p className="mt-3 leading-relaxed text-muted-foreground">
               InvestaLens is created by{" "}
               <a
@@ -211,18 +348,8 @@ export default function AboutPage() {
               >
                 Hello Tham
               </a>
-              , a boutique management consulting firm specialising in business
-              and IT strategy. The project is open source &mdash; view the code,
-              report issues, or contribute on{" "}
-              <a
-                href="https://github.com/ChristineTham/investalens"
-                className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                GitHub
-              </a>
-              .
+              , a boutique management consulting firm specialising in business and
+              IT strategy.
             </p>
           </section>
         </div>
