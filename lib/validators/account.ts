@@ -67,6 +67,14 @@ export const cashTransactionSchema = z.object({
   transferAccountId: z.string().nullable().optional(),
 });
 
+/** Editable fields when updating an existing cash transaction in-place. */
+export const updateCashTransactionSchema = z.object({
+  type: z.enum(CASH_TRANSACTION_TYPES),
+  amount: z.number().positive(),
+  date: z.coerce.date(),
+  description: z.string().max(500).nullable().optional(),
+});
+
 export const debitCardSchema = z.object({
   label: z.string().max(80).nullable().optional(),
   last4: z

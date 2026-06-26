@@ -467,6 +467,12 @@ model CashTransaction {
   categoryId        String?
   // For transfer_in / transfer_out: the other cash account in the transfer.
   transferAccountId String?
+  // Hard one-to-one link to the paired transaction in the counterparty account
+  // (its auto-created mirror, or a cross-linked counterpart). A self FK with
+  // onDelete: SetNull guarantees a transfer and its mirror never orphan each
+  // other. Exactly one side of a pair stores the pointer; navigate the other
+  // direction via `mirroredBy`.
+  mirrorTransactionId String?  @unique
   // Origin of the row: manual entry, statement import, portfolio auto-post, or accrued interest.
   source            String   @default("manual") // manual|import|portfolio|interest
   // OFX Financial Institution Transaction ID — stable id for idempotent import + reconciliation.
@@ -483,6 +489,8 @@ model CashTransaction {
   cashAccount      CashAccount      @relation("AccountTransactions", fields: [cashAccountId], references: [id], onDelete: Cascade)
   transferAccount  CashAccount?     @relation("TransferCounterparty", fields: [transferAccountId], references: [id], onDelete: SetNull)
   category         CashCategory?    @relation(fields: [categoryId], references: [id])
+  mirrorTransaction CashTransaction?  @relation("TransferMirror", fields: [mirrorTransactionId], references: [id], onDelete: SetNull)
+  mirroredBy        CashTransaction?  @relation("TransferMirror")
   reconciliations  Reconciliation[]
 
   @@unique([cashAccountId, fitId])
