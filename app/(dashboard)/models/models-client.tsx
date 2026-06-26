@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   LineChart,
@@ -226,9 +227,9 @@ export function ModelsClient({
       {!hasConsolidated && (
         <p className="rounded-md border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
           You have no holdings yet — the chart shows models only.{" "}
-          <a href="/portfolio/new" className="text-primary underline">
+          <Link href="/portfolio/new" className="text-primary underline">
             Create a portfolio
-          </a>{" "}
+          </Link>{" "}
           to overlay your consolidated value.
         </p>
       )}

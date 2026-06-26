@@ -180,7 +180,6 @@ export function OptimizeClient({
   async function saveAll() {
     for (const id of Object.keys(results)) {
       // Sequential to keep instrument upserts from racing on the same code.
-      // eslint-disable-next-line no-await-in-loop
       await saveAsModel(id);
     }
   }
