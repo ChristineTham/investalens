@@ -248,7 +248,7 @@ export function CategoryBar({
   if (data.length === 0) {
     return (
       <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-        No categorised spending in this range.
+        No categorised activity in this range.
       </div>
     );
   }

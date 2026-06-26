@@ -187,7 +187,7 @@ export function AccountDetailClient({
             )
           }
         </ChartCard>
-        <ChartCard title="Spending by category" height={260}>
+        <ChartCard title="Category Breakdown" height={260}>
           {(h) =>
             withLoader(
               <CategoryBar

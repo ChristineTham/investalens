@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { HelpSearch } from "./help-search";
+import { PublicNavAuth } from "@/components/layout/public-nav-auth";
 import {
   Rocket,
   Upload,
@@ -30,7 +31,9 @@ const HELP_SECTIONS = [
   { slug: "api", title: "API Access", icon: Code, description: "REST API, authentication, rate limiting" },
 ] as const;
 
-export default function HelpPage() {
+export const dynamic = "force-dynamic";
+
+export default async function HelpPage() {
   return (
     <div className="min-h-screen bg-background">
       <a
@@ -53,7 +56,7 @@ export default function HelpPage() {
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground">About</Link>
-            <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground">Sign In</Link>
+            <PublicNavAuth />
           </div>
         </div>
       </nav>

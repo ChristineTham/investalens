@@ -80,7 +80,10 @@ export async function GET(
     if (tx.type === "interest") interest += amt;
     if (tx.type === "fee") fees += amt;
 
-    if (!CREDIT_TYPES.has(tx.type)) {
+    // Category breakdown covers all categorised activity in the window
+    // (income and expense alike), by magnitude — so every category that had
+    // activity in the selected timescale appears.
+    {
       const name = tx.category?.name ?? "Uncategorised";
       const row = catOut.get(name) ?? { value: 0, color: tx.category?.color ?? null };
       row.value += amt;

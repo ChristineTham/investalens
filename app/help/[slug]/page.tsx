@@ -2,6 +2,9 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { HELP_CONTENT } from "./content";
+import { PublicNavAuth } from "@/components/layout/public-nav-auth";
+
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return Object.keys(HELP_CONTENT).map((slug) => ({ slug }));
@@ -30,7 +33,7 @@ export default async function HelpSubPage({
           <Link href="/" className="font-serif text-xl font-bold">InvestaLens</Link>
           <div className="flex items-center gap-4">
             <Link href="/help" className="text-sm text-muted-foreground hover:text-foreground">All Help</Link>
-            <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground">Sign In</Link>
+            <PublicNavAuth />
           </div>
         </div>
       </nav>

@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { PublicNavAuth } from "@/components/layout/public-nav-auth";
+
+export const dynamic = "force-dynamic";
 
 export default function PrivacyPage() {
   return (
@@ -25,7 +28,7 @@ export default function PrivacyPage() {
           <div className="flex items-center gap-4">
             <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground">About</Link>
             <Link href="/help" className="text-sm text-muted-foreground hover:text-foreground">Help</Link>
-            <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground">Sign In</Link>
+            <PublicNavAuth />
           </div>
         </div>
       </nav>
