@@ -8,8 +8,11 @@ import { PortfolioActions } from "@/components/forms/portfolio-actions";
 import { PortfolioDetailClient } from "@/components/portfolio/portfolio-detail-client";
 import { PortfolioAccountsPanel } from "@/components/portfolio/portfolio-accounts-panel";
 import { TransactionRow } from "@/components/forms/transaction-row";
+import { AddPortfolioTransaction } from "@/components/forms/add-portfolio-transaction";
 import { BreadcrumbLabel } from "@/components/layout/breadcrumb-context";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, cn } from "@/lib/utils";
+import { portfolioIdentity } from "@/lib/constants/portfolio-identity";
+import { PortfolioIcon } from "@/components/ui/portfolio-icon";
 
 function ReturnTile({ label, value }: { label: string; value: number | null }) {
   const color =
@@ -82,6 +85,15 @@ export default async function PortfolioDetailPage({
         <Link href="/portfolio" className="rounded-md p-2 hover:bg-accent">
           <ArrowLeft className="h-4 w-4" />
         </Link>
+        <span
+          className={cn(
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-white",
+            portfolioIdentity(detail).swatch
+          )}
+          aria-hidden
+        >
+          <PortfolioIcon icon={portfolioIdentity(detail).icon} className="h-5 w-5" />
+        </span>
         <div className="flex-1">
           <h1 className="font-serif text-2xl font-bold">{detail.name}</h1>
           <p className="text-sm text-muted-foreground capitalize">
@@ -93,6 +105,8 @@ export default async function PortfolioDetailPage({
           portfolioId={id}
           portfolio={{
             name: detail.name,
+            icon: detail.icon,
+            color: detail.color,
             brokerName: detail.brokerName,
             brokerWebsite: detail.brokerWebsite,
             clientNumber: detail.clientNumber,
@@ -217,11 +231,11 @@ export default async function PortfolioDetailPage({
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-7">
           <ReturnTile label="1M" value={returns.m1} />
           <ReturnTile label="6M" value={returns.m6} />
-          <ReturnTile label="1Y" value={returns.y1} />
-          <ReturnTile label="3Y" value={returns.y3} />
-          <ReturnTile label="5Y" value={returns.y5} />
-          <ReturnTile label="10Y" value={returns.y10} />
-          <ReturnTile label="Max" value={returns.max} />
+          <ReturnTile label="1Y p.a." value={returns.y1} />
+          <ReturnTile label="3Y p.a." value={returns.y3} />
+          <ReturnTile label="5Y p.a." value={returns.y5} />
+          <ReturnTile label="10Y p.a." value={returns.y10} />
+          <ReturnTile label="Max p.a." value={returns.max} />
         </div>
       </div>
 
@@ -233,7 +247,17 @@ export default async function PortfolioDetailPage({
 
       {/* Transactions across all holdings (inline editable, incl. franking) */}
       <div>
-        <h2 className="mb-2 font-serif text-lg font-semibold">Transactions</h2>
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <h2 className="font-serif text-lg font-semibold">Transactions</h2>
+          <AddPortfolioTransaction
+            holdings={detail.holdings.map((h) => ({
+              id: h.id,
+              code: h.code,
+              name: h.name,
+              currency: h.currency,
+            }))}
+          />
+        </div>
         <p className="mb-3 text-sm text-muted-foreground">
           Edit any transaction inline. Use the coins icon on income rows to assign
           franking and tax components. Changes flow through to linked cash accounts.
@@ -253,6 +277,7 @@ export default async function PortfolioDetailPage({
                   <th className="px-4 py-2.5 text-right">Quantity</th>
                   <th className="px-4 py-2.5 text-right">Price</th>
                   <th className="px-4 py-2.5 text-right">Brokerage</th>
+                  <th className="px-4 py-2.5 text-right">Amount</th>
                   <th className="px-4 py-2.5" />
                 </tr>
               </thead>

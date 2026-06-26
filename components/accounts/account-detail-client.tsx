@@ -19,6 +19,8 @@ import {
   updateAccountTransaction,
 } from "@/lib/actions/accounts";
 import { CASH_TRANSACTION_TYPES } from "@/lib/validators/account";
+import { cashTypeMeta } from "@/lib/constants/activity-meta";
+import { ActivityIcon } from "@/components/ui/activity-icon";
 import { formatCurrency } from "@/lib/utils";
 import type { ChartRange } from "@/lib/constants/chart-ranges";
 
@@ -470,8 +472,18 @@ function EditableTxRow({
           </span>
         )}
       </td>
-      <td className="px-3 py-2.5 text-sm capitalize text-muted-foreground">
-        {t.type.replace(/_/g, " ")}
+      <td className="px-3 py-2.5 text-sm text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5">
+          <span
+            className={`h-3.5 w-1 shrink-0 rounded-sm ${cashTypeMeta(t.type).swatch}`}
+            aria-hidden
+          />
+          <ActivityIcon
+            icon={cashTypeMeta(t.type).icon}
+            className="h-3.5 w-3.5 text-muted-foreground"
+          />
+          {cashTypeMeta(t.type).label}
+        </span>
       </td>
       {categoryCell}
       <td

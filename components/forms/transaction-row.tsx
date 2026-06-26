@@ -7,9 +7,14 @@ import {
   deleteTransaction,
   updateTransaction,
 } from "@/lib/actions/transaction";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, cn } from "@/lib/utils";
 import { Pencil, Trash2, Check, X, Coins } from "lucide-react";
 import { FrankingFields } from "@/components/forms/franking-fields";
+import { ActivityIcon } from "@/components/ui/activity-icon";
+import {
+  transactionMeta,
+  TRANSACTION_TYPE_META,
+} from "@/lib/constants/activity-meta";
 
 interface TransactionRowProps {
   transaction: {
@@ -34,6 +39,33 @@ interface TransactionRowProps {
 }
 
 const INCOME_TYPES = ["DIVIDEND", "INTEREST", "COUPON"];
+
+/** Signed cash effect of a transaction (negative = cash out). */
+function signedAmount(
+  type: string,
+  qty: number,
+  price: number,
+  brokerage: number
+): number {
+  const gross = qty * price;
+  switch (type) {
+    case "BUY":
+    case "TRANSFER_IN":
+      return -(gross + brokerage);
+    case "FEE":
+      return -(gross + brokerage);
+    case "SELL":
+    case "TRANSFER_OUT":
+    case "DIVIDEND":
+    case "INTEREST":
+    case "COUPON":
+    case "DISTRIBUTION":
+    case "RETURN_OF_CAPITAL":
+      return gross - brokerage;
+    default:
+      return 0; // SPLIT, BONUS, MERGER_*, RIGHTS_ISSUE, MATURITY, ADJUSTMENT
+  }
+}
 
 export function TransactionRow({
   transaction: tx,
@@ -117,22 +149,11 @@ export function TransactionRow({
             aria-label="Transaction type"
             className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
           >
-            <option value="BUY">BUY</option>
-            <option value="SELL">SELL</option>
-            <option value="DIVIDEND">DIVIDEND</option>
-            <option value="INTEREST">INTEREST</option>
-            <option value="SPLIT">SPLIT</option>
-            <option value="FEE">FEE</option>
-            <option value="TRANSFER_IN">TRANSFER_IN</option>
-            <option value="TRANSFER_OUT">TRANSFER_OUT</option>
-            <option value="RETURN_OF_CAPITAL">RETURN_OF_CAPITAL</option>
-            <option value="BONUS">BONUS</option>
-            <option value="MERGER_IN">MERGER_IN</option>
-            <option value="MERGER_OUT">MERGER_OUT</option>
-            <option value="RIGHTS_ISSUE">RIGHTS_ISSUE</option>
-            <option value="COUPON">COUPON</option>
-            <option value="MATURITY">MATURITY</option>
-            <option value="ADJUSTMENT">ADJUSTMENT</option>
+            {Object.entries(TRANSACTION_TYPE_META).map(([value, m]) => (
+              <option key={value} value={value}>
+                {m.label}
+              </option>
+            ))}
           </select>
         </td>
         <td className="px-4 py-2">
@@ -165,6 +186,7 @@ export function TransactionRow({
             className="w-20 rounded border border-input bg-background px-2 py-1 text-right text-sm"
           />
         </td>
+        <td className="px-4 py-2" />
         <td className="px-4 py-2">
           <div className="flex items-center justify-end gap-1">
             <button
@@ -188,6 +210,13 @@ export function TransactionRow({
     );
   }
 
+  const amount = signedAmount(
+    tx.transactionType,
+    Number(tx.quantity),
+    Number(tx.price),
+    Number(tx.brokerage)
+  );
+
   return (
     <>
       <tr className="group hover:bg-accent/50">
@@ -204,13 +233,26 @@ export function TransactionRow({
           </td>
         )}
         <td className="px-4 py-3 text-sm font-medium">
-          {tx.transactionType}
-          {unclassified && (
+          <span className="inline-flex items-center gap-1.5">
             <span
-              className="ml-1.5 inline-block h-1.5 w-1.5 rounded-full bg-amber-500 align-middle"
-              title="Unclassified dividend — no franking set"
+              className={cn(
+                "h-3.5 w-1 shrink-0 rounded-sm",
+                transactionMeta(tx.transactionType).swatch
+              )}
+              aria-hidden
             />
-          )}
+            <ActivityIcon
+              icon={transactionMeta(tx.transactionType).icon}
+              className="h-3.5 w-3.5 text-muted-foreground"
+            />
+            {transactionMeta(tx.transactionType).label}
+            {unclassified && (
+              <span
+                className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-amber-500 align-middle"
+                title="Unclassified dividend — no franking set"
+              />
+            )}
+          </span>
         </td>
         <td className="px-4 py-3 text-right text-sm">
           {Number(tx.quantity).toLocaleString()}
@@ -220,6 +262,18 @@ export function TransactionRow({
         </td>
         <td className="px-4 py-3 text-right text-sm text-muted-foreground">
           {formatCurrency(Number(tx.brokerage), currency)}
+        </td>
+        <td
+          className={cn(
+            "px-4 py-3 text-right text-sm font-medium",
+            amount < 0
+              ? "text-red-600"
+              : amount > 0
+                ? "text-green-600"
+                : "text-muted-foreground"
+          )}
+        >
+          {amount === 0 ? "—" : formatCurrency(amount, currency)}
         </td>
         <td className="px-4 py-3 text-right">
           <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
@@ -257,7 +311,7 @@ export function TransactionRow({
 
       {frankingOpen && (
         <tr className="bg-muted/30">
-          <td colSpan={securityCode ? 7 : 6} className="px-4 py-3">
+          <td colSpan={securityCode ? 8 : 7} className="px-4 py-3">
             <FrankingFields
               transaction={tx}
               onSaved={() => {

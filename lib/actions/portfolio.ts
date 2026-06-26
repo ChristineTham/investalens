@@ -78,6 +78,8 @@ export async function updatePortfolio(id: string, input: unknown) {
   });
 
   revalidatePath(`/portfolio/${id}`);
+  revalidatePath("/portfolio");
+  revalidatePath("/dashboard");
 }
 
 export async function deletePortfolio(id: string) {

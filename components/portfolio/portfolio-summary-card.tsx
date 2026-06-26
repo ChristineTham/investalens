@@ -4,7 +4,9 @@ import {
   ALLOCATION_SWATCH,
 } from "@/components/charts/allocation-donut";
 import type { PortfolioCard } from "@/lib/services/portfolio-cards";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, cn } from "@/lib/utils";
+import { portfolioIdentity } from "@/lib/constants/portfolio-identity";
+import { PortfolioIcon } from "@/components/ui/portfolio-icon";
 
 /** Top 6 holdings + an aggregated "Other" slice. */
 function buildAllocation(card: PortfolioCard) {
@@ -40,19 +42,33 @@ function ReturnTile({ label, value }: { label: string; value: number | null }) {
 
 export function PortfolioSummaryCard({ card }: { card: PortfolioCard }) {
   const alloc = buildAllocation(card);
+  const identity = portfolioIdentity(card);
 
   return (
     <Link
       href={`/portfolio/${card.id}`}
       className="group flex h-full flex-col rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/40"
     >
-      <div>
-        <h3 className="font-medium group-hover:text-primary">{card.name}</h3>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          <span className="capitalize">{card.entityType}</span> ·{" "}
-          {card.currency} · {card.holdingsCount} holding
-          {card.holdingsCount === 1 ? "" : "s"}
-        </p>
+      <div className="flex items-start gap-3">
+        <span
+          className={cn(
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white",
+            identity.swatch
+          )}
+          aria-hidden
+        >
+          <PortfolioIcon icon={identity.icon} className="h-4 w-4" />
+        </span>
+        <div className="min-w-0">
+          <h3 className="truncate font-medium group-hover:text-primary">
+            {card.name}
+          </h3>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            <span className="capitalize">{card.entityType}</span> ·{" "}
+            {card.currency} · {card.holdingsCount} holding
+            {card.holdingsCount === 1 ? "" : "s"}
+          </p>
+        </div>
       </div>
 
       <div className="mt-3">
@@ -65,8 +81,8 @@ export function PortfolioSummaryCard({ card }: { card: PortfolioCard }) {
       <div className="mt-3 grid grid-cols-4 gap-2">
         <ReturnTile label="1M" value={card.returns.m1} />
         <ReturnTile label="6M" value={card.returns.m6} />
-        <ReturnTile label="1Y" value={card.returns.y1} />
-        <ReturnTile label="3Y" value={card.returns.y3} />
+        <ReturnTile label="1Y p.a." value={card.returns.y1} />
+        <ReturnTile label="3Y p.a." value={card.returns.y3} />
       </div>
 
       {alloc.length > 0 && (

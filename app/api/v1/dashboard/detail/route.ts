@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getPortfolioTimeSeriesBetween } from "@/lib/services/analytics-data";
-import { holdingColor } from "@/lib/constants/chart-colors";
+import { portfolioIdentity } from "@/lib/constants/portfolio-identity";
 import {
   type ChartRange,
   resolveChartRange,
@@ -31,7 +31,7 @@ export async function GET(request: Request) {
 
   const portfolios = await db.portfolio.findMany({
     where: { userId: session.user.id },
-    select: { id: true, name: true, financialYearEnd: true },
+    select: { id: true, name: true, color: true, financialYearEnd: true },
     orderBy: { name: "asc" },
   });
 
@@ -60,12 +60,15 @@ export async function GET(request: Request) {
   const ordered = [...portfolios].sort(
     (a, b) => (finalValue.get(b.name) ?? 0) - (finalValue.get(a.name) ?? 0)
   );
-  const seriesMeta = ordered.map((p, i) => ({
-    id: p.id,
-    code: p.name,
-    colorVar: holdingColor(i).var,
-    colorSwatch: holdingColor(i).swatch,
-  }));
+  const seriesMeta = ordered.map((p, i) => {
+    const id = portfolioIdentity(p, i);
+    return {
+      id: p.id,
+      code: p.name,
+      colorVar: id.colorVar,
+      colorSwatch: id.swatch,
+    };
+  });
 
   const allDates = [...allDatesSet].sort();
 

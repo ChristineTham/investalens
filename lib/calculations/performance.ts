@@ -3,6 +3,18 @@ export interface DateRange {
   to: Date;
 }
 
+/**
+ * Convert a cumulative total return (%) over `days` into an annualised
+ * (CAGR-style) return (%). Periods of a year or less are returned unchanged
+ * (a 1-year total return already equals its annualised value). Guards against
+ * a total loss producing NaN.
+ */
+export function annualiseReturn(totalPercent: number, days: number): number {
+  if (days <= 366 || totalPercent <= -100) return totalPercent;
+  const years = days / 365;
+  return (Math.pow(1 + totalPercent / 100, 1 / years) - 1) * 100;
+}
+
 export interface TransactionData {
   id: string;
   transactionType: string;

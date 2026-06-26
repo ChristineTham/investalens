@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { calculatePosition } from "@/lib/calculations/position";
 import { getPortfolioTimeSeries } from "@/lib/services/analytics-data";
+import { annualiseReturn } from "@/lib/calculations/performance";
 
 export interface PortfolioCardReturns {
   m1: number | null;
@@ -28,6 +29,8 @@ export interface PortfolioCardTx {
 export interface PortfolioCard {
   id: string;
   name: string;
+  icon: string | null;
+  color: string | null;
   currency: string;
   entityType: string;
   holdingsCount: number;
@@ -180,11 +183,15 @@ export async function getPortfolioCards(): Promise<PortfolioCardsResult> {
     allocation.sort((a, b) => b.value - a.value);
 
     const ts = await getPortfolioTimeSeries(p.id, "3Y");
+    const annPeriod = (days: number): number | null => {
+      const r = periodReturn(ts.dates, ts.values, flatTx, days);
+      return r == null ? null : annualiseReturn(r, days);
+    };
     const returns = {
       m1: periodReturn(ts.dates, ts.values, flatTx, PERIODS[0].days),
       m6: periodReturn(ts.dates, ts.values, flatTx, PERIODS[1].days),
-      y1: periodReturn(ts.dates, ts.values, flatTx, PERIODS[2].days),
-      y3: periodReturn(ts.dates, ts.values, flatTx, PERIODS[3].days),
+      y1: annPeriod(PERIODS[2].days),
+      y3: annPeriod(PERIODS[3].days),
     };
 
     const recent = recentSource
@@ -194,6 +201,8 @@ export async function getPortfolioCards(): Promise<PortfolioCardsResult> {
     cards.push({
       id: p.id,
       name: p.name,
+      icon: p.icon,
+      color: p.color,
       currency: p.baseCurrency,
       entityType: p.taxEntityType,
       holdingsCount: p.holdings.length,

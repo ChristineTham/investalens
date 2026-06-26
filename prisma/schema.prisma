@@ -94,6 +94,11 @@ model Portfolio {
   performanceMethod    String   @default("compound")
   taxEntityType        String   @default("individual")
   saleAllocationMethod String   @default("fifo")
+  // Visual identity (optional). `icon` is a key from PORTFOLIO_ICONS and
+  // `color` a `var(--roselyN)` reference; both fall back to a stable default
+  // derived from the portfolio when unset. See lib/constants/portfolio-identity.ts.
+  icon           String?
+  color          String?
   // Broker / account administrative details (optional, editable).
   brokerName     String?
   brokerWebsite  String?

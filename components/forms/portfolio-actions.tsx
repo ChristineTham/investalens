@@ -16,9 +16,17 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  PORTFOLIO_ICONS,
+  PORTFOLIO_COLORS,
+} from "@/lib/constants/portfolio-identity";
+import { PortfolioIcon } from "@/components/ui/portfolio-icon";
+import { cn } from "@/lib/utils";
 
 export interface PortfolioActionsData {
   name: string;
+  icon: string | null;
+  color: string | null;
   brokerName: string | null;
   brokerWebsite: string | null;
   clientNumber: string | null;
@@ -47,6 +55,8 @@ export function PortfolioActions({
 
   const [form, setForm] = useState({
     name: portfolio.name,
+    icon: portfolio.icon ?? "",
+    color: portfolio.color ?? "",
     brokerName: portfolio.brokerName ?? "",
     brokerWebsite: portfolio.brokerWebsite ?? "",
     clientNumber: portfolio.clientNumber ?? "",
@@ -65,6 +75,8 @@ export function PortfolioActions({
     try {
       await updatePortfolio(portfolioId, {
         name: form.name,
+        icon: form.icon || null,
+        color: form.color || null,
         brokerName: form.brokerName || null,
         brokerWebsite: form.brokerWebsite || null,
         clientNumber: form.clientNumber || null,
@@ -146,6 +158,50 @@ export function PortfolioActions({
                 onChange={(e) => set("name", e.target.value)}
                 required
               />
+            </div>
+
+            <div>
+              <span className="mb-1 block text-xs font-medium">Icon</span>
+              <div className="flex flex-wrap gap-1.5">
+                {PORTFOLIO_ICONS.map((key) => (
+                  <button
+                    key={key}
+                    type="button"
+                    aria-label={key}
+                    onClick={() => set("icon", key)}
+                    className={cn(
+                      "flex h-8 w-8 items-center justify-center rounded-md border",
+                      form.icon === key
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-input text-muted-foreground hover:bg-accent"
+                    )}
+                  >
+                    <PortfolioIcon icon={key} className="h-4 w-4" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <span className="mb-1 block text-xs font-medium">Colour</span>
+              <div className="flex flex-wrap gap-1.5">
+                {PORTFOLIO_COLORS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    aria-label={`Colour ${c}`}
+                    onClick={() => set("color", c)}
+                    className={cn(
+                      "h-7 w-7 rounded-full ring-2 ring-offset-2 ring-offset-background",
+                      `bg-[${c}]`,
+                      form.color === c ? "ring-foreground" : "ring-transparent"
+                    )}
+                  />
+                ))}
+              </div>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                Leave unset to use an automatic colour.
+              </p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>

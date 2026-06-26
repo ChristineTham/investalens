@@ -190,6 +190,9 @@ export default async function HoldingDetailPage({
                   <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
                     Brokerage
                   </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                    Amount
+                  </th>
                   <th className="w-20 px-4 py-3 text-right text-sm font-medium text-muted-foreground">
                     Actions
                   </th>

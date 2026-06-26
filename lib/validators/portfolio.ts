@@ -14,6 +14,9 @@ export const updatePortfolioSchema = createPortfolioSchema.partial().extend({
   saleAllocationMethod: z
     .enum(["fifo", "lifo", "min_gain", "max_gain", "min_tax"])
     .optional(),
+  // Visual identity.
+  icon: z.string().max(40).nullable().optional(),
+  color: z.string().max(40).nullable().optional(),
   // Broker / account administrative details.
   brokerName: z.string().max(200).nullable().optional(),
   brokerWebsite: z.string().max(300).nullable().optional(),

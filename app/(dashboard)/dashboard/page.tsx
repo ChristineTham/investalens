@@ -7,6 +7,13 @@ import { getUserCashTotal } from "@/lib/services/accounts";
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
 import { VsModelCard } from "@/components/dashboard/vs-model-card";
 import { FetchPricesButton } from "@/components/forms/fetch-prices-button";
+import { ActivityIcon } from "@/components/ui/activity-icon";
+import {
+  transactionMeta,
+  cashTypeMeta,
+  type ActivityIconKey,
+} from "@/lib/constants/activity-meta";
+import { cn } from "@/lib/utils";
 import {
   Briefcase,
   TrendingUp,
@@ -142,15 +149,29 @@ export default async function DashboardPage() {
     take: 10,
   });
 
-  // Unified recent activity feed (transactions + fees), newest first
+  // Recent cash-account transactions (across the user's accounts)
+  const recentCashTx = await db.cashTransaction.findMany({
+    where: { cashAccount: { userId: session.user.id } },
+    include: {
+      cashAccount: { select: { id: true, name: true } },
+      category: { select: { name: true } },
+    },
+    orderBy: { date: "desc" },
+    take: 10,
+  });
+
+  // Unified recent activity feed (transactions + fees + cash), newest first
   type ActivityRow = {
     key: string;
     date: Date;
-    portfolioId: string;
-    portfolioName: string;
-    holdingId: string | null;
+    source: string;
+    sourceHref: string;
+    detailHref: string;
     instrumentCode: string;
     type: string;
+    typeLabel: string;
+    icon: ActivityIconKey;
+    swatch: string;
     quantity: number | null;
     price: number | null;
     fees: number;
@@ -169,14 +190,19 @@ export default async function DashboardPage() {
       "RETURN_OF_CAPITAL",
     ].includes(tx.transactionType);
     const gross = qty * price;
+    const m = transactionMeta(tx.transactionType);
+    const pid = tx.holding.portfolio.id;
     return {
       key: `tx-${tx.id}`,
       date: tx.tradeDate,
-      portfolioId: tx.holding.portfolio.id,
-      portfolioName: tx.holding.portfolio.name,
-      holdingId: tx.holdingId,
+      source: tx.holding.portfolio.name,
+      sourceHref: `/portfolio/${pid}`,
+      detailHref: `/portfolio/${pid}/holdings/${tx.holdingId}`,
       instrumentCode: tx.holding.instrument.code,
       type: tx.transactionType,
+      typeLabel: m.label,
+      icon: m.icon,
+      swatch: m.swatch,
       quantity: isIncome ? null : qty,
       price: isIncome ? null : price,
       fees: brokerage,
@@ -184,21 +210,58 @@ export default async function DashboardPage() {
     };
   });
 
-  const feeActivity: ActivityRow[] = recentFees.map((fee) => ({
-    key: `fee-${fee.id}`,
-    date: fee.invoiceDate,
-    portfolioId: fee.portfolio.id,
-    portfolioName: fee.portfolio.name,
-    holdingId: null,
-    instrumentCode: "Custody Fee",
-    type: "FEE",
-    quantity: null,
-    price: null,
-    fees: Number(fee.total),
-    amount: Number(fee.total),
-  }));
+  const feeActivity: ActivityRow[] = recentFees.map((fee) => {
+    const m = transactionMeta("FEE");
+    return {
+      key: `fee-${fee.id}`,
+      date: fee.invoiceDate,
+      source: fee.portfolio.name,
+      sourceHref: `/portfolio/${fee.portfolio.id}`,
+      detailHref: `/portfolio/${fee.portfolio.id}/bonds`,
+      instrumentCode: "Custody Fee",
+      type: "FEE",
+      typeLabel: m.label,
+      icon: m.icon,
+      swatch: m.swatch,
+      quantity: null,
+      price: null,
+      fees: Number(fee.total),
+      amount: Number(fee.total),
+    };
+  });
 
-  const recentActivity = [...txActivity, ...feeActivity]
+  const CASH_CREDITS = new Set([
+    "deposit",
+    "interest",
+    "transfer_in",
+    "dividend_received",
+    "distribution",
+    "contribution",
+    "sell_settlement",
+  ]);
+  const cashActivity: ActivityRow[] = recentCashTx.map((ct) => {
+    const m = cashTypeMeta(ct.type);
+    const magnitude = Number(ct.amount);
+    const signed = CASH_CREDITS.has(ct.type) ? magnitude : -magnitude;
+    return {
+      key: `cash-${ct.id}`,
+      date: ct.date,
+      source: ct.cashAccount.name,
+      sourceHref: `/accounts/${ct.cashAccount.id}`,
+      detailHref: `/accounts/${ct.cashAccount.id}`,
+      instrumentCode: ct.category?.name ?? m.label,
+      type: ct.type,
+      typeLabel: m.label,
+      icon: m.icon,
+      swatch: m.swatch,
+      quantity: null,
+      price: null,
+      fees: 0,
+      amount: signed,
+    };
+  });
+
+  const recentActivity = [...txActivity, ...feeActivity, ...cashActivity]
     .sort((a, b) => b.date.getTime() - a.date.getTime())
     .slice(0, 10);
 
@@ -472,7 +535,7 @@ export default async function DashboardPage() {
                     Type
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
-                    Portfolio
+                    Where
                   </th>
                   <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
                     Quantity
@@ -490,9 +553,7 @@ export default async function DashboardPage() {
               </thead>
               <tbody className="divide-y divide-border">
                 {recentActivity.map((row) => {
-                  const href = row.holdingId
-                    ? `/portfolio/${row.portfolioId}/holdings/${row.holdingId}`
-                    : `/portfolio/${row.portfolioId}/bonds`;
+                  const href = row.detailHref;
                   return (
                     <tr key={row.key} className="hover:bg-accent/50">
                       <td className="px-4 py-3 text-sm text-muted-foreground">
@@ -506,19 +567,24 @@ export default async function DashboardPage() {
                         </Link>
                       </td>
                       <td className="px-4 py-3">
-                        <Link
-                          href={href}
-                          className="text-sm text-muted-foreground hover:text-primary hover:underline"
-                        >
-                          {row.type.replace(/_/g, " ")}
-                        </Link>
+                        <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+                          <span
+                            className={cn(
+                              "h-3.5 w-1 shrink-0 rounded-sm",
+                              row.swatch
+                            )}
+                            aria-hidden
+                          />
+                          <ActivityIcon icon={row.icon} className="h-3.5 w-3.5" />
+                          {row.typeLabel}
+                        </span>
                       </td>
                       <td className="px-4 py-3">
                         <Link
-                          href={href}
+                          href={row.sourceHref}
                           className="text-xs text-muted-foreground hover:text-primary hover:underline"
                         >
-                          {row.portfolioName}
+                          {row.source}
                         </Link>
                       </td>
                       <td className="px-4 py-3 text-right text-sm">

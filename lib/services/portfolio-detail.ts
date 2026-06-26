@@ -7,6 +7,7 @@ import {
   calculateIncome,
 } from "@/lib/calculations/position";
 import type { TransactionData } from "@/lib/calculations/performance";
+import { annualiseReturn } from "@/lib/calculations/performance";
 import { getPortfolioTimeSeries } from "@/lib/services/analytics-data";
 import { holdingColor, MUTED_COLOR } from "@/lib/constants/chart-colors";
 
@@ -64,6 +65,8 @@ export interface PortfolioDetail {
   currency: string;
   entityType: string;
   holdingsCount: number;
+  icon: string | null;
+  color: string | null;
   brokerName: string | null;
   brokerWebsite: string | null;
   clientNumber: string | null;
@@ -309,16 +312,31 @@ export async function getPortfolioDetail(
     }
   );
 
-  // Period returns from a single MAX time series.
+  // Period returns from a single MAX time series. Periods of a year or more are
+  // annualised (CAGR); sub-year periods stay as outright returns.
   const ts = await getPortfolioTimeSeries(portfolioId, "MAX");
+  const ann = (days: number): number | null => {
+    const r = periodReturn(ts.dates, ts.values, flatTx, days);
+    return r == null ? null : annualiseReturn(r, days);
+  };
+  const spanDays =
+    ts.dates.length >= 2
+      ? Math.max(
+          1,
+          (new Date(ts.dates[ts.dates.length - 1]).getTime() -
+            new Date(ts.dates[0]).getTime()) /
+            86_400_000
+        )
+      : 365;
+  const maxRaw = maxReturn(ts.values, flatTx);
   const returns: PortfolioReturns = {
     m1: periodReturn(ts.dates, ts.values, flatTx, 30),
     m6: periodReturn(ts.dates, ts.values, flatTx, 182),
-    y1: periodReturn(ts.dates, ts.values, flatTx, 365),
-    y3: periodReturn(ts.dates, ts.values, flatTx, 1095),
-    y5: periodReturn(ts.dates, ts.values, flatTx, 1825),
-    y10: periodReturn(ts.dates, ts.values, flatTx, 3650),
-    max: maxReturn(ts.values, flatTx),
+    y1: ann(365),
+    y3: ann(1095),
+    y5: ann(1825),
+    y10: ann(3650),
+    max: maxRaw == null ? maxRaw : annualiseReturn(maxRaw, spanDays),
   };
 
   // Performers ranked by total-gain %, among holdings with a real position.
@@ -338,6 +356,8 @@ export async function getPortfolioDetail(
     currency: portfolio.baseCurrency,
     entityType: portfolio.taxEntityType,
     holdingsCount: portfolio.holdings.length,
+    icon: portfolio.icon,
+    color: portfolio.color,
     brokerName: portfolio.brokerName,
     brokerWebsite: portfolio.brokerWebsite,
     clientNumber: portfolio.clientNumber,
