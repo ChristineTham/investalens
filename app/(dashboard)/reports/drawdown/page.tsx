@@ -5,6 +5,7 @@ import { formatPercent } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { ReportFilters } from "@/components/reports/report-filters";
 import { DrawdownScatter } from "@/components/charts/drawdown-scatter";
+import { ChartCard } from "@/components/charts/chart-card";
 import { Suspense } from "react";
 
 export default async function DrawdownReportPage({
@@ -117,22 +118,22 @@ export default async function DrawdownReportPage({
       ) : (
         <>
           {/* Drawdown Scatter Plot — Return vs Max Drawdown */}
-          <div className="rounded-lg border border-border p-4">
-            <h2 className="mb-2 text-sm font-medium text-muted-foreground">
-              Risk vs Return (Scatter)
-            </h2>
-            <p className="mb-4 text-xs text-muted-foreground">
-              Upper-left = best (high return, low drawdown). Lower-right = worst.
-              Bubble size indicates holding value.
-            </p>
-            <DrawdownScatter
-              data={items.map((i) => ({
-                name: i.instrumentCode,
-                maxDrawdown: i.maxDrawdownPercent,
-                totalReturn: i.totalReturn,
-              }))}
-            />
-          </div>
+          <ChartCard
+            title="Risk vs return"
+            description="Upper-left = best (high return, low drawdown). Bubble size = holding value."
+            height={360}
+          >
+            {(h) => (
+              <DrawdownScatter
+                height={h}
+                data={items.map((i) => ({
+                  name: i.instrumentCode,
+                  maxDrawdown: i.maxDrawdownPercent,
+                  totalReturn: i.totalReturn,
+                }))}
+              />
+            )}
+          </ChartCard>
 
           <div className="overflow-hidden rounded-lg border border-border">
             <table className="w-full">

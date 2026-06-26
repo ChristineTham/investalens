@@ -20,7 +20,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
         content: `<p>After signing in, you land on the <strong>Dashboard</strong> showing your total portfolio value, gain/loss, and recent activity. The sidebar provides access to all sections:</p>
 <table>
 <tr><th>Sidebar Link</th><th>What It Contains</th></tr>
-<tr><td><strong>Dashboard</strong></td><td>Summary cards, consolidated charts (value, performance, movement, allocation) with a universal timescale selector, portfolio table, recent activity</td></tr>
+<tr><td><strong>Dashboard</strong></td><td>Summary cards, zoomable consolidated charts (value, performance, movement, allocation) on an app-wide timescale selector, portfolio table, and recent activity across portfolios and accounts</td></tr>
 <tr><td><strong>Portfolio</strong></td><td>Create/manage portfolios, holdings, imports, bonds, cash</td></tr>
 <tr><td><strong>Reports</strong></td><td>10 performance and allocation reports</td></tr>
 <tr><td><strong>Tax</strong></td><td>Taxable income, CGT, and unrealised CGT reports</td></tr>
@@ -161,28 +161,28 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
     sections: [
       {
         heading: "Portfolio Overview",
-        content: `<p>The Portfolio page shows each portfolio as an equal-height summary card with an allocation donut (current value by holding), current value, 1M / 6M / 1Y / 3Y returns, and the three most recent transactions. Click a card to open the full <strong>portfolio detail page</strong>. When you have more than one portfolio, a highlighted <strong>Consolidated View</strong> card leads the grid.</p>`,
+        content: `<p>The Portfolio page shows each portfolio as an equal-height summary card — led by its chosen <strong>icon and colour</strong> — with an allocation donut (current value by holding), current value, 1M / 6M / 1Y / 3Y returns, and the three most recent transactions. Click a card to open the full <strong>portfolio detail page</strong>. When you have more than one portfolio, a highlighted <strong>Consolidated View</strong> card leads the grid.</p>`,
       },
       {
         heading: "Portfolio Detail Page",
-        content: `<p>Opening a portfolio shows its name in the breadcrumb, KPI cards (current value, capital gain, income, total gain), and trailing returns for 1M / 6M / 1Y / 3Y / 5Y / 10Y / All. Below that is a responsive grid of charts driven by a single <strong>universal timescale selector</strong>:</p>
+        content: `<p>Opening a portfolio shows its name (with its icon and colour) in the breadcrumb, KPI cards (current value, capital gain, income, total gain), and trailing returns for 1M / 6M / 1Y / 3Y / 5Y / 10Y / All &mdash; periods of a year or more are shown <strong>annualised (p.a.)</strong>. Below that is a responsive grid of charts driven by a single <strong>universal timescale selector</strong>:</p>
 <ul>
 <li><strong>Value over time</strong> &mdash; each holding stacked as an area with the overall portfolio value as a bold line on top</li>
 <li><strong>Performance (gain / loss)</strong> &mdash; total-gain %, optionally compared with a benchmark; the tooltip breaks the gain down as capital gain + income = total gain</li>
-<li><strong>Allocation by holding</strong> &mdash; a pie grouped by sector, with a rich hover tooltip (name, type, sector, purchase, current value, capital gain, income)</li>
+<li><strong>Allocation by holding</strong> &mdash; a <strong>two-level (nested) pie</strong>: the inner ring is sector and the outer ring is each holding, with a rich hover tooltip (name, type, sector, purchase, current value, capital gain, income)</li>
 <li><strong>Movement</strong> &mdash; net monthly cash flow (buys / sells / distributions) stacked by holding</li>
 <li><strong>Top &amp; bottom performers</strong> &mdash; the best and worst three holdings by total return</li>
 </ul>
-<p>Any chart can be expanded to a larger modal with the maximise button. The holdings table adds sector, current price, purchase amount, current value, capital gain, income, total gain, annualised return, and a mini price sparkline &mdash; each holding keeps a consistent colour (shown as a swatch) across every chart.</p>
-<p>Below the holdings, a <strong>Transactions</strong> list spans every holding. Edit any row inline (date, type, quantity, price, brokerage), and use the coins icon on income rows to <strong>assign franking</strong> to dividends. When the portfolio is linked to cash accounts, these edits rebuild the virtual ledger and re-reconcile linked real accounts automatically.</p>`,
+<p>Every chart can be expanded to a larger modal with the maximise button. The holdings table adds sector, current price, purchase amount, current value, capital gain, income, total gain, annualised return, and a mini price sparkline &mdash; each holding keeps a consistent colour (shown as a swatch) across every chart.</p>
+<p>Below the holdings, a <strong>Transactions</strong> list spans every holding and includes an <strong>Amount</strong> column (each transaction&rsquo;s signed cash effect). Edit any row inline (date, type, quantity, price, brokerage), and use the coins icon on income rows to <strong>assign franking</strong> to dividends. Use <strong>New transaction</strong> to record a transaction against an existing holding, and <strong>Add holding</strong> to add a new security together with its opening transaction. When the portfolio is linked to cash accounts, these edits rebuild the virtual ledger and re-reconcile linked real accounts automatically.</p>`,
       },
       {
         heading: "Timescale Selector",
-        content: `<p>The universal selector on the dashboard and portfolio detail page covers <strong>1M, 6M, YTD, current financial year (FYTD), previous financial year (Prev FY), 1Y, 3Y, 5Y, 10Y, and All</strong>. Changing it updates every chart on the page at once, including the mini sparklines in the holdings table.</p>`,
+        content: `<p>The universal selector covers <strong>1M, 6M, YTD, current financial year (FYTD), previous financial year (Prev FY), 1Y, 3Y, 5Y, 10Y, and All</strong>. It is shared across the dashboard, portfolio and analytics pages — changing it on one page applies everywhere and is remembered between visits — and updates every chart at once, including the mini sparklines in the holdings table.</p>`,
       },
       {
         heading: "Edit Details & Merge",
-        content: `<p>On a portfolio&rsquo;s detail page, use the <strong>edit (pencil)</strong> button to set administrative details &mdash; broker name, broker website, client number, and account number &mdash; which then appear under the header (the broker name links to the website).</p>
+        content: `<p>On a portfolio&rsquo;s detail page, use the <strong>edit (pencil)</strong> button to set its <strong>icon and colour</strong> and administrative details &mdash; broker name, broker website, client number, and account number &mdash; which then appear under the header (the broker name links to the website). The chosen icon and colour identify the portfolio on its card, the detail header, the dashboard table, and every per-portfolio chart.</p>
 <p>The <strong>merge</strong> button moves every holding and transaction from the current portfolio into another portfolio you choose. The target portfolio&rsquo;s details (name, broker, account numbers, tax settings) are kept, holdings of the same instrument are consolidated, and the source portfolio is then deleted.</p>`,
       },
       {
@@ -295,7 +295,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <ul>
 <li><strong>Balance over time</strong></li>
 <li><strong>Monthly cash flow</strong> (money in vs out)</li>
-<li><strong>Spending by category</strong> &mdash; a bar chart broken down by category</li>
+<li><strong>Spending by category</strong> &mdash; a bar chart broken down by category, each in its harmonised category colour</li>
 </ul>
 <p>The transactions table shows date, description, type, category, amount, and a <strong>running balance</strong> column. On real accounts you can <strong>add a transaction inline</strong> (the row at the top of the table), <strong>edit</strong> any row in place (date, type, amount, description), set its category, and delete it. Virtual ledgers are read-only: their categories are assigned automatically from the originating portfolio transactions and shown as text. Categories themselves are managed under <strong>Settings &rarr; Categories</strong>.</p>`,
       },

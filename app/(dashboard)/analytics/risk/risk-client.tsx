@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type { RiskMetrics } from "@/lib/calculations/risk-metrics";
 import type { DrawdownEpisode } from "@/lib/calculations/drawdown";
 import { MetricCard } from "@/components/analytics/metric-card";
+import { ChartCard } from "@/components/charts/chart-card";
 import { DateRangeSelector, type DateRange } from "@/components/analytics/date-range-selector";
 import { BenchmarkSelector } from "@/components/analytics/benchmark-selector";
 
@@ -25,6 +26,13 @@ const RiskContributionPie = dynamic(
   () => import("@/components/charts/risk-contribution-pie").then((m) => m.RiskContributionPie),
   { ssr: false }
 );
+const MetricRadarChart = dynamic(
+  () => import("@/components/charts/metric-radar-chart").then((m) => m.MetricRadarChart),
+  { ssr: false }
+);
+
+const clampNorm = (v: number, min: number, max: number) =>
+  ((Math.max(min, Math.min(max, v)) - min) / (max - min)) * 100;
 
 interface Props {
   portfolios: { id: string; name: string }[];
@@ -84,6 +92,7 @@ export function RiskDashboardClient({
             className="rounded-md border border-input bg-background px-3 py-1.5 text-sm"
             value={selectedPortfolioId}
             onChange={(e) => updateParams("portfolio", e.target.value)}
+            aria-label="Portfolio"
           >
             {portfolios.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
@@ -125,11 +134,43 @@ export function RiskDashboardClient({
       {/* Tab content */}
       {tab === "Overview" && (
         <div className="space-y-6">
-          <GrowthChart
-            dates={portfolioTs.dates}
-            portfolioValues={portfolioTs.values}
-            benchmarkValues={benchmarkTs.values.length > 0 ? benchmarkTs.values : undefined}
-          />
+          <ChartCard
+            title="Growth vs benchmark"
+            description="Rebased to 100 at the period start"
+            height={320}
+          >
+            {(h) => (
+              <GrowthChart
+                height={h}
+                dates={portfolioTs.dates}
+                portfolioValues={portfolioTs.values}
+                benchmarkValues={benchmarkTs.values.length > 0 ? benchmarkTs.values : undefined}
+              />
+            )}
+          </ChartCard>
+          <ChartCard
+            title="Risk profile"
+            description="Key metrics normalised to 0–100 (higher = better)"
+            height={300}
+          >
+            {(h) => (
+              <MetricRadarChart
+                height={h}
+                showLegend={false}
+                data={[
+                  { axis: "Return", value: clampNorm(metrics.annualisedReturn, -20, 30) },
+                  { axis: "Sharpe", value: clampNorm(metrics.sharpeRatio, 0, 3) },
+                  { axis: "Sortino", value: clampNorm(metrics.sortinoRatio, 0, 4) },
+                  { axis: "Low volatility", value: 100 - clampNorm(metrics.volatility, 0, 40) },
+                  { axis: "Low drawdown", value: 100 - clampNorm(metrics.maxDrawdown, 0, 60) },
+                  { axis: "Alpha", value: clampNorm(metrics.alpha, -10, 10) },
+                ]}
+                series={[
+                  { key: "value", label: "Profile", colorVar: "var(--rosely8)" },
+                ]}
+              />
+            )}
+          </ChartCard>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-5">
             <MetricCard label="Calmar Ratio" value={metrics.calmarRatio} />
             <MetricCard label="Treynor Ratio" value={metrics.treynorRatio} />
@@ -152,11 +193,20 @@ export function RiskDashboardClient({
 
       {tab === "Drawdowns" && (
         <div className="space-y-6">
-          <GrowthChart
-            dates={portfolioTs.dates}
-            portfolioValues={drawdownSeries.map((d) => d * 100)}
-            portfolioLabel="Drawdown %"
-          />
+          <ChartCard
+            title="Drawdown over time"
+            description="Decline from the running peak (%)"
+            height={320}
+          >
+            {(h) => (
+              <GrowthChart
+                height={h}
+                dates={portfolioTs.dates}
+                portfolioValues={drawdownSeries.map((d) => d * 100)}
+                portfolioLabel="Drawdown %"
+              />
+            )}
+          </ChartCard>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -186,7 +236,13 @@ export function RiskDashboardClient({
 
       {tab === "Distribution" && (
         <div className="space-y-6">
-          <ReturnHistogram returns={portfolioTs.returns} />
+          <ChartCard
+            title="Daily return distribution"
+            description="Histogram of daily returns"
+            height={320}
+          >
+            {(h) => <ReturnHistogram returns={portfolioTs.returns} height={h} />}
+          </ChartCard>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <MetricCard label="Skewness" value={metrics.skewness} description={metrics.skewness < 0 ? "Left-skewed (more downside tail)" : "Right-skewed"} />
             <MetricCard label="Excess Kurtosis" value={metrics.kurtosis} description={metrics.kurtosis > 0 ? "Fat tails (more extreme events)" : "Thin tails"} />
@@ -198,24 +254,47 @@ export function RiskDashboardClient({
 
       {tab === "Rolling" && (
         <div className="space-y-6">
-          <RollingMetricsChart
-            data={[
-              { dates: rollingSharpe.dates, values: rollingSharpe.values, label: "Sharpe" },
-              { dates: rollingSortino.dates, values: rollingSortino.values, label: "Sortino" },
-            ]}
-          />
-          <RollingMetricsChart
-            data={[
-              { dates: rollingBeta.dates, values: rollingBeta.values, label: "Beta" },
-            ]}
-          />
+          <ChartCard
+            title="Rolling Sharpe & Sortino"
+            description="Risk-adjusted return over a rolling window"
+            height={300}
+          >
+            {(h) => (
+              <RollingMetricsChart
+                height={h}
+                data={[
+                  { dates: rollingSharpe.dates, values: rollingSharpe.values, label: "Sharpe" },
+                  { dates: rollingSortino.dates, values: rollingSortino.values, label: "Sortino" },
+                ]}
+              />
+            )}
+          </ChartCard>
+          <ChartCard
+            title="Rolling Beta"
+            description="Sensitivity to the benchmark over time"
+            height={300}
+          >
+            {(h) => (
+              <RollingMetricsChart
+                height={h}
+                data={[
+                  { dates: rollingBeta.dates, values: rollingBeta.values, label: "Beta" },
+                ]}
+              />
+            )}
+          </ChartCard>
         </div>
       )}
 
       {tab === "Decomposition" && (
         <div className="space-y-6">
-          <h3 className="text-sm font-medium">Risk Contribution by Holding</h3>
-          <RiskContributionPie data={riskContribution} />
+          <ChartCard
+            title="Risk contribution by holding"
+            description="Each holding's share of total portfolio volatility"
+            height={300}
+          >
+            {(h) => <RiskContributionPie data={riskContribution} height={h} />}
+          </ChartCard>
         </div>
       )}
     </div>

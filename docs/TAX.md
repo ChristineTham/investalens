@@ -92,7 +92,7 @@ The following reports are accessible from the Tax tab:
 
 ## Taxable Income Report
 
-Shows all dividend, distribution, and interest income received within a selected date range. Designed to help you complete your Australian tax return by presenting portfolio income in the format required by the ATO.
+Shows all dividend, distribution, and interest income received within a selected date range. Designed to help you complete your Australian tax return by presenting portfolio income in the format required by the ATO. An **income-composition** chart breaks the assessable income down by source (franked/unfranked dividends, interest, bond capital growth, foreign income, tax-deferred).
 
 > **Data source for franking:** franked/unfranked amounts and franking credits are captured from **imported dividend/AMMA statements** or **manual entry**. The price feed (Yahoo Finance) provides only the **gross cash dividend** — auto-fetched dividends are therefore recorded **unclassified** (treated as unfranked with no credits), and ETF/trust distributions are not split into their tax components. To classify a payment, open the holding's **Transaction History** and use the coins icon on the dividend row — you can enter franked/unfranked amounts, franking credits, tax-deferred and foreign tax, and compute the credits from the franked amount at the 30% or 25% company tax rate — or import the relevant statement.
 
@@ -155,7 +155,7 @@ For Individual tax entity Australian portfolios, this section helps complete you
 
 ## Capital Gains Tax (CGT) Report
 
-Calculates capital gains made on shares as per Australian Tax Office rules. The report may be run over any date range.
+Calculates capital gains made on shares as per Australian Tax Office rules. The report may be run over any date range. Charts summarise the **CGT composition** (short/long-term gains netted down by the discount, indexation, and losses to the assessable amount) and **realised gain/loss by holding**.
 
 > **Note:** This report is only available in Australian tax residency portfolios.
 
@@ -218,7 +218,7 @@ Once satisfied with the sale allocation method for a period, click **Lock for pe
 
 ## Unrealised CGT Report
 
-Calculates unrealised capital gains in your portfolio and the resulting taxable income that would arise if holdings were sold on the report date. This is a **forecasting tool only** — use the CGT Report for actual realised gains.
+Calculates unrealised capital gains in your portfolio and the resulting taxable income that would arise if holdings were sold on the report date. This is a **forecasting tool only** — use the CGT Report for actual realised gains. Charts show the **CGT composition** (how gross gains net down), the **assessable proportion** as a radial gauge, and **unrealised gain/loss by holding**.
 
 ### Report Sections
 

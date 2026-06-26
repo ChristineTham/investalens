@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Treemap, ResponsiveContainer, Tooltip } from "recharts";
 
@@ -27,6 +28,8 @@ interface PortfolioNode {
 export interface PortfolioTreemapData {
   portfolioId: string;
   portfolioName: string;
+  /** The portfolio's chosen identity colour (CSS var), used to tint its tiles. */
+  color?: string;
   holdings: {
     id: string;
     code: string;
@@ -41,12 +44,58 @@ interface PortfolioValueTreemapProps {
   data: PortfolioTreemapData[];
 }
 
-// Base hues for portfolios (HSL hue values)
+// Base hues for portfolios (HSL hue values), used when a portfolio has no
+// chosen identity colour to derive a hue from.
 const PORTFOLIO_HUES = [210, 150, 340, 30, 270, 180, 60, 300, 120, 0];
 const SAT = 65;
 
-function getPortfolioColor(portfolioIndex: number, opacity: number = 1): string {
-  const hue = PORTFOLIO_HUES[portfolioIndex % PORTFOLIO_HUES.length];
+/** Parse a hex or rgb() string to [r,g,b]. */
+function toRgb(s: string): [number, number, number] | null {
+  const t = s.trim();
+  const hex = t.match(/^#?([0-9a-f]{6})$/i);
+  if (hex) {
+    const n = parseInt(hex[1], 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+  const rgb = t.match(/rgba?\(([^)]+)\)/i);
+  if (rgb) {
+    const [r, g, b] = rgb[1].split(",").map((x) => parseFloat(x));
+    if ([r, g, b].every((v) => Number.isFinite(v))) return [r, g, b];
+  }
+  return null;
+}
+
+function rgbToHue(r: number, g: number, b: number): number {
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const d = max - min;
+  let h = 0;
+  if (d === 0) h = 0;
+  else if (max === r) h = ((g - b) / d) % 6;
+  else if (max === g) h = (b - r) / d + 2;
+  else h = (r - g) / d + 4;
+  h = Math.round(h * 60);
+  return h < 0 ? h + 360 : h;
+}
+
+/** Resolve a CSS colour (incl. `var(--roselyN)`) to an HSL hue (client only). */
+function cssColorToHue(color: string): number | null {
+  if (typeof document === "undefined") return null;
+  let resolved = color;
+  const m = color.match(/var\((--[\w-]+)\)/);
+  if (m) {
+    resolved = getComputedStyle(document.documentElement)
+      .getPropertyValue(m[1])
+      .trim();
+  }
+  const rgb = toRgb(resolved);
+  return rgb ? rgbToHue(rgb[0], rgb[1], rgb[2]) : null;
+}
+
+function getPortfolioColor(hue: number, opacity: number = 1): string {
   return `hsla(${hue}, ${SAT}%, 45%, ${opacity})`;
 }
 
@@ -98,6 +147,7 @@ function CustomContent(props: {
   portfolioIndex?: number;
   holdingIndex?: number;
   holdingCount?: number;
+  hue?: number;
   portfolioId?: string;
   holdingId?: string;
   onNavigate?: (portfolioId: string, holdingId: string) => void;
@@ -106,8 +156,10 @@ function CustomContent(props: {
     x = 0, y = 0, width = 0, height = 0,
     name = "", value = 0, root, depth = 0,
     portfolioIndex = 0, holdingIndex = 0, holdingCount = 1,
-    portfolioId, holdingId, onNavigate,
+    hue, portfolioId, holdingId, onNavigate,
   } = props;
+
+  const hueVal = hue ?? PORTFOLIO_HUES[portfolioIndex % PORTFOLIO_HUES.length];
 
   if (depth === 1) {
     // Portfolio level - border and label
@@ -118,8 +170,8 @@ function CustomContent(props: {
           y={y}
           width={width}
           height={height}
-          fill={getPortfolioColor(portfolioIndex, 0.15)}
-          stroke={getPortfolioColor(portfolioIndex)}
+          fill={getPortfolioColor(hueVal, 0.15)}
+          stroke={getPortfolioColor(hueVal)}
           strokeWidth={2}
         />
         {width > 60 && height > 20 && (
@@ -143,7 +195,7 @@ function CustomContent(props: {
   // Holding level - coloured by portfolio with shade variation
   const total = root?.children?.reduce((s, c) => s + c.value, 0) || 1;
   const percent = ((value / total) * 100).toFixed(1);
-  const hue = PORTFOLIO_HUES[portfolioIndex % PORTFOLIO_HUES.length];
+  const hue = hueVal;
   const lightness = holdingLightness(holdingIndex, holdingCount);
   const fillColor = `hsl(${hue}, ${SAT}%, ${lightness}%)`;
   const textColor = tileTextColor(hue, lightness);
@@ -257,12 +309,22 @@ function TreemapTooltip({
 export function PortfolioValueTreemap({ data }: PortfolioValueTreemapProps) {
   const router = useRouter();
 
+  // Resolve each portfolio's chosen colour to an HSL hue after mount (client
+  // only, to avoid an SSR/hydration mismatch). Falls back to PORTFOLIO_HUES.
+  const [hues, setHues] = useState<(number | null)[]>([]);
+  useEffect(() => {
+    setHues(data.map((p) => (p.color ? cssColorToHue(p.color) : null)));
+  }, [data]);
+
+  const visible = useMemo(() => data.filter((p) => p.holdings.length > 0), [data]);
+
   // Build hierarchical data for recharts Treemap
-  const treemapData: PortfolioNode[] = data
-    .filter((p) => p.holdings.length > 0)
-    .map((p, pIdx) => ({
+  const treemapData: PortfolioNode[] = visible.map((p, pIdx) => {
+    const hue = hues[data.indexOf(p)] ?? PORTFOLIO_HUES[pIdx % PORTFOLIO_HUES.length];
+    return {
       name: p.portfolioName,
       portfolioIndex: pIdx,
+      hue,
       children: p.holdings.map((h, hIdx) => ({
         name: h.code,
         size: h.marketValue,
@@ -271,11 +333,13 @@ export function PortfolioValueTreemap({ data }: PortfolioValueTreemapProps) {
         portfolioIndex: pIdx,
         holdingIndex: hIdx,
         holdingCount: p.holdings.length,
+        hue,
         fullName: h.name ?? "",
         instrumentType: h.instrumentType ?? "",
         units: h.quantity ?? 0,
       })),
-    }));
+    };
+  });
 
   const navigate = (portfolioId: string, holdingId: string) => {
     router.push(`/portfolio/${portfolioId}/holdings/${holdingId}`);

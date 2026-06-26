@@ -5,6 +5,7 @@ import { formatPercent } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { PortfolioSelector } from "@/components/reports/portfolio-selector";
 import { MultiPeriodBarChart } from "@/components/charts/multi-period-bar";
+import { ChartCard } from "@/components/charts/chart-card";
 import { Suspense } from "react";
 
 export default async function MultiPeriodReportPage({
@@ -115,21 +116,25 @@ export default async function MultiPeriodReportPage({
       ) : (
         <>
           {/* Multi-Period Bar Chart */}
-          <div className="rounded-lg border border-border p-4">
-            <h2 className="mb-4 text-sm font-medium text-muted-foreground">
-              Return Comparison by Period
-            </h2>
-            <MultiPeriodBarChart
-              data={rows.map((r) => {
-                const obj: { name: string; [key: string]: string | number } = { name: r.instrumentCode };
-                r.periods.forEach((p) => {
-                  obj[p.label] = Number(p.returnPercent.toFixed(2));
-                });
-                return obj;
-              })}
-              periods={periods.map((p) => p.label)}
-            />
-          </div>
+          <ChartCard
+            title="Return comparison by period"
+            description="Per-holding returns across 1M / 3M / 6M / 1Y / 3Y"
+            height={340}
+          >
+            {(h) => (
+              <MultiPeriodBarChart
+                height={h}
+                data={rows.map((r) => {
+                  const obj: { name: string; [key: string]: string | number } = { name: r.instrumentCode };
+                  r.periods.forEach((p) => {
+                    obj[p.label] = Number(p.returnPercent.toFixed(2));
+                  });
+                  return obj;
+                })}
+                periods={periods.map((p) => p.label)}
+              />
+            )}
+          </ChartCard>
 
           <div className="overflow-hidden rounded-lg border border-border">
           <table className="w-full">

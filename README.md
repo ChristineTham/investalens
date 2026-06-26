@@ -5,11 +5,12 @@ A comprehensive portfolio tracker and optimiser for Australian investors. Track 
 ## Features (R1 MVP)
 
 - **Authentication** — Email/password + Google OAuth via NextAuth.js v5
-- **Portfolio Management** — Equal-height overview cards (allocation donut, current value, 1M/6M/1Y/3Y returns, recent activity) and a highlighted consolidated card; a rich **portfolio detail page** with KPI cards, trailing returns, and a responsive chart grid (value over time, performance vs benchmark, allocation by sector, movement) driven by a **universal timescale selector** (incl. YTD, current/previous financial year); create, rename, delete, share, **edit broker/account details**, and **merge** portfolios
+- **Portfolio Management** — Equal-height overview cards (allocation donut, current value, 1M/6M/1Y/3Y returns, recent activity) and a highlighted consolidated card; a rich **portfolio detail page** with KPI cards, **annualised (p.a.) trailing returns**, and a responsive chart grid (value over time, performance vs benchmark, **nested sector→holding allocation**, movement) driven by a **universal timescale selector** (incl. YTD, current/previous financial year); **per-portfolio icon & colour** identity used across pages and charts; an **Amount** column and inline **New transaction** creator on the transactions list (Add Holding prompts for the opening trade); create, rename, delete, share, **edit broker/account details**, and **merge** portfolios
 - **Multi-Type Import** — Import hub for shares, bonds, and cash. One-step quick import for known brokers, a category-based guided wizard, and dedicated custom importers (e.g. the FIIG multi-sheet data extract). 9 broker templates (CommSec, SelfWealth, Stake, CMC, Bell Direct, nabtrade, FIIG, IB) plus bank-statement import (**OFX/QFX, QIF, and CSV** with AU bank templates). All paths resolve duplicates automatically
 - **Accounts & Cash** — First-class bank & cash accounts at `/accounts`: balances, **inline-editable** debit/credit transactions with a **running-balance** column, per-user **categories** (add/edit/delete/merge/reset under Settings), debit cards, and **balance / cash-flow / spending-by-category (bar)** charts on a universal timescale; statement import (OFX/QFX, QIF, CSV); **portfolio linking** with **auto-categorised virtual** cash ledgers (convertible to real accounts); **reconciliation** with fuzzy settlement-aware + split matching that merges dividend franking; **transfer mirroring** that de-duplicates against imports; and a Dashboard **Cash** + **Net Worth** view
 - **Market Data** — One-step **Update** (Settings → Market Data) streams live progress while it fetches ASX/share & ETF prices via Yahoo Finance, FIIG rate-sheet bond prices (matched by ISIN), and company information — plus instrument search and a daily price cron
 - **Stock Information** — Rich company data per holding via yfinance (Python): profile & description, key fundamentals, analyst price targets & recommendation trend, upgrades/downgrades, earnings/dividend calendar, recent news, financial statements, and corporate actions
+- **Charts & Visual Identity** — Every chart is **responsive and zoomable** (maximise to a full-screen modal) and laid out on a consistent grid. Harmonised **icons & colours** for transaction types and cash-account categories appear consistently in rows, the dashboard activity feed, and charts. Unusual chart types where they help — a **two-level sector→holding pie**, a **risk-profile radar**, and **radial gauges** (fear & greed, assessable-CGT proportion, rebalance turnover). New charts across Tax, Reports, and Tools pages. The **universal timescale** is shared app-wide (dashboard, portfolios, analytics) and persists between visits
 - **Reports** — Performance, Contribution, Diversity, Future Income, Sold Securities, All Trades, Drawdown, Multi-Period, Calendar, Historical Cost
 - **Tax** — Taxable Income Report (incl. bond income), CGT with 5 allocation methods, 50% discount **and** CPI indexation (pre-1999), bond CGT exemption, Unrealised CGT, plus an opt-in **proposed 2027 regime** projection (cost-base indexation + 30% minimum tax)
 - **Corporate Actions** — Splits, bonus, return of capital, rights issues, mergers
@@ -126,7 +127,7 @@ api/                    # Python FastAPI analytics (Vercel Services)
   utils/                # Python helpers (transforms, response)
 components/
   ui/                   # shadcn/ui components (17 installed)
-  charts/               # Recharts + custom chart components (15)
+  charts/               # Recharts + custom chart components (zoomable cards, nested pie, radar, radial gauges, treemap, …)
   analytics/            # Analytics UI components (selectors, metric cards)
   accounts/             # Accounts list/detail, import wizard, reconcile, portfolio linking
   forms/                # Import wizard, transaction form, etc.
@@ -147,7 +148,7 @@ prisma/
   schema.prisma         # 33 models
   migrations/           # Database migrations
   seed.ts               # Test data seeder
-scripts/                # Standalone scripts (seed benchmarks/models, fetch prices, validate models, test pipeline)
+scripts/                # Standalone scripts (update all market data, validate database, seed models, verify CGT 2027)
 test-data/              # Sample broker CSVs for testing
 ```
 

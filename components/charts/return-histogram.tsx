@@ -14,9 +14,10 @@ import {
 interface ReturnHistogramProps {
   returns: number[];
   bins?: number;
+  height?: number;
 }
 
-export function ReturnHistogram({ returns, bins = 40 }: ReturnHistogramProps) {
+export function ReturnHistogram({ returns, bins = 40, height = 300 }: ReturnHistogramProps) {
   if (returns.length === 0) return null;
 
   const min = Math.min(...returns);
@@ -48,7 +49,7 @@ export function ReturnHistogram({ returns, bins = 40 }: ReturnHistogramProps) {
         <span>Std: {(std * 100).toFixed(3)}%</span>
         <span>N: {returns.length}</span>
       </div>
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={height}>
         <BarChart data={histogram}>
           <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
           <XAxis

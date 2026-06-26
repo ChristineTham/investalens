@@ -18,6 +18,7 @@ interface GrowthChartProps {
   benchmarkValues?: number[];
   portfolioLabel?: string;
   benchmarkLabel?: string;
+  height?: number;
 }
 
 export function GrowthChart({
@@ -26,6 +27,7 @@ export function GrowthChart({
   benchmarkValues,
   portfolioLabel = "Portfolio",
   benchmarkLabel = "Benchmark",
+  height = 350,
 }: GrowthChartProps) {
   const [logScale, setLogScale] = useState(false);
 
@@ -52,7 +54,7 @@ export function GrowthChart({
           Log Scale
         </button>
       </div>
-      <ResponsiveContainer width="100%" height={350}>
+      <ResponsiveContainer width="100%" height={height}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
           <XAxis

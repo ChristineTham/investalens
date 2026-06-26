@@ -309,14 +309,31 @@
 
 ## Charting — Recharts
 
-- **Source**: https://recharts.org/en-US/guide/installation
+- **Source**: https://recharts.org + examples https://recharts.github.io/en-US/examples/ (verified 2026-06-26)
 - **Install command**: `pnpm add recharts`
+- **Version in use**: `^3.8.1` (Recharts 3.x)
 - **Key facts**:
-  - React-native charting library
-  - Composable — built with React components
-  - Supports: Line, Bar, Pie, Area, Scatter, Treemap, Radar, etc.
-  - Tree-shakes well
-- **Note**: Official install page returned error during fetch, but the package is well-known: `npm install recharts` per their GitHub README.
+  - React-composable charting (each chart is a tree of React components).
+  - Tree-shakes well; import only the pieces used.
+- **Chart-type catalogue** (component → typical InvestaLens use):
+  - `LineChart` / `AreaChart` — value & cumulative-return time series (portfolio vs benchmark).
+  - `BarChart` — contribution, multi-period returns, monthly income, CGT splits. Horizontal via `layout="vertical"`.
+  - `ComposedChart` — mix bars + lines + areas on shared axes (price + volume).
+  - `ScatterChart` — efficient frontier, drawdown episodes.
+  - `PieChart` / `Pie` — allocation/diversity. **Two-level (nested) pie**: render two `<Pie>` in one `<PieChart>` — inner ring `outerRadius="55%"` (e.g. sector), outer ring `innerRadius="60%" outerRadius="80%"` (e.g. holdings). This is the preferred "sunburst-like" nested view.
+  - `RadarChart` (+ `PolarGrid`, `PolarAngleAxis`, `PolarRadiusAxis`, `Radar`) — multi-metric profiles (risk profile, factor exposure, diversification). Good for comparing 1–3 series across 4–8 normalised axes.
+  - `RadialBarChart` (+ `RadialBar`, `PolarAngleAxis type="number"`) — gauge / progress (fear-greed index, FIRE/goal progress, discount-eligible %, drift). For a gauge use `startAngle={180} endAngle={0}` and a fixed `domain={[0,100]}` on a hidden angle axis.
+  - `Treemap` — hierarchical allocation (portfolio → holdings).
+  - `Sunburst` — exists in 3.x but is newer/limited (no rich tooltip/legend parity); prefer a **two-level Pie** for nested allocation.
+  - `FunnelChart` — stage/funnel breakdowns (rarely needed here).
+- **Responsiveness**: always wrap in `<ResponsiveContainer width="100%" height={h}>`; never set a fixed pixel width. Pass `height` in from the `ChartCard` render-prop so inline vs expanded (modal) sizes differ.
+- **Accessibility**: add `accessibilityLayer` to cartesian charts (keyboard tooltip navigation in 3.x).
+- **Theming**: use Rosely CSS-var colours (`fill={"var(--rosely8)"}` / `holdingColor(i).var`), never raw hex. Dynamic Tailwind swatches must be in `ALL_ROSELY_SWATCHES` (safelist). ESLint bans inline `style={{}}`.
+- **Project conventions** (see DESIGN.md §Data Visualisation):
+  - Every chart lives in a `ChartCard` (title + zoom-to-modal).
+  - Time-scaled charts bind to the **global** range store (`lib/stores/chart-range.ts`), not local `useState`.
+  - Lay charts out with `ChartGrid` / `ChartGridItem` for a consistent responsive grid.
+
 
 ---
 

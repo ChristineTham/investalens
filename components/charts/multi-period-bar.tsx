@@ -19,6 +19,7 @@ interface MultiPeriodData {
 interface MultiPeriodBarChartProps {
   data: MultiPeriodData[];
   periods: string[];
+  height?: number;
 }
 
 const PERIOD_COLORS = [
@@ -32,9 +33,10 @@ const PERIOD_COLORS = [
 export function MultiPeriodBarChart({
   data,
   periods,
+  height = 350,
 }: MultiPeriodBarChartProps) {
   return (
-    <ResponsiveContainer width="100%" height={350}>
+    <ResponsiveContainer width="100%" height={height}>
       <BarChart
         data={data}
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}

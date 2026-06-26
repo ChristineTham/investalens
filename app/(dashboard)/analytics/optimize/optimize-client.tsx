@@ -9,6 +9,7 @@ import {
   type DateRange,
 } from "@/components/analytics/date-range-selector";
 import { WeightComparison } from "@/components/charts/weight-comparison";
+import { ChartCard } from "@/components/charts/chart-card";
 import { createModelFromWeights } from "@/lib/actions/model";
 
 interface OptimizeResult {
@@ -447,10 +448,15 @@ export function OptimizeClient({
                 {STRATEGY_SPECS.find((s) => s.id === firstTwo[0][0])?.label} vs{" "}
                 {STRATEGY_SPECS.find((s) => s.id === firstTwo[1][0])?.label}
               </h3>
-              <WeightComparison
-                current={firstTwo[0][1].weights}
-                recommended={firstTwo[1][1].weights}
-              />
+              <ChartCard title="Strategy weights" height={Math.max(220, Object.keys(firstTwo[0][1].weights).length * 40)}>
+                {(h) => (
+                  <WeightComparison
+                    current={firstTwo[0][1].weights}
+                    recommended={firstTwo[1][1].weights}
+                    height={h}
+                  />
+                )}
+              </ChartCard>
             </div>
           )}
         </div>

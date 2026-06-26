@@ -5,6 +5,7 @@ import { formatCurrency, formatPercent } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { ReportFilters } from "@/components/reports/report-filters";
 import { ContributionBarChart } from "@/components/charts/contribution-bar";
+import { ChartCard } from "@/components/charts/chart-card";
 import { Suspense } from "react";
 
 export default async function ContributionReportPage({
@@ -93,17 +94,21 @@ export default async function ContributionReportPage({
       ) : (
         <>
           {/* Contribution Chart */}
-          <div className="rounded-lg border border-border p-4">
-            <h2 className="mb-4 text-sm font-medium text-muted-foreground">
-              Contribution by Holding
-            </h2>
-            <ContributionBarChart
-              data={items.map((item) => ({
-                name: item.instrumentCode,
-                contribution: item.contributionPercent,
-              }))}
-            />
-          </div>
+          <ChartCard
+            title="Contribution by holding"
+            description="Each holding's share of total return (%)"
+            height={Math.max(300, items.length * 36)}
+          >
+            {(h) => (
+              <ContributionBarChart
+                height={h}
+                data={items.map((item) => ({
+                  name: item.instrumentCode,
+                  contribution: item.contributionPercent,
+                }))}
+              />
+            )}
+          </ChartCard>
 
           <div className="overflow-hidden rounded-lg border border-border">
             <table className="w-full">

@@ -43,6 +43,8 @@ Reports and tools fall into these categories:
 
 ## Performance Reports
 
+> Every report chart is **responsive and zoomable** — use the maximise button to open it full-screen — and uses the shared Rosely palette (with harmonised colours for transaction types and account categories where they apply).
+
 ### Performance Report
 
 The Performance Report allows you to report on your portfolio performance over any date range. Holdings are organised in a table by a specified grouping (default is by market), with subtotals for each group and overall totals at the bottom.

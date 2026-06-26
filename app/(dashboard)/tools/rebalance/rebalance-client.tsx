@@ -7,6 +7,9 @@ import {
   computeDriftAction,
 } from "@/lib/actions/model";
 import { WeightComparison } from "@/components/charts/weight-comparison";
+import { ChartCard } from "@/components/charts/chart-card";
+import { ChartGrid, ChartGridItem } from "@/components/charts/chart-grid";
+import { RadialGauge } from "@/components/charts/radial-bar";
 import { formatCurrency, cn } from "@/lib/utils";
 import type { DriftResult } from "@/lib/services/rebalance";
 
@@ -120,13 +123,46 @@ export function RebalanceClient({
             />
           </div>
 
-          <div>
-            <h3 className="mb-2 text-sm font-medium">Actual vs Target Weights</h3>
-            <WeightComparison
-              current={actualWeights}
-              recommended={targetWeights}
-            />
-          </div>
+          <ChartGrid>
+            <ChartGridItem>
+              <ChartCard
+                title="Actual vs target weights"
+                description="Current holding weights against the model targets"
+                height={Math.max(220, result.rows.length * 40)}
+              >
+                {(h) => (
+                  <WeightComparison
+                    current={actualWeights}
+                    recommended={targetWeights}
+                    height={h}
+                  />
+                )}
+              </ChartCard>
+            </ChartGridItem>
+            <ChartGridItem>
+              <ChartCard
+                title="Rebalance turnover"
+                description="One-way turnover needed to realign to the model"
+                height={260}
+              >
+                {(h) => {
+                  const turnover =
+                    (result.rows.reduce((s, r) => s + Math.abs(r.drift), 0) / 2) *
+                    100;
+                  return (
+                    <RadialGauge
+                      value={turnover}
+                      height={h}
+                      max={Math.max(20, Math.ceil(turnover / 10) * 10)}
+                      colorVar={turnover > 15 ? "var(--warning)" : "var(--gain)"}
+                      label={`${turnover.toFixed(1)}%`}
+                      caption="of portfolio"
+                    />
+                  );
+                }}
+              </ChartCard>
+            </ChartGridItem>
+          </ChartGrid>
 
           <div className="overflow-x-auto rounded-md border border-border">
             <table className="w-full text-sm">

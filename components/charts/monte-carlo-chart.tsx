@@ -23,11 +23,12 @@ interface MonteCarloData {
 
 interface MonteCarloChartProps {
   data: MonteCarloData[];
+  height?: number;
 }
 
-export function MonteCarloChart({ data }: MonteCarloChartProps) {
+export function MonteCarloChart({ data, height = 400 }: MonteCarloChartProps) {
   return (
-    <ResponsiveContainer width="100%" height={400}>
+    <ResponsiveContainer width="100%" height={height}>
       <AreaChart
         data={data}
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}

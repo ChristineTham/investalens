@@ -4,6 +4,7 @@ import { useState, useEffect, type ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 import { ChartCard } from "@/components/charts/chart-card";
 import { RangeSelector } from "@/components/charts/range-selector";
+import { useChartRange } from "@/lib/stores/chart-range";
 import { PortfolioAreaChart } from "@/components/charts/portfolio-area-chart";
 import { PortfolioMovementChart } from "@/components/charts/portfolio-movement-chart";
 import { PortfolioPerformanceChart } from "@/components/charts/portfolio-performance-chart";
@@ -44,7 +45,7 @@ function ChartLoader() {
  * page. Retains the existing performance chart and allocation treemap.
  */
 export function DashboardCharts({ currency, treemapData }: DashboardChartsProps) {
-  const [range, setRange] = useState<ChartRange>("1Y");
+  const [range, setRange] = useChartRange();
   const [data, setData] = useState<DashboardSeries | null>(null);
   const [loadedRange, setLoadedRange] = useState<ChartRange | null>(null);
   const loading = loadedRange !== range;

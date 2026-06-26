@@ -14,6 +14,7 @@ import {
 } from "recharts";
 import { BENCHMARKS } from "@/lib/constants/benchmarks";
 import { RangeSelector } from "@/components/charts/range-selector";
+import { useChartRange } from "@/lib/stores/chart-range";
 import type { ChartRange } from "@/lib/constants/chart-ranges";
 
 const PORTFOLIO_COLORS = [
@@ -67,12 +68,13 @@ export function PortfolioPerformanceChart({
 }: {
   range?: ChartRange;
 } = {}) {
-  const [internalRange, setInternalRange] = useState<ChartRange>("1Y");
+  const [internalRange, setInternalRange] = useChartRange();
   const range = rangeProp ?? internalRange;
   const controlled = rangeProp !== undefined;
   const [benchmark, setBenchmark] = useState<string>("");
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [portfolioNames, setPortfolioNames] = useState<string[]>([]);
+  const [portfolioColors, setPortfolioColors] = useState<Record<string, string>>({});
   const [kpis, setKpis] = useState<PeriodKpis | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -91,6 +93,7 @@ export function PortfolioPerformanceChart({
           if (cancelled) return;
           setChartData(data.chartData);
           setPortfolioNames(data.portfolioNames);
+          setPortfolioColors(data.portfolioColors ?? {});
           setKpis(data.kpis ?? null);
         }
       } finally {
@@ -244,7 +247,7 @@ export function PortfolioPerformanceChart({
                   key={name}
                   type="monotone"
                   dataKey={name}
-                  stroke={PORTFOLIO_COLORS[i % PORTFOLIO_COLORS.length]}
+                  stroke={portfolioColors[name] ?? PORTFOLIO_COLORS[i % PORTFOLIO_COLORS.length]}
                   strokeWidth={1.5}
                   dot={false}
                 />

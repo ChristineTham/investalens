@@ -7,6 +7,8 @@ import {
 import { formatCurrency } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { TaxFilter } from "@/components/reports/tax-filter";
+import { ChartCard } from "@/components/charts/chart-card";
+import { DiversityPieChart } from "@/components/charts/diversity-pie";
 import { Suspense } from "react";
 
 export default async function TaxableIncomePage({
@@ -102,6 +104,22 @@ export default async function TaxableIncomePage({
 
   // Grossed-up income for ATO reporting
   const grossedUpIncome = totals.totalIncome + totals.frankingCredits;
+
+  // Income composition for the donut chart.
+  const incomeParts = [
+    { label: "Franked dividends", value: totals.frankedAmount },
+    { label: "Unfranked dividends", value: totals.unfrankedAmount },
+    { label: "Interest", value: totals.interest },
+    { label: "Bond capital growth", value: totals.bondCapitalGrowth },
+    { label: "Foreign income", value: totals.foreignIncome },
+    { label: "Tax-deferred", value: totals.taxDeferred },
+  ].filter((p) => p.value > 0);
+  const incomePartsTotal = incomeParts.reduce((s, p) => s + p.value, 0);
+  const incomeChartData = incomeParts.map((p) => ({
+    label: p.label,
+    value: p.value,
+    percent: incomePartsTotal > 0 ? (p.value / incomePartsTotal) * 100 : 0,
+  }));
 
   return (
     <div className="space-y-6">
@@ -213,6 +231,17 @@ export default async function TaxableIncomePage({
           </p>
         </div>
       </div>
+
+      {/* Income composition */}
+      {incomeChartData.length > 0 && (
+        <ChartCard
+          title="Income composition"
+          description="Assessable investment income by source"
+          height={300}
+        >
+          {(h) => <DiversityPieChart data={incomeChartData} height={h} />}
+        </ChartCard>
+      )}
 
       {/* Detail table */}
       {items.length === 0 ? (

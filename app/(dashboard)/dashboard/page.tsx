@@ -14,6 +14,8 @@ import {
   type ActivityIconKey,
 } from "@/lib/constants/activity-meta";
 import { cn } from "@/lib/utils";
+import { portfolioIdentity } from "@/lib/constants/portfolio-identity";
+import { PortfolioIcon } from "@/components/ui/portfolio-icon";
 import {
   Briefcase,
   TrendingUp,
@@ -106,6 +108,8 @@ export default async function DashboardPage() {
       return {
         id: portfolio.id,
         name: portfolio.name,
+        icon: portfolio.icon,
+        color: portfolio.color,
         currency: portfolio.baseCurrency,
         holdingCount: portfolio.holdings.length,
         marketValue: portfolioValue,
@@ -384,6 +388,7 @@ export default async function DashboardPage() {
         treemapData={portfolioSummaries.map((p) => ({
           portfolioId: p.id,
           portfolioName: p.name,
+          color: p.color ?? undefined,
           holdings: p.holdings,
         }))}
       />
@@ -462,8 +467,20 @@ export default async function DashboardPage() {
                     <td className="px-4 py-3">
                       <Link
                         href={`/portfolio/${p.id}`}
-                        className="font-medium text-primary hover:underline"
+                        className="inline-flex items-center gap-2 font-medium text-primary hover:underline"
                       >
+                        <span
+                          className={cn(
+                            "flex h-5 w-5 shrink-0 items-center justify-center rounded text-white",
+                            portfolioIdentity(p).swatch
+                          )}
+                          aria-hidden
+                        >
+                          <PortfolioIcon
+                            icon={portfolioIdentity(p).icon}
+                            className="h-3 w-3"
+                          />
+                        </span>
                         {p.name}
                       </Link>
                       <span className="ml-2 text-xs text-muted-foreground">

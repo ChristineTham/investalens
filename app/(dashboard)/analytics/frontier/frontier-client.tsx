@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { DateRangeSelector, type DateRange } from "@/components/analytics/date-range-selector";
 import { EfficientFrontierChart } from "@/components/charts/efficient-frontier";
+import { ChartCard } from "@/components/charts/chart-card";
 import { SourcePicker, type SourceValue } from "@/components/analytics/source-picker";
 import { fetchAnalyticsMatrix } from "@/lib/hooks/use-analytics-matrix";
 import {
@@ -177,14 +178,23 @@ export function FrontierClient({
 
       {result && (
         <div className="space-y-6">
-          <EfficientFrontierChart
-            frontier={result.frontier}
-            assets={result.assets}
-            maxSharpe={result.maxSharpe}
-            minRisk={result.minRisk}
-            currentPortfolio={currentPoint}
-            modelPoints={modelPoints}
-          />
+          <ChartCard
+            title="Efficient frontier"
+            description="Risk vs return · max-Sharpe, min-risk, your portfolio and models"
+            height={380}
+          >
+            {(h) => (
+              <EfficientFrontierChart
+                frontier={result.frontier}
+                assets={result.assets}
+                maxSharpe={result.maxSharpe}
+                minRisk={result.minRisk}
+                currentPortfolio={currentPoint}
+                modelPoints={modelPoints}
+                height={h}
+              />
+            )}
+          </ChartCard>
 
           {result.maxSharpe && (
             <div className="rounded-lg border p-4">

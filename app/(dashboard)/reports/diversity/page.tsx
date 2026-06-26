@@ -5,6 +5,7 @@ import { formatCurrency, formatPercent } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { PortfolioSelector } from "@/components/reports/portfolio-selector";
 import { DiversityPieChart } from "@/components/charts/diversity-pie";
+import { ChartCard } from "@/components/charts/chart-card";
 import { Suspense } from "react";
 
 export default async function DiversityReportPage({
@@ -85,12 +86,13 @@ export default async function DiversityReportPage({
       ) : (
         <>
           {/* Diversity Pie Chart */}
-          <div className="rounded-lg border border-border p-4">
-            <h2 className="mb-4 text-sm font-medium text-muted-foreground">
-              Allocation by {groupBy}
-            </h2>
-            <DiversityPieChart data={items} />
-          </div>
+          <ChartCard
+            title={`Allocation by ${groupBy}`}
+            description="Share of current value"
+            height={320}
+          >
+            {(h) => <DiversityPieChart data={items} height={h} />}
+          </ChartCard>
 
           <div className="overflow-hidden rounded-lg border border-border">
           <table className="w-full">

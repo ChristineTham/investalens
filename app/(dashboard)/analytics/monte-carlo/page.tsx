@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { runMonteCarloSimulation } from "@/lib/calculations/monte-carlo";
 import { MonteCarloChart } from "@/components/charts/monte-carlo-chart";
+import { ChartCard } from "@/components/charts/chart-card";
 import { formatCurrency } from "@/lib/utils";
 
 export default function MonteCarloPage() {
@@ -196,25 +197,26 @@ export default function MonteCarloPage() {
           </div>
 
           {/* Projection chart */}
-          <div className="rounded-lg border border-border p-4">
-            <h2 className="mb-4 text-sm font-medium text-muted-foreground">
-              Portfolio Value Projection ({years} years, {numSims} simulations)
-            </h2>
-            <MonteCarloChart data={chartData} />
-            <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground">
-              <span>
-                <strong>Purple line:</strong> Median (50th percentile)
-              </span>
-              <span>
-                <strong>Dashed line:</strong> Mean
-              </span>
-              <span>
-                <strong>Blue band:</strong> 25th–75th percentile
-              </span>
-              <span>
-                <strong>Light band:</strong> 5th–95th percentile
-              </span>
-            </div>
+          <ChartCard
+            title="Portfolio value projection"
+            description={`${years} years · ${numSims} simulations`}
+            height={360}
+          >
+            {(h) => <MonteCarloChart data={chartData} height={h} />}
+          </ChartCard>
+          <div className="flex flex-wrap gap-4 px-1 text-xs text-muted-foreground">
+            <span>
+              <strong>Purple line:</strong> Median (50th percentile)
+            </span>
+            <span>
+              <strong>Dashed line:</strong> Mean
+            </span>
+            <span>
+              <strong>Blue band:</strong> 25th–75th percentile
+            </span>
+            <span>
+              <strong>Light band:</strong> 5th–95th percentile
+            </span>
           </div>
 
           {/* Outcome distribution */}

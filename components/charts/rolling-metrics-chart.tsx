@@ -18,6 +18,7 @@ interface RollingMetricsChartProps {
     values: number[];
     label: string;
   }[];
+  height?: number;
 }
 
 const COLORS = [
@@ -40,7 +41,7 @@ export function RollingMetricsChart({ data }: RollingMetricsChartProps) {
   });
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
+    <ResponsiveContainer width="100%" height={height}>
       <LineChart data={chartData}>
         <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
         <XAxis

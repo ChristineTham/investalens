@@ -14,9 +14,10 @@ import {
 interface WeightComparisonProps {
   current: Record<string, number>;
   recommended: Record<string, number>;
+  height?: number;
 }
 
-export function WeightComparison({ current, recommended }: WeightComparisonProps) {
+export function WeightComparison({ current, recommended, height }: WeightComparisonProps) {
   const assets = [...new Set([...Object.keys(current), ...Object.keys(recommended)])].sort();
 
   const data = assets.map((asset) => ({
@@ -26,7 +27,7 @@ export function WeightComparison({ current, recommended }: WeightComparisonProps
   }));
 
   return (
-    <ResponsiveContainer width="100%" height={Math.max(200, assets.length * 40)}>
+    <ResponsiveContainer width="100%" height={height ?? Math.max(200, assets.length * 40)}>
       <BarChart data={data} layout="vertical">
         <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
         <XAxis type="number" unit="%" className="text-xs" />

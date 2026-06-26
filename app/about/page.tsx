@@ -189,6 +189,23 @@ export default async function AboutPage() {
                   "ETF X-ray look-through for models, a Model Comparison report, a Rebalancing & Drift tool, a 'rebalance to model' CGT estimate, and a dashboard 'vs model' card",
                 ]}
               />
+
+              <ReleaseBlock
+                title="Charts, Visual Identity & UX"
+                status="complete"
+                items={[
+                  "Per-portfolio visual identity: pick an icon and colour for each portfolio (with a sensible default), editable in portfolio settings and used consistently across pages and charts (performance, value, movement, allocation treemap, and the dashboard breakdown)",
+                  "Harmonised icons & colours for every portfolio transaction type and cash-account category — applied consistently in transaction rows, the dashboard activity feed, and the category/income charts",
+                  "Universal timescale selector now applies app-wide — choosing a range on the dashboard, a portfolio, or an analytics page applies everywhere and persists between visits",
+                  "Every chart is responsive and zoomable via a maximise button that opens a full-screen modal",
+                  "New chart types: a two-level sector→holding allocation pie, a normalised risk-profile radar, and radial gauges (fear & greed, assessable-CGT proportion, rebalance turnover)",
+                  "New charts added across Tax (CGT composition, gain/loss by holding, income composition), Reports, and Tools pages",
+                  "Returns over a year or more are shown annualised (p.a.) on the dashboard and portfolio pages",
+                  "Dashboard recent activity now also includes cash-account movements, with a 'Where' column showing the source portfolio or account",
+                  "Portfolio transactions gained an Amount column and an inline 'New transaction' creator; Add Holding now prompts for the opening transaction (date, type, quantity, price, brokerage)",
+                  "One-step CLI tooling: 'pnpm update' refreshes all market data (CPI, prices, dividends, corporate actions, company info) for every user, and 'pnpm validate' checks the whole database with an optional --fix",
+                ]}
+              />
             </div>
           </section>
 

@@ -54,9 +54,11 @@ masked account number, balance, a *Virtual* badge where applicable, and linked p
 - **Header** — name, institution · type · BSB · masked number, with **Edit**, **Import** and
   **Reconcile** actions (real accounts only).
 - **Panels** — current balance (and interest rate), linked portfolios, and cards.
-- **Charts** (driven by a universal timescale selector) — **balance over time**, **monthly cash
-  flow** (money in vs out), and **spending by category** (a bar chart broken down by category).
-- **Transactions table** — date, description, type, category, signed amount, a **running balance**
+- **Charts** (zoomable, driven by the app-wide universal timescale selector) — **balance over time**, **monthly cash
+  flow** (money in vs out), and **spending by category** (a bar chart where each category uses its
+  harmonised category colour).
+- **Transactions table** — date, description, a **type** with its harmonised icon and colour,
+  category, signed amount, a **running balance**
   column, and a reconciled / auto-posted status. On real accounts you can **add a transaction
   inline** (the row at the top of the table), **edit** any row in place (date, type, amount,
   description), set its category, and delete it. Virtual ledgers are read-only and show their

@@ -17,11 +17,12 @@ interface MonthlyIncomeData {
 
 interface MonthlyIncomeChartProps {
   data: MonthlyIncomeData[];
+  height?: number;
 }
 
-export function MonthlyIncomeChart({ data }: MonthlyIncomeChartProps) {
+export function MonthlyIncomeChart({ data, height = 250 }: MonthlyIncomeChartProps) {
   return (
-    <ResponsiveContainer width="100%" height={250}>
+    <ResponsiveContainer width="100%" height={height}>
       <BarChart
         data={data}
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
@@ -50,7 +51,7 @@ export function MonthlyIncomeChart({ data }: MonthlyIncomeChartProps) {
         />
         <Bar
           dataKey="amount"
-          fill="var(--rosely14)"
+          fill="var(--rosely7)"
           radius={[4, 4, 0, 0]}
         />
       </BarChart>

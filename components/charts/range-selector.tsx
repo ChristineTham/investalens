@@ -1,6 +1,7 @@
 "use client";
 
 import { CHART_RANGE_OPTIONS, type ChartRange } from "@/lib/constants/chart-ranges";
+import { useChartRange } from "@/lib/stores/chart-range";
 
 interface RangeSelectorProps {
   value: ChartRange;
@@ -38,4 +39,14 @@ export function RangeSelector({ value, onChange, label }: RangeSelectorProps) {
       </div>
     </div>
   );
+}
+
+/**
+ * `RangeSelector` bound to the global, persisted timescale store. Drop this in
+ * anywhere and every page's range stays in sync. Read the same value with
+ * `useChartRange()` to drive the page's data fetch.
+ */
+export function GlobalRangeSelector({ label }: { label?: string }) {
+  const [range, setRange] = useChartRange();
+  return <RangeSelector value={range} onChange={setRange} label={label} />;
 }

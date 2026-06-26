@@ -32,6 +32,7 @@ interface EfficientFrontierChartProps {
   currentPortfolio?: { return: number; risk: number } | null;
   /** Selected model portfolios plotted as labelled points. */
   modelPoints?: { name: string; return: number; risk: number }[];
+  height?: number;
 }
 
 export function EfficientFrontierChart({
@@ -41,6 +42,7 @@ export function EfficientFrontierChart({
   minRisk,
   currentPortfolio,
   modelPoints,
+  height = 400,
 }: EfficientFrontierChartProps) {
   const frontierData = frontier.map((p) => ({
     risk: p.risk * 100,
@@ -84,7 +86,7 @@ export function EfficientFrontierChart({
   }));
 
   return (
-    <ResponsiveContainer width="100%" height={400}>
+    <ResponsiveContainer width="100%" height={height}>
       <ScatterChart>
         <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
         <XAxis

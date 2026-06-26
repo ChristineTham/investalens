@@ -20,9 +20,10 @@ interface WaterfallItem {
 interface ScenarioWaterfallProps {
   data: WaterfallItem[];
   totalLabel?: string;
+  height?: number;
 }
 
-export function ScenarioWaterfall({ data, totalLabel = "Total" }: ScenarioWaterfallProps) {
+export function ScenarioWaterfall({ data, totalLabel = "Total", height }: ScenarioWaterfallProps) {
   const total = data.reduce((s, d) => s + d.value, 0);
 
   const chartData = [
@@ -39,7 +40,7 @@ export function ScenarioWaterfall({ data, totalLabel = "Total" }: ScenarioWaterf
   ];
 
   return (
-    <ResponsiveContainer width="100%" height={Math.max(200, chartData.length * 35)}>
+    <ResponsiveContainer width="100%" height={height ?? Math.max(200, chartData.length * 35)}>
       <BarChart data={chartData} layout="vertical">
         <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
         <XAxis type="number" tickFormatter={(v) => `${Number(v).toFixed(1)}%`} className="text-xs" />

@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { CREDIT_TYPES, signedAmount } from "@/lib/services/accounts";
+import { categoryKindMeta, type ActivityIconKey } from "@/lib/constants/activity-meta";
 import {
   type ChartRange,
   resolveChartRange,
@@ -51,7 +52,10 @@ export async function GET(
   // ── Monthly cash flow ───────────────────────────────────────────────────────
   const flowByMonth = new Map<string, { in: number; out: number }>();
   // ── Category breakdown (money out) ──────────────────────────────────────────
-  const catOut = new Map<string, { value: number; color: string | null }>();
+  const catOut = new Map<
+    string,
+    { value: number; color: string | null; icon: ActivityIconKey | null }
+  >();
 
   let moneyIn = 0;
   let moneyOut = 0;
@@ -85,7 +89,18 @@ export async function GET(
     // outflows (purchases, fees, withdrawals) are negative — a diverging view.
     {
       const name = tx.category?.name ?? "Uncategorised";
-      const row = catOut.get(name) ?? { value: 0, color: tx.category?.color ?? null };
+      // Harmonise with the account transaction rows: use the category's own
+      // colour, else fall back to its kind's colour/icon from the shared
+      // activity taxonomy.
+      const kindMeta = tx.category?.kind
+        ? categoryKindMeta(tx.category.kind)
+        : null;
+      const row =
+        catOut.get(name) ?? {
+          value: 0,
+          color: tx.category?.color ?? kindMeta?.colorVar ?? null,
+          icon: kindMeta?.icon ?? null,
+        };
       row.value += signed;
       catOut.set(name, row);
     }
@@ -99,7 +114,7 @@ export async function GET(
     .sort((a, b) => a[0].localeCompare(b[0]))
     .map(([period, f]) => ({ period, in: f.in, out: -f.out }));
   const categoryBreakdown = [...catOut.entries()]
-    .map(([name, r]) => ({ name, value: r.value, color: r.color }))
+    .map(([name, r]) => ({ name, value: r.value, color: r.color, icon: r.icon }))
     .sort((a, b) => b.value - a.value);
 
   return NextResponse.json({

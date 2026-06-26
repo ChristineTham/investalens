@@ -58,19 +58,19 @@ The **Portfolio** page presents each portfolio as an equal-height summary card s
 
 ### Portfolio Detail Page
 
-Opening a portfolio shows its **name in the breadcrumb**, a row of KPI cards (current value, capital gain, income, total gain), and **trailing returns** for 1M / 6M / 1Y / 3Y / 5Y / 10Y / All. If broker or account details have been entered, they appear under the header (the broker name links to the broker website).
+Opening a portfolio shows its **name in the breadcrumb** (with the portfolio's chosen **icon and colour**), a row of KPI cards (current value, capital gain, income, total gain), and **trailing returns** for 1M / 6M / 1Y / 3Y / 5Y / 10Y / All — periods of a year or more are shown **annualised (p.a.)**. If broker or account details have been entered, they appear under the header (the broker name links to the broker website).
 
-Below that is a **responsive grid of charts** driven by a single **universal timescale selector** — covering 1M, 6M, **YTD**, **current financial year (FYTD)**, **previous financial year (Prev FY)**, 1Y, 3Y, 5Y, 10Y, and All. Changing the timescale updates every chart at once:
+Below that is a **responsive grid of charts** — every one **zoomable** via its maximise button — driven by a single **universal timescale selector** that is shared with the dashboard and analytics pages (and remembered between visits): 1M, 6M, **YTD**, **current financial year (FYTD)**, **previous financial year (Prev FY)**, 1Y, 3Y, 5Y, 10Y, and All. Changing the timescale updates every chart at once:
 
 - **Value over time** — each holding stacked as an area, with the overall portfolio value as a bold line on top
 - **Performance (gain / loss)** — total-gain %, optionally compared with a benchmark (ASX 200, S&P 500, MSCI World, etc.); the tooltip breaks the gain down as capital gain + income = total gain
-- **Allocation by holding** — a pie grouped by sector, with a rich hover tooltip (name, type, sector, purchase amount, current value, capital gain, income)
+- **Allocation by holding** — a **two-level (nested) pie**: the inner ring is sector and the outer ring is each holding's share of current value, with a rich hover tooltip (name, type, sector, purchase amount, current value, capital gain, income)
 - **Movement** — net monthly cash flow (buys / sells / distributions) stacked by holding
 - **Top & bottom performers** — the best and worst three holdings by total return, with the same hover detail
 
 Any chart can be expanded to a larger **modal** using its maximise button. The **holdings table** adds sector, current price, purchase amount, current value, capital gain, income, total gain, annualised return, and a mini price **sparkline** (following the selected timescale). Each holding keeps a **consistent colour**, shown as a swatch in the table and used across every chart.
 
-Below the holdings is a **Transactions** list spanning every holding in the portfolio. Each row is **editable inline** — change the date, type, quantity, price or brokerage, and use the coins icon on income rows to **assign franking** (franked/unfranked split and franking credits) to dividends. When the portfolio is linked to cash accounts, these edits rebuild the virtual cash ledger and re-reconcile linked real accounts automatically.
+Below the holdings is a **Transactions** list spanning every holding in the portfolio, with an **Amount** column showing each transaction's signed cash effect. Each row is **editable inline** — change the date, type, quantity, price or brokerage, and use the coins icon on income rows to **assign franking** (franked/unfranked split and franking credits) to dividends. Use **New transaction** to add a transaction against an existing holding, and **Add holding** to add a new security together with its opening transaction (date, type, quantity, price, brokerage). When the portfolio is linked to cash accounts, these edits rebuild the virtual cash ledger and re-reconcile linked real accounts automatically.
 
 ### Portfolio Settings
 
@@ -79,6 +79,7 @@ Access portfolio settings via **Settings > Details**:
 | Setting                        | Description                                            | Editable           |
 | ------------------------------ | ------------------------------------------------------ | ------------------ |
 | Portfolio Name                 | Display name used within InvestaLens                   | Yes                |
+| Icon & Colour                  | Visual identity shown on cards, the header, the dashboard table, and per-portfolio charts | Yes                |
 | Broker Name                    | Broker / platform name (links to the website)          | Yes                |
 | Broker Website                 | URL of the broker / platform                           | Yes                |
 | Client Number                  | Your client reference with the broker                  | Yes                |

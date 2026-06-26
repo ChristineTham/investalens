@@ -7,6 +7,11 @@ import {
 import { formatCurrency } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { TaxFilter } from "@/components/reports/tax-filter";
+import { ChartCard } from "@/components/charts/chart-card";
+import { ChartGrid, ChartGridItem } from "@/components/charts/chart-grid";
+import { CgtCompositionChart } from "@/components/charts/cgt-composition-chart";
+import { SignedBarChart } from "@/components/charts/signed-bar-chart";
+import { RadialGauge } from "@/components/charts/radial-bar";
 import { RebalanceToModel } from "./rebalance-to-model";
 import { Suspense } from "react";
 
@@ -194,6 +199,65 @@ export default async function UnrealisedCgtPage({
           <p className="text-lg font-bold">{items.length}</p>
         </div>
       </div>
+
+      {/* CGT composition + assessable proportion */}
+      {(totalGains > 0 || unrealisedLosses > 0) && (
+        <ChartGrid>
+          <ChartGridItem>
+            <ChartCard
+              title="Unrealised CGT composition"
+              description="How gross gains net down if sold today"
+              height={260}
+            >
+              {(h) => (
+                <CgtCompositionChart
+                  shortTerm={shortTermGains}
+                  longTerm={longTermGains}
+                  discount={cgtDiscount}
+                  losses={unrealisedLosses}
+                  indexation={indexationRelief}
+                  net={netHypotheticalGain}
+                  height={h}
+                />
+              )}
+            </ChartCard>
+          </ChartGridItem>
+          <ChartGridItem>
+            <ChartCard
+              title="Assessable proportion"
+              description="Net assessable CGT as a share of gross gains"
+              height={260}
+            >
+              {(h) => (
+                <RadialGauge
+                  value={totalGains > 0 ? (netHypotheticalGain / totalGains) * 100 : 0}
+                  height={h}
+                  colorVar="var(--primary)"
+                  label={`${Math.round(totalGains > 0 ? (netHypotheticalGain / totalGains) * 100 : 0)}%`}
+                  caption="of gross gains"
+                />
+              )}
+            </ChartCard>
+          </ChartGridItem>
+          <ChartGridItem span={2}>
+            <ChartCard
+              title="Unrealised gain / loss by holding"
+              description="Current market value minus cost base, per holding"
+              height={Math.max(220, items.length * 28)}
+            >
+              {(h) => (
+                <SignedBarChart
+                  height={h}
+                  data={items.map((i) => ({
+                    name: i.instrumentCode,
+                    value: i.unrealisedGain,
+                  }))}
+                />
+              )}
+            </ChartCard>
+          </ChartGridItem>
+        </ChartGrid>
+      )}
 
       {/* Detail table */}
       {items.length === 0 ? (

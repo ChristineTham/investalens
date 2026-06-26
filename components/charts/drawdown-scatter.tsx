@@ -20,11 +20,12 @@ interface ScatterData {
 
 interface DrawdownScatterProps {
   data: ScatterData[];
+  height?: number;
 }
 
-export function DrawdownScatter({ data }: DrawdownScatterProps) {
+export function DrawdownScatter({ data, height = 350 }: DrawdownScatterProps) {
   return (
-    <ResponsiveContainer width="100%" height={350}>
+    <ResponsiveContainer width="100%" height={height}>
       <ScatterChart margin={{ top: 20, right: 30, bottom: 20, left: 20 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
         <XAxis

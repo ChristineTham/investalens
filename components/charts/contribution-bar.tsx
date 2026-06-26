@@ -19,13 +19,14 @@ interface ContributionData {
 
 interface ContributionBarChartProps {
   data: ContributionData[];
+  height?: number;
 }
 
-export function ContributionBarChart({ data }: ContributionBarChartProps) {
+export function ContributionBarChart({ data, height }: ContributionBarChartProps) {
   const sorted = [...data].sort((a, b) => b.contribution - a.contribution);
 
   return (
-    <ResponsiveContainer width="100%" height={Math.max(300, sorted.length * 36)}>
+    <ResponsiveContainer width="100%" height={height ?? Math.max(300, sorted.length * 36)}>
       <BarChart
         data={sorted}
         layout="vertical"

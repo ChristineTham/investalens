@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { DateRangeSelector, type DateRange } from "@/components/analytics/date-range-selector";
 import { WeightComparison } from "@/components/charts/weight-comparison";
+import { ChartCard } from "@/components/charts/chart-card";
 
 const STRATEGIES = [
   { value: "momentum", label: "Momentum", description: "Overweight recent winners" },
@@ -71,13 +72,13 @@ export function TacticalClient({
       <div className="flex flex-wrap items-end gap-4">
         <div>
           <label className="text-sm font-medium">Portfolio</label>
-          <select className="mt-1 block rounded-md border border-input bg-background px-3 py-2 text-sm" value={portfolioId} onChange={(e) => setPortfolioId(e.target.value)}>
+          <select aria-label="Portfolio" className="mt-1 block rounded-md border border-input bg-background px-3 py-2 text-sm" value={portfolioId} onChange={(e) => setPortfolioId(e.target.value)}>
             {portfolios.map((p) => (<option key={p.id} value={p.id}>{p.name}</option>))}
           </select>
         </div>
         <div>
           <label className="text-sm font-medium">Strategy</label>
-          <select className="mt-1 block rounded-md border border-input bg-background px-3 py-2 text-sm" value={strategy} onChange={(e) => setStrategy(e.target.value)}>
+          <select aria-label="Strategy" className="mt-1 block rounded-md border border-input bg-background px-3 py-2 text-sm" value={strategy} onChange={(e) => setStrategy(e.target.value)}>
             {STRATEGIES.map((s) => (<option key={s.value} value={s.value}>{s.label}</option>))}
           </select>
         </div>
@@ -118,7 +119,11 @@ export function TacticalClient({
 
           <div>
             <h3 className="mb-2 text-sm font-medium">Current vs Tactical Weights</h3>
-            <WeightComparison current={currentWeights} recommended={result.weights} />
+            <ChartCard title="Current vs tactical weights" height={Math.max(220, Object.keys(result.weights).length * 40)}>
+              {(h) => (
+                <WeightComparison current={currentWeights} recommended={result.weights} height={h} />
+              )}
+            </ChartCard>
           </div>
         </div>
       )}

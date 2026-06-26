@@ -17,6 +17,7 @@ interface DiversityData {
 
 interface DiversityPieChartProps {
   data: DiversityData[];
+  height?: number;
 }
 
 const COLORS = [
@@ -32,9 +33,9 @@ const COLORS = [
   "var(--rosely3)",
 ];
 
-export function DiversityPieChart({ data }: DiversityPieChartProps) {
+export function DiversityPieChart({ data, height = 350 }: DiversityPieChartProps) {
   return (
-    <ResponsiveContainer width="100%" height={350}>
+    <ResponsiveContainer width="100%" height={height}>
       <PieChart>
         <Pie
           data={data}

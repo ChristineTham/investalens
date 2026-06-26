@@ -5,6 +5,7 @@ import { formatCurrency } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { PortfolioSelector } from "@/components/reports/portfolio-selector";
 import { MonthlyIncomeChart } from "@/components/charts/monthly-income";
+import { ChartCard } from "@/components/charts/chart-card";
 import { Suspense } from "react";
 
 const MONTH_NAMES = [
@@ -116,17 +117,21 @@ export default async function CalendarReportPage({
 
       {/* Monthly Income Bar Chart */}
       {entries.length > 0 && (
-        <div className="rounded-lg border border-border p-4">
-          <h2 className="mb-4 text-sm font-medium text-muted-foreground">
-            Monthly Dividend Income ({year})
-          </h2>
-          <MonthlyIncomeChart
-            data={MONTH_NAMES.map((month, i) => ({
-              month: month.slice(0, 3),
-              amount: monthlyTotals[i],
-            }))}
-          />
-        </div>
+        <ChartCard
+          title={`Monthly dividend income (${year})`}
+          description="Dividend & distribution income by month"
+          height={280}
+        >
+          {(h) => (
+            <MonthlyIncomeChart
+              height={h}
+              data={MONTH_NAMES.map((month, i) => ({
+                month: month.slice(0, 3),
+                amount: monthlyTotals[i],
+              }))}
+            />
+          )}
+        </ChartCard>
       )}
 
       {entries.length === 0 ? (

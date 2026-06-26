@@ -4,7 +4,7 @@ import { useState, useEffect, type ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 import { ChartCard } from "@/components/charts/chart-card";
 import { RangeSelector } from "@/components/charts/range-selector";
-import { AllocationPie } from "@/components/charts/allocation-pie";
+import { NestedAllocationPie } from "@/components/charts/nested-allocation-pie";
 import { PortfolioAreaChart } from "@/components/charts/portfolio-area-chart";
 import { PortfolioPerformanceDetailChart } from "@/components/charts/portfolio-performance-detail-chart";
 import { PortfolioMovementChart } from "@/components/charts/portfolio-movement-chart";
@@ -169,11 +169,11 @@ export function PortfolioDetailClient({ detail }: { detail: PortfolioDetail }) {
 
         <ChartCard
           title="Allocation by holding"
-          description="Share of current value · grouped by sector"
+          description="Inner ring: sector · outer ring: holding share of current value"
           height={280}
         >
           {(h) => (
-            <AllocationPie
+            <NestedAllocationPie
               holdings={detail.holdings}
               sectors={detail.sectorAllocation}
               currency={detail.currency}

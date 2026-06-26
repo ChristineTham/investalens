@@ -12,6 +12,10 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { TaxFilter } from "@/components/reports/tax-filter";
 import { Cgt2027Controls } from "@/components/reports/cgt-2027-controls";
+import { ChartCard } from "@/components/charts/chart-card";
+import { ChartGrid, ChartGridItem } from "@/components/charts/chart-grid";
+import { CgtCompositionChart } from "@/components/charts/cgt-composition-chart";
+import { SignedBarChart } from "@/components/charts/signed-bar-chart";
 import { Suspense } from "react";
 
 export default async function CgtPage({
@@ -234,6 +238,50 @@ export default async function CgtPage({
           </p>
         </div>
       </div>
+
+      {/* CGT composition chart */}
+      {(totalGains > 0 || summary.totalLosses > 0) && (
+        <ChartGrid>
+          <ChartGridItem>
+            <ChartCard
+              title="CGT composition"
+              description="How gross gains net down to the assessable amount"
+              height={260}
+            >
+              {(h) => (
+                <CgtCompositionChart
+                  shortTerm={summary.shortTermGains}
+                  longTerm={summary.longTermGains}
+                  discount={summary.cgtDiscount}
+                  losses={summary.totalLosses}
+                  indexation={summary.indexationRelief}
+                  net={netAfterDiscount}
+                  height={h}
+                />
+              )}
+            </ChartCard>
+          </ChartGridItem>
+          <ChartGridItem>
+            <ChartCard
+              title="Realised gain / loss by holding"
+              description="Net capital gain per security this year"
+              height={260}
+            >
+              {(h) => (
+                <SignedBarChart
+                  height={h}
+                  data={Object.entries(
+                    items.reduce<Record<string, number>>((acc, it) => {
+                      acc[it.instrumentCode] = (acc[it.instrumentCode] ?? 0) + it.gain;
+                      return acc;
+                    }, {})
+                  ).map(([name, value]) => ({ name, value }))}
+                />
+              )}
+            </ChartCard>
+          </ChartGridItem>
+        </ChartGrid>
+      )}
 
       {/* ATO calculation steps */}
       <div className="rounded-lg border border-border bg-muted/30 p-4">

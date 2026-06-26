@@ -20,14 +20,16 @@ interface DataPoint {
 interface PortfolioGrowthChartProps {
   data: DataPoint[];
   showBenchmark?: boolean;
+  height?: number;
 }
 
 export function PortfolioGrowthChart({
   data,
   showBenchmark = false,
+  height = 400,
 }: PortfolioGrowthChartProps) {
   return (
-    <ResponsiveContainer width="100%" height={400}>
+    <ResponsiveContainer width="100%" height={height}>
       <LineChart
         data={data}
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}

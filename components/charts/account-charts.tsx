@@ -17,6 +17,8 @@ import {
 } from "recharts";
 import { formatCurrency } from "@/lib/utils";
 import { holdingColor, roselySwatchClass } from "@/lib/constants/chart-colors";
+import { ActivityIcon } from "@/components/ui/activity-icon";
+import type { ActivityIconKey } from "@/lib/constants/activity-meta";
 import {
   type ChartRange,
   compactCurrency,
@@ -36,6 +38,8 @@ export interface CategoryDatum {
   name: string;
   value: number;
   color: string | null;
+  /** Harmonised category-kind icon (matches the account transaction rows). */
+  icon?: ActivityIconKey | null;
 }
 
 // ─── Balance over time ───────────────────────────────────────────────────────
@@ -224,6 +228,12 @@ export function CategoryPie({
               className={`h-2.5 w-2.5 shrink-0 rounded-sm ${roselySwatchClass(d.color ?? holdingColor(i).var)}`}
               aria-hidden
             />
+            {d.icon && (
+              <ActivityIcon
+                icon={d.icon}
+                className="h-3 w-3 shrink-0 text-muted-foreground"
+              />
+            )}
             <span className="truncate">{d.name}</span>
             <span className="ml-auto shrink-0 text-muted-foreground tabular-nums">
               {total > 0 ? ((d.value / total) * 100).toFixed(0) : 0}%
@@ -279,11 +289,8 @@ export function CategoryBar({
         />
         <ReferenceLine x={0} stroke="var(--muted-foreground)" />
         <Bar dataKey="value" radius={2} isAnimationActive={false}>
-          {data.map((d) => (
-            <Cell
-              key={d.name}
-              fill={d.value >= 0 ? "var(--rosely14)" : "var(--rosely11)"}
-            />
+          {data.map((d, i) => (
+            <Cell key={d.name} fill={d.color ?? holdingColor(i).var} />
           ))}
         </Bar>
       </BarChart>

@@ -321,6 +321,56 @@ Use **semantic tokens** for financial values and status indicators — never raw
 
 Raw palette tokens (`text-rosely-teal`, `text-rosely-golden`, etc.) fail WCAG AA contrast on white backgrounds. **Do not use them for text.** They remain available for decorative backgrounds with opacity (e.g., `bg-rosely-teal/20`).
 
+## 6a. Data Visualisation (Charts)
+
+Charts use **Recharts 3.x** (see [KNOWLEDGE.md](docs/KNOWLEDGE.md#charting--recharts) for the chart-type catalogue and API notes). Five conventions keep every chart consistent, responsive, zoomable and on-palette.
+
+### 1. Always wrap in `ChartCard`
+
+`components/charts/chart-card.tsx` provides the title, optional header `actions`, and a **maximise button that opens the chart in a full-screen modal** (the universal zoom). Children is a render-prop `(height) => ReactNode` so the inline and expanded heights differ:
+
+```tsx
+<ChartCard title="Allocation" description="By sector and holding">
+  {(h) => <NestedAllocationPie holdings={holdings} sectors={sectors} height={h} />}
+</ChartCard>
+```
+
+### 2. Always responsive
+
+Wrap the Recharts tree in `<ResponsiveContainer width="100%" height={h}>`. Never set a fixed pixel width. Add `accessibilityLayer` to cartesian charts.
+
+### 3. Consistent responsive grid
+
+Lay out charts with `ChartGrid` / `ChartGridItem` (mirrors the `/portfolio` and `/accounts` card grids):
+
+```tsx
+<ChartGrid>
+  <ChartGridItem><ChartCard …/></ChartGridItem>
+  <ChartGridItem span={2}><ChartCard …/></ChartGridItem> {/* full width */}
+</ChartGrid>
+```
+
+### 4. Universal timescale
+
+Time-scaled charts bind to the **global** range store (`lib/stores/chart-range.ts`, persisted to `localStorage`) via `useChartRange()` — selecting a range on any page applies everywhere. Do not hold range in per-page `useState`.
+
+### 5. Rosely chart palette
+
+Use CSS-var colours only — `holdingColor(i).var`, `var(--roselyN)`, or semantic `--gain`/`--loss`. Never raw hex. Dynamic Tailwind swatches (`bg-[var(--roselyN)]`) must be in the `ALL_ROSELY_SWATCHES` safelist. ESLint bans inline `style={{}}`.
+
+### Choosing a chart type
+
+| Need | Chart |
+| ---- | ----- |
+| Value / cumulative return over time | `LineChart` / `AreaChart` |
+| Compare categories (contribution, periods, income) | `BarChart` (horizontal via `layout="vertical"`) |
+| Nested allocation (sector → holding) | **Two-level `PieChart`** (`NestedAllocationPie`) |
+| Multi-metric profile / comparison | `RadarChart` (risk profile, factor exposure) |
+| Single proportion / gauge / progress | `RadialBarChart` (fear-greed, FIRE %, drift) |
+| Hierarchical magnitude | `Treemap` |
+| Risk vs return point cloud | `ScatterChart` (efficient frontier, drawdowns) |
+
+
 ## 7. Motion & Animation
 
 Rosely uses motion purposefully to guide focus and add professional polish without sacrificing performance or serenity.

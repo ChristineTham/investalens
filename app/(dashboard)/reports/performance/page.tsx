@@ -5,6 +5,7 @@ import { formatCurrency, formatPercent } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { PerformanceFilters } from "@/components/reports/performance-filters";
 import { PortfolioGrowthChart } from "@/components/charts/portfolio-growth";
+import { ChartCard } from "@/components/charts/chart-card";
 import { Suspense } from "react";
 import Link from "next/link";
 import type { HoldingPerformance } from "@/lib/calculations/performance";
@@ -226,19 +227,19 @@ export default async function PerformanceReportPage({
       </div>
 
       {/* Portfolio Growth Chart */}
-      <div className="rounded-lg border border-border p-4">
-        <h2 className="mb-4 text-sm font-medium text-muted-foreground">
-          Portfolio Growth
-        </h2>
-        <PortfolioGrowthChart
-          data={report.growthHistory}
-          showBenchmark={false}
-        />
-        <p className="mt-2 text-xs text-muted-foreground">
-          Chart shows portfolio value over time. Benchmark comparison requires
-          historical price data from the cron job.
-        </p>
-      </div>
+      <ChartCard
+        title="Portfolio growth"
+        description="Portfolio value over time"
+        height={360}
+      >
+        {(h) => (
+          <PortfolioGrowthChart
+            data={report.growthHistory}
+            showBenchmark={false}
+            height={h}
+          />
+        )}
+      </ChartCard>
 
       {/* Holdings table */}
       <div className="overflow-hidden rounded-lg border border-border">

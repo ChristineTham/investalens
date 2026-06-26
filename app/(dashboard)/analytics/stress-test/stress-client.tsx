@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { MetricCard } from "@/components/analytics/metric-card";
+import { ChartCard } from "@/components/charts/chart-card";
 import { DateRangeSelector, type DateRange } from "@/components/analytics/date-range-selector";
 import { SourcePicker, type SourceValue } from "@/components/analytics/source-picker";
 import { fetchAnalyticsMatrix } from "@/lib/hooks/use-analytics-matrix";
@@ -166,9 +167,14 @@ export function StressTestClient({
           {historicalResults && historicalResults[0] && (
             <div>
               <h3 className="mb-2 text-sm font-medium">Worst Scenario Breakdown: {historicalResults[0].name}</h3>
-              <ScenarioWaterfall
-                data={Object.entries(historicalResults[0].assetContributions).map(([name, value]) => ({ name, value }))}
-              />
+              <ChartCard title="Worst scenario breakdown" height={Math.max(220, Object.keys(historicalResults[0].assetContributions).length * 35)}>
+                {(h) => (
+                  <ScenarioWaterfall
+                    height={h}
+                    data={Object.entries(historicalResults[0].assetContributions).map(([name, value]) => ({ name, value }))}
+                  />
+                )}
+              </ChartCard>
             </div>
           )}
         </div>
@@ -205,9 +211,14 @@ export function StressTestClient({
                 suffix="%"
                 trend="down"
               />
-              <ScenarioWaterfall
-                data={Object.entries(factorResult.assetImpacts).map(([name, d]) => ({ name, value: d.contribution }))}
-              />
+              <ChartCard title="Per-asset impact" height={Math.max(220, Object.keys(factorResult.assetImpacts).length * 35)}>
+                {(h) => (
+                  <ScenarioWaterfall
+                    height={h}
+                    data={Object.entries(factorResult.assetImpacts).map(([name, d]) => ({ name, value: d.contribution }))}
+                  />
+                )}
+              </ChartCard>
             </div>
           )}
         </div>

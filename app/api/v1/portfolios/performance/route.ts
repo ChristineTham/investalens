@@ -10,6 +10,7 @@ import {
   type ChartRange,
   resolveChartRange,
 } from "@/lib/constants/chart-ranges";
+import { portfolioIdentity } from "@/lib/constants/portfolio-identity";
 
 export async function GET(request: Request) {
   const session = await auth();
@@ -24,7 +25,7 @@ export async function GET(request: Request) {
   // Get all user portfolios
   const portfolios = await db.portfolio.findMany({
     where: { userId: session.user.id },
-    select: { id: true, name: true, financialYearEnd: true },
+    select: { id: true, name: true, color: true, financialYearEnd: true },
   });
 
   const fye = portfolios[0]?.financialYearEnd ?? 6;
@@ -158,6 +159,9 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     portfolioNames: portfolios.map((p) => p.name),
+    portfolioColors: Object.fromEntries(
+      portfolios.map((p, i) => [p.name, portfolioIdentity(p, i).colorVar])
+    ),
     chartData,
     kpis,
   });

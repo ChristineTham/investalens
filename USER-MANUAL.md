@@ -78,13 +78,13 @@ After signing in, you land on the **Dashboard** (`/dashboard`) which shows your 
 The Dashboard gives you an instant overview of every portfolio combined:
 
 - **Summary cards** — Purchase Cost, Total Value, Capital Gain, Income (dividends/interest/coupons, net of accrued interest), Total Gain (capital gain + income − fees, with %), Portfolios / Holdings count, **Cash** (across bank accounts), and **Net Worth** (investments + cash)
-- **Consolidated charts** — A responsive grid of charts broken down **by portfolio**, all driven by one **universal timescale selector** (1M, 6M, YTD, current financial year, previous financial year, 1Y, 3Y, 5Y, 10Y, All):
+- **Consolidated charts** — A responsive grid of charts broken down **by portfolio**, every one **zoomable** (a maximise button opens a full-screen modal) and all driven by one **universal timescale selector** (1M, 6M, YTD, current financial year, previous financial year, 1Y, 3Y, 5Y, 10Y, All) that is shared with every other page and remembered between visits:
   - **Performance chart** — each portfolio's value over time plus a consolidated total line, indexed to percentage gain/loss from the start of the selected range so portfolios and the benchmark share a common baseline. Pick a benchmark (ASX 200, S&P 500, MSCI World, and more) shown as a dotted reference line
   - **Total value over time** — each portfolio stacked as an area with the overall total drawn as a bold line on top
   - **Movement** — net monthly cash flow (buys / sells / distributions) stacked by portfolio
   - **Allocation treemap** — current value broken down by portfolio, then by holding, with each portfolio in its own colour and holdings as shades of that colour. Click any holding to open its detail page
 - **Portfolio Summary table** — Cost base, market value, capital gain, income, fees, and total gain per portfolio
-- **Recent Activity** — The latest activity across all portfolios (trades, dividends, coupons, and custody fees) with date, instrument, type, quantity, price, fees, and amount. Every row links to its holding (or the Bonds page for custody fees), and a "View All" button opens the full activity history
+- **Recent Activity** — The latest activity across **both portfolios and cash accounts** (trades, dividends, coupons, custody fees, and account deposits/withdrawals/transfers). Each row shows the date, a harmonised **type icon**, quantity, price, fees, amount, and a **"Where"** column naming the source portfolio or account. Every row links to its holding or account, and a "View All" button opens the full activity history
 - **vs Model card** — overlays your consolidated value against a chosen benchmark model (scaled to a common start), with a model picker and a link to `/models`
 
 ### Key Concepts
@@ -265,23 +265,23 @@ When you hold more than one portfolio, a **highlighted Consolidated View card** 
 
 ### Portfolio Detail Page
 
-Opening a portfolio shows its **name in the breadcrumb**, KPI cards (current value, capital gain, income, total gain), and **trailing returns** for 1M / 6M / 1Y / 3Y / 5Y / 10Y / All. Any broker / account details you have entered appear under the header (the broker name links to the website).
+Opening a portfolio shows its **name in the breadcrumb** (with its chosen **icon and colour**), KPI cards (current value, capital gain, income, total gain), and **trailing returns** for 1M / 6M / 1Y / 3Y / 5Y / 10Y / All — periods of a year or more are shown **annualised (p.a.)**. Any broker / account details you have entered appear under the header (the broker name links to the website).
 
 Below that is a **responsive grid of charts** driven by a single **universal timescale selector** — covering 1M, 6M, **YTD**, **current financial year (FYTD)**, **previous financial year (Prev FY)**, 1Y, 3Y, 5Y, 10Y, and All. Changing the timescale updates every chart at once:
 
 - **Value over time** — each holding stacked as an area, with the overall portfolio value as a bold line on top
 - **Performance (gain / loss)** — total-gain %, optionally compared with a benchmark; the tooltip breaks the gain down as capital gain + income = total gain
-- **Allocation by holding** — a pie grouped by sector, with a rich hover tooltip (name, type, sector, purchase amount, current value, capital gain, income)
+- **Allocation by holding** — a **two-level (nested) pie**: the inner ring is sector and the outer ring is each holding's share of current value, with a rich hover tooltip (name, type, sector, purchase amount, current value, capital gain, income)
 - **Movement** — net monthly cash flow (buys / sells / distributions) stacked by holding
 - **Top & bottom performers** — the best and worst three holdings by total return
 
 Every chart has a **maximise** button that opens it in a larger modal. The **holdings table** shows sector, current price, purchase amount, current value, capital gain, income, total gain, annualised return, and a mini price **sparkline**, with each holding in a **consistent colour** (a swatch matches the charts).
 
-Below the holdings is a **Transactions** list spanning every holding in the portfolio. Each row is **editable inline** — change the date, type, quantity, price or brokerage, and use the coins icon on income rows to **assign franking** (franked/unfranked split and franking credits) to dividends. When the portfolio is linked to cash accounts, these edits flow through automatically: the virtual ledger is rebuilt and linked real accounts are re-reconciled.
+Below the holdings is a **Transactions** list spanning every holding in the portfolio, with an **Amount** column showing each transaction's signed cash effect. Each row is **editable inline** — change the date, type, quantity, price or brokerage, and use the coins icon on income rows to **assign franking** (franked/unfranked split and franking credits) to dividends. Use **New transaction** to add a transaction against an existing holding, and **Add holding** to add a new security together with its opening transaction (date, type, quantity, price, brokerage). When the portfolio is linked to cash accounts, these edits flow through automatically: the virtual ledger is rebuilt and linked real accounts are re-reconciled.
 
 ### Edit Details & Merge
 
-Use the **edit (pencil)** button on the detail page to set the portfolio name and administrative details — **broker name, broker website, client number, and account number**. To combine two portfolios, use the **merge** button: all holdings and transactions move into the portfolio you choose, holdings of the same instrument are consolidated, the target's details are kept, and the source portfolio is deleted (see [Merge Portfolios](docs/ACCOUNT.md#merge-portfolios)).
+Use the **edit (pencil)** button on the detail page to set the portfolio name and administrative details — **broker name, broker website, client number, and account number** — and to choose the portfolio's **icon and colour**. The chosen icon and colour identify the portfolio everywhere it appears: its card, the detail header, the dashboard summary table, and every per-portfolio chart (performance lines, stacked value/movement areas, and the allocation treemap). If you don't pick one, a stable default is assigned automatically. To combine two portfolios, use the **merge** button: all holdings and transactions move into the portfolio you choose, holdings of the same instrument are consolidated, the target's details are kept, and the source portfolio is deleted (see [Merge Portfolios](docs/ACCOUNT.md#merge-portfolios)).
 
 ### Organisation Tools
 
@@ -303,7 +303,7 @@ Share portfolio access with advisers, accountants, or family (Sidebar → Settin
 
 | Setting                | Impact                                                                      |
 | ---------------------- | --------------------------------------------------------------------------- |
-| Portfolio Details      | Editable name plus broker name, broker website, client number, account number |
+| Portfolio Details      | Editable name plus icon, colour, broker name, broker website, client number, account number |
 | Tax Residency          | Determines currency, tax rules, reports (permanent — cannot change)         |
 | Tax Entity Type        | Determines CGT discount rate (Individual 50%, SMSF 33⅓%, Company 0%)        |
 | Sale Allocation Method | How cost base parcels are matched to sells (FIFO, LIFO, Minimise CGT, etc.) |
