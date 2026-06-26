@@ -49,7 +49,11 @@ export function AccountImportWizard({
   const [overrides, setOverrides] = useState<Record<number, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [result, setResult] = useState<{ imported: number; skipped: number } | null>(null);
+  const [result, setResult] = useState<{
+    imported: number;
+    skipped: number;
+    reconciled: number;
+  } | null>(null);
 
   function onFile(f: File | null) {
     setFile(f);
@@ -125,6 +129,9 @@ export function AccountImportWizard({
         <h2 className="mt-3 text-lg font-medium">Import complete</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Imported {result.imported} transaction{result.imported === 1 ? "" : "s"}
+          {result.reconciled > 0
+            ? `, reconciled ${result.reconciled} existing transfer(s)`
+            : ""}
           {result.skipped > 0 ? `, skipped ${result.skipped} duplicate(s)` : ""}.
         </p>
         <button
@@ -245,7 +252,7 @@ export function AccountImportWizard({
                       {r.description || "—"}
                       {r.isDuplicate && (
                         <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                          Duplicate
+                          {r.matchedTransfer ? "Transfer match" : "Duplicate"}
                         </span>
                       )}
                     </td>
