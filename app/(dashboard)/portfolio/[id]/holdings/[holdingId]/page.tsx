@@ -12,6 +12,7 @@ import {
   StockInfoPanel,
   type StockInfoData,
 } from "@/components/analytics/stock-info-panel";
+import { HoldingDetailClient } from "./holding-detail-client";
 import type {
   StockProfile,
   StockStats,
@@ -146,6 +147,12 @@ export default async function HoldingDetailPage({
           </div>
         </div>
       </div>
+
+      <HoldingDetailClient
+        portfolioId={id}
+        holdingId={holdingId}
+        currency={holding.instrument.currency}
+      />
 
       {/* Rich company / instrument information from Yahoo Finance */}
       {stockInfo && (

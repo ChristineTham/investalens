@@ -234,6 +234,7 @@ export async function GET(
       income,
       totalGain,
       Portfolio: base > 0 ? (totalGain / base) * 100 : 0,
+      priceGain: base > 0 ? (capitalGain / base) * 100 : 0,
     };
 
     if (benchmarkSeries && benchBase > 0) {

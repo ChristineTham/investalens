@@ -77,6 +77,7 @@ P1 (coding, Windows) / P2 (validation, Codespaces) convention.
 - [models-P1e.md](models-P1e.md) — Default model seed library (ETF strategies + ASX index models) + no-delisted validity guard
 - [models-P1f.md](models-P1f.md) — Cross-feature integrations (frontier, Black-Litterman, what-if, checker, X-ray, reports, tax, dashboard, rebalance)
 - [models-P2.md](models-P2.md) — Codespaces validation (migration, packages, seed, prices, validity, tests)
+- **Session Extensions (R4-P1)** — Added model constituent detail pages, closed holdings toggle, and double-line performance charts (total vs. price return).
 
 Other feature plans: [accounts-redesign.md](accounts-redesign.md), [cgt-compliance.md](cgt-compliance.md), [reports-enhancement.md](reports-enhancement.md).
 

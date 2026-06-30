@@ -253,13 +253,23 @@ export function PortfolioPerformanceChart({
                 />
               ))}
 
-              {/* Total consolidated line */}
+              {/* Total consolidated lines */}
               <Line
                 type="monotone"
                 dataKey="Total"
                 stroke="var(--primary)"
                 strokeWidth={2.5}
                 dot={false}
+                name="Total (Total Return)"
+              />
+              <Line
+                type="monotone"
+                dataKey="TotalPrice"
+                stroke="var(--primary)"
+                strokeWidth={1.5}
+                strokeDasharray="3 3"
+                dot={false}
+                name="Total (Price Return)"
               />
 
               {/* Benchmark dotted line */}

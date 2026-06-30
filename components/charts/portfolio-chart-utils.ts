@@ -26,6 +26,7 @@ export type PerformancePoint = {
   capitalGain: number;
   income: number;
   totalGain: number;
+  priceGain?: number;
 };
 
 export type MovementPoint = { period: string } & Record<

@@ -275,7 +275,15 @@ Below that is a **responsive grid of charts** driven by a single **universal tim
 - **Movement** — net monthly cash flow (buys / sells / distributions) stacked by holding
 - **Top & bottom performers** — the best and worst three holdings by total return
 
-Every chart has a **maximise** button that opens it in a larger modal. The **holdings table** shows sector, current price, purchase amount, current value, capital gain, income, total gain, annualised return, and a mini price **sparkline**, with each holding in a **consistent colour** (a swatch matches the charts).
+Every chart has a **maximise** button that opens it in a larger modal. The **holdings table** shows sector, current price, purchase amount, current value, capital gain, income, total gain, annualised return, and a mini price **sparkline**, with each holding in a **consistent colour** (a swatch matches the charts). 
+
+A **Show closed holdings** toggle at the top of the holdings list allows you to show/hide holdings with zero units (e.g. fully sold positions). Closed holdings are displayed in grey italic text with zero quantity to preserve their historical performance and transaction logs.
+
+Clicking on any holding's ticker code opens a dedicated **Holding Detail** page containing:
+- **OHLC Price & Volume chart** — timescale-synchronized candlestick chart with 20/50/200 moving averages and volume toggle.
+- **Performance chart** — plots **Total Return** (solid line, capital + income return) vs. **Price Return** (dashed line, capital gain only) compared to select benchmarks.
+- **Movement chart** — shows monthly net cashflow (buys, sells, and dividends) for the holding.
+- **Company Information panel** — tabbed profile data (fundamentals, analysts, financials, and news) retrieved from Yahoo Finance.
 
 Below the holdings is a **Transactions** list spanning every holding in the portfolio, with an **Amount** column showing each transaction's signed cash effect. Each row is **editable inline** — change the date, type, quantity, price or brokerage, and use the coins icon on income rows to **assign franking** (franked/unfranked split and franking credits) to dividends. Use **New transaction** to add a transaction against an existing holding, and **Add holding** to add a new security together with its opening transaction (date, type, quantity, price, brokerage). When the portfolio is linked to cash accounts, these edits flow through automatically: the virtual ledger is rebuilt and linked real accounts are re-reconciled.
 
@@ -348,6 +356,11 @@ Model portfolios are virtual, **weight-based target portfolios** you can compare
 ### Instantiation
 
 When a model is viewed it is instantiated with **whole units**: a purchase date is set at `today − lookback`, each constituent's budget is `allocatable × weight`, `units = floor(budget ÷ price)`, and the remainder becomes **residual cash** (always ≥ the strategic reserve). The detail page shows the target-weight pie, an **instantiation table** (price @ date, units, cost, actual %, residual cash), and value-over-time. You can change the as-of date / notional capital and re-instantiate.
+
+Clicking on any constituent's ticker code in the instantiation table opens a dedicated **Model Constituent Detail** page. This view includes:
+- **OHLC Price & Volume chart** — timescale-synchronized candlestick chart with 20/50/200 moving averages and volume toggle.
+- **Performance chart** — compares the instrument's cumulative return (Total Return and Price Return are equal for model constituents, plotted alongside each other) against select benchmarks.
+- **Company Information panel** &mdash; full profile data (fundamentals, analysts, financials, and news) retrieved from Yahoo Finance.
 
 ### Default (System) Models
 

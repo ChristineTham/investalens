@@ -8,6 +8,7 @@ import {
   StockInfoPanel,
   type StockInfoData,
 } from "@/components/analytics/stock-info-panel";
+import { ModelInstrumentDetailClient } from "./instrument-detail-client";
 import type {
   StockProfile,
   StockStats,
@@ -126,6 +127,13 @@ export default async function ModelInstrumentDetailPage({
         </div>
       </div>
 
+      <ModelInstrumentDetailClient
+        modelId={id}
+        instrumentId={instrumentId}
+        currency={instrument.currency}
+      />
+
+      {/* Rich company / instrument information from Yahoo Finance */}
       {stockInfo && (
         <StockInfoPanel data={stockInfo} currentPrice={currentPrice} />
       )}

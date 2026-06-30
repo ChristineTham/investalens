@@ -168,12 +168,14 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
         content: `<p>Opening a portfolio shows its name (with its icon and colour) in the breadcrumb, KPI cards (current value, capital gain, income, total gain), and trailing returns for 1M / 6M / 1Y / 3Y / 5Y / 10Y / All &mdash; periods of a year or more are shown <strong>annualised (p.a.)</strong>. Below that is a responsive grid of charts driven by a single <strong>universal timescale selector</strong>:</p>
 <ul>
 <li><strong>Value over time</strong> &mdash; each holding stacked as an area with the overall portfolio value as a bold line on top</li>
-<li><strong>Performance (gain / loss)</strong> &mdash; total-gain %, optionally compared with a benchmark; the tooltip breaks the gain down as capital gain + income = total gain</li>
+<li><strong>Performance (gain / loss)</strong> &mdash; compares **Total Return** (solid line, including capital + income return) against **Price Return** (dashed line, capital gain only) and optionally a benchmark</li>
 <li><strong>Allocation by holding</strong> &mdash; a <strong>two-level (nested) pie</strong>: the inner ring is sector and the outer ring is each holding, with a rich hover tooltip (name, type, sector, purchase, current value, capital gain, income)</li>
 <li><strong>Movement</strong> &mdash; net monthly cash flow (buys / sells / distributions) stacked by holding</li>
 <li><strong>Top &amp; bottom performers</strong> &mdash; the best and worst three holdings by total return</li>
 </ul>
 <p>Every chart can be expanded to a larger modal with the maximise button. The holdings table adds sector, current price, purchase amount, current value, capital gain, income, total gain, annualised return, and a mini price sparkline &mdash; each holding keeps a consistent colour (shown as a swatch) across every chart.</p>
+<p>A <strong>Show closed holdings</strong> toggle at the top of the holdings list allows you to show/hide holdings with zero units (e.g. fully sold positions). Closed holdings are displayed in grey italic text with zero quantity.</p>
+<p>Clicking on any holding's ticker code opens a dedicated <strong>Holding Detail</strong> page with a timescale-synchronized <strong>OHLC Price &amp; Volume</strong> candlestick chart, a **Performance** chart (Total Return vs. Price Return vs. benchmarks), a monthly **Movement** cashflow chart, and a comprehensive Yahoo Finance company profile panel.</p>
 <p>Below the holdings, a <strong>Transactions</strong> list spans every holding and includes an <strong>Amount</strong> column (each transaction&rsquo;s signed cash effect). Edit any row inline (date, type, quantity, price, brokerage), and use the coins icon on income rows to <strong>assign franking</strong> to dividends. Use <strong>New transaction</strong> to record a transaction against an existing holding, and <strong>Add holding</strong> to add a new security together with its opening transaction. When the portfolio is linked to cash accounts, these edits rebuild the virtual ledger and re-reconcile linked real accounts automatically.</p>`,
       },
       {
@@ -235,7 +237,8 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <li>Residual cash = notional &minus; total cost, always at least the strategic minimum reserve.</li>
 <li>Value over time = &Sigma;(units &times; price) + residual cash.</li>
 </ol>
-<p>The detail page shows the target-weight pie, an <strong>instantiation table</strong> (price, whole units, cost, actual %, residual cash) and a value-over-time chart. You can change the as-of date and notional capital and re-instantiate.</p>`,
+<p>The detail page shows the target-weight pie, an <strong>instantiation table</strong> (price, whole units, cost, actual %, residual cash) and a value-over-time chart. You can change the as-of date and notional capital and re-instantiate.</p>
+<p>Clicking on any constituent's ticker code in the instantiation table opens a dedicated <strong>Model Constituent Detail</strong> page. This page contains a timescale-synchronized <strong>OHLC Price &amp; Volume</strong> chart, a **Performance** chart comparing the constituent return vs. benchmarks, and a comprehensive Yahoo Finance company profile panel.</p>`,
       },
       {
         heading: "Validity & Health",
@@ -259,6 +262,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
         heading: "Using Models Across the App",
         content: `<table>
 <tr><th>Feature</th><th>What a model unlocks</th></tr>
+<tr><td><strong>Constituent Detail</strong></td><td>Click any ticker in the Instantiation table to view interactive charts (OHLC, performance comparison) and Yahoo Finance company profiles</td></tr>
 <tr><td><strong>Optimise</strong></td><td>Start from a real <em>or</em> model portfolio; run several strategies and <strong>Save as model</strong> (one per strategy)</td></tr>
 <tr><td><strong>Backtest</strong></td><td>Compare a mix of real + model portfolios against a benchmark</td></tr>
 <tr><td><strong>Correlations / Factors / Frontier / Stress</strong></td><td>A <strong>source picker</strong> analyses a model; the frontier plots each model as a labelled point</td></tr>

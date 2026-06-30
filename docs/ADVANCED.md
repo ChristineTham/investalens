@@ -655,7 +655,15 @@ portfolio, so the Python compute layer is unchanged.
 | **Efficient frontier** | Each selected model is plotted as a labelled (risk, return) point vs the curve |
 | **Black-Litterman** | Seed the equilibrium **prior** from a model's target weights instead of cap/equal weights |
 | **Comparison dashboard** | `/models` overlays the consolidated portfolio against models, scaled to a common start |
-| **ETF X-ray** | Weighted look-through of a model's ETF constituents into underlying exposures |
+| **ETF X-ray** | Weighted look-through of a model's ETF constituents |
+| **Constituent details** | Click any instrument in the Instantiation table to view a full detailed profile (OHLC price chart, performance vs. benchmarks, and company fundamentals) |
+
+### Instantiation & Constituent Detail
+
+When a model is viewed, it is instantiated using target weights. In the **Instantiation table**, every constituent's ticker code is clickable, leading to a dedicated detailed view showing:
+- A timescale-synchronized **OHLC Price & Volume** chart with 20/50/200 moving averages.
+- A **Performance** line chart plotting Total Return vs. Price Return (capital-only gain) compared to select benchmarks.
+- A comprehensive **Company Profile** (fundamentals, analyst targets, news, and financials) retrieved from Yahoo Finance.
 
 ### Validity guard
 

@@ -95,6 +95,24 @@ export async function GET(request: Request) {
     }
   }
 
+  // Fetch all transactions in the range for consolidated cashflow and dividend tracking
+  const userTxs = await db.transaction.findMany({
+    where: {
+      holding: {
+        portfolio: { userId: session.user.id },
+      },
+      tradeDate: { gte: from, lte: to },
+    },
+    select: {
+      tradeDate: true,
+      transactionType: true,
+      quantity: true,
+      price: true,
+      brokerage: true,
+    },
+    orderBy: { tradeDate: "asc" },
+  });
+
   // Build consolidated dates (union of all portfolio dates)
   const allDatesSet = new Set<string>();
   for (const ps of portfolioSeries) {
@@ -132,9 +150,33 @@ export async function GET(request: Request) {
     benchBase = benchmarkSeries.values[0];
   }
 
+  const BUY_TYPES = new Set(["BUY", "TRANSFER_IN"]);
+  const INCOME_TYPES = new Set(["DIVIDEND", "INTEREST", "COUPON"]);
+
+  let netInjected = 0;
+  let brokerage = 0;
+  let income = 0;
+  let txIdx = 0;
+
   // Convert to percentage gain/loss indexed from start
   const chartData = rawData.map(({ date, values }) => {
     const point: Record<string, string | number> = { date };
+    const dateTs = new Date(date).getTime();
+
+    // Process transactions up to this date to get accumulated flows
+    while (txIdx < userTxs.length && userTxs[txIdx].tradeDate.getTime() <= dateTs) {
+      const tx = userTxs[txIdx];
+      const amt = Number(tx.quantity) * Number(tx.price);
+      if (BUY_TYPES.has(tx.transactionType)) {
+        netInjected += amt;
+        brokerage += Number(tx.brokerage || 0);
+      } else if (tx.transactionType === "SELL" || tx.transactionType === "TRANSFER_OUT") {
+        netInjected -= amt;
+      } else if (INCOME_TYPES.has(tx.transactionType)) {
+        income += amt;
+      }
+      txIdx++;
+    }
 
     for (const ps of portfolioSeries) {
       const base = baseValues[ps.name];
@@ -144,7 +186,13 @@ export async function GET(request: Request) {
 
     const totalBase = baseValues["Total"];
     const totalValue = values["Total"] || 0;
-    point["Total"] = totalBase > 0 ? ((totalValue - totalBase) / totalBase) * 100 : 0;
+
+    const capitalGain = totalValue - totalBase - netInjected - brokerage;
+    const totalGain = capitalGain + income;
+    const base = totalBase + Math.max(netInjected + brokerage, 0);
+
+    point["Total"] = base > 0 ? (totalGain / base) * 100 : 0;
+    point["TotalPrice"] = base > 0 ? (capitalGain / base) * 100 : 0;
 
     // Benchmark percentage gain from start
     if (benchmarkSeries && benchmarkSeries.dates.length > 0 && benchBase > 0) {

@@ -23,6 +23,7 @@ interface PerformanceChartProps {
   range: ChartRange;
   benchmarkName?: string;
   height: number;
+  lineLabel?: string;
 }
 
 interface TooltipEntry {
@@ -53,30 +54,51 @@ function PerfTooltip({
     <div className="rounded-md border border-border bg-card p-2.5 text-xs shadow-md">
       <p className="mb-1 font-medium">{label}</p>
       <div className="space-y-0.5">
-        <div className="flex items-center justify-between gap-6">
-          <span className="text-muted-foreground">Capital gain</span>
-          <span
-            className={`font-medium tabular-nums ${point.capitalGain >= 0 ? "text-green-600" : "text-red-600"}`}
-          >
-            {formatCurrency(point.capitalGain, currency)}
-          </span>
-        </div>
-        <div className="flex items-center justify-between gap-6">
-          <span className="text-muted-foreground">+ Income</span>
-          <span className="font-medium tabular-nums text-green-600">
-            {formatCurrency(point.income, currency)}
-          </span>
-        </div>
-        <div className="flex items-center justify-between gap-6 border-t border-border pt-0.5">
-          <span className="text-muted-foreground">= Total gain</span>
-          <span
-            className={`font-semibold tabular-nums ${point.totalGain >= 0 ? "text-green-600" : "text-red-600"}`}
-          >
-            {formatCurrency(point.totalGain, currency)} (
-            {point.Portfolio >= 0 ? "+" : ""}
-            {point.Portfolio.toFixed(1)}%)
-          </span>
-        </div>
+        {((point.capitalGain ?? 0) !== 0 || (point.income ?? 0) !== 0) ? (
+          <>
+            <div className="flex items-center justify-between gap-6">
+              <span className="text-muted-foreground">Capital gain (Price)</span>
+              <span
+                className={`font-medium tabular-nums ${point.capitalGain >= 0 ? "text-green-600" : "text-red-600"}`}
+              >
+                {formatCurrency(point.capitalGain, currency)} ({point.priceGain != null ? (point.priceGain >= 0 ? "+" : "") + point.priceGain.toFixed(1) + "%" : "—"})
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-6">
+              <span className="text-muted-foreground">+ Income (Dividends)</span>
+              <span className="font-medium tabular-nums text-green-600">
+                {formatCurrency(point.income, currency)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-6 border-t border-border pt-0.5">
+              <span className="text-muted-foreground">= Total return</span>
+              <span
+                className={`font-semibold tabular-nums ${point.totalGain >= 0 ? "text-green-600" : "text-red-600"}`}
+              >
+                {formatCurrency(point.totalGain, currency)} ({point.Portfolio >= 0 ? "+" : ""}{point.Portfolio.toFixed(1)}%)
+              </span>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center justify-between gap-6">
+              <span className="text-muted-foreground">Price return</span>
+              <span
+                className={`font-medium tabular-nums ${point.priceGain != null && point.priceGain >= 0 ? "text-green-600" : "text-red-600"}`}
+              >
+                {point.priceGain != null ? (point.priceGain >= 0 ? "+" : "") + point.priceGain.toFixed(1) + "%" : "—"}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-6 border-t border-border pt-0.5">
+              <span className="text-muted-foreground">Total return</span>
+              <span
+                className={`font-semibold tabular-nums ${point.Portfolio >= 0 ? "text-green-600" : "text-red-600"}`}
+              >
+                {point.Portfolio >= 0 ? "+" : ""}{point.Portfolio.toFixed(1)}%
+              </span>
+            </div>
+          </>
+        )}
         {benchEntry?.value != null && (
           <div className="flex items-center justify-between gap-6 border-t border-border pt-0.5">
             <span className="text-muted-foreground">
@@ -104,6 +126,7 @@ export function PortfolioPerformanceDetailChart({
   range,
   benchmarkName,
   height,
+  lineLabel,
 }: PerformanceChartProps) {
   if (data.length === 0) {
     return (
@@ -132,7 +155,10 @@ export function PortfolioPerformanceDetailChart({
         />
         <Tooltip
           content={
-            <PerfTooltip currency={currency} benchmarkName={benchmarkName} />
+            <PerfTooltip
+              currency={currency}
+              benchmarkName={benchmarkName}
+            />
           }
         />
         <ReferenceLine y={0} stroke="var(--muted-foreground)" strokeDasharray="2 2" />
@@ -142,6 +168,17 @@ export function PortfolioPerformanceDetailChart({
           stroke="var(--rosely14)"
           strokeWidth={2.5}
           dot={false}
+          name={`${lineLabel ?? "Portfolio"} (Total)`}
+          isAnimationActive={false}
+        />
+        <Line
+          type="monotone"
+          dataKey="priceGain"
+          stroke="var(--rosely7)"
+          strokeWidth={1.5}
+          strokeDasharray="3 3"
+          dot={false}
+          name={`${lineLabel ?? "Portfolio"} (Price)`}
           isAnimationActive={false}
         />
         {benchmarkName && (
