@@ -1,13 +1,16 @@
+import Link from "next/link";
 import { formatCurrency } from "@/lib/utils";
 import { AlertTriangle } from "lucide-react";
 import type { Instantiation } from "@/lib/services/model-portfolio";
 
 interface InstantiationTableProps {
+  modelId: string;
   instantiation: Instantiation;
   currency: string;
 }
 
 export function InstantiationTable({
+  modelId,
   instantiation,
   currency,
 }: InstantiationTableProps) {
@@ -50,7 +53,12 @@ export function InstantiationTable({
                       aria-label="No usable price for this period"
                     />
                   )}
-                  {h.code}
+                  <Link
+                    href={`/models/${modelId}/instruments/${h.instrumentId}`}
+                    className="font-medium text-primary hover:underline"
+                  >
+                    {h.code}
+                  </Link>
                 </div>
                 <div className="truncate text-xs text-muted-foreground">
                   {h.name}

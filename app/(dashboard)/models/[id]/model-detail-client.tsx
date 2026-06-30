@@ -347,6 +347,7 @@ export function ModelDetailClient(props: ModelDetailClientProps) {
         </CardHeader>
         <CardContent>
           <InstantiationTable
+            modelId={id}
             instantiation={instantiation}
             currency={currency}
           />

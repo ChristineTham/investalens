@@ -36,10 +36,13 @@ function NestedTooltip({
 }) {
   if (!active || !payload || payload.length === 0) return null;
   const datum = payload[0].payload;
+  if (!datum) return null;
   if (datum.kind === "holding") {
+    if (!datum.holding) return null;
     return <HoldingTooltipCard h={datum.holding} />;
   }
   const s = datum.sector;
+  if (!s) return null;
   return (
     <div className="rounded-md border border-border bg-popover px-3 py-2 text-xs shadow-md">
       <div className="flex items-center gap-2 font-medium">
@@ -95,8 +98,8 @@ export function NestedAllocationPie({
         {/* Inner ring — sectors */}
         <Pie
           data={sectorData}
-          dataKey={(d: SectorSlice) => d.sector.value}
-          nameKey={(d: SectorSlice) => d.sector.sector}
+          dataKey={(d: SectorSlice) => d?.sector?.value ?? 0}
+          nameKey={(d: SectorSlice) => d?.sector?.sector ?? ""}
           cx="50%"
           cy="50%"
           outerRadius="55%"
@@ -111,7 +114,7 @@ export function NestedAllocationPie({
         <Pie
           data={holdingData}
           dataKey="value"
-          nameKey={(d: HoldingSlice) => d.holding.code}
+          nameKey={(d: HoldingSlice) => d?.holding?.code ?? ""}
           cx="50%"
           cy="50%"
           innerRadius="60%"
