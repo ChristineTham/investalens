@@ -10,6 +10,8 @@
 import { db } from "@/lib/db";
 import type { Prisma } from "@/generated/prisma/client";
 import { yahooFinance } from "@/lib/providers/yahoo-finance";
+import { eodhd } from "@/lib/providers/eodhd";
+import type { PricePoint } from "@/lib/providers/market-data";
 import { BENCHMARKS } from "@/lib/constants/benchmarks";
 import {
   fetchFiigBondRates,
@@ -120,7 +122,38 @@ async function fetchHistoricalRange(
   to: Date
 ): Promise<number> {
   if (from >= to) return 0;
-  const prices = await yahooFinance.getHistoricalPrices(code, marketCode, from, to);
+  
+  let prices: PricePoint[] = [];
+  try {
+    prices = await yahooFinance.getHistoricalPrices(code, marketCode, from, to);
+  } catch (error) {
+    console.warn(`Yahoo Finance failed for ${code}.${marketCode}, will check if delisted:`, error);
+  }
+
+  // Fallback to EODHD if Yahoo Finance returned no prices, and instrument has no prices/info in DB (delisted)
+  if (prices.length === 0) {
+    const instrument = await db.instrument.findUnique({
+      where: { id: instrumentId },
+      select: { instrumentType: true }
+    });
+    const type = instrument?.instrumentType?.toLowerCase() || "";
+    const isCompatible = !["bond", "fixed_interest", "cash", "currency"].includes(type);
+
+    if (isCompatible) {
+      const priceCount = await db.price.count({ where: { instrumentId } });
+      const infoCount = await db.instrumentInfo.count({ where: { instrumentId } });
+      
+      if (priceCount === 0 || infoCount === 0) {
+        console.log(`  [EODHD] ${code}.${marketCode} appears delisted (priceCount: ${priceCount}, infoCount: ${infoCount}). Fetching via EODHD...`);
+        try {
+          prices = await eodhd.getHistoricalPrices(code, marketCode, from, to);
+        } catch (error) {
+          console.error(`  ✗ EODHD also failed for ${code}.${marketCode}:`, error);
+        }
+      }
+    }
+  }
+
   let inserted = 0;
   for (const p of prices) {
     const date = new Date(p.date);
