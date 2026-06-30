@@ -46,9 +46,9 @@ export const eodhd = {
     const symbol = toEodhdSymbol(code, market);
     const fromStr = from.toISOString().split("T")[0];
     const toStr = to.toISOString().split("T")[0];
-    const url = `https://eodhd.com/api/eod/${encodeURIComponent(symbol)}?from=${fromStr}&to=${toStr}&api_token=${apiKey}&fmt=json`;
 
-    try {
+    async function doFetch(sym: string): Promise<PricePoint[]> {
+      const url = `https://eodhd.com/api/eod/${encodeURIComponent(sym)}?from=${fromStr}&to=${toStr}&api_token=${apiKey}&fmt=json`;
       const res = await fetch(url, {
         headers: { "User-Agent": "InvestaLens/1.0" },
         signal: AbortSignal.timeout(30000),
@@ -60,7 +60,6 @@ export const eodhd = {
       if (!Array.isArray(data)) {
         return [];
       }
-
       return data
         .filter((p): p is EodhdPriceRecord => Boolean(p && p.date && p.close !== undefined && !p.warning))
         .map((p) => ({
@@ -72,6 +71,24 @@ export const eodhd = {
           adjustedClose: Number(p.adjusted_close) || Number(p.close),
           volume: Number(p.volume) || 0,
         }));
+    }
+
+    try {
+      let prices = await doFetch(symbol);
+      if (prices.length === 0 && !symbol.includes("_old")) {
+        const parts = symbol.split(".");
+        const delistedSymbol = `${parts[0]}_old.${parts[1] || "US"}`;
+        console.log(`  [EODHD] Primary fetch returned no prices. Retrying with delisted suffix: ${delistedSymbol}`);
+        try {
+          const fallbackPrices = await doFetch(delistedSymbol);
+          if (fallbackPrices.length > 0) {
+            prices = fallbackPrices;
+          }
+        } catch (e) {
+          console.warn(`  [EODHD] Delisted fallback retry failed for ${delistedSymbol}:`, e);
+        }
+      }
+      return prices;
     } catch (error) {
       console.error(`Failed to fetch historical prices from EODHD for ${symbol}:`, error);
       return [];

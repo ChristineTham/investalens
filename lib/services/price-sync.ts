@@ -140,16 +140,11 @@ async function fetchHistoricalRange(
     const isCompatible = !["bond", "fixed_interest", "cash", "currency"].includes(type);
 
     if (isCompatible) {
-      const priceCount = await db.price.count({ where: { instrumentId } });
-      const infoCount = await db.instrumentInfo.count({ where: { instrumentId } });
-      
-      if (priceCount === 0 || infoCount === 0) {
-        console.log(`  [EODHD] ${code}.${marketCode} appears delisted (priceCount: ${priceCount}, infoCount: ${infoCount}). Fetching via EODHD...`);
-        try {
-          prices = await eodhd.getHistoricalPrices(code, marketCode, from, to);
-        } catch (error) {
-          console.error(`  ✗ EODHD also failed for ${code}.${marketCode}:`, error);
-        }
+      console.log(`  [EODHD] ${code}.${marketCode} returned no prices on Yahoo Finance. Fetching via EODHD...`);
+      try {
+        prices = await eodhd.getHistoricalPrices(code, marketCode, from, to);
+      } catch (error) {
+        console.error(`  ✗ EODHD failed for ${code}.${marketCode}:`, error);
       }
     }
   }
@@ -273,6 +268,16 @@ export async function syncSharePrices(
     emit({ type: "item", phase: "shares", current, total, label: inst.code });
 
     try {
+      const info = await db.instrumentInfo.findUnique({
+        where: { instrumentId: inst.id },
+        select: { quoteType: true },
+      });
+      if (info?.quoteType === "DELISTED") {
+        const priceCount = await db.price.count({ where: { instrumentId: inst.id } });
+        if (priceCount > 0) {
+          continue;
+        }
+      }
       const earliestTxDate = holding.transactions.reduce(
         (earliest, tx) => (tx.tradeDate < earliest ? tx.tradeDate : earliest),
         new Date()
@@ -366,6 +371,16 @@ export async function syncSharePrices(
     current++;
     emit({ type: "item", phase: "shares", current, total, label: m.code });
     try {
+      const info = await db.instrumentInfo.findUnique({
+        where: { instrumentId: m.id },
+        select: { quoteType: true },
+      });
+      if (info?.quoteType === "DELISTED") {
+        const priceCount = await db.price.count({ where: { instrumentId: m.id } });
+        if (priceCount > 0) {
+          continue;
+        }
+      }
       const latestPrice = await db.price.findFirst({
         where: { instrumentId: m.id },
         orderBy: { date: "desc" },
@@ -609,13 +624,35 @@ export async function syncStockInfo(
   for (const inst of list) {
     current++;
     emit({ type: "item", phase: "info", current, total: list.length, label: inst.code });
-
     const symbol = toYahooSymbol(inst.code, inst.marketCode);
+
     try {
+      const existingInfo = await db.instrumentInfo.findUnique({
+        where: { instrumentId: inst.id },
+        select: { quoteType: true },
+      });
+      if (existingInfo?.quoteType === "DELISTED") {
+        continue;
+      }
+
       const info = await analyticsClient.callFunction<StockInfoResponse>("stock-info", {
         symbol,
       });
       if (!info || !info.found) {
+        if (info && !info.found) {
+          await db.instrumentInfo.upsert({
+            where: { instrumentId: inst.id },
+            create: {
+              instrumentId: inst.id,
+              quoteType: "DELISTED",
+              fetchedAt: new Date(),
+            },
+            update: {
+              quoteType: "DELISTED",
+              fetchedAt: new Date(),
+            },
+          });
+        }
         failed++;
         notFound++;
         failures.push({

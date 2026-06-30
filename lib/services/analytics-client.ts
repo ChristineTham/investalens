@@ -6,9 +6,11 @@ export class AnalyticsClient {
   constructor() {
     this.baseUrl = process.env.ANALYTICS_BASE_URL
       ? process.env.ANALYTICS_BASE_URL.replace(/\/$/, "")
-      : process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000";
+      : process.env.NEXT_PUBLIC_APP_URL
+        ? process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")
+        : process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}`
+          : "http://localhost:3000";
   }
 
   async callFunction<T>(endpoint: string, data: unknown): Promise<T> {
