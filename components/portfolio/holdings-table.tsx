@@ -11,6 +11,7 @@ interface HoldingsTableProps {
   holdings: HoldingMetric[];
   sparklines: Record<string, SparkPoint[]>;
   loadingSparklines: boolean;
+  showClosed: boolean;
 }
 
 function Sparkline({ data }: { data: SparkPoint[] | undefined }) {
@@ -44,13 +45,28 @@ export function HoldingsTable({
   holdings,
   sparklines,
   loadingSparklines,
+  showClosed,
 }: HoldingsTableProps) {
+  const activeHoldings = holdings.filter((h) => h.quantity > 0);
+  const visibleHoldings = showClosed ? holdings : activeHoldings;
+
   if (holdings.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border p-12">
         <h3 className="text-lg font-medium">No holdings yet</h3>
         <p className="mt-2 text-sm text-muted-foreground">
           Add your first holding to start tracking this portfolio.
+        </p>
+      </div>
+    );
+  }
+
+  if (visibleHoldings.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border p-12">
+        <h3 className="text-lg font-medium">No active holdings</h3>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Toggle &ldquo;Show closed holdings&rdquo; to view sold positions.
         </p>
       </div>
     );
@@ -75,7 +91,7 @@ export function HoldingsTable({
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
-          {holdings.map((h) => (
+          {visibleHoldings.map((h) => (
             <tr key={h.id} className="hover:bg-accent/50">
               <td className="px-3 py-2.5">
                 <div className="flex items-center gap-2">

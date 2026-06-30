@@ -65,6 +65,7 @@ function PerformerItem({ h }: { h: HoldingMetric }) {
 export function PortfolioDetailClient({ detail }: { detail: PortfolioDetail }) {
   const [range, setRange] = useState<ChartRange>("1Y");
   const [benchmark, setBenchmark] = useState("");
+  const [showClosed, setShowClosed] = useState(false);
   const [series, setSeries] = useState<PortfolioDetailSeries | null>(null);
   const requestKey = `${range}|${benchmark}`;
   const [loadedKey, setLoadedKey] = useState<string | null>(null);
@@ -228,12 +229,24 @@ export function PortfolioDetailClient({ detail }: { detail: PortfolioDetail }) {
 
       {/* Holdings table */}
       <div>
-        <h2 className="mb-2 font-serif text-lg font-semibold">Holdings</h2>
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="font-serif text-lg font-semibold">Holdings</h2>
+          <label className="flex items-center gap-2 text-xs font-medium text-muted-foreground cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={showClosed}
+              onChange={(e) => setShowClosed(e.target.checked)}
+              className="rounded border-border bg-background text-primary focus:ring-primary h-3.5 w-3.5"
+            />
+            Show closed holdings
+          </label>
+        </div>
         <HoldingsTable
           portfolioId={detail.id}
           holdings={detail.holdings}
           sparklines={series?.sparklines ?? {}}
           loadingSparklines={loading}
+          showClosed={showClosed}
         />
       </div>
     </div>
