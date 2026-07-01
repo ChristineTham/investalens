@@ -53,6 +53,9 @@ export const eodhd = {
         headers: { "User-Agent": "InvestaLens/1.0" },
         signal: AbortSignal.timeout(30000),
       });
+      if (res.status === 404) {
+        return [];
+      }
       if (!res.ok) {
         throw new Error(`EODHD API error: ${res.status} ${res.statusText}`);
       }
