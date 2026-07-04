@@ -1,5 +1,6 @@
 import "server-only";
 import { db } from "@/lib/db";
+import { getLatestPrices } from "@/lib/services/latest-prices";
 
 export interface DriftRow {
   code: string;
@@ -74,14 +75,12 @@ export async function computeDrift(
     string,
     { name: string; value: number; price: number }
   >();
+  const latestPrices = await getLatestPrices(
+    holdings.map((h) => h.instrumentId)
+  );
   for (const h of holdings) {
     const qty = positionQuantity(h.transactions);
-    const latest = await db.price.findFirst({
-      where: { instrumentId: h.instrumentId },
-      orderBy: { date: "desc" },
-      select: { close: true },
-    });
-    const price = latest ? Number(latest.close) : 0;
+    const price = latestPrices.get(h.instrumentId)?.close ?? 0;
     const value = qty * price;
     if (value <= 0 && price <= 0) continue;
     const code = h.instrument.code;
