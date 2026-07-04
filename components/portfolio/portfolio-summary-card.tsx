@@ -7,6 +7,7 @@ import type { PortfolioCard } from "@/lib/services/portfolio-cards";
 import { formatCurrency, formatDate, cn } from "@/lib/utils";
 import { portfolioIdentity } from "@/lib/constants/portfolio-identity";
 import { PortfolioIcon } from "@/components/ui/portfolio-icon";
+import { Badge } from "@/components/ui/badge";
 
 /** Top 6 holdings + an aggregated "Other" slice. */
 function buildAllocation(card: PortfolioCard) {
@@ -24,8 +25,8 @@ function ReturnTile({ label, value }: { label: string; value: number | null }) {
     value == null
       ? "text-muted-foreground"
       : value >= 0
-        ? "text-green-600"
-        : "text-red-600";
+        ? "text-gain"
+        : "text-loss";
   return (
     <div className="rounded-md border border-border bg-background/50 p-2 text-center">
       <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
@@ -60,9 +61,12 @@ export function PortfolioSummaryCard({ card }: { card: PortfolioCard }) {
           <PortfolioIcon icon={identity.icon} className="h-4 w-4" />
         </span>
         <div className="min-w-0">
-          <h3 className="truncate font-medium group-hover:text-primary">
-            {card.name}
-          </h3>
+          <div className="flex items-center gap-2">
+            <h3 className="truncate font-medium group-hover:text-primary">
+              {card.name}
+            </h3>
+            {card.isShared && <Badge variant="secondary">Shared</Badge>}
+          </div>
           <p className="mt-0.5 text-xs text-muted-foreground">
             <span className="capitalize">{card.entityType}</span> ·{" "}
             {card.currency} · {card.holdingsCount} holding
@@ -94,6 +98,7 @@ export function PortfolioSummaryCard({ card }: { card: PortfolioCard }) {
             {alloc.map((a, i) => (
               <li key={a.name} className="flex items-center gap-2 text-xs">
                 <span
+                  aria-hidden="true"
                   className={`h-2.5 w-2.5 shrink-0 rounded-sm ${
                     ALLOCATION_SWATCH[i % ALLOCATION_SWATCH.length]
                   }`}

@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { createTransactionSchema } from "@/lib/validators/transaction";
 import { syncPortfolioLedger } from "@/lib/services/cash-ledger";
@@ -19,7 +19,10 @@ async function propagateToLinkedAccounts(portfolioId: string) {
   const [links, virtual] = await Promise.all([
     db.portfolioAccount.findMany({
       where: { portfolioId },
-      select: { cashAccountId: true, cashAccount: { select: { isVirtual: true } } },
+      select: {
+        cashAccountId: true,
+        cashAccount: { select: { isVirtual: true } },
+      },
     }),
     db.cashAccount.findFirst({
       where: { portfolioId, isVirtual: true },
@@ -41,15 +44,14 @@ async function propagateToLinkedAccounts(portfolioId: string) {
 }
 
 export async function createTransaction(input: unknown) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   const data = createTransactionSchema.parse(input);
 
   const holding = await db.holding.findFirst({
     where: {
       id: data.holdingId,
-      portfolio: { userId: session.user.id },
+      portfolio: { userId: user.id },
     },
   });
   if (!holding) throw new Error("Holding not found");
@@ -70,28 +72,26 @@ export async function createTransaction(input: unknown) {
 }
 
 export async function getTransactions(holdingId: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   return db.transaction.findMany({
     where: {
       holdingId,
-      holding: { portfolio: { userId: session.user.id } },
+      holding: { portfolio: { userId: user.id } },
     },
     orderBy: { tradeDate: "desc" },
   });
 }
 
 export async function deleteTransaction(id: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   const tx = await db.transaction.findFirst({
     where: { id },
     include: { holding: { include: { portfolio: true } } },
   });
 
-  if (!tx || tx.holding.portfolio.userId !== session.user.id) {
+  if (!tx || tx.holding.portfolio.userId !== user.id) {
     throw new Error("Not found");
   }
 
@@ -118,15 +118,14 @@ export async function updateTransaction(
     foreignTax?: number | null;
   }
 ) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   const tx = await db.transaction.findFirst({
     where: { id },
     include: { holding: { include: { portfolio: true } } },
   });
 
-  if (!tx || tx.holding.portfolio.userId !== session.user.id) {
+  if (!tx || tx.holding.portfolio.userId !== user.id) {
     throw new Error("Not found");
   }
 
@@ -148,7 +147,9 @@ export async function updateTransaction(
       ...(input.frankingCredits !== undefined && {
         frankingCredits: input.frankingCredits,
       }),
-      ...(input.taxDeferred !== undefined && { taxDeferred: input.taxDeferred }),
+      ...(input.taxDeferred !== undefined && {
+        taxDeferred: input.taxDeferred,
+      }),
       ...(input.foreignTax !== undefined && { foreignTax: input.foreignTax }),
     },
   });
@@ -160,15 +161,17 @@ export async function updateTransaction(
 
 /**
  * Flat list of all transactions across a portfolio's holdings, newest first,
- * with the owning instrument's code/name/currency for display. Scoped to the
- * authenticated user.
+ * with the owning instrument's code/name/currency for display. Read-only:
+ * scoped to the owner or a share recipient.
  */
 export async function getPortfolioTransactions(portfolioId: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   const portfolio = await db.portfolio.findFirst({
-    where: { id: portfolioId, userId: session.user.id },
+    where: {
+      id: portfolioId,
+      OR: [{ userId: user.id }, { shares: { some: { email: user.email! } } }],
+    },
     select: { id: true },
   });
   if (!portfolio) throw new Error("Portfolio not found");

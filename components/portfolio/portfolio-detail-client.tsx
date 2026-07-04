@@ -26,8 +26,12 @@ import type { PortfolioDetailSeries } from "@/components/charts/portfolio-chart-
 
 function ChartLoader() {
   return (
-    <div className="flex h-full min-h-[200px] items-center justify-center text-muted-foreground">
-      <Loader2 className="h-5 w-5 animate-spin" />
+    <div
+      role="status"
+      className="flex h-full min-h-[200px] items-center justify-center text-muted-foreground"
+    >
+      <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+      <span className="sr-only">Loading…</span>
     </div>
   );
 }
@@ -48,7 +52,7 @@ function PerformerItem({ h }: { h: HoldingMetric }) {
         <span className="truncate text-xs text-muted-foreground">{h.name}</span>
         <span
           className={`ml-auto shrink-0 text-sm font-semibold tabular-nums ${
-            h.totalGainPercent >= 0 ? "text-green-600" : "text-red-600"
+            h.totalGainPercent >= 0 ? "text-gain" : "text-loss"
           }`}
         >
           {h.totalGainPercent >= 0 ? "+" : ""}
@@ -247,6 +251,7 @@ export function PortfolioDetailClient({ detail }: { detail: PortfolioDetail }) {
           sparklines={series?.sparklines ?? {}}
           loadingSparklines={loading}
           showClosed={showClosed}
+          linkHoldings={detail.isOwner}
         />
       </div>
     </div>

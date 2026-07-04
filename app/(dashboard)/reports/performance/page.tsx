@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { generatePerformanceReport } from "@/lib/reports/performance-report";
@@ -10,6 +11,10 @@ import { Suspense } from "react";
 import Link from "next/link";
 import type { HoldingPerformance } from "@/lib/calculations/performance";
 
+export const metadata: Metadata = {
+  title: "Performance Report",
+};
+
 export default async function PerformanceReportPage({
   searchParams,
 }: {
@@ -19,6 +24,7 @@ export default async function PerformanceReportPage({
     to?: string;
     groupBy?: string;
     openOnly?: string;
+    label?: string;
   }>;
 }) {
   const session = await auth();
@@ -26,10 +32,26 @@ export default async function PerformanceReportPage({
 
   const params = await searchParams;
 
-  const portfolios = await db.portfolio.findMany({
-    where: { userId: session.user.id },
-    select: { id: true, name: true },
-  });
+  const [portfolios, labels, customGroups] = await Promise.all([
+    db.portfolio.findMany({
+      where: { userId: session.user.id },
+      select: { id: true, name: true },
+    }),
+    db.label.findMany({
+      where: { userId: session.user.id },
+      select: {
+        id: true,
+        name: true,
+        holdings: { select: { holdingId: true } },
+      },
+      orderBy: { name: "asc" },
+    }),
+    db.customGroup.findMany({
+      where: { userId: session.user.id },
+      include: { categories: { include: { holdings: true } } },
+      orderBy: { createdAt: "asc" },
+    }),
+  ]);
 
   if (portfolios.length === 0) {
     return (
@@ -42,8 +64,26 @@ export default async function PerformanceReportPage({
 
   // Parse parameters
   const selectedPortfolioId = params.portfolio || null;
-  const groupBy = (params.groupBy as "market" | "sector" | "industry" | "type" | "country" | "none") || "market";
+  const groupByParam = params.groupBy || "market";
+  // "custom:<groupId>" groups by one of the user's custom groups; the report
+  // generator only knows instrument dimensions, so custom grouping is applied
+  // here after generation.
+  const customGroup = groupByParam.startsWith("custom:")
+    ? customGroups.find((g) => g.id === groupByParam.slice("custom:".length))
+    : undefined;
+  const groupBy = customGroup
+    ? "none"
+    : (groupByParam as "market" | "sector" | "industry" | "type" | "country" | "none");
   const openOnly = params.openOnly !== "false"; // default to true
+
+  // Label filter: restrict holdings to those carrying the selected label.
+  const selectedLabelId = params.label || null;
+  const selectedLabel = selectedLabelId
+    ? labels.find((l) => l.id === selectedLabelId)
+    : undefined;
+  const labelHoldingIds = selectedLabel
+    ? selectedLabel.holdings.map((h) => h.holdingId)
+    : undefined;
 
   const now = new Date();
   const oneYearAgo = new Date(now);
@@ -74,6 +114,7 @@ export default async function PerformanceReportPage({
       dateRange: { from: fromDate, to: toDate },
       groupBy,
       openOnly,
+      holdingIds: labelHoldingIds,
     });
     report = res;
   } else {
@@ -87,6 +128,7 @@ export default async function PerformanceReportPage({
         dateRange: { from: fromDate, to: toDate },
         groupBy,
         openOnly,
+        holdingIds: labelHoldingIds,
       });
       allHoldings.push(...res.portfolio.holdings);
       res.growthHistory.forEach((pt) => {
@@ -170,6 +212,37 @@ export default async function PerformanceReportPage({
     };
   }
 
+  // Regroup by custom group category (assignments are per instrument), with an
+  // "Unassigned" bucket for instruments without a category in this group.
+  if (customGroup) {
+    const holdingsMeta = await db.holding.findMany({
+      where: { portfolio: { userId: session.user.id } },
+      select: { id: true, instrumentId: true },
+    });
+    const instrumentByHolding = new Map(
+      holdingsMeta.map((h) => [h.id, h.instrumentId])
+    );
+    const categoryByInstrument = new Map<string, string>();
+    for (const cat of customGroup.categories) {
+      for (const a of cat.holdings) {
+        categoryByInstrument.set(a.instrumentId, cat.name);
+      }
+    }
+
+    const customGroups2: Record<string, HoldingPerformance[]> = {};
+    for (const hp of report.portfolio.holdings) {
+      const instrumentId = instrumentByHolding.get(hp.holdingId);
+      const key =
+        (instrumentId && categoryByInstrument.get(instrumentId)) ||
+        "Unassigned";
+      if (!customGroups2[key]) customGroups2[key] = [];
+      customGroups2[key].push(hp);
+    }
+    report.groups = customGroups2;
+  }
+
+  const isGrouped = customGroup ? true : groupBy !== "none";
+
   // Calculate subtotals helper
   function calculateSubtotals(holdingsList: HoldingPerformance[]) {
     const costBase = holdingsList.reduce((s, h) => s + h.costBase, 0);
@@ -193,8 +266,11 @@ export default async function PerformanceReportPage({
           selectedPortfolioId={selectedPortfolioId}
           from={fromStr}
           to={toStr}
-          groupBy={groupBy}
+          groupBy={groupByParam}
           openOnly={openOnly}
+          labels={labels.map((l) => ({ id: l.id, name: l.name }))}
+          selectedLabelId={selectedLabelId}
+          customGroups={customGroups.map((g) => ({ id: g.id, name: g.name }))}
         />
       </Suspense>
 
@@ -242,7 +318,7 @@ export default async function PerformanceReportPage({
       </ChartCard>
 
       {/* Holdings table */}
-      <div className="overflow-hidden rounded-lg border border-border">
+      <div className="overflow-x-auto rounded-lg border border-border">
         <table className="w-full">
           <thead className="bg-muted/50">
             <tr>
@@ -274,7 +350,7 @@ export default async function PerformanceReportPage({
               const sub = calculateSubtotals(groupHoldings);
               return (
                 <Suspense key={groupName}>
-                  {groupBy !== "none" && (
+                  {isGrouped && (
                     <tr className="bg-muted/20 font-semibold text-sm">
                       <td colSpan={7} className="px-4 py-2 text-left">
                         {groupName}
@@ -311,7 +387,7 @@ export default async function PerformanceReportPage({
                       </td>
                     </tr>
                   ))}
-                  {groupBy !== "none" && (
+                  {isGrouped && (
                     <tr className="bg-muted/10 font-medium text-sm">
                       <td className="px-4 py-2 italic text-muted-foreground">
                         Subtotal ({groupName})

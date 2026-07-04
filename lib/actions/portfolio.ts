@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
   createPortfolioSchema,
@@ -10,29 +10,33 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function getPortfolios() {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
+  const userId = user.id;
 
-  return db.portfolio.findMany({
-    where: { userId: session.user.id },
+  const portfolios = await db.portfolio.findMany({
+    where: {
+      OR: [{ userId }, { shares: { some: { email: user.email! } } }],
+    },
     orderBy: { createdAt: "desc" },
     include: {
       _count: { select: { holdings: true } },
     },
   });
+
+  // Portfolios not owned by the user are read-only shares.
+  return portfolios.map((p) => ({
+    ...p,
+    isShared: p.userId !== userId,
+  }));
 }
 
 export async function getPortfolio(id: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   const portfolio = await db.portfolio.findFirst({
     where: {
       id,
-      OR: [
-        { userId: session.user.id },
-        { shares: { some: { email: session.user.email! } } },
-      ],
+      OR: [{ userId: user.id }, { shares: { some: { email: user.email! } } }],
     },
     include: {
       holdings: {
@@ -49,8 +53,7 @@ export async function getPortfolio(id: string) {
 }
 
 export async function createPortfolio(input: unknown) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   const data = createPortfolioSchema.parse(input);
 
@@ -58,7 +61,7 @@ export async function createPortfolio(input: unknown) {
     data: {
       ...data,
       baseCurrency: data.taxResidency === "AU" ? "AUD" : "USD",
-      userId: session.user.id,
+      userId: user.id,
     },
   });
 
@@ -67,13 +70,12 @@ export async function createPortfolio(input: unknown) {
 }
 
 export async function updatePortfolio(id: string, input: unknown) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   const data = updatePortfolioSchema.parse(input);
 
   await db.portfolio.updateMany({
-    where: { id, userId: session.user.id },
+    where: { id, userId: user.id },
     data,
   });
 
@@ -83,11 +85,10 @@ export async function updatePortfolio(id: string, input: unknown) {
 }
 
 export async function deletePortfolio(id: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   await db.portfolio.deleteMany({
-    where: { id, userId: session.user.id },
+    where: { id, userId: user.id },
   });
 
   revalidatePath("/portfolio");
@@ -101,17 +102,17 @@ export async function deletePortfolio(id: string) {
  * Holdings of the same instrument are consolidated into the target's holding.
  */
 export async function mergePortfolio(sourceId: string, targetId: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
-  if (sourceId === targetId) throw new Error("Cannot merge a portfolio into itself");
+  const user = await requireUser();
+  if (sourceId === targetId)
+    throw new Error("Cannot merge a portfolio into itself");
 
   const [source, target] = await Promise.all([
     db.portfolio.findFirst({
-      where: { id: sourceId, userId: session.user.id },
+      where: { id: sourceId, userId: user.id },
       include: { holdings: { select: { id: true, instrumentId: true } } },
     }),
     db.portfolio.findFirst({
-      where: { id: targetId, userId: session.user.id },
+      where: { id: targetId, userId: user.id },
       include: { holdings: { select: { id: true, instrumentId: true } } },
     }),
   ]);

@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Briefcase, Plus } from "lucide-react";
 import { getPortfolioCards } from "@/lib/services/portfolio-cards";
 import { PortfolioSummaryCard } from "@/components/portfolio/portfolio-summary-card";
 import { ConsolidatedCard } from "@/components/portfolio/consolidated-card";
+
+export const metadata: Metadata = {
+  title: "Portfolios",
+};
 
 export default async function PortfolioPage() {
   const { cards, totalValue, totalHoldings, byPortfolio } =

@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { calculatePosition } from "@/lib/calculations/position";
+import { getLatestPrices } from "@/lib/services/latest-prices";
 
 export interface DiversityItem {
   label: string;
@@ -12,7 +13,15 @@ export interface DiversityItem {
 
 export async function generateDiversityReport(
   portfolioId: string,
-  groupBy: "market" | "sector" | "industry" | "type" | "country" = "type"
+  groupBy:
+    | "market"
+    | "sector"
+    | "industry"
+    | "type"
+    | "country"
+    | "custom" = "type",
+  /** For groupBy "custom": instrumentId -> category name; unmatched instruments fall into "Unassigned". */
+  customAssignments?: Record<string, string>
 ): Promise<DiversityItem[]> {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
@@ -28,14 +37,12 @@ export async function generateDiversityReport(
   const groupValues: Record<string, number> = {};
   let totalValue = 0;
 
-  for (const holding of holdings) {
-    // Get latest price
-    const latestPrice = await db.price.findFirst({
-      where: { instrumentId: holding.instrumentId },
-      orderBy: { date: "desc" },
-    });
+  const latestPrices = await getLatestPrices(
+    holdings.map((h) => h.instrumentId)
+  );
 
-    const currentPrice = latestPrice ? Number(latestPrice.close) : 0;
+  for (const holding of holdings) {
+    const currentPrice = latestPrices.get(holding.instrumentId)?.close ?? 0;
     const txData = holding.transactions.map((tx) => ({
       id: tx.id,
       transactionType: tx.transactionType,
@@ -66,6 +73,9 @@ export async function generateDiversityReport(
         break;
       case "country":
         key = holding.instrument.country || "Unknown";
+        break;
+      case "custom":
+        key = customAssignments?.[holding.instrumentId] || "Unassigned";
         break;
     }
 

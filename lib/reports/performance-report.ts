@@ -15,6 +15,8 @@ export interface PerformanceReportInput {
   dateRange: DateRange;
   groupBy?: "market" | "sector" | "industry" | "type" | "country" | "none";
   openOnly?: boolean;
+  /** Restrict the report to these holdings (e.g. holdings with a label). */
+  holdingIds?: string[];
 }
 
 export interface PerformanceReportResult {
@@ -52,8 +54,11 @@ export async function generatePerformanceReport(
   }> = [];
 
   const priceDatesSet = new Set<string>();
+  const holdingIdFilter = input.holdingIds ? new Set(input.holdingIds) : null;
 
   for (const holding of portfolio.holdings) {
+    if (holdingIdFilter && !holdingIdFilter.has(holding.id)) continue;
+
     // Get prices for this instrument up to end date to support historical holdings purchased before start date
     const prices = await db.price.findMany({
       where: {

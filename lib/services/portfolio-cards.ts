@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { calculatePosition } from "@/lib/calculations/position";
 import { getPortfolioTimeSeries } from "@/lib/services/analytics-data";
+import { getLatestPrices } from "@/lib/services/latest-prices";
 import { annualiseReturn } from "@/lib/calculations/performance";
 
 export interface PortfolioCardReturns {
@@ -38,6 +39,8 @@ export interface PortfolioCard {
   allocation: PortfolioCardAlloc[];
   returns: PortfolioCardReturns;
   recent: PortfolioCardTx[];
+  /** True when the portfolio is shared with (not owned by) the user. */
+  isShared: boolean;
 }
 
 export interface PortfolioCardsResult {
@@ -110,13 +113,18 @@ function periodReturn(
   return (capitalGain / base) * 100;
 }
 
-/** Build enriched summary cards for every portfolio the user owns. */
+/** Build enriched summary cards for every portfolio the user owns or that is shared with them. */
 export async function getPortfolioCards(): Promise<PortfolioCardsResult> {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
   const portfolios = await db.portfolio.findMany({
-    where: { userId: session.user.id },
+    where: {
+      OR: [
+        { userId: session.user.id },
+        { shares: { some: { email: session.user.email! } } },
+      ],
+    },
     include: {
       holdings: {
         include: {
@@ -128,94 +136,100 @@ export async function getPortfolioCards(): Promise<PortfolioCardsResult> {
     orderBy: { name: "asc" },
   });
 
-  const cards: PortfolioCard[] = [];
+  const latestPrices = await getLatestPrices(
+    portfolios.flatMap((p) => p.holdings.map((h) => h.instrumentId))
+  );
 
-  for (const p of portfolios) {
-    const allocation: PortfolioCardAlloc[] = [];
-    const flatTx: FlatTx[] = [];
-    const recentSource: PortfolioCardTx[] = [];
-    let currentValue = 0;
+  const cards: PortfolioCard[] = await Promise.all(
+    portfolios.map(async (p) => {
+      const allocation: PortfolioCardAlloc[] = [];
+      const flatTx: FlatTx[] = [];
+      const recentSource: PortfolioCardTx[] = [];
+      let currentValue = 0;
 
-    for (const h of p.holdings) {
-      const latest = await db.price.findFirst({
-        where: { instrumentId: h.instrumentId },
-        orderBy: { date: "desc" },
-        select: { close: true },
-      });
-      const currentPrice = latest ? Number(latest.close) : 0;
+      for (const h of p.holdings) {
+        const currentPrice = latestPrices.get(h.instrumentId)?.close ?? 0;
 
-      const txData = h.transactions.map((tx) => ({
-        id: tx.id,
-        transactionType: tx.transactionType,
-        tradeDate: tx.tradeDate,
-        quantity: tx.quantity,
-        price: tx.price,
-        brokerage: tx.brokerage,
-        exchangeRate: tx.exchangeRate,
-        currency: tx.currency,
-        accruedInterest: tx.accruedInterest,
-      }));
-
-      const position = calculatePosition(txData, currentPrice);
-      if (position.marketValue > 0) {
-        allocation.push({ code: h.instrument.code, value: position.marketValue });
-        currentValue += position.marketValue;
-      }
-
-      for (const tx of h.transactions) {
-        flatTx.push({
-          type: tx.transactionType,
-          date: tx.tradeDate,
-          qty: Number(tx.quantity),
-          price: Number(tx.price),
-          brokerage: Number(tx.brokerage),
-        });
-        recentSource.push({
+        const txData = h.transactions.map((tx) => ({
           id: tx.id,
-          code: h.instrument.code,
-          type: tx.transactionType,
-          date: tx.tradeDate,
-          amount: Number(tx.quantity) * Number(tx.price),
-        });
+          transactionType: tx.transactionType,
+          tradeDate: tx.tradeDate,
+          quantity: tx.quantity,
+          price: tx.price,
+          brokerage: tx.brokerage,
+          exchangeRate: tx.exchangeRate,
+          currency: tx.currency,
+          accruedInterest: tx.accruedInterest,
+        }));
+
+        const position = calculatePosition(txData, currentPrice);
+        if (position.marketValue > 0) {
+          allocation.push({
+            code: h.instrument.code,
+            value: position.marketValue,
+          });
+          currentValue += position.marketValue;
+        }
+
+        for (const tx of h.transactions) {
+          flatTx.push({
+            type: tx.transactionType,
+            date: tx.tradeDate,
+            qty: Number(tx.quantity),
+            price: Number(tx.price),
+            brokerage: Number(tx.brokerage),
+          });
+          recentSource.push({
+            id: tx.id,
+            code: h.instrument.code,
+            type: tx.transactionType,
+            date: tx.tradeDate,
+            amount: Number(tx.quantity) * Number(tx.price),
+          });
+        }
       }
-    }
 
-    allocation.sort((a, b) => b.value - a.value);
+      allocation.sort((a, b) => b.value - a.value);
 
-    const ts = await getPortfolioTimeSeries(p.id, "3Y");
-    const annPeriod = (days: number): number | null => {
-      const r = periodReturn(ts.dates, ts.values, flatTx, days);
-      return r == null ? null : annualiseReturn(r, days);
-    };
-    const returns = {
-      m1: periodReturn(ts.dates, ts.values, flatTx, PERIODS[0].days),
-      m6: periodReturn(ts.dates, ts.values, flatTx, PERIODS[1].days),
-      y1: annPeriod(PERIODS[2].days),
-      y3: annPeriod(PERIODS[3].days),
-    };
+      const ts = await getPortfolioTimeSeries(p.id, "3Y");
+      const annPeriod = (days: number): number | null => {
+        const r = periodReturn(ts.dates, ts.values, flatTx, days);
+        return r == null ? null : annualiseReturn(r, days);
+      };
+      const returns = {
+        m1: periodReturn(ts.dates, ts.values, flatTx, PERIODS[0].days),
+        m6: periodReturn(ts.dates, ts.values, flatTx, PERIODS[1].days),
+        y1: annPeriod(PERIODS[2].days),
+        y3: annPeriod(PERIODS[3].days),
+      };
 
-    const recent = recentSource
-      .sort((a, b) => b.date.getTime() - a.date.getTime())
-      .slice(0, 3);
+      const recent = recentSource
+        .sort((a, b) => b.date.getTime() - a.date.getTime())
+        .slice(0, 3);
 
-    cards.push({
-      id: p.id,
-      name: p.name,
-      icon: p.icon,
-      color: p.color,
-      currency: p.baseCurrency,
-      entityType: p.taxEntityType,
-      holdingsCount: p.holdings.length,
-      currentValue,
-      allocation,
-      returns,
-      recent,
-    });
-  }
+      return {
+        id: p.id,
+        name: p.name,
+        icon: p.icon,
+        color: p.color,
+        currency: p.baseCurrency,
+        entityType: p.taxEntityType,
+        holdingsCount: p.holdings.length,
+        currentValue,
+        allocation,
+        returns,
+        recent,
+        isShared: p.userId !== session.user.id,
+      };
+    })
+  );
 
-  const totalValue = cards.reduce((s, c) => s + c.currentValue, 0);
-  const totalHoldings = cards.reduce((s, c) => s + c.holdingsCount, 0);
-  const byPortfolio = cards
+  // Consolidated aggregates cover owned portfolios only — shared portfolios
+  // are view-only and excluded from totals.
+  const ownedCards = cards.filter((c) => !c.isShared);
+  const totalValue = ownedCards.reduce((s, c) => s + c.currentValue, 0);
+  const totalHoldings = ownedCards.reduce((s, c) => s + c.holdingsCount, 0);
+  const byPortfolio = ownedCards
     .map((c) => ({ name: c.name, value: c.currentValue }))
     .filter((x) => x.value > 0)
     .sort((a, b) => b.value - a.value);

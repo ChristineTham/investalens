@@ -36,6 +36,8 @@ interface TransactionRowProps {
   securityCode?: string;
   /** Optional link target for the security code (e.g. the holding page). */
   securityHref?: string;
+  /** Hide all edit/delete/franking controls (e.g. shared portfolio viewers). */
+  readOnly?: boolean;
 }
 
 const INCOME_TYPES = ["DIVIDEND", "INTEREST", "COUPON"];
@@ -72,6 +74,7 @@ export function TransactionRow({
   currency,
   securityCode,
   securityHref,
+  readOnly = false,
 }: TransactionRowProps) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
@@ -194,6 +197,7 @@ export function TransactionRow({
               disabled={saving}
               className="rounded p-1 text-success hover:bg-accent"
               title="Save"
+              aria-label="Save transaction"
             >
               <Check className="h-4 w-4" />
             </button>
@@ -201,6 +205,7 @@ export function TransactionRow({
               onClick={() => setEditing(false)}
               className="rounded p-1 text-muted-foreground hover:bg-accent"
               title="Cancel"
+              aria-label="Cancel editing"
             >
               <X className="h-4 w-4" />
             </button>
@@ -250,6 +255,8 @@ export function TransactionRow({
               <span
                 className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-amber-500 align-middle"
                 title="Unclassified dividend — no franking set"
+                role="img"
+                aria-label="Unclassified dividend — no franking set"
               />
             )}
           </span>
@@ -267,15 +274,16 @@ export function TransactionRow({
           className={cn(
             "px-4 py-3 text-right text-sm font-medium",
             amount < 0
-              ? "text-red-600"
+              ? "text-loss"
               : amount > 0
-                ? "text-green-600"
+                ? "text-gain"
                 : "text-muted-foreground"
           )}
         >
           {amount === 0 ? "—" : formatCurrency(amount, currency)}
         </td>
         <td className="px-4 py-3 text-right">
+          {!readOnly && (
           <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
             {isIncome && (
               <button
@@ -286,6 +294,8 @@ export function TransactionRow({
                     : "text-muted-foreground hover:text-foreground"
                 }`}
                 title="Franking / tax components"
+                aria-label="Franking / tax components"
+                aria-expanded={frankingOpen}
               >
                 <Coins className="h-3.5 w-3.5" />
               </button>
@@ -294,6 +304,7 @@ export function TransactionRow({
               onClick={() => setEditing(true)}
               className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
               title="Edit"
+              aria-label="Edit transaction"
             >
               <Pencil className="h-3.5 w-3.5" />
             </button>
@@ -302,10 +313,12 @@ export function TransactionRow({
               disabled={deleting}
               className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
               title="Delete"
+              aria-label="Delete transaction"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
           </div>
+          )}
         </td>
       </tr>
 

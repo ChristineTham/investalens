@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Plus, Upload, Banknote, Landmark } from "lucide-react";
 import { getPortfolioDetail } from "@/lib/services/portfolio-detail";
@@ -13,14 +14,19 @@ import { BreadcrumbLabel } from "@/components/layout/breadcrumb-context";
 import { formatCurrency, cn } from "@/lib/utils";
 import { portfolioIdentity } from "@/lib/constants/portfolio-identity";
 import { PortfolioIcon } from "@/components/ui/portfolio-icon";
+import { Badge } from "@/components/ui/badge";
+
+export const metadata: Metadata = {
+  title: "Portfolio",
+};
 
 function ReturnTile({ label, value }: { label: string; value: number | null }) {
   const color =
     value == null
       ? "text-muted-foreground"
       : value >= 0
-        ? "text-green-600"
-        : "text-red-600";
+        ? "text-gain"
+        : "text-loss";
   return (
     <div className="rounded-md border border-border bg-background/50 p-2 text-center">
       <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
@@ -45,7 +51,7 @@ function KpiCard({
   tone?: "pos" | "neg" | "neutral";
 }) {
   const color =
-    tone === "pos" ? "text-green-600" : tone === "neg" ? "text-red-600" : "";
+    tone === "pos" ? "text-gain" : tone === "neg" ? "text-loss" : "";
   return (
     <div className="rounded-lg border border-border bg-card p-4">
       <p className="text-xs text-muted-foreground">{label}</p>
@@ -62,11 +68,14 @@ export default async function PortfolioDetailPage({
 }) {
   const { id } = await params;
   const detail = await getPortfolioDetail(id);
-  const allPortfolios = await getPortfolios();
-  const accountLinks = await getPortfolioAccountLinks(id);
+  const isOwner = detail.isOwner;
+  // Owner-only data: account links (mutation panel) and merge targets would
+  // fail or are meaningless for read-only shared viewers.
+  const allPortfolios = isOwner ? await getPortfolios() : [];
+  const accountLinks = isOwner ? await getPortfolioAccountLinks(id) : null;
   const transactions = await getPortfolioTransactions(id);
   const otherPortfolios = allPortfolios
-    .filter((p) => p.id !== id)
+    .filter((p) => p.id !== id && !p.isShared)
     .map((p) => ({ id: p.id, name: p.name }));
 
   const { returns } = detail;
@@ -95,53 +104,60 @@ export default async function PortfolioDetailPage({
           <PortfolioIcon icon={portfolioIdentity(detail).icon} className="h-5 w-5" />
         </span>
         <div className="flex-1">
-          <h1 className="font-serif text-2xl font-bold">{detail.name}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="font-serif text-2xl font-bold">{detail.name}</h1>
+            {!isOwner && <Badge variant="secondary">Shared</Badge>}
+          </div>
           <p className="text-sm text-muted-foreground capitalize">
             {detail.entityType} · {detail.currency} · {detail.holdingsCount}{" "}
             holding{detail.holdingsCount === 1 ? "" : "s"}
           </p>
         </div>
-        <PortfolioActions
-          portfolioId={id}
-          portfolio={{
-            name: detail.name,
-            icon: detail.icon,
-            color: detail.color,
-            brokerName: detail.brokerName,
-            brokerWebsite: detail.brokerWebsite,
-            clientNumber: detail.clientNumber,
-            accountNumber: detail.accountNumber,
-          }}
-          otherPortfolios={otherPortfolios}
-        />
-        <Link
-          href={`/portfolio/${id}/bonds`}
-          className="inline-flex items-center gap-2 rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent"
-        >
-          <Landmark className="h-4 w-4" />
-          Bonds
-        </Link>
-        <Link
-          href={`/portfolio/${id}/cash`}
-          className="inline-flex items-center gap-2 rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent"
-        >
-          <Banknote className="h-4 w-4" />
-          Cash
-        </Link>
-        <Link
-          href={`/portfolio/${id}/import`}
-          className="inline-flex items-center gap-2 rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent"
-        >
-          <Upload className="h-4 w-4" />
-          Import
-        </Link>
-        <Link
-          href={`/portfolio/${id}/add-holding`}
-          className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          <Plus className="h-4 w-4" />
-          Add Holding
-        </Link>
+        {isOwner && (
+          <>
+            <PortfolioActions
+              portfolioId={id}
+              portfolio={{
+                name: detail.name,
+                icon: detail.icon,
+                color: detail.color,
+                brokerName: detail.brokerName,
+                brokerWebsite: detail.brokerWebsite,
+                clientNumber: detail.clientNumber,
+                accountNumber: detail.accountNumber,
+              }}
+              otherPortfolios={otherPortfolios}
+            />
+            <Link
+              href={`/portfolio/${id}/bonds`}
+              className="inline-flex items-center gap-2 rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent"
+            >
+              <Landmark className="h-4 w-4" />
+              Bonds
+            </Link>
+            <Link
+              href={`/portfolio/${id}/cash`}
+              className="inline-flex items-center gap-2 rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent"
+            >
+              <Banknote className="h-4 w-4" />
+              Cash
+            </Link>
+            <Link
+              href={`/portfolio/${id}/import`}
+              className="inline-flex items-center gap-2 rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent"
+            >
+              <Upload className="h-4 w-4" />
+              Import
+            </Link>
+            <Link
+              href={`/portfolio/${id}/add-holding`}
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              <Plus className="h-4 w-4" />
+              Add Holding
+            </Link>
+          </>
+        )}
       </div>
 
       {/* Broker / account details */}
@@ -239,8 +255,10 @@ export default async function PortfolioDetailPage({
         </div>
       </div>
 
-      {/* Linked accounts */}
-      <PortfolioAccountsPanel portfolioId={id} links={accountLinks} />
+      {/* Linked accounts (owner-only: panel manages account links) */}
+      {isOwner && accountLinks && (
+        <PortfolioAccountsPanel portfolioId={id} links={accountLinks} />
+      )}
 
       {/* Charts, performers and holdings table */}
       <PortfolioDetailClient detail={detail} />
@@ -249,18 +267,21 @@ export default async function PortfolioDetailPage({
       <div>
         <div className="mb-2 flex items-center justify-between gap-3">
           <h2 className="font-serif text-lg font-semibold">Transactions</h2>
-          <AddPortfolioTransaction
-            holdings={detail.holdings.map((h) => ({
-              id: h.id,
-              code: h.code,
-              name: h.name,
-              currency: h.currency,
-            }))}
-          />
+          {isOwner && (
+            <AddPortfolioTransaction
+              holdings={detail.holdings.map((h) => ({
+                id: h.id,
+                code: h.code,
+                name: h.name,
+                currency: h.currency,
+              }))}
+            />
+          )}
         </div>
         <p className="mb-3 text-sm text-muted-foreground">
-          Edit any transaction inline. Use the coins icon on income rows to assign
-          franking and tax components. Changes flow through to linked cash accounts.
+          {isOwner
+            ? "Edit any transaction inline. Use the coins icon on income rows to assign franking and tax components. Changes flow through to linked cash accounts."
+            : "This portfolio is shared with you as read-only — transactions are shown for reference."}
         </p>
         {transactions.length === 0 ? (
           <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
@@ -288,7 +309,12 @@ export default async function PortfolioDetailPage({
                     transaction={tx}
                     currency={tx.holding.instrument.currency}
                     securityCode={tx.holding.instrument.code}
-                    securityHref={`/portfolio/${id}/holdings/${tx.holdingId}`}
+                    securityHref={
+                      isOwner
+                        ? `/portfolio/${id}/holdings/${tx.holdingId}`
+                        : undefined
+                    }
+                    readOnly={!isOwner}
                   />
                 ))}
               </tbody>

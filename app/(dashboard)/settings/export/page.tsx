@@ -20,11 +20,13 @@ export default function ExportPage() {
     fetch("/api/v1/portfolios", {
       headers: { Authorization: "Bearer internal" },
     }).catch(() => {});
-    // Load portfolios via server action alternative
+    // Load portfolios via server action alternative. Shared (read-only)
+    // portfolios are excluded — export covers owned portfolios only.
     import("@/lib/actions/portfolio").then((mod) => {
-      mod.getPortfolios().then((p) => {
-        setPortfolios(p);
-        if (p.length > 0) setSelectedPortfolioId(p[0].id);
+      mod.getPortfolios().then((all) => {
+        const owned = all.filter((p) => !p.isShared);
+        setPortfolios(owned);
+        if (owned.length > 0) setSelectedPortfolioId(owned[0].id);
       });
     });
   }, []);

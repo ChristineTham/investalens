@@ -1,12 +1,18 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { generateDiversityReport } from "@/lib/reports/diversity-report";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { PortfolioSelector } from "@/components/reports/portfolio-selector";
+import { GroupBySelect } from "@/components/reports/group-by-select";
 import { DiversityPieChart } from "@/components/charts/diversity-pie";
 import { ChartCard } from "@/components/charts/chart-card";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Diversity Report",
+};
 
 export default async function DiversityReportPage({
   searchParams,
@@ -18,10 +24,17 @@ export default async function DiversityReportPage({
 
   const params = await searchParams;
 
-  const portfolios = await db.portfolio.findMany({
-    where: { userId: session.user.id },
-    select: { id: true, name: true },
-  });
+  const [portfolios, customGroups] = await Promise.all([
+    db.portfolio.findMany({
+      where: { userId: session.user.id },
+      select: { id: true, name: true },
+    }),
+    db.customGroup.findMany({
+      where: { userId: session.user.id },
+      include: { categories: { include: { holdings: true } } },
+      orderBy: { createdAt: "asc" },
+    }),
+  ]);
 
   if (portfolios.length === 0) {
     return (
@@ -33,17 +46,42 @@ export default async function DiversityReportPage({
   }
 
   const selectedPortfolioId = params.portfolio || null;
-  const groupBy = (params.groupBy as "type" | "sector" | "market" | "country") || "type";
+  const groupByParam = params.groupBy || "type";
+  // "custom:<groupId>" groups by one of the user's custom groups.
+  const customGroup = groupByParam.startsWith("custom:")
+    ? customGroups.find((g) => g.id === groupByParam.slice("custom:".length))
+    : undefined;
+  const standardDims = ["type", "sector", "market", "country"] as const;
+  const groupBy = customGroup
+    ? ("custom" as const)
+    : standardDims.find((d) => d === groupByParam) ?? "type";
+
+  // instrumentId -> category name for the selected custom group.
+  let customAssignments: Record<string, string> | undefined;
+  if (customGroup) {
+    customAssignments = {};
+    for (const cat of customGroup.categories) {
+      for (const a of cat.holdings) {
+        customAssignments[a.instrumentId] = cat.name;
+      }
+    }
+  }
+
+  const groupByLabel = customGroup ? customGroup.name : groupBy;
 
   let items: Awaited<ReturnType<typeof generateDiversityReport>>;
 
   if (selectedPortfolioId) {
-    items = await generateDiversityReport(selectedPortfolioId, groupBy);
+    items = await generateDiversityReport(
+      selectedPortfolioId,
+      groupBy,
+      customAssignments
+    );
   } else {
     // Consolidated: merge across all portfolios
     const merged = new Map<string, { value: number }>();
     for (const p of portfolios) {
-      const r = await generateDiversityReport(p.id, groupBy);
+      const r = await generateDiversityReport(p.id, groupBy, customAssignments);
       for (const item of r) {
         const existing = merged.get(item.label);
         if (existing) {
@@ -70,15 +108,33 @@ export default async function DiversityReportPage({
         <div>
           <h1 className="font-serif text-2xl font-bold">Diversity Report</h1>
           <p className="text-sm text-muted-foreground">
-            Portfolio allocation breakdown by {groupBy}.
+            Portfolio allocation breakdown by {groupByLabel}.
           </p>
         </div>
-        <Suspense>
-          <PortfolioSelector
-            portfolios={portfolios}
-            selectedId={selectedPortfolioId}
-          />
-        </Suspense>
+        <div className="flex flex-wrap items-center gap-4">
+          <Suspense>
+            <GroupBySelect
+              options={[
+                { value: "type", label: "Investment Type" },
+                { value: "sector", label: "Sector" },
+                { value: "market", label: "Market" },
+                { value: "country", label: "Country" },
+              ]}
+              customGroups={customGroups.map((g) => ({
+                id: g.id,
+                name: g.name,
+              }))}
+              value={groupByParam}
+              defaultValue="type"
+            />
+          </Suspense>
+          <Suspense>
+            <PortfolioSelector
+              portfolios={portfolios}
+              selectedId={selectedPortfolioId}
+            />
+          </Suspense>
+        </div>
       </div>
 
       {items.length === 0 ? (
@@ -87,14 +143,14 @@ export default async function DiversityReportPage({
         <>
           {/* Diversity Pie Chart */}
           <ChartCard
-            title={`Allocation by ${groupBy}`}
+            title={`Allocation by ${groupByLabel}`}
             description="Share of current value"
             height={320}
           >
             {(h) => <DiversityPieChart data={items} height={h} />}
           </ChartCard>
 
-          <div className="overflow-hidden rounded-lg border border-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>

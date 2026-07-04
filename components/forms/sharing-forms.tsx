@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { sharePortfolio, removeShare } from "@/lib/actions/sharing";
 import { Plus, Trash2 } from "lucide-react";
 
@@ -9,6 +10,7 @@ interface SharePortfolioFormProps {
 }
 
 export function SharePortfolioForm({ portfolios }: SharePortfolioFormProps) {
+  const router = useRouter();
   const [portfolioId, setPortfolioId] = useState(portfolios[0]?.id || "");
   const [email, setEmail] = useState("");
   const [accessLevel, setAccessLevel] = useState<"read" | "write" | "admin">("read");
@@ -23,7 +25,8 @@ export function SharePortfolioForm({ portfolios }: SharePortfolioFormProps) {
     try {
       await sharePortfolio(portfolioId, email.trim(), accessLevel);
       setEmail("");
-      window.location.reload();
+      setLoading(false);
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to share");
       setLoading(false);
@@ -33,7 +36,10 @@ export function SharePortfolioForm({ portfolios }: SharePortfolioFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       {error && (
-        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-2 text-xs text-destructive">
+        <div
+          role="alert"
+          className="rounded-md border border-destructive/50 bg-destructive/10 p-2 text-xs text-destructive"
+        >
           {error}
         </div>
       )}
@@ -77,11 +83,16 @@ export function SharePortfolioForm({ portfolios }: SharePortfolioFormProps) {
           Share
         </button>
       </div>
+      <p className="text-xs text-muted-foreground">
+        Write and Admin levels currently grant read-only access; full write
+        support is planned.
+      </p>
     </form>
   );
 }
 
 export function RemoveShareButton({ shareId }: { shareId: string }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   async function handleRemove() {
@@ -89,7 +100,8 @@ export function RemoveShareButton({ shareId }: { shareId: string }) {
     setLoading(true);
     try {
       await removeShare(shareId);
-      window.location.reload();
+      setLoading(false);
+      router.refresh();
     } catch {
       setLoading(false);
     }
@@ -101,6 +113,7 @@ export function RemoveShareButton({ shareId }: { shareId: string }) {
       disabled={loading}
       className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
       title="Remove share"
+      aria-label="Remove share"
     >
       <Trash2 className="h-3.5 w-3.5" />
     </button>

@@ -9,6 +9,7 @@ import {
 import type { TransactionData } from "@/lib/calculations/performance";
 import { annualiseReturn } from "@/lib/calculations/performance";
 import { getPortfolioTimeSeries } from "@/lib/services/analytics-data";
+import { getLatestPrices } from "@/lib/services/latest-prices";
 import { holdingColor, MUTED_COLOR } from "@/lib/constants/chart-colors";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -62,6 +63,8 @@ export interface SectorAlloc {
 export interface PortfolioDetail {
   id: string;
   name: string;
+  /** False when the portfolio is shared with (not owned by) the viewer. */
+  isOwner: boolean;
   currency: string;
   entityType: string;
   holdingsCount: number;
@@ -205,13 +208,12 @@ export async function getPortfolioDetail(
   let costBase = 0;
   let income = 0;
 
+  const latestPrices = await getLatestPrices(
+    portfolio.holdings.map((h) => h.instrumentId)
+  );
+
   for (const h of portfolio.holdings) {
-    const latest = await db.price.findFirst({
-      where: { instrumentId: h.instrumentId },
-      orderBy: { date: "desc" },
-      select: { close: true },
-    });
-    const currentPrice = latest ? Number(latest.close) : 0;
+    const currentPrice = latestPrices.get(h.instrumentId)?.close ?? 0;
 
     const txData: TransactionData[] = h.transactions.map((tx) => ({
       id: tx.id,
@@ -278,7 +280,9 @@ export async function getPortfolioDetail(
       totalGain,
       totalGainPercent,
       annualisedReturn,
-      firstTradeDate: firstTrade ? firstTrade.toISOString().split("T")[0] : null,
+      firstTradeDate: firstTrade
+        ? firstTrade.toISOString().split("T")[0]
+        : null,
     });
   }
 
@@ -353,6 +357,7 @@ export async function getPortfolioDetail(
   return {
     id: portfolio.id,
     name: portfolio.name,
+    isOwner: portfolio.userId === session.user.id,
     currency: portfolio.baseCurrency,
     entityType: portfolio.taxEntityType,
     holdingsCount: portfolio.holdings.length,

@@ -1,9 +1,14 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 interface Portfolio {
+  id: string;
+  name: string;
+}
+
+interface NamedOption {
   id: string;
   name: string;
 }
@@ -15,6 +20,9 @@ interface PerformanceFiltersProps {
   to: string;
   groupBy: string;
   openOnly: boolean;
+  labels: NamedOption[];
+  selectedLabelId: string | null;
+  customGroups: NamedOption[];
 }
 
 export function PerformanceFilters({
@@ -24,6 +32,9 @@ export function PerformanceFilters({
   to,
   groupBy,
   openOnly,
+  labels,
+  selectedLabelId,
+  customGroups,
 }: PerformanceFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -31,6 +42,13 @@ export function PerformanceFilters({
 
   const [startDate, setStartDate] = useState(from);
   const [endDate, setEndDate] = useState(to);
+
+  const baseId = useId();
+  const portfolioId = `${baseId}-portfolio`;
+  const presetId = `${baseId}-preset`;
+  const startId = `${baseId}-start`;
+  const endId = `${baseId}-end`;
+  const positionsId = `${baseId}-positions`;
 
   function updateParams(updates: Record<string, string | null>) {
     const params = new URLSearchParams(searchParams.toString());
@@ -94,10 +112,14 @@ export function PerformanceFilters({
     <div className="flex flex-wrap items-center gap-4 rounded-lg border border-border bg-card p-4">
       {/* Portfolio Selector */}
       <div className="flex flex-col gap-1">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <label
+          htmlFor={portfolioId}
+          className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+        >
           Portfolio
-        </span>
+        </label>
         <select
+          id={portfolioId}
           value={selectedPortfolioId || "all"}
           onChange={(e) => updateParams({ portfolio: e.target.value })}
           className="h-9 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
@@ -113,10 +135,14 @@ export function PerformanceFilters({
 
       {/* Date Presets */}
       <div className="flex flex-col gap-1">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <label
+          htmlFor={presetId}
+          className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+        >
           Range Preset
-        </span>
+        </label>
         <select
+          id={presetId}
           value={searchParams.get("preset") || "1y"}
           onChange={(e) => handlePresetChange(e.target.value)}
           className="h-9 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
@@ -133,10 +159,14 @@ export function PerformanceFilters({
 
       {/* Custom Date Inputs */}
       <div className="flex flex-col gap-1">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <label
+          htmlFor={startId}
+          className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+        >
           Start Date
-        </span>
+        </label>
         <input
+          id={startId}
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
@@ -146,10 +176,14 @@ export function PerformanceFilters({
       </div>
 
       <div className="flex flex-col gap-1">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <label
+          htmlFor={endId}
+          className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+        >
           End Date
-        </span>
+        </label>
         <input
+          id={endId}
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
@@ -160,10 +194,14 @@ export function PerformanceFilters({
 
       {/* Group By Selector */}
       <div className="flex flex-col gap-1">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <label
+          htmlFor="performance-group-by"
+          className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+        >
           Group By
-        </span>
+        </label>
         <select
+          id="performance-group-by"
           value={groupBy}
           onChange={(e) => updateParams({ groupBy: e.target.value })}
           className="h-9 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
@@ -174,15 +212,53 @@ export function PerformanceFilters({
           <option value="industry">Industry</option>
           <option value="type">Investment Type</option>
           <option value="country">Country</option>
+          {customGroups.length > 0 && (
+            <optgroup label="Custom Groups">
+              {customGroups.map((g) => (
+                <option key={g.id} value={`custom:${g.id}`}>
+                  {g.name}
+                </option>
+              ))}
+            </optgroup>
+          )}
         </select>
       </div>
 
+      {/* Label Filter */}
+      {labels.length > 0 && (
+        <div className="flex flex-col gap-1">
+          <label
+            htmlFor="performance-label-filter"
+            className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+          >
+            Label
+          </label>
+          <select
+            id="performance-label-filter"
+            value={selectedLabelId || "all"}
+            onChange={(e) => updateParams({ label: e.target.value })}
+            className="h-9 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          >
+            <option value="all">All Labels</option>
+            {labels.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {/* Open/Closed Positions Toggle */}
       <div className="flex flex-col gap-1">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <label
+          htmlFor={positionsId}
+          className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+        >
           Positions
-        </span>
+        </label>
         <select
+          id={positionsId}
           value={openOnly ? "true" : "false"}
           onChange={(e) => updateParams({ openOnly: e.target.value })}
           className="h-9 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"

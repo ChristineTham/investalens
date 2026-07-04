@@ -12,6 +12,8 @@ interface HoldingsTableProps {
   sparklines: Record<string, SparkPoint[]>;
   loadingSparklines: boolean;
   showClosed: boolean;
+  /** Disable holding links for read-only shared viewers. */
+  linkHoldings?: boolean;
 }
 
 function Sparkline({ data }: { data: SparkPoint[] | undefined }) {
@@ -37,7 +39,7 @@ function Sparkline({ data }: { data: SparkPoint[] | undefined }) {
 }
 
 function gainTone(v: number): string {
-  return v >= 0 ? "text-green-600" : "text-red-600";
+  return v >= 0 ? "text-gain" : "text-loss";
 }
 
 export function HoldingsTable({
@@ -46,6 +48,7 @@ export function HoldingsTable({
   sparklines,
   loadingSparklines,
   showClosed,
+  linkHoldings = true,
 }: HoldingsTableProps) {
   const activeHoldings = holdings.filter((h) => h.quantity > 0);
   const visibleHoldings = showClosed ? holdings : activeHoldings;
@@ -99,12 +102,16 @@ export function HoldingsTable({
                     className={`h-3 w-1 shrink-0 rounded-sm ${h.colorSwatch}`}
                     aria-hidden
                   />
-                  <Link
-                    href={`/portfolio/${portfolioId}/holdings/${h.id}`}
-                    className="font-medium text-primary hover:underline"
-                  >
-                    {h.code}
-                  </Link>
+                  {linkHoldings ? (
+                    <Link
+                      href={`/portfolio/${portfolioId}/holdings/${h.id}`}
+                      className="font-medium text-primary hover:underline"
+                    >
+                      {h.code}
+                    </Link>
+                  ) : (
+                    <span className="font-medium">{h.code}</span>
+                  )}
                 </div>
                 <span className="block max-w-48 truncate text-xs text-muted-foreground">
                   {h.name}
@@ -132,7 +139,7 @@ export function HoldingsTable({
               >
                 {formatCurrency(h.capitalGain, h.currency)}
               </td>
-              <td className="px-3 py-2.5 text-right text-sm tabular-nums text-green-600">
+              <td className="px-3 py-2.5 text-right text-sm tabular-nums text-gain">
                 {formatCurrency(h.income, h.currency)}
               </td>
               <td
@@ -156,7 +163,7 @@ export function HoldingsTable({
                   : `${h.annualisedReturn >= 0 ? "+" : ""}${h.annualisedReturn.toFixed(1)}%`}
               </td>
               <td className="px-3 py-2.5">
-                <div className="flex justify-center">
+                <div className="flex justify-center" aria-hidden="true">
                   {loadingSparklines ? (
                     <div className="h-8 w-[120px] animate-pulse rounded bg-muted" />
                   ) : (
