@@ -25,9 +25,6 @@ export function calculateYTM(
     pv += faceValue * Math.pow(1 + r, -periods);
     dpv -= periods * faceValue * Math.pow(1 + r, -(periods + 1));
 
-    pv /= frequency;
-    dpv /= frequency;
-
     const diff = pv - price;
     if (Math.abs(diff) < 0.0001) break;
 
