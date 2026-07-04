@@ -75,8 +75,11 @@ export function SignedBarChart({
         />
         <ReferenceLine x={0} stroke="var(--border)" />
         <Bar dataKey="value" radius={3}>
-          {sorted.map((d) => (
-            <Cell key={d.name} fill={d.value >= 0 ? "var(--gain)" : "var(--loss)"} />
+          {sorted.map((d, i) => (
+            <Cell
+              key={`cell-${i}`}
+              fill={d.value >= 0 ? "var(--gain)" : "var(--loss)"}
+            />
           ))}
         </Bar>
       </BarChart>

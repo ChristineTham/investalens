@@ -297,9 +297,12 @@ export default async function UnrealisedCgtPage({
             <tbody className="divide-y divide-border">
               {items
                 .sort((a, b) => b.unrealisedGain - a.unrealisedGain)
-                .map((item) => (
+                .map((item, index) => (
                   <tr
-                    key={item.instrumentCode}
+                    // The consolidated view concatenates per-portfolio items, so
+                    // the same instrument can appear more than once; pair the
+                    // code with the row index to keep keys unique.
+                    key={`${item.instrumentCode}-${index}`}
                     className="hover:bg-accent/50"
                   >
                     <td className="px-4 py-3 font-medium">

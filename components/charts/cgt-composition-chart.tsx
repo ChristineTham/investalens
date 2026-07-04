@@ -89,8 +89,8 @@ export function CgtCompositionChart({
         />
         <Tooltip content={<CgtTooltip />} cursor={{ fill: "var(--muted)" }} />
         <Bar dataKey="value" radius={3}>
-          {data.map((d) => (
-            <Cell key={d.name} fill={d.fill} />
+          {data.map((d, i) => (
+            <Cell key={`cell-${i}`} fill={d.fill} />
           ))}
         </Bar>
       </BarChart>
