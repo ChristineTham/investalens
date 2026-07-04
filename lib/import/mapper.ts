@@ -242,7 +242,7 @@ function mapTransactionType(
     D: "DIVIDEND",
     DIV: "DIVIDEND",
     DIVIDEND: "DIVIDEND",
-    DRP: "DIVIDEND",
+    DRP: "BUY", // Dividend reinvestment is a purchase of new units
     INT: "INTEREST",
     INTEREST: "INTEREST",
     SPLIT: "SPLIT",

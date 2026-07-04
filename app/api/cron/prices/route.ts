@@ -55,7 +55,8 @@ export async function GET(request: Request) {
       const results = await Promise.allSettled(
         batch.map(async (inst) => {
           const quote = await yahooFinance.getQuote(inst.code, inst.marketCode);
-          if (quote) {
+          // Skip quotes with a missing/zero price so we never upsert a 0 close
+          if (quote && quote.price > 0) {
             await db.price.upsert({
               where: {
                 instrumentId_date: { instrumentId: inst.id, date: today },

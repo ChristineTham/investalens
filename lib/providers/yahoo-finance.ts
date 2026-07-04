@@ -62,7 +62,8 @@ export const yahooFinance: MarketDataProvider = {
 
       const meta = result.meta;
       const previousClose = meta.chartPreviousClose || meta.previousClose || 0;
-      const price = meta.regularMarketPrice || 0;
+      const price = meta.regularMarketPrice;
+      if (typeof price !== "number" || price <= 0) return null;
 
       return {
         price,
@@ -74,7 +75,8 @@ export const yahooFinance: MarketDataProvider = {
         volume: meta.regularMarketVolume || 0,
         timestamp: new Date(meta.regularMarketTime * 1000),
       };
-    } catch {
+    } catch (error) {
+      console.warn(`Failed to fetch quote from Yahoo Finance for ${symbol}:`, error);
       return null;
     }
   },
@@ -116,8 +118,9 @@ export const yahooFinance: MarketDataProvider = {
       }
 
       return prices;
-    } catch {
-      return [];
+    } catch (error) {
+      console.error(`Failed to fetch historical prices from Yahoo Finance for ${symbol}:`, error);
+      throw error;
     }
   },
 
@@ -151,7 +154,8 @@ export const yahooFinance: MarketDataProvider = {
         }
       }
       return dividends;
-    } catch {
+    } catch (error) {
+      console.warn(`Failed to fetch dividends from Yahoo Finance for ${symbol}:`, error);
       return [];
     }
   },
@@ -190,7 +194,8 @@ export const yahooFinance: MarketDataProvider = {
         });
       }
       return splits;
-    } catch {
+    } catch (error) {
+      console.warn(`Failed to fetch splits from Yahoo Finance for ${symbol}:`, error);
       return [];
     }
   },
@@ -237,7 +242,8 @@ export const yahooFinance: MarketDataProvider = {
       }
 
       return results;
-    } catch {
+    } catch (error) {
+      console.warn(`Failed to search instruments on Yahoo Finance for "${query}":`, error);
       return [];
     }
   },

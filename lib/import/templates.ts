@@ -279,6 +279,14 @@ export const importTemplates: ImportTemplate[] = [
     description: "Stake transaction history",
   },
   {
+    id: "cmc_markets",
+    name: "CMC Markets",
+    category: "transactions",
+    config: brokerTemplates.cmc_markets,
+    quickImport: true,
+    description: "CMC Markets trade history export",
+  },
+  {
     id: "cmc_invest",
     name: "CMC Invest",
     category: "transactions",

@@ -149,35 +149,32 @@ async function fetchHistoricalRange(
     }
   }
 
+  // Fetch windows always start after the latest stored date, so these rows are
+  // new — a single batched insert replaces the per-row upsert loop. Existing
+  // rows (if any) are left untouched via skipDuplicates.
   let inserted = 0;
-  for (const p of prices) {
-    const date = new Date(p.date);
-    date.setHours(0, 0, 0, 0);
+  if (prices.length > 0) {
     try {
-      await db.price.upsert({
-        where: { instrumentId_date: { instrumentId, date } },
-        create: {
-          instrumentId,
-          date,
-          open: p.open,
-          high: p.high,
-          low: p.low,
-          close: p.close,
-          adjustedClose: p.adjustedClose,
-          volume: BigInt(p.volume),
-        },
-        update: {
-          open: p.open,
-          high: p.high,
-          low: p.low,
-          close: p.close,
-          adjustedClose: p.adjustedClose,
-          volume: BigInt(p.volume),
-        },
+      const result = await db.price.createMany({
+        data: prices.map((p) => {
+          const date = new Date(p.date);
+          date.setHours(0, 0, 0, 0);
+          return {
+            instrumentId,
+            date,
+            open: p.open,
+            high: p.high,
+            low: p.low,
+            close: p.close,
+            adjustedClose: p.adjustedClose,
+            volume: BigInt(p.volume),
+          };
+        }),
+        skipDuplicates: true,
       });
-      inserted++;
+      inserted = result.count;
     } catch {
-      /* ignore individual row errors */
+      /* ignore insert errors, matching the old per-row behaviour */
     }
   }
   return inserted;
