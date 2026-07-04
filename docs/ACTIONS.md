@@ -9,9 +9,9 @@
 > | Stock splits                         | ✅ Implemented                        |
 > | Bonus issues                         | ✅ Implemented                        |
 > | Return of capital                    | ✅ Implemented                        |
-> | Rights issues                        | ✅ Implemented                        |
-> | Mergers (MERGER_IN/OUT)              | ✅ Implemented (server action)        |
-> | DRP recording                        | ✅ Implemented                        |
+> | Rights issues (enter CGT parcel engine) | ✅ Implemented                     |
+> | Mergers (scrip-for-scrip cost-base transfer) | ✅ Implemented (Corporate Actions page) |
+> | DRP recording (toggle + manual BUY)  | ✅ Implemented (dedicated DRP form ⏳) |
 > | Corporate actions UI page            | ✅ Implemented                        |
 > | Share consolidations                 | ✅ Supported via split with ratio < 1 |
 > | Demergers                            | ⏳ To be Implemented                  |
@@ -21,9 +21,9 @@
 
 ## Overview
 
-InvestaLens automatically handles most corporate actions — splits, consolidations, name changes, dividends, and more. Some actions require manual recording because they involve a financial decision only you can make.
+In InvestaLens, **all corporate actions are recorded manually** through the guided **Corporate Actions** page (open a holding, then click **Corporate Actions**) — splits, consolidations, bonus issues, returns of capital, rights issues, and mergers/acquisitions. Only **dividends** are generated automatically from market data.
 
-> **Note:** Check your portfolio regularly for new corporate actions. InvestaLens will notify you by email and show an alert in the Corporate Events section when you log in.
+> **⏳ Planned:** automatic corporate-action detection and email alerts are not yet available — check your registry/broker notifications and record actions as they occur. See [GAPS.md](GAPS.md).
 
 > **Disclaimer:** The guides in this document are suggestions on how to handle corporate actions and are not financial or tax advice. Consult your financial adviser or accountant and review official documents for full details.
 
@@ -43,25 +43,25 @@ InvestaLens automatically handles most corporate actions — splits, consolidati
 
 ## Automation Summary
 
-| Corporate Action          | Automated?                                 | Markets        | Notes                                |
-| ------------------------- | ------------------------------------------ | -------------- | ------------------------------------ |
-| Consolidations            | ✅ Yes                                     | All            | Fully automated                      |
-| Share Splits              | ✅ Yes                                     | All            | Fully automated                      |
-| Special Dividend          | ✅ Yes                                     | All            | Fully automated                      |
-| Return of Capital         | ✅ Yes (ASX & NZX) / ❌ No (other markets) | ASX & NZX only | Manual for other markets             |
-| Bonus Shares              | ✅ Yes                                     | All            | Fully automated                      |
-| Name Change               | ✅ Yes (ASX & NZX) / ❌ No (other markets) | ASX & NZX only | Manual for other markets             |
-| Renounceable Rights       | ❌ No                                      | —              | Requires personal financial decision |
-| IPO                       | ❌ No                                      | —              | Record manually                      |
-| Share Purchase Plan (SPP) | ❌ No                                      | —              | Record as buy trade                  |
-| Mergers & Acquisitions    | ❌ No                                      | —              | Use Merge feature                    |
-| Demerger (Spin-off)       | ❌ No                                      | —              | Record manually                      |
-| Delisted Company          | ❌ No                                      | —              | Record manually                      |
-| Share Buyback             | ❌ No                                      | —              | Record as sell trade                 |
-| Broker Transfer           | ❌ No                                      | —              | Record manually                      |
-| Share Transfer            | ❌ No                                      | —              | Record manually                      |
-| Warrants                  | ❌ No                                      | —              | Record manually                      |
-| Stock Options             | ❌ No                                      | —              | Record manually                      |
+| Corporate Action          | Automated? | How to Record                                           |
+| ------------------------- | ---------- | -------------------------------------------------------- |
+| Dividends                 | ✅ Yes     | Auto-generated from market data                           |
+| Share Splits              | ❌ No      | Corporate Actions page → Stock Split                      |
+| Consolidations            | ❌ No      | Corporate Actions page → Stock Split with ratio &lt; 1    |
+| Bonus Shares              | ❌ No      | Corporate Actions page → Bonus Issue                      |
+| Return of Capital         | ❌ No      | Corporate Actions page → Return of Capital                |
+| Renounceable Rights       | ❌ No      | Corporate Actions page → Rights Issue (personal decision) |
+| Mergers & Acquisitions    | ❌ No      | Corporate Actions page → Merger / Acquisition             |
+| IPO                       | ❌ No      | Record manually as a buy trade                            |
+| Share Purchase Plan (SPP) | ❌ No      | Record as buy trade                                       |
+| Demerger (Spin-off)       | ❌ No      | Record manually (⏳ dedicated flow planned)               |
+| Delisted Company          | ❌ No      | Record manually                                           |
+| Share Buyback             | ❌ No      | Record as sell trade                                      |
+| Broker / Share Transfer   | ❌ No      | Record manually                                           |
+| Name Change               | ❌ No      | ⏳ Tracking planned; handle manually                      |
+| Warrants / Stock Options  | ❌ No      | Record manually                                           |
+
+> **⏳ Planned:** automatic detection of splits, bonus issues, returns of capital, and name changes. See [GAPS.md](GAPS.md).
 
 ---
 
@@ -71,12 +71,11 @@ A share split is a corporate event where a listed company splits its shares in a
 
 **Why companies split:** A company may implement a split because it feels its per-unit share price has become too high.
 
-### How InvestaLens Handles Splits
+### How to Record a Split
 
-- InvestaLens typically handles share splits automatically without issue
-- The split adjustment is created on the **action date** (the date the split takes effect)
-- The split ratio appears in the Corporate Actions sidebar as soon as it is announced (potentially weeks before it takes effect)
-- Once the split is applied, price updates resume under the main share code
+1. Open the holding and click **Corporate Actions**
+2. Select **Stock Split**, enter the **action date** and the split **ratio**
+3. Click **Record Action** — quantities adjust; the cost base is unchanged
 
 ### During a Deferred Settlement Period
 
@@ -96,12 +95,9 @@ A consolidation (reverse split) is a corporate event where a listed company merg
 
 **Why companies consolidate:** A company may implement a consolidation because it feels its per-unit share price has become too low.
 
-### How InvestaLens Handles Consolidations
+### How to Record a Consolidation
 
-- InvestaLens typically handles consolidations automatically
-- The consolidation adjustment is created on the **action date**
-- The consolidation ratio appears in the Corporate Actions sidebar as soon as it is announced
-- A deferred settlement period (1–3 weeks) may occur during processing
+Record it as a **Stock Split with a ratio below 1** (e.g. a 10:1 consolidation is a 0.1 ratio) on the holding's Corporate Actions page. Note that a deferred settlement period (1–3 weeks) may occur on-market during processing.
 
 ### During Deferred Settlement
 
@@ -111,36 +107,29 @@ Same as share splits — the holding trades temporarily under a DA code (e.g. AH
 
 ## Mergers & Acquisitions
 
-The **Merge this Holding** feature is designed for situations where you hold shares in a listed company that is wholly acquired by another listed company.
+The **Merger / Acquisition** action is designed for situations where you hold shares in a listed company that is wholly acquired by another listed company.
 
 ### How to Record a Merger
 
-1. Click on the stock that has been acquired on the Portfolio Investments Page
-2. Go to the **Edit Holding** tab and click **Merge this Holding**
-3. Enter:
+1. Open the acquired holding and click **Corporate Actions**
+2. Select **Merger / Acquisition** and enter:
    - **Date of merger**
    - **New Holding** (the acquiring company)
    - **Quantity** (new shares received, based on the announced ratio)
-4. Click **Save Changes**
+3. Click **Record Action**
 
 InvestaLens will do the rest.
 
 ### How It Works
 
-| Action                       | What Happens                                                                                                      |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Cost base                    | Transferred from the cancelled holding to the new holding                                                         |
-| Performance                  | Market value at merge date is captured for both the cancelled and new holdings, ensuring no performance is "lost" |
-| Existing holding in acquirer | Additional shares from the merger are simply added to your existing holding                                       |
-| Sell the new shares          | CGT calculation traces back through the merge chain to find original purchase history                             |
+InvestaLens implements a **scrip-for-scrip rollover-style cost-base transfer**:
 
-### Merge Chain Tracking
-
-InvestaLens follows merger history backwards through multiple merges to retrieve original purchase prices for CGT calculations.
-
-**Example:** SIV.ASX → merged into EHL.ASX → later merged into HPI.ASX
-
-If you sell HPI shares, InvestaLens follows the chain back through EHL to SIV to retrieve the original buy price.
+| Action                       | What Happens                                                                                      |
+| ---------------------------- | -------------------------------------------------------------------------------------------------- |
+| Old holding                  | A **MERGER_OUT** transaction closes out the acquired holding's units                                |
+| New holding                  | A **MERGER_IN** transaction adds the new shares, **priced so that the total cost base is preserved** — the old holding's cost base carries over to the new shares |
+| CGT                          | MERGER_IN shares enter the CGT parcel engine as parcels with the transferred cost base, so a later sale computes gains against the original cost base |
+| Existing holding in acquirer | Additional shares from the merger are simply added to your existing holding                        |
 
 ### When to Use Merge
 
@@ -149,7 +138,7 @@ If you sell HPI shares, InvestaLens follows the chain back through EHL to SIV to
 
 ### FAQ
 
-- **What happens when I save?** InvestaLens creates a merge (cancel) transaction against the old holding (similar to a sell), and a merge (buy) transaction on the new holding containing the cost base and market value from the cancelled holding.
+- **What happens when I save?** InvestaLens creates a MERGER_OUT transaction against the old holding (similar to a sell), and a MERGER_IN transaction on the new holding carrying over the cancelled holding's cost base.
 - **Where do I find the quantity?** The companies will announce a ratio (e.g. 1 new share for every 3 old shares). You should also receive notifications with the exact number of new shares you'll receive.
 
 ---
@@ -221,7 +210,7 @@ Renounceable rights require a personal financial decision — InvestaLens cannot
 
 #### Took Up Rights (Purchased New Shares)
 
-Record a **buy trade** under the main share code with the quantity, price, and date you acquired the new shares.
+Record a **Rights Issue** on the holding's Corporate Actions page with the quantity, price, and date you acquired the new shares. Rights-issue shares **enter the CGT parcel engine** as a new parcel at the issue price, so discount eligibility and cost base are tracked correctly. ✅
 
 #### Received Cash Payment (Did Not Take Up Rights)
 
@@ -244,6 +233,10 @@ Record a buy trade under the **renounceable rights share code** (e.g. WBCR for W
 
 Record as a standard **buy trade** with the SPP price, quantity, and allotment date.
 
+### Dividend Reinvestment (DRP)
+
+Use the **DRP toggle** on the holding page to mark the holding as participating in a dividend reinvestment plan, then record each reinvestment as a manual **BUY** (date = payment date, quantity = shares allotted, price = DRP issue price, brokerage = 0). The dividend itself remains recorded as income. _(A dedicated DRP-recording form is ⏳ planned — see [GETTING-STARTED.md](GETTING-STARTED.md#dividend-reinvestments-drp).)_
+
 ### Share Buyback
 
 Record as a **sell trade**. The company will advise the breakdown between capital and dividend components for tax purposes.
@@ -257,17 +250,15 @@ If a company is delisted (e.g. due to administration):
 
 ### Bonus Shares (Scrip Issue)
 
-Automated by InvestaLens. Bonus shares are recorded as an adjustment that increases your quantity without changing the cost base (the per-share cost base is diluted across the new total).
+Record a **Bonus Issue** on the holding's Corporate Actions page. Bonus shares increase your quantity without changing the total cost base (the per-share cost base is diluted across the new total). ✅
 
 ### Return of Capital
 
-- **ASX & NZX**: Automated — recorded as an adjustment that reduces your cost base
-- **Other markets**: Record manually as a capital return adjustment
+Record a **Return of Capital** on the holding's Corporate Actions page — it is recorded as an adjustment that reduces your cost base.
 
 ### Name Change / Ticker Change
 
-- **ASX & NZX**: Automated — the holding updates to the new name/code
-- **Other markets**: May need to be handled manually
+⏳ Name/ticker change tracking is not yet available — handle manually (see [GAPS.md](GAPS.md)).
 
 ---
 
@@ -287,7 +278,6 @@ Many corporate actions (splits, consolidations, some rights issues) involve a de
 ### Tips
 
 - **Do not create a separate holding** for the DA code — it will revert automatically
-- **Use the Share Checker** to view prices under the DA code if you need current pricing during this period
 - **Record new purchases** under the main share code (not the DA code) to avoid extra work later
 - If prices during deferred settlement reflect the post-action state, adjust accordingly for trades dated before the action date
 

@@ -16,6 +16,10 @@ import {
   Compass,
 } from "lucide-react";
 
+export const metadata = {
+  title: "Analytics",
+};
+
 export default async function AnalyticsPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
@@ -70,10 +74,16 @@ export default async function AnalyticsPage() {
       desc: "Project portfolio value with probabilistic outcomes over time.",
     },
     {
-      href: "/analytics/what-if",
+      href: "/analytics/stress-test",
       icon: Shuffle,
       title: "Stress Testing",
       desc: "Historical scenarios, custom shocks, and factor stress tests.",
+    },
+    {
+      href: "/analytics/what-if",
+      icon: Shuffle,
+      title: "What-If Calculator",
+      desc: "Quick market-move calculator: how a broad move affects your portfolio.",
     },
     {
       href: "/analytics/factors",

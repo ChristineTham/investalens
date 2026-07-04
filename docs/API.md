@@ -7,19 +7,19 @@
 > | Feature                                  | Status                    |
 > | ---------------------------------------- | ------------------------- |
 > | Bearer token authentication              | ✅ Implemented            |
-> | Rate limiting (100 req/min)              | ✅ Implemented            |
+> | Rate limiting (100 req/min, enforced)    | ✅ Implemented            |
 > | Token scope checking (read/write/admin)  | ✅ Implemented            |
-> | JSON response format                     | ✅ Implemented            |
+> | JSON response format ({data, meta})      | ✅ Implemented            |
 > | GET/POST /api/v1/portfolios              | ✅ Implemented            |
 > | GET/PATCH/DELETE /api/v1/portfolios/[id] | ✅ Implemented            |
 > | Holdings endpoints                       | ✅ Implemented            |
 > | Transactions endpoints                   | ✅ Implemented            |
 > | Performance & diversity endpoints        | ✅ Implemented            |
-> | Import / Export endpoints                | ✅ Implemented            |
+> | Import (with dedup) / Export endpoints   | ✅ Implemented            |
 > | GET /api/v1/market/search                | ✅ Implemented            |
 > | Market quote endpoint                    | ✅ Implemented            |
 > | Token management (endpoints + UI)        | ✅ Implemented            |
-> | AI import / chat endpoints               | ✅ Implemented            |
+> | AI import / chat endpoints (authenticated) | ✅ Implemented          |
 > | Watchlist endpoints                      | ⏳ To be Implemented      |
 > | Webhooks                                 | ⏳ To be Implemented (R4) |
 > | SDKs                                     | ⏳ To be Implemented      |
@@ -33,37 +33,36 @@ InvestaLens provides a RESTful API for programmatic access to your portfolio dat
 - [Authentication](#authentication)
 - [Base URL](#base-url)
 - [Rate Limits](#rate-limits)
-- [Core Endpoints](#core-endpoints)
+- [Response Format](#response-format)
 - [Portfolio Endpoints](#portfolio-endpoints)
 - [Holdings Endpoints](#holdings-endpoints)
 - [Transactions Endpoints](#transactions-endpoints)
-- [Reports Endpoints](#reports-endpoints)
 - [Import/Export Endpoints](#importexport-endpoints)
-- [Watchlist Endpoints](#watchlist-endpoints)
 - [Market Data Endpoints](#market-data-endpoints)
-- [Webhooks](#webhooks)
+- [Token Management Endpoints](#token-management-endpoints)
+- [AI Endpoints](#ai-endpoints)
+- [Internal Endpoints (Session Auth)](#internal-endpoints-session-auth)
 - [Error Handling](#error-handling)
-- [SDKs and Examples](#sdks-and-examples)
+- [Examples](#examples)
 
 ---
 
 ## Authentication
 
-InvestaLens uses Bearer Token authentication for all API requests.
+InvestaLens uses Bearer Token authentication for all public API requests.
 
 ### Obtaining a Token
 
-1. Navigate to **Account > API Access**
-2. Click **Generate API Token**
+1. Navigate to **Settings → API Tokens**
+2. Create a token, choosing a permission scope and an optional expiry
 3. Copy and securely store the token (it will not be shown again)
-4. Optionally set an expiry date and permission scope
 
 ### Using the Token
 
 Include the token in the `Authorization` header of every request:
 
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
+Authorization: Bearer your-api-token-here
 ```
 
 ### Token Scopes
@@ -71,89 +70,71 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 | Scope   | Permissions                                                    |
 | ------- | -------------------------------------------------------------- |
 | `read`  | View portfolios, holdings, transactions, and reports           |
-| `write` | Create/update transactions, holdings, and settings             |
-| `admin` | Full access including delete operations and API key management |
+| `write` | Create/update transactions, holdings, and portfolios           |
+| `admin` | Full access including delete operations                        |
 
 ### Revoking Tokens
 
-Navigate to **Account > API Access** to view active tokens. Click **Revoke** to immediately invalidate a token.
+Navigate to **Settings → API Tokens** to view active tokens and revoke one to immediately invalidate it.
 
 ---
 
 ## Base URL
 
-```
-https://api.investalens.app/v1
-```
-
-For self-hosted instances:
+All endpoints live under `/api/v1` of your deployment:
 
 ```
 https://your-domain.com/api/v1
+```
+
+For local development:
+
+```
+http://localhost:3000/api/v1
 ```
 
 ---
 
 ## Rate Limits
 
-| Plan     | Requests per Minute | Daily Limit |
-| -------- | ------------------: | ----------: |
-| Free     |                  60 |       1,000 |
-| Standard |                 300 |      10,000 |
-| Premium  |               1,000 |     100,000 |
-
-Rate limit headers are included in every response:
+A flat limit of **100 requests per minute per token** is enforced. Rate limit headers are included in responses:
 
 ```
-X-RateLimit-Limit: 300
-X-RateLimit-Remaining: 297
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 97
 X-RateLimit-Reset: 1717603200
 ```
 
-When rate limited, the API returns `429 Too Many Requests`. Implement exponential backoff on retries.
+When the limit is exceeded, the API returns `429 Too Many Requests`. Implement exponential backoff on retries.
 
 ---
 
-## Core Endpoints
+## Response Format
 
-### Health Check
-
-```
-GET /health
-```
-
-No authentication required.
-
-**Response:**
+Successful responses use a `{data, meta}` envelope:
 
 ```json
 {
-  "status": "OK",
-  "version": "1.0.0",
-  "timestamp": "2026-06-05T10:00:00.000Z"
+  "data": [ ... ],
+  "meta": { "count": 2 }
 }
 ```
 
-### Current User
-
-```
-GET /me
-```
-
-Returns the authenticated user's profile and settings.
-
-**Response:**
+Errors use an `{error}` envelope:
 
 ```json
 {
-  "id": "usr_abc123",
-  "email": "user@example.com",
-  "settings": {
-    "baseCurrency": "AUD",
-    "locale": "en-AU",
-    "dateFormat": "dd/MM/yyyy"
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Portfolio not found"
   }
 }
+```
+
+Successful `DELETE` requests return `200` with:
+
+```json
+{ "data": { "deleted": true } }
 ```
 
 ---
@@ -166,74 +147,40 @@ Returns the authenticated user's profile and settings.
 GET /portfolios
 ```
 
-**Response:**
+### Create Portfolio
 
-```json
-{
-  "portfolios": [
-    {
-      "id": "pf_001",
-      "name": "Personal Investments",
-      "taxResidency": "AU",
-      "baseCurrency": "AUD",
-      "taxEntityType": "individual",
-      "createdAt": "2024-01-15T00:00:00.000Z"
-    }
-  ]
-}
+```
+POST /portfolios
 ```
 
-### Get Portfolio
+### Get / Update / Delete Portfolio
 
 ```
 GET /portfolios/:id
+PATCH /portfolios/:id
+DELETE /portfolios/:id
 ```
-
-Returns portfolio details including summary statistics.
 
 ### Get Portfolio Performance
 
 ```
-GET /portfolios/:id/performance?period=1Y
+GET /portfolios/:id/performance?from=2025-07-01&to=2026-06-30
 ```
 
 **Query parameters:**
 
-| Parameter   | Type     | Description                                                  |
-| ----------- | -------- | ------------------------------------------------------------ |
-| `period`    | string   | `1D`, `1W`, `1M`, `3M`, `6M`, `YTD`, `1Y`, `3Y`, `5Y`, `MAX` |
-| `startDate` | ISO date | Custom start date (overrides period)                         |
-| `endDate`   | ISO date | Custom end date (defaults to today)                          |
-| `benchmark` | string   | Ticker to benchmark against (e.g. `VAS.ASX`)                 |
+| Parameter | Type     | Description                          |
+| --------- | -------- | ------------------------------------ |
+| `from`    | ISO date | Start date (optional)                |
+| `to`      | ISO date | End date (optional, defaults today)  |
 
-**Response:**
-
-```json
-{
-  "portfolioId": "pf_001",
-  "period": "1Y",
-  "totalReturn": 12.45,
-  "capitalGain": 8.2,
-  "dividendIncome": 4.25,
-  "currencyGain": 0.0,
-  "annualisedReturn": 12.45,
-  "startValue": 100000.0,
-  "endValue": 112450.0
-}
-```
-
-### Get Portfolio Allocation
+### Get Portfolio Diversity
 
 ```
-GET /portfolios/:id/allocation?groupBy=sector
+GET /portfolios/:id/diversity
 ```
 
-**Query parameters:**
-
-| Parameter | Type     | Description                                                                   |
-| --------- | -------- | ----------------------------------------------------------------------------- |
-| `groupBy` | string   | `market`, `currency`, `sector`, `industry`, `country`, `type`, `custom_group` |
-| `date`    | ISO date | Point-in-time allocation (defaults to today)                                  |
+Returns the portfolio's allocation breakdown.
 
 ---
 
@@ -245,44 +192,18 @@ GET /portfolios/:id/allocation?groupBy=sector
 GET /portfolios/:id/holdings
 ```
 
-**Query parameters:**
+### Create Holding
 
-| Parameter | Type   | Description                               |
-| --------- | ------ | ----------------------------------------- |
-| `status`  | string | `open`, `closed`, `all` (default: `open`) |
-| `label`   | string | Filter by label name                      |
-
-**Response:**
-
-```json
-{
-  "holdings": [
-    {
-      "id": "hld_001",
-      "instrumentCode": "VAS",
-      "marketCode": "ASX",
-      "name": "Vanguard Australian Shares Index ETF",
-      "quantity": 500,
-      "averageCost": 85.5,
-      "costBase": 42750.0,
-      "marketValue": 47250.0,
-      "unrealisedGain": 4500.0,
-      "unrealisedGainPct": 10.53,
-      "lastPrice": 94.5,
-      "lastPriceDate": "2026-06-05",
-      "currency": "AUD"
-    }
-  ]
-}
+```
+POST /portfolios/:id/holdings
 ```
 
-### Get Holding Detail
+### Get / Delete Holding
 
 ```
 GET /portfolios/:id/holdings/:holdingId
+DELETE /portfolios/:id/holdings/:holdingId
 ```
-
-Returns full holding detail including trade history, dividends, and corporate actions.
 
 ---
 
@@ -296,14 +217,11 @@ GET /portfolios/:id/transactions
 
 **Query parameters:**
 
-| Parameter    | Type     | Description                                                                 |
-| ------------ | -------- | --------------------------------------------------------------------------- |
-| `startDate`  | ISO date | Filter from date                                                            |
-| `endDate`    | ISO date | Filter to date                                                              |
-| `type`       | string   | Filter by type: `BUY`, `SELL`, `DIVIDEND`, `SPLIT`, `FEE`, `INTEREST`, etc. |
-| `instrument` | string   | Filter by instrument code                                                   |
-| `limit`      | number   | Page size (default: 100, max: 1000)                                         |
-| `offset`     | number   | Pagination offset                                                           |
+| Parameter   | Type   | Description                          |
+| ----------- | ------ | ------------------------------------ |
+| `holdingId` | string | Filter to a single holding           |
+| `limit`     | number | Page size (default: 100, max: 500)   |
+| `offset`    | number | Pagination offset                    |
 
 ### Create Transaction
 
@@ -322,74 +240,16 @@ POST /portfolios/:id/transactions
   "quantity": 50,
   "price": 94.5,
   "brokerage": 9.5,
-  "currency": "AUD",
-  "comment": "Monthly DCA"
+  "currency": "AUD"
 }
 ```
 
-**Response:** `201 Created` with the created transaction object.
-
-### Bulk Import Transactions
+### Get / Update / Delete Transaction
 
 ```
-POST /portfolios/:id/transactions/import
-```
-
-**Request body:**
-
-```json
-{
-  "activities": [
-    {
-      "date": "2026-06-01",
-      "type": "BUY",
-      "instrumentCode": "MSFT",
-      "marketCode": "NASDAQ",
-      "quantity": 5,
-      "price": 450.0,
-      "brokerage": 0,
-      "currency": "USD"
-    }
-  ],
-  "deduplication": true
-}
-```
-
-**Response:** `201 Created` with import summary (imported count, skipped duplicates, errors).
-
-### Delete Transaction
-
-```
-DELETE /portfolios/:id/transactions/:transactionId
-```
-
-**Response:** `204 No Content`
-
----
-
-## Reports Endpoints
-
-### Generate Report
-
-```
-GET /portfolios/:id/reports/:reportType
-```
-
-**Report types:** `performance`, `diversity`, `cgt`, `taxable-income`, `unrealised-cgt`, `sold-securities`, `future-income`, `historical-cost`, `all-trades`, `contribution`, `exposure`, `drawdown`, `multi-period`
-
-**Common query parameters:**
-
-| Parameter   | Type     | Description                    |
-| ----------- | -------- | ------------------------------ |
-| `startDate` | ISO date | Report start date              |
-| `endDate`   | ISO date | Report end date                |
-| `groupBy`   | string   | Grouping option                |
-| `format`    | string   | `json` (default), `csv`, `pdf` |
-
-**Example:**
-
-```
-GET /portfolios/pf_001/reports/cgt?startDate=2025-07-01&endDate=2026-06-30&format=json
+GET /portfolios/:id/transactions/:txId
+PATCH /portfolios/:id/transactions/:txId
+DELETE /portfolios/:id/transactions/:txId
 ```
 
 ---
@@ -404,87 +264,35 @@ GET /portfolios/:id/export?format=json
 
 **Query parameters:**
 
-| Parameter   | Type     | Description                              |
-| ----------- | -------- | ---------------------------------------- |
-| `format`    | string   | `json`, `csv`                            |
-| `scope`     | string   | `all`, `trades`, `holdings`, `dividends` |
-| `startDate` | ISO date | Filter from date (for trades/dividends)  |
+| Parameter | Type   | Description                     |
+| --------- | ------ | -------------------------------- |
+| `format`  | string | `json` (default) or `csv`        |
 
-### Import from File
+CSV exports escape and neutralise cell contents to prevent spreadsheet formula injection.
 
-```
-POST /portfolios/:id/import/csv
-Content-Type: multipart/form-data
-```
-
-Upload a CSV file with a field mapping configuration. Returns a preview of parsed transactions for confirmation.
-
----
-
-## Watchlist Endpoints
-
-### List Watchlists
+### Import Transactions
 
 ```
-GET /watchlists
-```
-
-### Get Watchlist
-
-```
-GET /watchlists/:id
-```
-
-### Add to Watchlist
-
-```
-POST /watchlists/:id/items
+POST /portfolios/:id/import
+Content-Type: application/json
 ```
 
 **Request body:**
 
 ```json
 {
-  "instrumentCode": "NVDA",
-  "marketCode": "NASDAQ",
-  "notes": "AI growth play, wait for pullback",
-  "priceAlert": {
-    "below": 120.0,
-    "above": 150.0
+  "csv": "Date,Code,Quantity,Price,Type\n2026-06-01,VAS,50,94.50,BUY",
+  "config": {
+    "dateFormat": "yyyy-MM-dd"
   }
 }
 ```
 
-### Remove from Watchlist
-
-```
-DELETE /watchlists/:id/items/:itemId
-```
+The endpoint parses the CSV using the supplied mapping configuration and **deduplicates** against transactions already recorded, exactly like the UI importer — re-submitting the same file is safe.
 
 ---
 
 ## Market Data Endpoints
-
-### Get Security Price
-
-```
-GET /market/securities/:code?market=ASX
-```
-
-**Response:**
-
-```json
-{
-  "instrumentCode": "VAS",
-  "marketCode": "ASX",
-  "name": "Vanguard Australian Shares Index ETF",
-  "price": 94.5,
-  "change": 0.75,
-  "changePct": 0.8,
-  "lastUpdated": "2026-06-05T16:00:00+10:00",
-  "currency": "AUD"
-}
-```
 
 ### Search Securities
 
@@ -492,59 +300,56 @@ GET /market/securities/:code?market=ASX
 GET /market/search?q=vanguard&market=ASX
 ```
 
-### Get Market Sentiment
+### Get Quote
 
 ```
-GET /market/sentiment
+GET /market/quote/:code
 ```
 
-Returns current Fear & Greed Index, VIX, and other sentiment indicators (see [TOOLS.md](TOOLS.md#market-sentiment-indicators)).
+Returns the latest price data for the instrument code.
 
 ---
 
-## Webhooks
-
-Register webhooks to receive real-time notifications when events occur in your portfolio.
-
-### Supported Events
-
-| Event                       | Trigger                                         |
-| --------------------------- | ----------------------------------------------- |
-| `transaction.created`       | New transaction added (manual, import, or sync) |
-| `dividend.received`         | Dividend or distribution confirmed              |
-| `price.alert`               | Watchlist price alert triggered                 |
-| `corporate_action.detected` | Corporate action applied to a holding           |
-| `report.ready`              | Async report generation completed               |
-
-### Registering a Webhook
+## Token Management Endpoints
 
 ```
-POST /webhooks
+GET /auth/token      # list your tokens
+POST /auth/token     # create a token (scope, optional expiry)
+DELETE /auth/token   # revoke a token
 ```
 
-**Request body:**
+Tokens can also be managed in the UI under **Settings → API Tokens**.
 
-```json
-{
-  "url": "https://your-app.com/webhooks/investalens",
-  "events": ["dividend.received", "price.alert"],
-  "secret": "your-signing-secret"
-}
+---
+
+## AI Endpoints
+
+Both AI endpoints **require authentication** — a bearer token or an active session:
+
+```
+POST /ai-import   # parse pasted document text into transactions (Gemini)
+POST /chat        # portfolio Q&A chat assistant
 ```
 
-### Webhook Payload
+These are rate-limited like all other endpoints. They require `GOOGLE_GENERATIVE_AI_API_KEY` to be configured on the deployment.
 
-All webhook payloads include:
+---
 
-```json
-{
-  "event": "dividend.received",
-  "timestamp": "2026-06-05T10:00:00.000Z",
-  "data": { ... }
-}
-```
+## Internal Endpoints (Session Auth)
 
-Payloads are signed with HMAC-SHA256 using your secret. Verify the `X-InvestaLens-Signature` header.
+The following endpoints exist under `/api/v1` but are **internal — session auth, not for token clients**. They power the app's own pages and may change without notice:
+
+| Endpoint                                                | Purpose                              |
+| ------------------------------------------------------- | ------------------------------------ |
+| `GET /accounts/:id/detail`                               | Bank/cash account detail page data   |
+| `GET /analytics/matrix`                                  | Returns matrix for analytics tools   |
+| `GET /dashboard/detail`                                  | Dashboard page data                  |
+| `GET /market/bond-rates`                                 | FIIG bond rate sheet data            |
+| `POST /market/sync-prices`                               | Market data update (prices + info)   |
+| `GET /models/:id/instruments/:instrumentId/detail`       | Model constituent detail page data   |
+| `GET /portfolios/:id/detail`                             | Portfolio detail page data           |
+| `GET /portfolios/:id/holdings/:holdingId/detail`         | Holding detail page data             |
+| `GET /portfolios/performance`                            | Multi-portfolio performance series   |
 
 ---
 
@@ -556,8 +361,7 @@ Payloads are signed with HMAC-SHA256 using your secret. Verify the `X-InvestaLen
 {
   "error": {
     "code": "VALIDATION_ERROR",
-    "message": "Quantity must be a positive number",
-    "details": [{ "field": "quantity", "issue": "must be > 0" }]
+    "message": "Quantity must be a positive number"
   }
 }
 ```
@@ -566,43 +370,41 @@ Payloads are signed with HMAC-SHA256 using your secret. Verify the `X-InvestaLen
 
 | Code | Meaning                                 |
 | ---- | --------------------------------------- |
-| 200  | Success                                 |
+| 200  | Success (including successful deletes)  |
 | 201  | Created                                 |
-| 204  | No Content (successful delete)          |
 | 400  | Bad Request — validation error          |
 | 401  | Unauthorised — missing or invalid token |
 | 403  | Forbidden — insufficient scope          |
 | 404  | Not Found                               |
-| 409  | Conflict — duplicate transaction        |
 | 429  | Rate Limited                            |
 | 500  | Internal Server Error                   |
 
 ---
 
-## SDKs and Examples
+## Examples
 
-### cURL Example
+### cURL
 
 ```bash
 # List all portfolios
 curl -H "Authorization: Bearer YOUR_TOKEN" \
-  https://api.investalens.app/v1/portfolios
+  https://your-domain.com/api/v1/portfolios
 
 # Create a buy trade
 curl -X POST \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"date":"2026-06-05","type":"BUY","instrumentCode":"VAS","marketCode":"ASX","quantity":50,"price":94.50,"brokerage":9.50,"currency":"AUD"}' \
-  https://api.investalens.app/v1/portfolios/pf_001/transactions
+  https://your-domain.com/api/v1/portfolios/pf_001/transactions
 ```
 
 ### TypeScript/JavaScript
 
 ```typescript
-const response = await fetch("https://api.investalens.app/v1/portfolios", {
+const response = await fetch("https://your-domain.com/api/v1/portfolios", {
   headers: { Authorization: `Bearer ${token}` },
 });
-const { portfolios } = await response.json();
+const { data } = await response.json();
 ```
 
 ### Python
@@ -611,9 +413,11 @@ const { portfolios } = await response.json();
 import requests
 
 headers = {"Authorization": f"Bearer {token}"}
-response = requests.get("https://api.investalens.app/v1/portfolios", headers=headers)
-portfolios = response.json()["portfolios"]
+response = requests.get("https://your-domain.com/api/v1/portfolios", headers=headers)
+portfolios = response.json()["data"]
 ```
+
+> **⏳ Planned:** watchlist endpoints, webhooks (R4), and official SDKs. See [GAPS.md](GAPS.md).
 
 ---
 
@@ -623,5 +427,5 @@ portfolios = response.json()["portfolios"]
 | -------------------------------------- | ------------------------------------------------------- |
 | [DATA_IMPORT.md](DATA_IMPORT.md)       | Import architecture, CSV field mapping, and data export |
 | [ARCHITECTURE.md](ARCHITECTURE.md)     | System architecture and design decisions                |
-| [TOOLS.md](TOOLS.md)                   | Reports available via API                               |
+| [TOOLS.md](TOOLS.md)                   | Reports available in the app                            |
 | [SHARESIGHT_API.md](SHARESIGHT_API.md) | Sharesight API as an import source                      |

@@ -17,26 +17,39 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
     sections: [
       {
         heading: "Navigation Overview",
-        content: `<p>After signing in, you land on the <strong>Dashboard</strong> showing your total portfolio value, gain/loss, and recent activity. The sidebar provides access to all sections:</p>
+        content: `<p>After signing in, you land on the <strong>Portfolio</strong> page listing your portfolios. The <strong>Dashboard</strong> shows your total portfolio value, gain/loss, and recent activity. The sidebar provides access to all sections:</p>
 <table>
 <tr><th>Sidebar Link</th><th>What It Contains</th></tr>
-<tr><td><strong>Dashboard</strong></td><td>Summary cards, zoomable consolidated charts (value, performance, movement, allocation) on an app-wide timescale selector, portfolio table, and recent activity across portfolios and accounts</td></tr>
+<tr><td><strong>Dashboard</strong></td><td>Summary cards, zoomable consolidated charts (value, performance, movement, allocation) on an app-wide timescale selector, portfolio table, recent activity across portfolios and accounts, and the Market Data update control</td></tr>
 <tr><td><strong>Portfolio</strong></td><td>Create/manage portfolios, holdings, imports, bonds, cash</td></tr>
-<tr><td><strong>Reports</strong></td><td>10 performance and allocation reports</td></tr>
+<tr><td><strong>Models</strong></td><td>Weight-based model portfolios: list, create, edit, detail, and a consolidated-vs-models comparison dashboard</td></tr>
+<tr><td><strong>Accounts</strong></td><td>Bank &amp; cash accounts: balances, transactions with running balance, categories, statement import (OFX/QIF/CSV), reconciliation</td></tr>
+<tr><td><strong>Reports</strong></td><td>11 performance and allocation reports (including Model Comparison)</td></tr>
 <tr><td><strong>Tax</strong></td><td>Taxable income, CGT, and unrealised CGT reports</td></tr>
-<tr><td><strong>Tools</strong></td><td>Watchlist, FIRE calculator, Share Checker, Market Sentiment, AI Assistant</td></tr>
-<tr><td><strong>Analytics</strong></td><td>13 quantitative analysis tools</td></tr>
-<tr><td><strong>Settings</strong></td><td>Groups, labels, categories, sharing, export, API tokens</td></tr>
+<tr><td><strong>Tools</strong></td><td>Watchlist, FIRE calculator, Share Checker, Market Sentiment, AI Assistant, Rebalancing &amp; Drift</td></tr>
+<tr><td><strong>Analytics</strong></td><td>14 quantitative analysis tools</td></tr>
+<tr><td><strong>Settings</strong></td><td>Groups, labels, categories, sharing, export, API tokens, Tax &amp; CGT, Instrument Tax</td></tr>
 </table>`,
       },
       {
         heading: "What You'll Do First",
         content: `<ol>
-<li><strong>Create your account</strong> &mdash; Register at <code>/register</code> with name, email, and password (minimum 8 characters). Or sign in with Google OAuth.</li>
+<li><strong>Create your account</strong> &mdash; Register at <code>/register</code> with name, email, and password (minimum 8 characters). Google sign-in is offered on the login page only.</li>
 <li><strong>Create a portfolio</strong> &mdash; From the sidebar click <strong>Portfolio</strong>, then &ldquo;New Portfolio&rdquo;, choose tax residency and entity type</li>
-<li><strong>Import your investments</strong> &mdash; Click into your portfolio, then use the &ldquo;Import&rdquo; or &ldquo;&starf; AI Import&rdquo; button</li>
+<li><strong>Import your investments</strong> &mdash; Click into your portfolio, then use the &ldquo;Import&rdquo; or &ldquo;✨ AI Import&rdquo; button</li>
 <li><strong>Explore reports</strong> &mdash; Click <strong>Reports</strong> or <strong>Tax</strong> in the sidebar</li>
 </ol>`,
+      },
+      {
+        heading: "Dashboard at a Glance",
+        content: `<p>The <strong>Dashboard</strong> combines every portfolio into one view:</p>
+<ul>
+<li><strong>Performance chart</strong> with a <strong>benchmark picker</strong> (ASX 200, S&amp;P 500, MSCI World, and more) shown as a dotted reference line</li>
+<li><strong>Allocation treemap</strong> &mdash; value by portfolio, then by holding; click any holding to open its detail page</li>
+<li><strong>Recent Activity</strong> &mdash; the latest trades, dividends, and account movements, with a <strong>&ldquo;Where&rdquo;</strong> column naming the source portfolio or account</li>
+<li><strong>vs Model card</strong> &mdash; overlays your consolidated value against a chosen benchmark model, with a model picker</li>
+<li><strong>Market Data</strong> &mdash; the <strong>Update</strong> button refreshes share/ETF prices, bond prices, and company information in one step</li>
+</ul>`,
       },
       {
         heading: "Key Concepts",
@@ -72,7 +85,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <tr><td><strong>Quick Import</strong></td><td>Known brokers &mdash; one-step, no manual mapping</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Import&rdquo; &rarr; Quick Import</td></tr>
 <tr><td><strong>Guided Import</strong></td><td>Shares, bonds, or cash/bank statements via category wizard</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Import&rdquo; &rarr; Guided Import</td></tr>
 <tr><td><strong>Custom Import</strong></td><td>Complex multi-sheet files (e.g. FIIG data extract)</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Import&rdquo; &rarr; Custom Import</td></tr>
-<tr><td><strong>AI Importer</strong></td><td>PDFs, screenshots, non-standard formats (Gemini AI)</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Import&rdquo; &rarr; &ldquo;&starf; AI Import&rdquo;</td></tr>
+<tr><td><strong>AI Importer</strong></td><td>PDFs, screenshots, non-standard formats (Gemini AI)</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Import&rdquo; &rarr; &ldquo;✨ AI Import&rdquo;</td></tr>
 <tr><td><strong>Manual Entry</strong></td><td>One-off trades, corrections</td><td>Portfolio &rarr; holding &rarr; &ldquo;Add Transaction&rdquo;</td></tr>
 </table>
 <p>Every import path resolves duplicates automatically, so re-importing the same file is safe.</p>`,
@@ -83,7 +96,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <li>From the sidebar, click <strong>Portfolio</strong> &rarr; select your portfolio</li>
 <li>Click <strong>&ldquo;Import&rdquo;</strong> in the portfolio header</li>
 <li>Choose a path on the hub: <strong>Quick Import</strong> (one click), <strong>Guided Import</strong> (choose Share Transactions, Bonds &amp; Fixed Interest, or Cash / Bank Statement), or <strong>Custom Import</strong></li>
-<li><strong>Upload</strong> &mdash; drag and drop your file (.csv, .txt, or .xlsx)</li>
+<li><strong>Upload</strong> &mdash; drag and drop your file (.csv, .txt, .xls, or .xlsx)</li>
 <li><strong>Configure &amp; Map</strong> &mdash; pick a template or map columns to InvestaLens fields</li>
 <li><strong>Review</strong> &mdash; see parsed rows colour-coded (green=valid, red=error)</li>
 <li><strong>Import</strong> &mdash; confirm to insert</li>
@@ -92,7 +105,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
       {
         heading: "How to Import (AI)",
         content: `<ol>
-<li>From the import page, click the <strong>&ldquo;&starf; AI Import&rdquo;</strong> button</li>
+<li>From the import page, click the <strong>&ldquo;✨ AI Import&rdquo;</strong> button</li>
 <li>Select document type (Contract Note, Trade Confirmation, Dividend Statement, etc.)</li>
 <li>Paste your document text</li>
 <li>Click <strong>&ldquo;Parse with AI&rdquo;</strong> &mdash; Gemini extracts transactions automatically</li>
@@ -103,7 +116,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
       },
       {
         heading: "Supported Templates & Importers",
-        content: `<p>Pre-built broker templates: CommSec, SelfWealth, Stake, CMC Markets, CMC Invest, Bell Direct, nabtrade, FIIG Securities, Interactive Brokers. Generic bank-statement templates handle cash imports. The FIIG Data Extract custom importer reads the full multi-sheet bond workbook (trades, coupon income, principal repayments, and custody fees). Custom templates can be created for any broker and saved for reuse.</p>`,
+        content: `<p>Pre-built broker templates: CommSec, SelfWealth, Stake, CMC Markets, CMC Invest, Bell Direct, nabtrade, FIIG Securities, Interactive Brokers. Generic bank-statement templates handle cash imports. The FIIG Data Extract custom importer reads the full multi-sheet bond workbook (trades, coupon income, principal repayments, and custody fees). For any other broker, use Guided Import to map columns per import &mdash; saving a custom mapping as a reusable template is planned.</p>`,
       },
     ],
   },
@@ -135,14 +148,14 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <li>Credit quality breakdown</li>
 <li>Coupon income, principal repayments, and custody fee tracking with summary totals</li>
 <li>One-step FIIG Securities import (trades, income, and fees)</li>
-<li>Update current bond prices from the FIIG rate sheet (Settings &rarr; Market Data &rarr; &ldquo;Update&rdquo;), matched by ISIN</li>
+<li>Update current bond prices from the FIIG rate sheet (Dashboard &rarr; Market Data &rarr; &ldquo;Update&rdquo;), matched by ISIN</li>
 <li>Returns include income and net custody fees; accrued interest is tracked and netted into income</li>
 <li>Income forecasting and accrued interest tracking</li>
 </ul>`,
       },
       {
         heading: "Stock Information",
-        content: `<p>Each share and ETF holding shows rich company information from Yahoo Finance, refreshed alongside prices (<strong>Settings &rarr; Market Data &rarr; &ldquo;Update&rdquo;</strong>, which streams share, bond, and company-info updates in one step). Open a holding to see a tabbed <strong>Company Information</strong> panel:</p>
+        content: `<p>Each share and ETF holding shows rich company information from Yahoo Finance, refreshed alongside prices (<strong>Dashboard &rarr; Market Data &rarr; &ldquo;Update&rdquo;</strong>, which streams share, bond, and company-info updates in one step). Open a holding to see a tabbed <strong>Company Information</strong> panel:</p>
 <ul>
 <li><strong>Overview</strong> &mdash; business summary, sector/industry/country, and key fundamentals (market cap, P/E, EPS, beta, dividend yield, margins, ROE, 52-week range)</li>
 <li><strong>Analysts</strong> &mdash; price targets with upside vs current price, recommendation-trend chart, and recent upgrades/downgrades</li>
@@ -191,8 +204,8 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
         heading: "Organisation Tools",
         content: `<table>
 <tr><th>Feature</th><th>Purpose</th><th>How to Access</th></tr>
-<tr><td><strong>Custom Groups</strong></td><td>Group holdings by your own categories</td><td>Sidebar &rarr; Settings &rarr; Custom Groups</td></tr>
-<tr><td><strong>Labels</strong></td><td>Tag holdings for filtered reporting</td><td>Sidebar &rarr; Settings &rarr; Labels</td></tr>
+<tr><td><strong>Custom Groups</strong></td><td>Assign instruments to your own categories; group the Performance and Diversity reports by your custom groups (with an &ldquo;Unassigned&rdquo; bucket)</td><td>Sidebar &rarr; Settings &rarr; Custom Groups</td></tr>
+<tr><td><strong>Labels</strong></td><td>Attach/detach holdings per label, then filter the Performance report by label</td><td>Sidebar &rarr; Settings &rarr; Labels</td></tr>
 <tr><td><strong>Consolidated View</strong></td><td>Aggregate view across all portfolios</td><td>Sidebar &rarr; Portfolio &rarr; highlighted &ldquo;Consolidated View&rdquo; card</td></tr>
 <tr><td><strong>Bonds</strong></td><td>Bond analytics, maturity ladder, YTM</td><td>Portfolio &rarr; select portfolio &rarr; &ldquo;Bonds&rdquo; button</td></tr>
 <tr><td><strong>Cash Accounts</strong></td><td>Bank &amp; cash accounts as first-class entities, with import &amp; reconciliation</td><td>Sidebar &rarr; Accounts (or a portfolio&rsquo;s &ldquo;Linked accounts&rdquo; panel)</td></tr>
@@ -200,8 +213,8 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
       },
       {
         heading: "Sharing & Collaboration",
-        content: `<p>Share portfolio access with advisers, accountants, or family (Sidebar &rarr; Settings &rarr; Sharing):</p>
-<ul><li><strong>Read Only</strong> &mdash; View all data</li><li><strong>Read and Write</strong> &mdash; Add/modify holdings</li><li><strong>Admin</strong> &mdash; Full access except account-level changes</li></ul>`,
+        content: `<p>Share portfolio access with advisers, accountants, or family (Sidebar &rarr; Settings &rarr; Sharing). Select the portfolio, enter the recipient&rsquo;s email, choose an access level, and click <strong>Share</strong>. When the recipient signs in with that email, the portfolio appears in their <strong>Portfolio</strong> list with a <strong>&ldquo;Shared&rdquo; badge</strong> and can be opened read-only. Shared portfolios are not included in the recipient&rsquo;s dashboard, reports, tax, or exports.</p>
+<ul><li><strong>Read Only</strong> &mdash; View the portfolio detail page</li><li><strong>Read and Write</strong> &mdash; Selectable, but currently grants read-only access (full write support planned)</li><li><strong>Admin</strong> &mdash; Selectable, but currently grants read-only access (full admin support planned)</li></ul>`,
       },
       {
         heading: "Key Settings",
@@ -212,7 +225,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <tr><td>Sale Allocation Method</td><td>FIFO, LIFO, Minimise CGT, etc.</td></tr>
 <tr><td>CGT Regime</td><td>Current (50% discount) or proposed 2027 (indexation + 30% min-tax) &mdash; Settings &rarr; Tax &amp; CGT</td></tr>
 <tr><td>Instrument Tax Class</td><td>CGT vs income treatment per instrument &mdash; Settings &rarr; Instrument Tax</td></tr>
-<tr><td>Performance Method</td><td>Simple or compound return</td></tr>
+<tr><td>Performance Method</td><td>Simple or compound return (setting exists but is not currently used)</td></tr>
 </table>`,
       },
     ],
@@ -243,7 +256,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
       {
         heading: "Validity & Health",
         content: `<p>A model is <strong>valid across the period</strong> only if every constituent has price history starting on/before the purchase date <em>and</em> is still actively priced today. Delisted/acquired names (e.g. NCM) or too-recent listings fail this check. System models are guaranteed valid by a seed-time guard; your own models surface a warning on the constituent and detail pages, and a green/amber/red <strong>health badge</strong> (also shown by Share Checker&rsquo;s model mode).</p>
-<p>The market-data <strong>Update</strong> button (Settings &rarr; Market Data) now also refreshes prices and company info for every model constituent over a window covering the lookback.</p>`,
+<p>The market-data <strong>Update</strong> button (Dashboard &rarr; Market Data) now also refreshes prices and company info for every model constituent over a window covering the lookback.</p>`,
       },
       {
         heading: "Comparison Dashboard",
@@ -356,17 +369,18 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
     sections: [
       {
         heading: "How to Access",
-        content: `<p>Click <strong>Reports</strong> in the sidebar to see all 10 available reports. Each report card links to a dedicated page.</p>`,
+        content: `<p>Click <strong>Reports</strong> in the sidebar to see all 11 available reports. Each report card links to a dedicated page.</p>`,
       },
       {
         heading: "Performance Reports",
         content: `<ul>
-<li><strong>Performance Report</strong> &mdash; Returns over any period, grouped by market/sector/custom</li>
+<li><strong>Performance Report</strong> &mdash; Returns over any period, grouped by market/sector/custom group, with a label filter</li>
 <li><strong>Contribution Analysis</strong> &mdash; Which holdings drove performance</li>
-<li><strong>Multi-Period Report</strong> &mdash; Compare across up to 5 time periods</li>
+<li><strong>Multi-Period Report</strong> &mdash; Trailing 1M / 3M / 6M / 1Y / 3Y percentage returns</li>
 <li><strong>Sold Securities</strong> &mdash; Realised gains/losses on closed positions</li>
-<li><strong>Future Income</strong> &mdash; Projected dividends (up to 36 months)</li>
-<li><strong>Calendar</strong> &mdash; Month-by-month dividend schedule</li>
+<li><strong>Future Income</strong> &mdash; Next projected payment per holding, from recent income history</li>
+<li><strong>Calendar</strong> &mdash; Month-by-month dividend income (bar chart + table)</li>
+<li><strong>Model Comparison</strong> &mdash; Your portfolio vs a model over time (scaled, with metrics)</li>
 </ul>`,
       },
       {
@@ -401,8 +415,8 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <li><strong>Taxable Income Report</strong> &mdash; Dividend/distribution income mapped to ATO form codes</li>
 <li><strong>CGT Report</strong> &mdash; Realised capital gains with discount, losses, parcel-level breakdown</li>
 <li><strong>Unrealised CGT Report</strong> &mdash; Hypothetical tax liability if positions sold today</li>
-<li><strong>Historical Cost Report</strong> &mdash; Opening/closing cost base for accounting</li>
-</ul>`,
+</ul>
+<p>The <strong>Historical Cost</strong> and <strong>All Trades</strong> reports live under <strong>Reports</strong> rather than the Tax hub.</p>`,
       },
       {
         heading: "Key Features",
@@ -412,7 +426,8 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <li>CPI indexation method for assets acquired before 21 September 1999 (uses whichever gives the lower gain)</li>
 <li>Traditional bonds treated as income (CGT-exempt); listed bonds &amp; hybrids subject to CGT</li>
 <li>Proposed 2027 regime projection (opt-in) &mdash; cost-base indexation, 30% minimum tax, transitional split</li>
-<li>CGT parcel matcher &mdash; Compare all 5 methods to find optimal allocation</li>
+<li><strong>Optimise</strong> card on the CGT report &mdash; compares the assessable gain under all 5 methods; the method itself is changed under Settings &rarr; Tax &amp; CGT</li>
+<li>Rights-issue and merger-in shares enter the CGT parcel engine; mergers transfer cost base (scrip-for-scrip rollover style)</li>
 </ul>`,
       },
       {
@@ -432,10 +447,12 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
       {
         heading: "Supported Actions",
         content: `<table>
-<tr><th>Automated</th><th>Manual (Requires Decision)</th></tr>
-<tr><td>Share splits &amp; consolidations</td><td>Mergers (MERGER_IN/OUT)</td></tr>
-<tr><td>Bonus shares</td><td>Rights issues</td></tr>
-<tr><td>Return of capital</td><td></td></tr>
+<tr><th>Automated</th><th>Manual (via the Corporate Actions page)</th></tr>
+<tr><td>Dividends (auto-generated)</td><td>Share splits &amp; consolidations</td></tr>
+<tr><td></td><td>Bonus shares</td></tr>
+<tr><td></td><td>Return of capital</td></tr>
+<tr><td></td><td>Rights issues</td></tr>
+<tr><td></td><td>Mergers / acquisitions (scrip-for-scrip cost-base transfer)</td></tr>
 </table>`,
       },
       {
@@ -444,7 +461,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <li>From the sidebar, click <strong>Portfolio</strong> &rarr; select your portfolio</li>
 <li>Click a holding code to open the holding detail page</li>
 <li>Click the <strong>&ldquo;Corporate Actions&rdquo;</strong> button in the top-right</li>
-<li>Select action type: Stock Split, Bonus Issue, Return of Capital, or Rights Issue</li>
+<li>Select action type: Stock Split, Bonus Issue, Return of Capital, Rights Issue, or Merger / Acquisition</li>
 <li>Enter the date and relevant values (ratio, quantity, price)</li>
 <li>Click &ldquo;Record Action&rdquo;</li>
 </ol>`,
@@ -465,10 +482,11 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
         heading: "Research Tools",
         content: `<table>
 <tr><th>Tool</th><th>Purpose</th></tr>
-<tr><td><strong>Watchlist</strong></td><td>Monitor investments with price alerts and notes</td></tr>
-<tr><td><strong>Share Checker</strong></td><td>Automated portfolio health checks (concentration, stale data, duplicates)</td></tr>
-<tr><td><strong>Market Sentiment</strong></td><td>Fear &amp; Greed Index, VIX, sector heatmap</td></tr>
+<tr><td><strong>Watchlist</strong></td><td>Monitor investments with research notes (price alerts planned)</td></tr>
+<tr><td><strong>Share Checker</strong></td><td>Automated portfolio health checks (concentration, stale data, duplicates, model health)</td></tr>
+<tr><td><strong>Market Sentiment</strong></td><td>Fear &amp; Greed Index (derived from the VIX), VIX, ASX summary, sector heatmap</td></tr>
 <tr><td><strong>AI Assistant</strong></td><td>Chat-based portfolio Q&amp;A (requires Gemini API key)</td></tr>
+<tr><td><strong>Rebalancing &amp; Drift</strong></td><td>Target (model) vs actual weights with buy/sell deltas to realign</td></tr>
 </table>`,
       },
       {
@@ -492,7 +510,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
     sections: [
       {
         heading: "How to Access",
-        content: `<p>Click <strong>Analytics</strong> in the sidebar to see all 13 analytics tools on one page. Each card links to a dedicated analysis tool.</p>`,
+        content: `<p>Click <strong>Analytics</strong> in the sidebar to see all 14 analytics tools on one page. Each card links to a dedicated analysis tool.</p>`,
       },
       {
         heading: "Risk Metrics",
@@ -504,7 +522,7 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
       },
       {
         heading: "Portfolio Optimisation",
-        content: `<p>Mean-Variance (3 objectives &times; 3 risk measures), Hierarchical Risk Parity (HRP) with dendrogram, and Risk Parity / risk budgeting. Weight constraints, current vs recommended comparison.</p>`,
+        content: `<p>Mean-Variance (Max Sharpe, Min Risk, Max Return), Hierarchical Risk Parity (HRP) with dendrogram, and Risk Parity / risk budgeting. Min/max weight constraints, current vs recommended comparison, and save-as-model.</p>`,
       },
       {
         heading: "Efficient Frontier & Black-Litterman",
@@ -514,8 +532,8 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
       {
         heading: "Monte Carlo & Stress Testing",
         content: `<ul>
-<li><strong>Monte Carlo Simulation</strong> &mdash; Bootstrap, parametric, copula methods with fan charts and withdrawal modelling</li>
-<li><strong>Stress Testing</strong> &mdash; 6 historical crisis scenarios, factor stress, custom shocks (via the What-If page)</li>
+<li><strong>Monte Carlo Simulation</strong> &mdash; Bootstrap, parametric, copula methods with fan charts and fixed-annual-withdrawal modelling</li>
+<li><strong>Stress Testing</strong> &mdash; 6 historical crisis scenarios, factor stress, custom shocks (at <code>/analytics/stress-test</code>); a simpler market-move What-If calculator lives at <code>/analytics/what-if</code></li>
 </ul>`,
       },
       {
@@ -569,14 +587,15 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <li>Import/Export (<code>POST .../import</code>, <code>GET .../export</code>)</li>
 <li>Search instruments (<code>GET /api/v1/market/search?q=...</code>)</li>
 <li>Market quote (<code>GET /api/v1/market/quote/[code]</code>)</li>
-<li>AI import (<code>POST /api/v1/ai-import</code>)</li>
+<li>Token management (<code>GET/POST/DELETE /api/v1/auth/token</code>)</li>
+<li>AI import (<code>POST /api/v1/ai-import</code>) and AI chat (<code>POST /api/v1/chat</code>) &mdash; both require authentication (bearer token or session)</li>
 <li>Bearer token authentication with scope checking (read/write/admin)</li>
-<li>Rate limited to 100 requests/minute per token</li>
+<li>Rate limiting enforced &mdash; 100 requests/minute per token, with <code>429</code> responses over the limit</li>
 </ul>`,
       },
       {
         heading: "Authentication",
-        content: `<p>Bearer token with configurable scopes and optional expiry. Manage tokens at <strong>Sidebar &rarr; Settings &rarr; API Tokens</strong>.</p>
+        content: `<p>Bearer token with configurable scopes and optional expiry. Manage tokens at <strong>Sidebar &rarr; Settings &rarr; API Tokens</strong> (create with a scope and optional expiry, revoke at any time).</p>
 <pre><code>curl http://localhost:3000/api/v1/portfolios \\
   -H "Authorization: Bearer your-api-token-here"</code></pre>`,
       },

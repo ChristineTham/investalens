@@ -72,7 +72,7 @@ InvestaLens provides a column mapping interface that allows users to:
 - Specify decimal separators and number formats
 - Handle currency columns and exchange rates
 - Skip or ignore irrelevant columns
-- Save mapping templates for reuse with the same broker
+- _(⏳ Saving a custom mapping as a reusable template is planned — see [GAPS.md](GAPS.md))_
 
 #### Supported InvestaLens Fields
 
@@ -114,28 +114,25 @@ InvestaLens provides a column mapping interface that allows users to:
 | MERGER_OUT        | Shares cancelled in a merger/acquisition                              | Target company shares cancelled       |
 | RIGHTS_ISSUE      | Shares acquired via a rights issue                                    | Renounceable rights exercised         |
 | BONUS             | Bonus shares received (scrip issue)                                   | 1-for-10 bonus issue                  |
+| DISTRIBUTION      | Trust/ETF distribution received                                       | Quarterly ETF distribution            |
 
 #### Mapping Templates
 
-Users can save and share field mapping configurations for common brokers:
+Nine built-in broker templates power **Quick Import**:
 
 | Broker/Platform     | Region    | Notes                                       |
 | ------------------- | --------- | ------------------------------------------- |
 | CommSec             | Australia | Standard trade confirmation export          |
 | SelfWealth          | Australia | Transaction history CSV                     |
 | Stake               | AU/US     | Supports both AU and US markets             |
-| Interactive Brokers | Global    | Activity statement flex query               |
-| Schwab              | US        | Transaction history export                  |
-| Vanguard            | AU/US     | Transaction history                         |
 | CMC Markets         | Australia | Trade history export (CFD and stockbroking) |
 | CMC Invest          | Australia | Investment platform transaction history     |
 | Bell Direct         | Australia | Trade confirmations and settlement reports  |
 | nabtrade            | Australia | Trade confirmations                         |
+| Interactive Brokers | Global    | Activity statement flex query               |
 | FIIG Securities     | Australia | Bond and fixed income trade confirmations   |
-| Sharesight          | Global    | Trade export (alternative to API)           |
-| Custom              | Any       | User-defined mapping                        |
 
-New templates can be contributed by users or added over time.
+For any other broker, use Guided Import's custom column mapping. _(⏳ Planned templates: Schwab, Vanguard, Sharesight trade export. Saving your own mapping as a reusable template is also ⏳ — see [GAPS.md](GAPS.md).)_
 
 ### 1a. Cash / Bank Statement Import
 
@@ -184,13 +181,17 @@ New custom importers are added as modules in `lib/import/custom/` and registered
 
 ### 2. Sharesight API Integration
 
-For users who already use Sharesight as their portfolio tracker, InvestaLens can import data via the Sharesight REST API. This is **one of many import options**, not a requirement.
+> **⏳ Planned (R4).** Sharesight API import is not yet available.
+
+For users who already use Sharesight as their portfolio tracker, InvestaLens will be able to import data via the Sharesight REST API. This is **one of many import options**, not a requirement.
 
 See [SHARESIGHT_API.md](SHARESIGHT_API.md) for full API integration details.
 
 ### 3. Direct Broker Integrations
 
-Where brokers provide APIs, InvestaLens can integrate directly:
+> **⏳ Planned (R4).** Direct broker API sync is not yet available.
+
+Where brokers provide APIs, InvestaLens will integrate directly:
 
 - OAuth2 or API key authentication
 - Automatic transaction sync
@@ -262,14 +263,16 @@ InvestaLens supports full data export for backup, portability, and external anal
 | CSV (Holdings)     | Current positions with cost base and market value          | Snapshot for spreadsheet analysis         |
 | CSV (Dividends)    | All dividend and distribution records                      | Income reconciliation                     |
 | JSON (Full Backup) | Complete portfolio data including settings, groups, labels | Full backup and restore                   |
-| PDF (Reports)      | Any report exported as formatted PDF                       | Sharing with advisers, record keeping     |
+| PDF (Reports)      | Any report exported as formatted PDF _(⏳ planned — R4)_    | Sharing with advisers, record keeping     |
+
+CSV exports **escape and neutralise cell contents** to protect against spreadsheet formula injection.
 
 ### How to Export
 
-1. **Individual reports**: Click **Export** on any report page (PDF, CSV, or Google Drive)
-2. **All Trades**: Navigate to **Tax > All Trades Report**, set date range to "Since Inception", and export as CSV
-3. **Full backup**: Navigate to **Settings > Data Management > Export All Data**
-4. **Per-holding**: From any Individual Holding Page, export trade history
+1. **Data exports** (trades, holdings, dividends, JSON backup): Navigate to **Settings → Export**
+2. **API**: `GET /api/v1/portfolios/:id/export?format=csv|json` (see [API.md](API.md))
+
+> **⏳ Planned (R4):** per-report PDF export. Report pages are currently on-screen only.
 
 ### Export Schema (CSV Trades)
 

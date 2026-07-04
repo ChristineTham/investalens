@@ -24,14 +24,18 @@ const HELP_SECTIONS = [
   { slug: "portfolio", title: "Portfolio Management", icon: FolderOpen, description: "Detail charts, broker details, merge, groups, labels, sharing" },
   { slug: "models", title: "Model Portfolios", icon: Target, description: "Target-weight models, comparison dashboard, optimise & backtest, rebalancing" },
   { slug: "accounts", title: "Accounts &amp; Cash", icon: Wallet, description: "Bank accounts, statement import, categories, linking, reconciliation" },
-  { slug: "reports", title: "Performance &amp; Reporting", icon: BarChart3, description: "10 reports, risk analysis, drawdown" },
+  { slug: "reports", title: "Performance &amp; Reporting", icon: BarChart3, description: "11 reports, model comparison, risk analysis, drawdown" },
   { slug: "tax", title: "Tax Reporting", icon: Calculator, description: "CGT, taxable income, AMIT, allocation methods" },
   { slug: "corporate-actions", title: "Corporate Actions", icon: GitBranch, description: "Splits, bonus, mergers, rights issues" },
-  { slug: "tools", title: "Research &amp; Planning", icon: Search, description: "Watchlist, FIRE calculator, market sentiment, AI assistant" },
+  { slug: "tools", title: "Research &amp; Planning", icon: Search, description: "Watchlist, FIRE calculator, market sentiment, AI assistant, rebalancing &amp; drift" },
   { slug: "analytics", title: "Advanced Analytics", icon: LineChart, description: "Backtesting, Monte Carlo, optimisation, stress testing" },
-  { slug: "export", title: "Data Export &amp; Backup", icon: Download, description: "CSV, JSON export, automated backups" },
+  { slug: "export", title: "Data Export &amp; Backup", icon: Download, description: "CSV and JSON export (automated backups planned)" },
   { slug: "api", title: "API Access", icon: Code, description: "REST API, authentication, rate limiting" },
 ] as const;
+
+export const metadata = {
+  title: "Help",
+};
 
 export const dynamic = "force-dynamic";
 

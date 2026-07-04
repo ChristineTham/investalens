@@ -10,6 +10,15 @@ export function generateStaticParams() {
   return Object.keys(HELP_CONTENT).map((slug) => ({ slug }));
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  return { title: HELP_CONTENT[slug]?.title ?? "Help" };
+}
+
 export default async function HelpSubPage({
   params,
 }: {

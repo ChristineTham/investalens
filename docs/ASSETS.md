@@ -84,7 +84,7 @@ Unit trusts operate similarly to managed funds and are tracked the same way — 
 
 ### Stock Information
 
-Beyond price tracking, every share and ETF holding carries rich company information sourced from Yahoo Finance via the Python `yfinance` backend. It is refreshed alongside prices (**Settings → Market Data → "Update"**) and displayed in a tabbed **Company Information** panel on the holding detail page:
+Beyond price tracking, every share and ETF holding carries rich company information sourced from Yahoo Finance via the Python `yfinance` backend. It is refreshed alongside prices (**Dashboard → Market Data → "Update"**) and displayed in a tabbed **Company Information** panel on the holding detail page:
 
 | Section        | Contents                                                                                         |
 | -------------- | ------------------------------------------------------------------------------------------------ |
@@ -225,7 +225,7 @@ The FIIG data-extract workbook (`.xls`) is imported in one step via **Import →
 
 #### Updating Bond Prices
 
-Unlisted/OTC bond prices are not available from Yahoo Finance. Instead, they are updated from the FIIG Securities rate sheet as part of the unified market-data refresh: **Settings → Market Data → “Update”** fetches share/ETF prices, bond prices, and company info in one streamed step. Holdings are matched by ISIN (the bond `code`), and the current clean capital price is stored as today's price. Coupon rate, maturity, and sector are backfilled where missing.
+Unlisted/OTC bond prices are not available from Yahoo Finance. Instead, they are updated from the FIIG Securities rate sheet as part of the unified market-data refresh: **Dashboard → Market Data → “Update”** fetches share/ETF prices, bond prices, and company info in one streamed step. Holdings are matched by ISIN (the bond `code`), and the current clean capital price is stored as today's price. Coupon rate, maturity, and sector are backfilled where missing.
 
 #### Bonds in Return Calculations
 
@@ -276,7 +276,7 @@ You can track foreign currency holdings alongside your investments. Foreign curr
 3. Select the currency from the FX: Foreign Exchange Market results
 4. Choose transaction type:
    - **Buy** — if you purchased the currency at a known date and rate
-   - **Opening Balance** — if you already hold the currency and want to record the current balance
+   - **Transfer In** — if you already hold the currency and want to record it at its cost base
 
 **Buy trade fields:**
 
@@ -285,11 +285,7 @@ You can track foreign currency holdings alongside your investments. Foreign curr
 - Exchange rate at the date of the trade (or use the automatically provided rate)
 - Brokerage fees (optional, in either currency)
 
-**Opening Balance fields:**
-
-- Cost base — total cost of the foreign currency at the opening balance date
-- Quantity — amount of foreign currency held
-- Market value is calculated automatically using the current exchange rate (can be overridden)
+Market value is calculated automatically using the current exchange rate.
 
 Once added, foreign currency appears under the Foreign Exchange Market (FX) group on your portfolio page with performance and exchange rate history.
 

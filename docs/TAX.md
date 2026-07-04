@@ -8,8 +8,9 @@
 > | ------------------------------------------- | ----------------------------------------------------- |
 > | Taxable Income Report                       | ✅ Implemented                                        |
 > | CGT Report (discount + CPI indexation methods) | ✅ Implemented                                     |
-> | CGT parcel matcher (optimiser)              | ✅ Implemented                                        |
+> | CGT parcel matcher — Optimise comparison card | ✅ Implemented                                      |
 > | Unrealised CGT Report (indexation-aware)    | ✅ Implemented                                        |
+> | Carried-forward loss entry                  | ⏳ To be Implemented                                  |
 > | Bond CGT exemption / income treatment       | ✅ Implemented                                        |
 > | Proposed 2027 regime projection (opt-in)    | ✅ Implemented                                        |
 > | AMIT components (schema field)              | ✅ Schema ready, ⏳ full processing To be Implemented |
@@ -44,49 +45,21 @@ InvestaLens provides comprehensive tax reporting for Australian investors. The T
 
 ## Tax Summary
 
-The Tax Summary is displayed at the top of the Tax tab and pulls key information from your Taxable Income Report and Capital Gains Tax Report. Use the financial year selector to view your tax summary for a specific year.
-
-### Taxable Income Summary
-
-| Item                       | Description                                                            |
-| -------------------------- | ---------------------------------------------------------------------- |
-| Dividend & interest income | All dividend and interest income received in the period                |
-| Capital gains              | Net capital gain figure from the CGT Report                            |
-| Franking credits           | Franking credits attached to your dividend income                      |
-| Total assessable income    | Sum of dividend & interest income, capital gains, and franking credits |
-
-### Capital Gain Summary
-
-| Item                | Description                                                |
-| ------------------- | ---------------------------------------------------------- |
-| Total capital gains | Gross capital gains from all sales in the period           |
-| Current year losses | Capital losses realised in the current year                |
-| CGT discount %      | Discount rate applied based on tax entity type             |
-| Net capital gain    | Final taxable capital gain after applying the CGT discount |
-
-### Tax Details
-
-| Setting                 | Description                                            |
-| ----------------------- | ------------------------------------------------------ |
-| Tax residency           | Country of tax residency set for your portfolio        |
-| Portfolio base currency | Currency used to report portfolio values               |
-| Tax entity type         | Individual, Company, SMSF, or Trust                    |
-| CGT discount %          | Discount rate for long-term capital gains              |
-| Sale allocation method  | Method used to calculate CGT (e.g. FIFO, Minimise CGT) |
+The **Tax** page is a hub: it provides a **financial year selector** and a **portfolio filter**, plus links into the three tax reports below. Pick the year and portfolio once, then open the report you need.
 
 ---
 
 ## Tax Reports
 
-The following reports are accessible from the Tax tab:
+The following reports are accessible from the Tax hub:
 
 | Report                                                          | Description                                                             |
 | --------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | [Taxable Income Report](#taxable-income-report)                 | Lists all dividend and interest income required for your tax return     |
 | [Capital Gains Tax (CGT) Report](#capital-gains-tax-cgt-report) | Calculates realised capital gains and losses, applying the CGT discount |
 | [Unrealised CGT Report](#unrealised-cgt-report)                 | Shows potential CGT liability if current holdings were sold today       |
-| Historical Cost Report                                          | Original purchase cost for tax and record-keeping purposes              |
-| All Trades Report                                               | Complete record of all buy and sell transactions                        |
+
+The **Historical Cost Report** (`/reports/historical-cost`) and **All Trades Report** (`/reports/all-trades`) live under the **Reports** section rather than the Tax hub — see [TOOLS.md](TOOLS.md).
 
 ---
 
@@ -96,66 +69,30 @@ Shows all dividend, distribution, and interest income received within a selected
 
 > **Data source for franking:** franked/unfranked amounts and franking credits are captured from **imported dividend/AMMA statements** or **manual entry**. The price feed (Yahoo Finance) provides only the **gross cash dividend** — auto-fetched dividends are therefore recorded **unclassified** (treated as unfranked with no credits), and ETF/trust distributions are not split into their tax components. To classify a payment, open the holding's **Transaction History** and use the coins icon on the dividend row — you can enter franked/unfranked amounts, franking credits, tax-deferred and foreign tax, and compute the credits from the franked amount at the 30% or 25% company tax rate — or import the relevant statement.
 
-### Income Categories
+### What the Report Shows
 
-Income is grouped into three sections:
+The report aggregates **eight income fields per instrument** for the selected financial year:
 
-1. **Local Non-Trust Income** — Dividends and interest from Australian shares and other non-trust investments
-2. **Local Trust Income** — Distributions from ETFs, managed funds, and other trust investments
-3. **Foreign Income** — Income received from international investments
+| Column               | Description                                                       |
+| -------------------- | ------------------------------------------------------------------ |
+| Franked Amount       | Dividend amount with franking credits attached                     |
+| Unfranked Amount     | Australian assessable dividend without franking credits            |
+| Interest             | Interest income amount                                             |
+| Bond Capital Growth  | Discount/premium on traditional bonds, taxed as ordinary income    |
+| Tax Deferred         | Non-assessable amount that adjusts cost base for CGT purposes      |
+| Foreign Source Income | Gross non-Australian assessable income (before tax credits)       |
+| Foreign Income Tax   | Foreign tax withheld on overseas income                            |
+| Franking Credits     | Franking credits attached to dividends                             |
 
-### Column Descriptions
+Totals are shown across all instruments, alongside the income-composition chart.
 
-| Column                   | Description                                                                          |
-| ------------------------ | ------------------------------------------------------------------------------------ |
-| Paid Date / Tax Date     | Date the payment was credited to you                                                 |
-| Total Income             | Total income figure for the payment                                                  |
-| Net Dividend             | Total income less withholding tax — the cash actually received                       |
-| Franked Amount           | Dividend amount with franking credits attached                                       |
-| Unfranked Amount         | Australian assessable dividend without franking credits                              |
-| Interest                 | Interest income amount                                                               |
-| Tax Deferred             | Non-assessable amount that adjusts cost base for CGT purposes                        |
-| AMIT Decrease            | Trust distribution where cash exceeds taxable income attributed; decreases cost base |
-| AMIT Increase            | Trust distribution where taxable income exceeds cash; increases cost base            |
-| Foreign Source Income    | Gross non-Australian assessable income (before tax credits)                          |
-| Discounted Capital Gains | Grossed up and included with capital gains on the CGT Report                         |
-| CGT Concessions          | CGT discount in distributions; non-assessable, does not alter cost base              |
-| Non Assessable           | Used to reduce reduced cost base; does not affect cost base                          |
-| TFN Withholding Tax      | Australian tax deducted (typically where TFN not provided)                           |
-| Foreign Income Tax       | Foreign tax withheld on overseas income                                              |
-| Franking Credits         | Franking credits attached to dividends                                               |
-| Other Net FSI            | Non-Australian assessable income after offsetting allowable expenses                 |
-| LIC Capital Gain         | LIC dividend attributable to a capital gain (50% deduction available)                |
-| Gross Amount             | Total amount before any deductions                                                   |
-
-### Australian Income Totals
-
-Provides the total Australian income and total franking credits.
-
-### Foreign Income Table
-
-Includes: Date Paid, Exchange Rate, Net Amount (Foreign), Foreign Tax Withheld, Gross Amount.
-
-### Income Tax Return Section
-
-For Individual tax entity Australian portfolios, this section helps complete your income tax return:
-
-- ATO form codes are shown on the left
-- Information icons explain each figure
-- Values map directly to the relevant fields in the ATO tax return
-
-> **Note:** Remember to add income from sources not recorded in InvestaLens (such as property, annuities, etc.) before completing your income tax return.
-
-### Advanced Options
-
-- **Show Comments** — Display comments associated with dividends or distributions
-- **Show Holding Totals** — Display totals across all payouts for a single investment (useful for reconciling with annual tax statements)
+> **Note:** Income is presented per instrument — the report does not split holdings into trust vs non-trust sections, and full AMIT annual-tax-statement processing is ⏳ planned (see [GAPS.md](GAPS.md)). Remember to add income from sources not recorded in InvestaLens (such as property, annuities, etc.) before completing your income tax return.
 
 ---
 
 ## Capital Gains Tax (CGT) Report
 
-Calculates capital gains made on shares as per Australian Tax Office rules. The report may be run over any date range. Charts summarise the **CGT composition** (short/long-term gains netted down by the discount, indexation, and losses to the assessable amount) and **realised gain/loss by holding**.
+Calculates capital gains made on shares as per Australian Tax Office rules. Use the **financial year selector** to pick the reporting year. The page shows **summary cards**, charts summarising the **CGT composition** (short/long-term gains netted down by the discount, indexation, and losses to the assessable amount) and **realised gain/loss by holding**, the opt-in **2027 regime projection**, a **detail table** of disposals, and the **Optimise** method-comparison card.
 
 > **Note:** This report is only available in Australian tax residency portfolios.
 
@@ -172,47 +109,29 @@ The discount rate is determined by the tax entity type set in portfolio settings
 
 ### Report Overview
 
-#### Losses Carried Forward
+#### Sale Allocation Method & the Optimise Card
 
-Shows losses applied for the selected financial year. Click **Edit** to enter capital losses carried forward from a previous year.
+The sale allocation method itself is set under **Settings → Tax &amp; CGT** (default: FIFO). The CGT report's **Optimise** comparison card runs the parcel matcher under **all five methods** (FIFO, LIFO, Minimise Capital Gain, Maximise Capital Gain, Minimise CGT) and shows the assessable gain each would produce, so you can see which is most tax-effective before changing the setting.
 
-> **Note:** InvestaLens does not automatically carry forward losses from previous years. You need to enter these manually each time you run the report.
+#### Corporate Actions in the Parcel Engine
 
-#### Sale Allocation Method
-
-Shows the allocation method currently assigned to the reporting period (default: FIFO). Click **Optimise** to automatically select the most tax-effective method.
+Rights-issue shares and merger-in shares enter the CGT parcel engine as parcels in their own right. Mergers transfer the cost base of the old holding to the new one (scrip-for-scrip rollover style) — see [ACTIONS.md](ACTIONS.md).
 
 #### Capital Gains or Losses
 
-| Figure                           | ATO Code | Description                                                |
-| -------------------------------- | -------- | ---------------------------------------------------------- |
-| Total current year capital gains | 18H      | Gross capital gain before losses or discounts              |
-| Net capital gain                 | 18A      | Final taxable capital gain after all offsets and discounts |
-| Net capital loss carried forward | 18V      | Excess losses available to carry forward to future years   |
-
 **Net capital gain calculation:**
 
-1. **Short-term component**: Short-term capital gains + non-discounted distributions − capital losses (including carried forward)
-2. **Long-term component**: Long-term capital gains + discounted distributions − remaining losses, with CGT discount applied
-3. **Net capital gain (18A)** = Net short-term gains + discounted long-term gains
+1. **Short-term component**: Short-term capital gains − capital losses
+2. **Long-term component**: Long-term capital gains − remaining losses, with CGT discount (or indexation) applied
+3. **Net capital gain** = Net short-term gains + discounted long-term gains
 
-#### Breakdown Tabs
+#### Losses Carried Forward ⏳
 
-| Tab                          | Description                                                                         |
-| ---------------------------- | ----------------------------------------------------------------------------------- |
-| All Holdings                 | Summary with instrument code, market, sold quantity, gains, losses, distributions   |
-| Short-term Gains             | Parcels held < 12 months (no CGT discount)                                          |
-| Long-term Gains              | Parcels held ≥ 12 months (eligible for CGT discount)                                |
-| Losses                       | Parcels sold below cost base + losses carried forward                               |
-| Non-discounted Distributions | Capital gains from trust/ETF rebalancing (no discount eligible)                     |
-| Discounted Distributions     | Capital gains from trust distributions (discount already applied, need grossing up) |
-| Exemptions                   | Parcels exempt from CGT (e.g. assets acquired before 20 September 1985)             |
+Entering capital losses carried forward from a previous financial year is **not yet available** — the report works from the losses realised within the selected year. See [GAPS.md](GAPS.md).
 
-### Locking CGT Positions
+### Locking CGT Positions ⏳
 
-Once satisfied with the sale allocation method for a period, click **Lock for period** to preserve settings.
-
-> **Note:** CGT positions must be locked in chronological order. Lock each financial year before moving to the next.
+Locking the sale allocation method for a completed financial year (so later method changes don't disturb it) is planned but not yet available. See [GAPS.md](GAPS.md).
 
 ---
 
@@ -229,16 +148,18 @@ Calculates unrealised capital gains in your portfolio and the resulting taxable 
 | Capital Losses (unrealised)           | Holdings currently at a loss (would offset gains if sold)           |
 | Summary                               | Hypothetical net taxable capital gain if entire portfolio were sold |
 
-### Parcel-Level Columns
+### Holding-Level Columns
 
-| Column                 | Description                                                         |
-| ---------------------- | ------------------------------------------------------------------- |
-| Sale Allocation Method | Method determining which parcel is deemed sold first                |
-| Purchase Date          | Date the parcel was purchased (determines CGT discount eligibility) |
-| Quantity               | Units in the parcel (adjusted for capital returns/reconstructions)  |
-| Cost Base              | Original purchase price, adjusted for capital returns               |
-| Market Value           | Value of the parcel on the report date                              |
-| Gain (or Loss)         | Difference between market value and cost base                       |
+| Column         | Description                                                        |
+| -------------- | ------------------------------------------------------------------ |
+| Quantity       | Units currently held (adjusted for capital returns/reconstructions) |
+| Cost Base      | Original purchase price, adjusted for capital returns               |
+| Market Value   | Value of the holding on the report date                             |
+| Gain (or Loss) | Difference between market value and cost base                       |
+
+### How Discount Eligibility Is Determined
+
+The report determines CGT-discount eligibility per holding using the **weighted-average holding period**: if the quantity-weighted average age of the holding's parcels is **365 days or more**, its gain is treated as long-term (discount-eligible); otherwise it is short-term.
 
 ### Summary Calculation
 
@@ -249,12 +170,9 @@ Calculates unrealised capital gains in your portfolio and the resulting taxable 
 
 ### Running the Report
 
-1. Select the report date
-2. (Optional) Enter carry forward losses in Advanced Options
-3. Choose the Sale Allocation Method (FIFO, LIFO, Minimise/Maximise Capital Gain, Minimise CGT)
-4. Click **Update current report**
+Open **Tax → Unrealised CGT** and select the portfolio — the report computes immediately from current positions and prices.
 
-> **Note:** InvestaLens does not automatically account for capital losses from previous tax years. Carry forward losses must be entered manually and are not saved between report runs.
+> **Note:** There is no per-run method chooser or advanced-options panel — the report uses the settings above. Carry-forward capital losses from previous tax years are not yet supported (⏳ — see [GAPS.md](GAPS.md)).
 
 ### Rebalance to a Model (CGT estimate)
 
@@ -285,7 +203,7 @@ Australian CGT offers two ways to work out a gain on an asset held for at least
 The CGT and Unrealised CGT reports show a **Method** column indicating which was
 applied per disposal, and an **Indexation Relief** figure when the indexation
 method is used. CPI data is sourced from the Reserve Bank of Australia
-(Statistical Table G1) — run `pnpm db:cpi` to load or refresh it.
+(Statistical Table G1) — run `pnpm update-data --cpi-only` to load or refresh it.
 
 ### Bonds
 
@@ -454,7 +372,7 @@ Tax loss selling involves identifying holdings currently at a loss and selling t
 
 Each parcel has a different cost base and holding period — affecting CGT discount eligibility and tax owed.
 
-**What to look at:** Compare short-term and long-term gains tables. Try changing the sale allocation method in Advanced Options to see how it affects total liability.
+**What to look at:** Compare short-term and long-term gains tables. Use the **Optimise** card on the CGT Report to see how each sale allocation method affects total liability before changing the method under Settings → Tax &amp; CGT.
 
 ### 3. Drawing Down Your Portfolio Tax-Efficiently
 
@@ -497,7 +415,9 @@ Corporate actions such as mergers, demergers, and returns of capital directly af
 
 ---
 
-## Xero Integration
+## Xero Integration ⏳ Not yet implemented
+
+> **⏳ Planned.** The description below covers the intended experience.
 
 If you connect InvestaLens to Xero, the sale allocation method is used when calculating the realised gain component and cost base reduction on sell trades synchronised to Xero.
 

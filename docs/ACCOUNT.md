@@ -15,7 +15,8 @@
 > | CGT indexation method (pre-1999)     | ✅ Implemented                      |
 > | Proposed 2027 CGT regime projection  | ✅ Implemented                      |
 > | Instrument tax-class override        | ✅ Implemented                      |
-> | Portfolio sharing (read/write/admin) | ✅ Implemented (server action + UI) |
+> | Portfolio sharing (read-only viewing) | ✅ Implemented (server action + UI) |
+> | Sharing write/admin enforcement      | ⏳ To be Implemented (levels selectable, currently read-only) |
 > | Custom groups with categories        | ✅ Implemented (server action + UI) |
 > | Labels (create, assign to holdings)  | ✅ Implemented (server action + UI) |
 > | Consolidated view                    | ✅ Implemented (page)               |
@@ -74,22 +75,20 @@ Below the holdings is a **Transactions** list spanning every holding in the port
 
 ### Portfolio Settings
 
-Access portfolio settings via **Settings > Details**:
+Name and administrative details are edited via the **edit (pencil)** button on the portfolio detail page; tax settings live under **Settings → Tax &amp; CGT**:
 
-| Setting                        | Description                                            | Editable           |
+| Setting                        | Description                                            | Where / Editable   |
 | ------------------------------ | ------------------------------------------------------ | ------------------ |
-| Portfolio Name                 | Display name used within InvestaLens                   | Yes                |
-| Icon & Colour                  | Visual identity shown on cards, the header, the dashboard table, and per-portfolio charts | Yes                |
-| Broker Name                    | Broker / platform name (links to the website)          | Yes                |
-| Broker Website                 | URL of the broker / platform                           | Yes                |
-| Client Number                  | Your client reference with the broker                  | Yes                |
-| Account Number                 | Your account number with the broker                    | Yes                |
+| Portfolio Name                 | Display name used within InvestaLens                   | Pencil edit dialog |
+| Icon & Colour                  | Visual identity shown on cards, the header, the dashboard table, and per-portfolio charts | Pencil edit dialog |
+| Broker Name                    | Broker / platform name (links to the website)          | Pencil edit dialog |
+| Broker Website                 | URL of the broker / platform                           | Pencil edit dialog |
+| Client Number                  | Your client reference with the broker                  | Pencil edit dialog |
+| Account Number                 | Your account number with the broker                    | Pencil edit dialog |
 | Tax Residency                  | Country determining currency, tax rules, and reporting | **No** (permanent) |
-| Financial Year End             | Month marking end of financial year                    | Yes                |
-| Performance Calculation Method | Simple or Compound percentage return calculation       | Yes                |
-| Tax Entity Type                | Determines CGT discount applied (AU only)              | Yes                |
-
-On the portfolio detail page, click the **edit (pencil)** button to update the name and broker / account details in one dialog.
+| Financial Year End             | End of financial year — defaults to 30 June            | **No** (not editable) |
+| Performance Calculation Method | Simple or Compound percentage return calculation       | ⏳ Setting exists but is not currently used |
+| Tax Entity Type                | Determines CGT discount applied (AU only)              | Settings → Tax &amp; CGT |
 
 ---
 
@@ -101,25 +100,23 @@ Add additional portfolios to your InvestaLens account to track multiple broker a
 
 ### Steps to Create a New Portfolio
 
-1. Click on the portfolio dropdown menu at the top right of any page
-2. Click **Create new portfolio**
-3. Enter a **Portfolio Name** (display name, can be edited later)
-4. Select the **Tax Residency** country
+1. From the sidebar, click **Portfolio**, then the **New Portfolio** button
+2. Enter a **Portfolio Name** (display name, can be edited later)
+3. Select the **Tax Residency** country
 
 > **Important:** The tax residency cannot be changed once the portfolio is created. It determines the portfolio currency, tax settings, and reports.
 
-5. Select the **Financial Year End** month (e.g. June for a 1 July – 30 June year)
-6. Select the **Performance Calculation Method** (Simple or Compound)
-7. Select the **Tax Entity Type** (Australia only):
+4. Select the **Tax Entity Type** (Australia only):
    - **Individuals / Trust** — CGT discount of 50%
    - **Self-Managed Super Fund** — CGT discount of 33⅓%
    - **Company** — CGT discount nil
-8. Click **Create Portfolio**
+5. Click **Create Portfolio**
+
+The dialog collects only these three fields. The financial year end defaults to 30 June and is not editable; there is no performance-method field.
 
 After creation, you can add investments by:
 
 - Importing from a CSV file
-- Connecting via an API integration (e.g. Sharesight)
 - Manually adding holdings
 
 ---
@@ -223,17 +220,14 @@ When you record a sell trade, the system matches that sale against your availabl
 
 ### Changing Methods Across Financial Years
 
-You can use a different sale allocation method each time you run the CGT Report. However, changing the method for a prior financial year can alter parcel allocation across all subsequent years.
+You can change the sale allocation method at any time. However, changing the method can alter parcel allocation across all financial years, including prior ones.
 
-**Lock-in feature:** Lock the sale allocation method for a completed financial year to preserve that year's allocation. Once locked, it won't be overridden if you change the method for a different period.
-
-> **Important:** If you have changed sale allocation methods between financial years without using lock-in, the parcel matching across those years may be incorrect. Review your CGT Report and use lock-in to fix each year in sequence from oldest to most recent.
+**Lock-in feature ⏳:** Locking the sale allocation method for a completed financial year (so it isn't overridden by later method changes) is planned but not yet available. See [GAPS.md](GAPS.md).
 
 ### How to Change the Method
 
-1. Run the CGT Report for the relevant financial year
-2. Click **Optimise** on the Sale Allocation Method card to automatically select the most tax-effective method
-3. To lock the method, click **Lock for period** at the bottom of the report
+1. Go to **Settings → Tax &amp; CGT** and select the **parcel allocation** method on the portfolio's card
+2. On the **CGT Report** page, the **Optimise** comparison card shows the assessable gain under all five methods, so you can see which is most tax-effective before changing the setting
 
 > **Note:** InvestaLens does not provide taxation advice. Consult your accountant or tax adviser if unsure which method applies.
 
@@ -251,26 +245,23 @@ Share your InvestaLens portfolio with other people, such as:
 
 | Level              | Capabilities                                                                                                                       |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| **Read Only**      | View all data in your portfolio; cannot change or modify anything                                                                  |
-| **Read and Write** | View all data plus add, modify, and delete holdings, trades, and dividends. Cannot add portfolios, alter settings, or invite users |
-| **Admin**          | View and modify all data, edit portfolio settings and integrations. Cannot delete/rename the portfolio or invite additional users  |
+| **Read Only**      | View the shared portfolio's detail page; cannot change or modify anything ✅                                                        |
+| **Read and Write** | Selectable, but currently grants **read-only** access — write enforcement is ⏳ planned (see [GAPS.md](GAPS.md))                    |
+| **Admin**          | Selectable, but currently grants **read-only** access — admin enforcement is ⏳ planned (see [GAPS.md](GAPS.md))                    |
 
 ### How to Share Access
 
-1. Click the **Settings** tab
-2. Click the **Portfolio Sharing** tab
-3. Enter the person's first name, last name, and email address
-4. Select the **Access Level** (Read Only, Read and Write, or Admin)
-5. Click **Share Portfolio** — an email invitation will be sent
+1. Go to **Settings → Sharing**
+2. Select the **portfolio** to share, enter the person's **email address**, and select the **access level**
+3. Click **Share** — a share record is created (no email invitation is sent)
+
+When the recipient signs in with that email, the shared portfolio appears in their **Portfolio** list with a **"Shared" badge**, and they can open its detail page read-only. Shared portfolios are **not** included in the recipient's dashboard, reports, tax reports, or exports.
 
 ### Managing Shared Access
 
-Once you have invited someone, you can change their access level or remove their access at any time:
-
-1. Go to **Settings > Portfolio Sharing**
-2. View the list of shared users
-3. **Change access level**: Click on the current access level and select a new one from the dropdown
-4. **Remove access**: Click the delete icon next to the user
+1. Go to **Settings → Sharing**
+2. Each share is listed with its access-level badge
+3. **Remove access**: Click the remove icon next to the user (to change a level, remove the share and create it again — an inline level-change dropdown is not yet available)
 
 ---
 
@@ -280,15 +271,10 @@ Custom Groups enable you to customise how your holdings are grouped on reports, 
 
 ### Where Custom Groups Can Be Used
 
-- Portfolio Investments Page
-- Performance Report
-- Diversity Report
-- Historical Cost Report
-- Sold Securities Report
-- Contribution Analysis Report
-- Exposure Report
-- Multi-Period Report
-- All Trades Report
+- Performance Report (**Group By** option)
+- Diversity Report (**Group By** option)
+
+Instruments not assigned to a category appear in an **"Unassigned"** bucket.
 
 ### How Custom Groups Work
 
@@ -299,16 +285,14 @@ Custom Groups enable you to customise how your holdings are grouped on reports, 
 
 ### Creating a Custom Group
 
-1. Click **Account** from the top right of the screen
-2. Select **Custom Groups** from the dropdown menu
-3. Name your Custom Group (click the default name to edit)
-4. Click **Add new category** to create categories within the group
-5. Name each category
-6. Drag and drop holdings from the "Ungrouped Instruments" list into the appropriate category
+1. Go to **Settings → Custom Groups**
+2. Name your Custom Group and save it
+3. Add categories within the group and name each one
+4. Assign instruments to the appropriate category
 
 ### Using Custom Groups
 
-To apply a Custom Group, use the **Group By** option on Reports or the Portfolio Investments Page. Your Custom Groups will be listed below the default groupings (Market, Sector, Industry, Investment Type, Country).
+To apply a Custom Group, use the **Group By** option on the Performance and Diversity reports. Your Custom Groups are listed alongside the default groupings, and any instrument without a category falls into the **"Unassigned"** bucket.
 
 ### Default Grouping Options (Always Available)
 
@@ -335,17 +319,15 @@ Labels allow you to report on specific subsets of holdings within a portfolio, c
 
 ### Creating and Applying Labels
 
-Labels can be created and applied from:
-
-1. **Settings tab** — Go to Settings > Labels, name the label, select holdings, click Create
-2. **Performance Report** — Click "Filter by Label" > Manage, create and assign labels
-3. **Individual Holding Page** — Click Summary tab > Manage Labels, create and assign
+Labels are created and applied under **Settings → Labels**: name the label, save it, then attach holdings to it per label.
 
 ### Managing Labels
 
-- **Attach existing label to a holding**: In the Labels settings, select the holding and click Attach next to the desired label
+- **Attach a label to a holding**: On the label's row in Settings → Labels, attach the desired holding
+- **Detach a label from a holding**: On the label's row, detach the holding
 - **Delete a label**: Click the delete icon next to the label
-- **Remove a label from a holding**: Click the delete icon within the holding's label assignment
+
+Once holdings are attached, use the **Label filter** on the Performance Report to report on just those holdings.
 
 ---
 
@@ -375,18 +357,14 @@ Share transfers — moving ownership of stocks, ETFs, or other securities from o
    - Quantity = number of shares transferred
    - Unit price = cost base per share (from step 2)
 5. Open the destination portfolio
-6. Click **Add Investment**
+6. Click **Add Holding**
 7. Record the transferred shares as either:
-   - **Opening Balance**: date = transfer date, cost base = transferred units × cost base per share, quantity = transferred units
+   - **Transfer In**: date = transfer date, quantity = transferred units, unit price = cost base per share
    - **Buy trade**: trade date = transfer date, quantity = transferred units, unit price = cost base per share
 
 ### Moving Holdings with Full History
 
-If you need to transfer a holding with its entire trading history (all buys, sells, and dividends), contact support with:
-
-- The name of the original portfolio
-- The ticker code of the holding
-- The name of the destination portfolio
+To combine two whole portfolios — including every buy, sell, and dividend — use the **merge** feature instead (see [Merge Portfolios](#merge-portfolios)). Moving a single holding with its full history between portfolios is not yet automated; re-enter (or re-import) its transactions in the destination portfolio.
 
 ---
 
@@ -450,6 +428,8 @@ The AI Importer requires the `GOOGLE_GENERATIVE_AI_API_KEY` environment variable
 ---
 
 ## Emergency Fund
+
+> **⏳ To be Implemented (R4).** The Emergency Fund tracker is not yet available — the sections below describe the intended experience.
 
 The Emergency Fund feature lets you define and track a savings target for unexpected expenses, separate from your investment portfolio.
 

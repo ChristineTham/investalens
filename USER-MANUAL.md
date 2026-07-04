@@ -10,8 +10,9 @@ Welcome to InvestaLens — a comprehensive portfolio tracker and optimiser for i
 > | Multi-Type Import (shares, bonds, cash; quick + custom importers) | ✅ Implemented             |
 > | Supported Assets (equities, ETFs, bonds, crypto)               | ✅ Implemented               |
 > | Stock Information (profile, fundamentals, analysts, news)      | ✅ Implemented               |
-> | Portfolio Management (groups, labels, sharing, consolidated)   | ✅ Implemented               |
-> | Performance & Reporting (6 performance + 4 allocation reports) | ✅ Implemented               |
+> | Portfolio Management (groups, labels, consolidated)            | ✅ Implemented               |
+> | Sharing (read-only viewing of shared portfolios)               | ✅ Implemented (write/admin enforcement ⏳) |
+> | Performance & Reporting (7 performance + 4 allocation reports) | ✅ Implemented               |
 > | Tax Reporting (Taxable Income, CGT + CPI indexation, Unrealised CGT, bonds) | ✅ Implemented           |
 > | Proposed 2027 CGT regime projection (opt-in)                   | ✅ Implemented               |
 > | Corporate Actions (split, bonus, ROC, rights, merger)          | ✅ Implemented               |
@@ -52,7 +53,7 @@ Set up your account, create your first portfolio, and understand how InvestaLens
 
 ### Navigation Overview
 
-After signing in, you land on the **Dashboard** (`/dashboard`) which shows your total portfolio value, gain/loss, and recent activity. The sidebar provides access to all sections:
+After signing in, you land on the **Portfolio** page (`/portfolio`), which lists your portfolios. The **Dashboard** (`/dashboard`) shows your total portfolio value, gain/loss, and recent activity. The sidebar provides access to all sections:
 
 | Sidebar Link   | What It Contains                                                          |
 | -------------- | ------------------------------------------------------------------------- |
@@ -60,15 +61,15 @@ After signing in, you land on the **Dashboard** (`/dashboard`) which shows your 
 | **Portfolio**  | Portfolio overview cards (allocation donut, returns, recent activity); create/manage portfolios, holdings, imports, bonds; link cash accounts |
 | **Models**     | Weight-based model portfolios: list, create, edit, detail (target weights, instantiation, value-over-time, health badge), and a scaled consolidated-vs-models comparison dashboard |
 | **Accounts**   | First-class bank &amp; cash accounts: balances, inline-editable transactions with a running balance, categories, statement import (OFX/QIF/CSV), and reconciliation |
-| **Reports**    | 10 performance and allocation reports                                     |
+| **Reports**    | 11 performance and allocation reports (including Model Comparison)       |
 | **Tax**        | Taxable income, CGT, and unrealised CGT reports                           |
-| **Tools**      | Watchlist, FIRE calculator, Share Checker, Market Sentiment, AI Assistant |
-| **Analytics**  | 13 quantitative analysis tools (backtesting, optimisation, Monte Carlo, etc.) |
-| **Settings**   | Groups, labels, categories, sharing, export, API tokens, market data (fetch share &amp; bond prices and company information), Tax &amp; CGT (entity type, allocation, 2027 regime), Instrument Tax (CGT vs income) |
+| **Tools**      | Watchlist, FIRE calculator, Share Checker, Market Sentiment, AI Assistant, Rebalancing &amp; Drift |
+| **Analytics**  | 14 quantitative analysis tools (backtesting, optimisation, Monte Carlo, etc.) |
+| **Settings**   | Groups, labels, categories, sharing, export, API tokens, Tax &amp; CGT (entity type, allocation, 2027 regime), Instrument Tax (CGT vs income). Market data updates (share &amp; bond prices and company information) live on the **Dashboard → Market Data → Update** control |
 
 ### What You'll Do First
 
-1. **Create your account** — Register at `/register` with name, email, and password (minimum 8 characters). Or sign in with Google OAuth.
+1. **Create your account** — Register at `/register` with name, email, and password (minimum 8 characters). Google sign-in is offered on the login page (`/login`) only.
 2. **Create a portfolio** — From the sidebar click **Portfolio**, then "New Portfolio", choose tax residency and entity type
 3. **Import your investments** — Click into your portfolio, then use the "Import" or "✨ AI Import" button
 4. **Explore reports** — Click **Reports** or **Tax** in the sidebar for performance and tax analysis
@@ -171,11 +172,11 @@ Pre-built CSV mapping templates for quick import:
 | Schwab              | US                | ⏳     |
 | Vanguard            | AU/US             | ⏳     |
 
-Custom templates can be created for any broker and saved for reuse.
+For any other broker, use Guided Import to map columns manually for that import. Saving a custom mapping as a reusable template is planned. _(⏳)_
 
 ### What Gets Imported
 
-InvestaLens supports 16 transaction types including BUY, SELL, DIVIDEND, SPLIT, INTEREST, COUPON, MATURITY, TRANSFER_IN/OUT, RETURN_OF_CAPITAL, MERGER_IN/OUT, RIGHTS_ISSUE, BONUS, ADJUSTMENT, and FEE.
+InvestaLens supports 17 transaction types including BUY, SELL, DIVIDEND, DISTRIBUTION, SPLIT, INTEREST, COUPON, MATURITY, TRANSFER_IN/OUT, RETURN_OF_CAPITAL, MERGER_IN/OUT, RIGHTS_ISSUE, BONUS, ADJUSTMENT, and FEE.
 
 For bonds and fixed income, additional fields are available: Coupon Rate, Maturity Date, Face Value, Payment Frequency, and Accrued Interest. The dedicated FIIG importer also records coupon income, principal repayments, and custody fee invoices.
 
@@ -212,7 +213,7 @@ InvestaLens provides dedicated bond analytics (navigate via **Portfolio \u2192 s
 - Coupon schedule generation ✅
 - Maturity alerts (30/60/90 days before expiry) ✅
 - Import from FIIG Securities — trades, coupon income, principal repayments, and custody fees in one step ✅
-- Update current bond capital prices from the FIIG rate sheet (Settings → Market Data → "Update"), matched by ISIN ✅
+- Update current bond capital prices from the FIIG rate sheet (Dashboard → Market Data → "Update"), matched by ISIN ✅
 - Coupon income, principal repayments, and custody fee tracking with summary totals ✅
 - Returns include income and net custody fees; accrued interest on trades is tracked and netted into income ✅
 - Credit quality breakdown ✅
@@ -241,7 +242,7 @@ Each share and ETF holding shows rich, periodically-refreshed company informatio
 
 ### How to Refresh Stock Information
 
-Stock information is fetched together with prices. Go to **Settings → Market Data** and click **"Update"** — in one step InvestaLens updates share and ETF prices (Yahoo Finance), bond prices (FIIG rate sheet), and the company information for your share/ETF holdings. A live progress bar shows each phase (shares & ETFs → bonds → company info) and the current ticker as it works. Bonds, cash, and currencies are skipped for company info. The panel shows when the data was last updated. The same **Update** control appears in the Market Data section of the Dashboard, and when it finishes the Dashboard refreshes automatically so the summary cards and charts reflect the latest prices.
+Stock information is fetched together with prices. Go to the **Dashboard**, find the **Market Data** section, and click **"Update"** — in one step InvestaLens updates share and ETF prices (Yahoo Finance), bond prices (FIIG rate sheet), and the company information for your share/ETF holdings. A live progress bar shows each phase (shares & ETFs → bonds → company info) and the current ticker as it works. Bonds, cash, and currencies are skipped for company info. The panel shows when the data was last updated, and when the update finishes the Dashboard refreshes automatically so the summary cards and charts reflect the latest prices.
 
 > **Note (self-hosted on Vercel):** company information is computed by the Python `yfinance` backend, which the app calls server-to-server. If your deployment has **Deployment Protection** enabled, enable **Protection Bypass for Automation** (Settings → Deployment Protection) so these internal calls aren't blocked with a 401, then redeploy.
 
@@ -295,17 +296,17 @@ Use the **edit (pencil)** button on the detail page to set the portfolio name an
 
 | Feature               | Purpose                                                                                               | How to Access                                      |
 | --------------------- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| **Custom Groups**     | Group holdings by your own categories (e.g. "Growth", "Defensive", "Income") — applies to all reports | Sidebar → Settings → Custom Groups                 |
-| **Labels**            | Tag holdings for filtered reporting (e.g. "Advisor A picks", "Tax loss candidates")                   | Sidebar → Settings → Labels                        |
+| **Custom Groups**     | Group holdings by your own categories (e.g. "Growth", "Defensive", "Income") — assign instruments to categories, then group the Performance and Diversity reports by your custom groups (with an "Unassigned" bucket) | Sidebar → Settings → Custom Groups                 |
+| **Labels**            | Tag holdings for filtered reporting (e.g. "Advisor A picks", "Tax loss candidates") — attach/detach holdings per label, then filter the Performance report by label | Sidebar → Settings → Labels                        |
 | **Consolidated View** | Aggregate view across all portfolios                                                                  | Sidebar → Portfolio → "Consolidated View" card (highlighted) |
 
 ### Sharing & Collaboration
 
-Share portfolio access with advisers, accountants, or family (Sidebar → Settings → Sharing):
+Share portfolio access with advisers, accountants, or family (Sidebar → Settings → Sharing). Enter the recipient's email and choose an access level. When the recipient signs in with that email, the shared portfolio appears in their **Portfolio** list with a **"Shared" badge** and can be opened read-only (detail page). Shared portfolios are **not** included in the recipient's dashboard, reports, tax reports, or exports.
 
-- **Read Only** — View all data ✅
-- **Read and Write** — Add/modify holdings and trades ✅
-- **Admin** — Full access except account-level changes ✅
+- **Read Only** — View the portfolio detail page ✅
+- **Read and Write** — Selectable, but currently grants read-only access (full write support ⏳ planned)
+- **Admin** — Selectable, but currently grants read-only access (full admin support ⏳ planned)
 
 ### Key Settings
 
@@ -317,7 +318,7 @@ Share portfolio access with advisers, accountants, or family (Sidebar → Settin
 | Sale Allocation Method | How cost base parcels are matched to sells (FIFO, LIFO, Minimise CGT, etc.) |
 | CGT Regime             | Current (50% discount) or proposed 2027 projection (indexation + 30% min-tax) |
 | Instrument Tax Class   | Override CGT vs income treatment per instrument (Settings → Instrument Tax)  |
-| Performance Method     | Simple or compound return calculation                                       |
+| Performance Method     | Simple or compound return calculation _(⏳ setting exists but is not currently used in calculations)_ |
 
 ### Transferring Holdings
 
@@ -413,7 +414,7 @@ Throughout the dashboard and reports, returns combine capital and income, net of
 - **Income** = dividends + interest + coupons, **net of accrued interest** (accrued interest paid when buying a bond reduces income because it is recovered at the next coupon; accrued interest received on a sale adds to income)
 - **Total gain** = capital gain + income − custody/management fees
 
-Bond market value uses the latest stored price per $1 of face value, so refreshing market data (Settings → Market Data → "Update") keeps bond valuations current.
+Bond market value uses the latest stored price per $1 of face value, so refreshing market data (Dashboard → Market Data → "Update") keeps bond valuations current.
 
 > **Note on returns:** Dashboard and report returns are simple, nominal figures — they are **not time-weighted** and **not inflation-indexed**. For an inflation-indexed (CPI) view, the Tax reports apply the ATO capital gains methodology, including the indexation method for eligible assets (acquired before 21 September 1999).
 
@@ -423,10 +424,10 @@ Bond market value uses the latest stored price per $1 of face value, so refreshi
 | ------------------------- | -------------------------------------------------------------- | ----------------------------- |
 | **Performance Report**    | Returns over any period, grouped and filtered by your criteria | ✅ `/reports/performance`     |
 | **Contribution Analysis** | Which holdings drove (or dragged) portfolio performance        | ✅ `/reports/contribution`    |
-| **Multi-Period Report**   | Compare performance across up to 5 time periods                | ✅ Server action (stub UI)    |
+| **Multi-Period Report**   | Trailing 1M / 3M / 6M / 1Y / 3Y percentage returns             | ✅ `/reports/multi-period`    |
 | **Sold Securities**       | Realised gains/losses on closed positions                      | ✅ `/reports/sold-securities` |
-| **Future Income**         | Projected dividends and interest (up to 36 months)             | ✅ `/reports/future-income`   |
-| **Calendar**              | Month-by-month dividend schedule                               | ✅ Server action (stub UI)    |
+| **Future Income**         | Next projected payment per holding, based on recent income history | ✅ `/reports/future-income`   |
+| **Calendar**              | Month-by-month dividend schedule                               | ✅ `/reports/calendar`        |
 | **Model Comparison**      | Your portfolio vs a model over time (scaled, with metrics)     | ✅ `/reports/model-comparison` |
 
 ### Asset Allocation Reports
@@ -435,7 +436,7 @@ Bond market value uses the latest stored price per $1 of face value, so refreshi
 | ---------------------------- | --------------------------------------------------------------------- | -------------------------- |
 | **Diversity Report**         | Portfolio weightings by sector, country, asset type, or custom group  | ✅ `/reports/diversity`    |
 | **Exposure Report**          | Look-through ETF holdings to see true underlying exposure and overlap | ✅ `/analytics/exposure`   |
-| **Drawdown Risk**            | Maximum drawdown and RoMaD for each holding                           | ✅ Server action (stub UI) |
+| **Drawdown Risk**            | Maximum drawdown and RoMaD for each holding                           | ✅ `/reports/drawdown`     |
 | **Multi-Currency Valuation** | Portfolio valued in any of 67+ currencies at any date                 | ⏳ R3                      |
 
 ### Risk Analysis (X-ray)
@@ -443,7 +444,7 @@ Bond market value uses the latest stored price per $1 of face value, so refreshi
 Automated portfolio health check at `/tools/checker`, scanning for:
 
 - Concentration risk (single holding > 20% of portfolio)
-- Stale price data (> 7 days old)
+- Stale price data (older than 5 business days)
 - Missing cost base (no buy transactions)
 - Duplicate holdings across portfolios
 - ETF overlap detection via `/analytics/exposure`
@@ -465,12 +466,13 @@ Australian-focused tax reporting with full CGT calculation, AMIT support, and ta
 | **Taxable Income Report**  | All dividend/distribution income mapped to ATO form codes                | ✅ `/tax/taxable-income`   |
 | **CGT Report**             | Realised gains with discount **and** CPI indexation, losses, parcel breakdown, and an opt-in 2027 projection | ✅ `/tax/cgt`              |
 | **Unrealised CGT Report**  | Hypothetical tax liability if positions were sold today                  | ✅ `/tax/unrealised`       |
-| **Historical Cost Report** | Opening/closing cost base for accounting purposes                        | ✅ Server action (stub UI) |
+| **Historical Cost Report** | Opening/closing cost base for accounting purposes                        | ✅ `/reports/historical-cost` |
 
 ### Key Features
 
-- **Sale allocation methods** — FIFO, LIFO, Minimise Capital Gain, Maximise Capital Gain, Minimise CGT (considers discount eligibility) ✅
-- **CGT parcel matcher** — Compare all 5 methods to find optimal allocation ✅
+- **Sale allocation methods** — FIFO, LIFO, Minimise Capital Gain, Maximise Capital Gain, Minimise CGT (considers discount eligibility); changed under **Settings → Tax &amp; CGT** ✅
+- **CGT parcel matcher** — The CGT report's **Optimise** card compares the assessable gain under all 5 methods to find the optimal allocation ✅
+- **Corporate actions in CGT** — Rights-issue and merger-in shares enter the CGT parcel engine; mergers transfer cost base to the new holding (scrip-for-scrip rollover style) ✅
 - **CGT discount** — 50% individual/trust, 33⅓% SMSF, 0% company ✅
 - **CGT indexation method** — Cost base indexed by CPI for assets acquired before 21 September 1999; uses whichever method gives the lower gain ✅
 - **Bond CGT treatment** — Traditional bonds exempt from CGT (gains reported as income); listed bonds &amp; hybrids subject to CGT; override per instrument ✅
@@ -498,21 +500,23 @@ Use the Unrealised CGT Report to:
 
 ## 7. Corporate Actions
 
-InvestaLens handles most corporate events automatically — and guides you through those requiring decisions.
+InvestaLens records corporate events through a guided Corporate Actions page — only dividends are generated automatically.
 
 ### Automation Summary
 
-| Automated (✅ Implemented)    | Manual — requires your decision (✅ Implemented) |
-| ----------------------------- | ------------------------------------------------ |
-| Share splits & consolidations | Mergers (MERGER_IN/OUT server action)            |
-| Bonus shares                  | Rights issues (via corporate actions page)       |
-| Return of capital             |                                                  |
+| Automated (✅ Implemented) | Manual — recorded via the Corporate Actions page (✅ Implemented) |
+| -------------------------- | ----------------------------------------------------------------- |
+| Dividends (auto-generated) | Share splits & consolidations                                      |
+|                            | Bonus shares                                                       |
+|                            | Return of capital                                                  |
+|                            | Rights issues                                                      |
+|                            | Mergers / acquisitions (scrip-for-scrip cost-base transfer)        |
 
 | To be Implemented | |
 | ------------------------------------ | |
 | Demergers (spin-offs) | ⏳ |
 | IPO recording | ⏳ |
-| Automated corporate action detection | ⏳ |
+| Automated corporate action detection (splits, bonus, ROC) | ⏳ |
 | Name/ticker change tracking | ⏳ |
 
 ### How to Record Corporate Actions
@@ -520,7 +524,7 @@ InvestaLens handles most corporate events automatically — and guides you throu
 1. From the sidebar, click **Portfolio** → select your portfolio
 2. Click a holding code to open the holding detail page
 3. Click the **"Corporate Actions"** button in the top-right
-4. Select action type: Stock Split, Bonus Issue, Return of Capital, or Rights Issue
+4. Select action type: Stock Split, Bonus Issue, Return of Capital, Rights Issue, or Merger / Acquisition
 5. Enter the date and relevant values (ratio, quantity, price)
 6. Click "Record Action"
 
@@ -538,7 +542,7 @@ All research tools are accessible via **Sidebar → Tools**:
 
 | Tool                 | Purpose                                                                           | How to Access             |
 | -------------------- | --------------------------------------------------------------------------------- | ------------------------- |
-| **Watchlist**        | Monitor potential investments with price alerts and research notes                | Tools → Watchlist         |
+| **Watchlist**        | Monitor potential investments with research notes (price alerts ⏳ planned)       | Tools → Watchlist         |
 | **Share Checker**    | Automated portfolio health checks — concentration, stale data, duplicates, plus **model validity / health** | Tools → Share Checker     |
 | **Market Sentiment** | Fear & Greed Index, VIX, ASX summary, sector heatmap                              | Tools → Market Sentiment  |
 | **AI Assistant**     | Chat-based portfolio Q&A powered by Gemini                                        | Tools → AI Assistant      |
@@ -654,11 +658,13 @@ Decompose returns into systematic risk factors:
 
 ### Stress Testing (Analytics → Stress Testing)
 
-Accessible at `/analytics/what-if` with 3 tabs:
+Accessible at `/analytics/stress-test` with 3 tabs:
 
 - **Historical** — 6 crisis scenarios (GFC, COVID, Dot-com, 2022 Rate Shock, Black Monday, Asian Crisis)
 - **Factor** — "If market drops X%, what happens?" with per-asset beta decomposition
 - **Custom** — Per-asset shock inputs
+
+A simpler **What-If calculator** at `/analytics/what-if` estimates the effect of a broad market move on your portfolio.
 
 ### AI Features
 
@@ -705,16 +711,18 @@ Programmatic access to portfolio data via a RESTful API.
 - ✅ Get/update/delete transaction (`GET/PATCH/DELETE /api/v1/portfolios/[id]/transactions/[txId]`)
 - ✅ Portfolio performance (`GET /api/v1/portfolios/[id]/performance`)
 - ✅ Portfolio diversity (`GET /api/v1/portfolios/[id]/diversity`)
-- ✅ Import transactions (`POST /api/v1/portfolios/[id]/import`)
+- ✅ Import transactions (`POST /api/v1/portfolios/[id]/import`) — deduplicates against existing transactions, like the UI importer
 - ✅ Export portfolio (`GET /api/v1/portfolios/[id]/export`)
 - ✅ Search instruments (`GET /api/v1/market/search?q=...`)
 - ✅ Market quote (`GET /api/v1/market/quote/[code]`)
 - ✅ Token management (`GET/POST/DELETE /api/v1/auth/token`)
-- ✅ AI import (`POST /api/v1/ai-import`)
-- ✅ AI chat (`POST /api/v1/chat`)
+- ✅ AI import (`POST /api/v1/ai-import`) — requires authentication (bearer token or session)
+- ✅ AI chat (`POST /api/v1/chat`) — requires authentication (bearer token or session)
 - ✅ Bearer token authentication with scope checking (read/write/admin)
-- ✅ Rate limited to 100 requests/minute per token
+- ✅ Rate limiting enforced — 100 requests/minute per token, over-limit requests receive `429`
 - ✅ JSON response format with error codes
+
+Additional endpoints exist under `/api/v1` that power the app's own pages — model, account, and dashboard detail endpoints (e.g. `/api/v1/dashboard/detail`, `/api/v1/accounts/[id]/detail`, `/api/v1/models/[id]/instruments/[instrumentId]/detail`, `/api/v1/portfolios/[id]/detail`, `/api/v1/market/sync-prices`). These are **internal (session auth)** and are not intended for bearer-token clients.
 
 ### To be Implemented
 

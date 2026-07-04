@@ -8,7 +8,7 @@
 > | --------------------------------------- | ------------------------- |
 > | Portfolio Backtesting                   | ✅ Implemented (R2)       |
 > | Monte Carlo Simulation                  | ✅ Implemented (R2)       |
-> | Portfolio Optimisation (20+ strategies) | ✅ Implemented (R2)       |
+> | Portfolio Optimisation (mean-variance, HRP, risk parity) | ✅ Implemented (R2) |
 > | Efficient Frontier                      | ✅ Implemented (R2)       |
 > | Black-Litterman Model                   | ✅ Implemented (R2)       |
 > | Estimation Methods                      | ✅ Implemented (R2)       |
@@ -38,7 +38,7 @@ InvestaLens includes a suite of advanced analytical tools for portfolio construc
 - [Model Validation & Selection](#model-validation--selection)
 - [Factor Analysis](#factor-analysis)
 - [Tactical Asset Allocation](#tactical-asset-allocation)
-- [Asset Correlations & Cointegration](#asset-correlations--cointegration)
+- [Asset Correlations](#asset-correlations)
 - [Scenario & Stress Testing](#scenario--stress-testing)
 - [Capital Market Expectations](#capital-market-expectations)
 
@@ -46,76 +46,33 @@ InvestaLens includes a suite of advanced analytical tools for portfolio construc
 
 ## Portfolio Backtesting
 
-Test how a hypothetical portfolio allocation would have performed over a historical period. Compare up to three portfolios against a benchmark.
+Test how a hypothetical allocation strategy would have performed over the historical returns of your holdings. The backtester runs a **walk-forward** simulation over the supplied return history, re-computing weights at each rebalance.
 
-### Backtest Types
+### Strategies
 
-| Type                            | Description                                                       | Data Range                   |
-| ------------------------------- | ----------------------------------------------------------------- | ---------------------------- |
-| **Ticker-level backtest**       | Backtest specific ETFs, mutual funds, and stocks                  | From fund inception (varies) |
-| **Asset class backtest**        | Backtest asset class allocations (e.g. "60% equities, 40% bonds") | From 1972                    |
-| **Dynamic allocation backtest** | Backtest portfolios where assets or weights changed over time     | From fund inception          |
+| Strategy          | Description                                        |
+| ----------------- | --------------------------------------------------- |
+| **Equal Weight**  | 1/N across all assets                               |
+| **Min Variance**  | Minimise portfolio volatility                       |
+| **Max Sharpe**    | Maximise risk-adjusted return                       |
+| **Risk Parity**   | Equalise the risk contribution of each asset        |
+| **Mean-Variance** | Classic Markowitz optimisation                      |
 
 ### Configuration
 
-| Parameter            | Options                                                      |
-| -------------------- | ------------------------------------------------------------ |
-| Time period          | Custom start/end year, or full available history             |
-| Initial investment   | Any dollar amount                                            |
-| Periodic cashflows   | Contributions or withdrawals (monthly, quarterly, annually)  |
-| Rebalancing          | None, monthly, quarterly, semi-annual, annual, or band-based |
-| Benchmark            | Any index, ETF, or custom portfolio                          |
-| Inflation adjustment | Nominal or real (CPI-adjusted) returns                       |
+| Parameter   | Options                                                       |
+| ----------- | -------------------------------------------------------------- |
+| Source      | A real portfolio or a [model portfolio](#model-portfolios); compare a mix of both |
+| Rebalancing | Monthly, quarterly, or annually                                 |
+| Benchmark   | ASX 200, S&P 500, MSCI World, and ETF proxies                   |
 
 ### Output Metrics
 
-The backtest generates a comprehensive analysis:
+- CAGR, Sharpe, Sortino, maximum drawdown, Calmar ratio
+- Equity curve and drawdown chart
+- Side-by-side strategy comparison (`/analytics/backtest/compare`)
 
-**Performance summary:**
-
-- Annualised return (CAGR), inflation-adjusted CAGR
-- Best/worst year, positive months percentage
-- Start and end balance
-
-**Risk metrics:**
-
-| Metric                    | Description                                                                |
-| ------------------------- | -------------------------------------------------------------------------- |
-| Standard Deviation        | Annualised volatility                                                      |
-| Maximum Drawdown          | Largest peak-to-trough decline                                             |
-| Sharpe Ratio              | Risk-adjusted return (excess return / volatility)                          |
-| Sortino Ratio             | Downside risk-adjusted return                                              |
-| Calmar Ratio              | Return / maximum drawdown                                                  |
-| Beta                      | Sensitivity to benchmark movements                                         |
-| Alpha                     | Excess return after adjusting for benchmark exposure                       |
-| R²                        | Percentage of variance explained by benchmark                              |
-| Treynor Ratio             | Excess return per unit of systematic risk                                  |
-| Value-at-Risk (VaR)       | Expected worst loss at 5% confidence (historical, analytical, conditional) |
-| Upside/Downside Capture   | How much of the benchmark's up/down moves the portfolio captures           |
-| Tracking Error            | Standard deviation of active returns vs benchmark                          |
-| Information Ratio         | Active return / tracking error                                             |
-| Safe Withdrawal Rate      | Maximum sustainable withdrawal rate over the period                        |
-| Perpetual Withdrawal Rate | Withdrawal rate that preserves capital indefinitely                        |
-
-**Visualisations:**
-
-- Portfolio growth chart (vs benchmark)
-- Annual returns bar chart (side-by-side)
-- Drawdown chart with recovery periods
-- Rolling returns (3-year, 5-year)
-- Active return contribution by asset
-- Up vs. down market scatter plot
-- Risk decomposition pie chart
-
-**Detailed tables:**
-
-- Annual returns (with inflation, benchmark, and excess)
-- Monthly returns
-- Drawdown periods (start, trough, recovery time, depth)
-- Historical stress period performance (GFC, COVID-19, etc.)
-- Asset correlations matrix
-- Return and risk decomposition by holding
-- Holdings-based style analysis (asset allocation, sector, market cap, credit quality)
+> **Note:** Backtests run over the price history available for your holdings — there is no built-in pre-1990s asset-class dataset, and periodic contribution/withdrawal cashflows, inflation adjustment, and safe-withdrawal-rate statistics are not modelled.
 
 ---
 
@@ -123,55 +80,31 @@ The backtest generates a comprehensive analysis:
 
 Project the probability of different portfolio outcomes by running thousands of randomised return scenarios. Essential for retirement planning, withdrawal sustainability testing, and goal probability analysis.
 
-### Simulation Models
+### Simulation Methods
 
-| Model                     | Description                                                              |
-| ------------------------- | ------------------------------------------------------------------------ |
-| **Historical returns**    | Randomly sample from actual historical year returns (bootstrap)          |
-| **Forecasted returns**    | Use specified expected mean and standard deviation                       |
-| **Statistical returns**   | Based on observed mean, volatility, and correlations of portfolio assets |
-| **Parameterised returns** | User-specified statistical distribution (normal, log-normal, fat-tailed) |
+| Method         | Description                                                             |
+| -------------- | ------------------------------------------------------------------------ |
+| **Bootstrap**  | Randomly resample from actual historical returns                         |
+| **Parametric** | Multivariate normal draws from the estimated mean and covariance         |
+| **Copula**     | Student-t copula sampling that preserves tail dependence between assets  |
 
 ### Configuration
 
-| Parameter             | Description                                |
-| --------------------- | ------------------------------------------ |
-| Initial amount        | Starting portfolio value                   |
-| Simulation period     | Number of years to project (e.g. 30 years) |
-| Number of simulations | Typically 10,000 trials                    |
-| Inflation model       | Historical, fixed rate, or bootstrapped    |
-| Rebalancing           | Frequency during simulation                |
-| Tax treatment         | Pre-tax or after-tax modelling             |
-
-### Withdrawal Models
-
-| Model                     | Description                                                                      |
-| ------------------------- | -------------------------------------------------------------------------------- |
-| **Fixed amount**          | Constant annual withdrawal (inflation-adjusted)                                  |
-| **Fixed percentage**      | Withdraw a % of current portfolio value each year                                |
-| **Life expectancy (RMD)** | Variable percentage based on remaining life expectancy                           |
-| **Custom sequence**       | Import a year-by-year cashflow schedule                                          |
-| **Guardrails**            | Dynamic withdrawal with ceiling/floor adjustments based on portfolio performance |
+| Parameter             | Description                                    |
+| --------------------- | ----------------------------------------------- |
+| Initial amount        | Starting portfolio value                        |
+| Simulation period     | Number of years to project (e.g. 30 years)      |
+| Number of simulations | Up to 10,000 trials                             |
+| Annual withdrawal     | Fixed annual withdrawal amount (optional)       |
+| Distribution fitting  | Normal, Student-t, or Skew-Normal, with best-fit selection |
 
 ### Output
 
-- **Success rate** — Percentage of simulations where portfolio survives the full period
-- **Percentile outcomes** — Portfolio value at 10th, 25th, 50th, 75th, 90th percentiles
-- **Failure analysis** — When failures occur (year of depletion), average shortfall
-- **Fan chart** — Confidence bands showing range of outcomes over time
-- **Probability of reaching goals** — Can the portfolio meet specific future liabilities?
-- **Sequence of returns risk** — Impact of early bad years vs late bad years
+- **Fan chart** — Confidence bands (5th–95th percentile) showing the range of outcomes over time
+- **Percentile outcomes** — Portfolio value at key percentiles
+- **Success rate** — With a withdrawal amount set, the share of simulations where the portfolio survives the full period
 
-### Financial Goals Planning
-
-Model multiple life stages with different cashflows:
-
-1. **Accumulation phase** — Working years with regular contributions
-2. **Transition** — Gap years, career breaks, or early retirement bridge
-3. **Drawdown phase** — Retirement withdrawals
-4. **Legacy** — Terminal portfolio value target for estate/bequest
-
-Each stage can have different contribution/withdrawal amounts, asset allocations, and risk profiles.
+> **Note:** Only a **fixed annual withdrawal amount** is supported — percentage-based, life-expectancy, guardrail, and custom-sequence withdrawal models are not available, and multi-stage goals planning is not modelled.
 
 ---
 
@@ -181,46 +114,29 @@ Find the optimal portfolio weights that maximise return for a given risk level, 
 
 ### Optimisation Strategies
 
-| Strategy                             | Objective                                                                       |
-| ------------------------------------ | ------------------------------------------------------------------------------- |
-| **Mean-Variance (Markowitz)**        | Maximise Sharpe Ratio — best risk-adjusted return on the efficient frontier     |
-| **Minimum Variance**                 | Minimise portfolio volatility regardless of return                              |
-| **Risk Parity**                      | Equalise the risk contribution of each asset (all assets contribute equal risk) |
-| **Maximum Diversification**          | Maximise the diversification ratio                                              |
-| **Conditional Value-at-Risk (CVaR)** | Minimise expected tail loss (worst-case scenarios)                              |
-| **Maximum Drawdown**                 | Minimise the worst peak-to-trough decline                                       |
-| **Kelly Criterion**                  | Maximise expected geometric growth rate (log-optimal portfolio)                 |
-| **Sortino Ratio**                    | Maximise return per unit of downside risk                                       |
-| **Omega Ratio**                      | Maximise the probability-weighted ratio of gains vs losses                      |
-| **Tracking Error**                   | Minimise deviation from a target benchmark                                      |
-| **Information Ratio**                | Maximise active return per unit of tracking error                               |
+| Family                         | Strategy / objective                                                             |
+| ------------------------------ | --------------------------------------------------------------------------------- |
+| **Mean-Variance (Markowitz)**  | **Max Sharpe** — best risk-adjusted return on the efficient frontier              |
+| **Mean-Variance (Markowitz)**  | **Min Risk** — minimise portfolio volatility regardless of return                 |
+| **Mean-Variance (Markowitz)**  | **Max Return** — maximise expected return subject to constraints                  |
+| **Hierarchical Risk Parity**   | Cluster-based allocation (HRP) with dendrogram                                    |
+| **Risk Parity**                | Equalise the risk contribution of each asset (inverse volatility / risk budgeting) |
+
+You can run **multiple strategies at once**, start from a real portfolio **or a model**, and **save each result as a new model**.
 
 ### Constraints
 
-| Constraint               | Description                           |
-| ------------------------ | ------------------------------------- |
-| Min/max weight per asset | e.g. no single holding above 20%      |
-| Group constraints        | e.g. total equities between 40–80%    |
-| Long-only                | No short selling (default)            |
-| Turnover limits          | Maximum rebalancing trade volume      |
-| Sector/country limits    | Cap exposure to specific dimensions   |
-| Cardinality              | Maximum number of assets in portfolio |
-
-### Robust Optimisation
-
-Standard mean-variance optimisation is sensitive to estimation errors in expected returns and covariances. Robust methods mitigate this:
-
-- **Resampled efficient frontier** — Monte Carlo resampling of inputs to produce diversified portfolios
-- **Shrinkage estimators** — Ledoit-Wolf covariance shrinkage toward structured targets
-- **Bayesian methods** — Incorporate prior beliefs about return distributions
+| Constraint               | Description                      |
+| ------------------------ | -------------------------------- |
+| Min/max weight per asset | e.g. no single holding above 20% |
+| Long-only                | No short selling                 |
 
 ### Output
 
 - Optimised asset weights
 - Expected return and risk at the optimal point
-- Comparison with current allocation and benchmark
-- Marginal contribution to risk by each asset
-- Rebalancing trades needed to reach optimal allocation
+- Current vs recommended comparison chart
+- Rebalancing trades needed to reach the optimal allocation
 
 ---
 
@@ -230,23 +146,19 @@ Visualise the set of all optimal portfolios — those offering the highest retur
 
 ### How It Works
 
-1. Select the universe of assets (ETFs, funds, asset classes, or individual stocks)
-2. Optionally specify allocation constraints (min/max weights)
-3. Choose the risk measure for the frontier (variance, CVaR, CDaR, or any supported measure)
-4. InvestaLens calculates the full efficient frontier using historical or forecasted returns
-5. Your current portfolio is plotted on the chart showing how close it is to the frontier
+1. Select the source — a real portfolio or a model
+2. InvestaLens calculates a 50-point efficient frontier from historical returns
+3. Hover any frontier point to see its allocation weights
 
 ### Chart Elements
 
 | Element                    | Description                                                |
 | -------------------------- | ---------------------------------------------------------- |
 | Efficient frontier curve   | Set of optimal portfolios (risk vs return)                 |
-| Current portfolio point    | Where your actual allocation sits relative to the frontier |
 | Minimum variance portfolio | Leftmost point on the frontier (lowest risk)               |
 | Maximum Sharpe portfolio   | Tangent portfolio (best risk/return trade-off)             |
 | Individual assets          | Each asset plotted by its own risk/return                  |
-| Capital Market Line        | Line from risk-free rate through tangent portfolio         |
-| Naive portfolios           | 1/N and inverse-vol plotted for comparison                 |
+| Model overlays             | Selected models plotted as labelled points vs the frontier |
 
 ### Applications
 
@@ -285,15 +197,13 @@ Standard optimisation often produces extreme, concentrated portfolios because sm
 - Only tilting away from equilibrium where you have a specific view
 - Producing more stable, intuitive allocations that change gradually as views change
 
-### Advanced View Models
+### Output
 
-Beyond classic Black-Litterman, InvestaLens supports more expressive view frameworks:
+- Prior vs posterior expected returns comparison table
+- Optimal weights under the blended (posterior) estimates
+- The equilibrium **prior** can be seeded from a model portfolio's target weights (Prior: Market | Model)
 
-| Model                  | Description                                                                                                                                                                                   |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Entropy Pooling**    | Express views on any distributional property (mean, CVaR, variance) — not just expected returns. Views are imposed by minimally distorting the prior distribution (maximum entropy principle) |
-| **Opinion Pooling**    | Combine multiple expert opinions (each with their own views and confidence) into a single blended distribution with configurable expert weights                                               |
-| **Factor-Level Views** | Express views on risk factors rather than individual assets — e.g. "quality factor will outperform value by 3%" — then propagate to asset-level through the factor model                      |
+> **Note:** Views are limited to **absolute** and **relative** return views with a per-view confidence slider — distributional (entropy-pooling), multi-expert opinion-pooling, and factor-level view frameworks are not supported.
 
 ---
 
@@ -306,109 +216,55 @@ The quality of optimisation depends heavily on the accuracy of input estimates. 
 | Estimator                   | Description                                                              | Best For                       |
 | --------------------------- | ------------------------------------------------------------------------ | ------------------------------ |
 | **Empirical (sample mean)** | Historical average returns                                               | Baseline, long histories       |
+| **Shrunk (James-Stein)**    | Shrink sample means toward a common value to reduce estimation error     | Reducing extreme estimates     |
 | **Exponentially Weighted**  | Recent returns weighted more heavily (decay parameter α)                 | Regime-sensitive analysis      |
-| **Shrinkage (James-Stein)** | Shrink sample means toward a common value to reduce estimation error     | Reducing extreme estimates     |
-| **Equilibrium (implied)**   | Derive expected returns from market-cap weights via reverse optimisation | Black-Litterman starting point |
-| **Factor Model**            | Estimate returns from factor exposures × factor premiums                 | Fundamental-based views        |
+| **Equilibrium (CAPM)**      | Derive expected returns from market weights via reverse optimisation     | Black-Litterman starting point |
 
 ### Covariance Estimators
 
-| Estimator                                       | Description                                                                   | Best For                        |
-| ----------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------- |
-| **Empirical (sample)**                          | Standard sample covariance matrix                                             | Baseline                        |
-| **Ledoit-Wolf Shrinkage**                       | Shrink toward structured target (identity, constant correlation)              | Reducing estimation noise       |
-| **Oracle Approximating Shrinkage (OAS)**        | Data-driven optimal shrinkage intensity                                       | Automatic shrinkage tuning      |
-| **Denoising (Random Matrix Theory)**            | Remove noise from eigenvalues below the Marchenko-Pastur threshold            | Large asset universes           |
-| **Detoning**                                    | Remove the market mode (largest eigenvalue) to isolate relative relationships | Correlation-based clustering    |
-| **Gerber Covariance**                           | Statistic based on co-movements exceeding a threshold — robust to outliers    | Fat-tailed return distributions |
-| **Exponentially Weighted**                      | Recent observations weighted more heavily                                     | Changing market regimes         |
-| **Regime-Adjusted Exponentially Weighted**      | Adjust decay based on detected market regimes                                 | Structural break awareness      |
-| **Graphical Lasso (Sparse Inverse Covariance)** | Estimate sparse precision matrix via L1 penalty with cross-validation         | High-dimensional portfolios     |
-| **Implied Covariance**                          | Derive from option prices or market-implied correlations                      | Forward-looking risk            |
+Five estimators are available:
+
+| Estimator                                       | Description                                                           | Best For                    |
+| ----------------------------------------------- | ---------------------------------------------------------------------- | --------------------------- |
+| **Empirical (sample)**                          | Standard sample covariance matrix                                      | Baseline                    |
+| **Ledoit-Wolf Shrinkage**                       | Shrink toward a structured target                                      | Reducing estimation noise   |
+| **Oracle Approximating Shrinkage (OAS)**        | Data-driven optimal shrinkage intensity                                | Automatic shrinkage tuning  |
+| **Exponentially Weighted**                      | Recent observations weighted more heavily                              | Changing market regimes     |
+| **Graphical Lasso (Sparse Inverse Covariance)** | Estimate sparse precision matrix via L1 penalty                        | High-dimensional portfolios |
 
 ### Distribution Modelling
 
-For simulation and stress testing, model the full joint distribution of asset returns (not just mean and covariance):
+For simulation, three univariate distributions can be fitted (with automatic best-fit selection):
 
-#### Univariate Distributions
+| Distribution          | Properties                                              |
+| --------------------- | -------------------------------------------------------- |
+| **Gaussian (Normal)** | Symmetric, thin tails — simple baseline                  |
+| **Student's t**       | Symmetric, heavy tails — captures extreme events         |
+| **Skew-Normal**       | Captures asymmetry in the return distribution            |
 
-| Distribution                | Properties                                                |
-| --------------------------- | --------------------------------------------------------- |
-| **Gaussian (Normal)**       | Symmetric, thin tails — simple baseline                   |
-| **Student's t**             | Symmetric, heavy tails — captures extreme events          |
-| **Johnson Su**              | Flexible skew and kurtosis — fits empirical return shapes |
-| **Normal Inverse Gaussian** | Semi-heavy tails with skew — common in finance            |
-
-#### Dependence Modelling (Copulas)
-
-Copulas separate marginal distributions from dependence structure, capturing non-linear relationships and tail dependence:
-
-| Copula          | Tail Dependence                   | Use Case                          |
-| --------------- | --------------------------------- | --------------------------------- |
-| **Gaussian**    | None (asymptotically independent) | General-purpose baseline          |
-| **Student's t** | Symmetric tail dependence         | Joint crash modelling             |
-| **Clayton**     | Lower tail dependence             | Assets that crash together        |
-| **Gumbel**      | Upper tail dependence             | Assets that rally together        |
-| **Joe**         | Upper tail dependence (stronger)  | Concentrated co-movements         |
-| **Vine Copula** | Flexible multi-asset structure    | Full portfolio joint distribution |
-
-**Vine Copulas** decompose a high-dimensional joint distribution into a cascade of bivariate copulas, allowing different dependence structures between each pair of assets. Variants include Regular Vine, Centered Vine, and Clustered Vine.
-
-### Prior Models
-
-Prior models define the baseline assumptions fed into optimisation. They can be combined with views to produce posterior estimates:
-
-| Prior               | Description                                                                                                   |
-| ------------------- | ------------------------------------------------------------------------------------------------------------- |
-| **Empirical**       | Use historical sample statistics directly                                                                     |
-| **Black-Litterman** | Market equilibrium + investor views                                                                           |
-| **Factor Model**    | Estimate asset returns from factor exposures                                                                  |
-| **Synthetic Data**  | Generate synthetic return samples via copula models (Vine Copula) — useful for stress testing and sparse data |
-| **Entropy Pooling** | Impose distributional views (on mean, CVaR, etc.) with minimal distortion                                     |
-| **Opinion Pooling** | Blend multiple expert view sets with assigned probabilities                                                   |
+Dependence between assets in Monte Carlo copula mode is modelled with a single **Student's t copula** (symmetric tail dependence — joint crash modelling). Other copula families (Clayton, Gumbel, vine copulas, etc.) are not supported.
 
 ---
 
 ## Model Validation & Selection
 
-Prevent overfitting and data leakage when selecting optimisation models and parameters.
+Evaluate allocation strategies out-of-sample before relying on them (Analytics → Model Selection).
 
-### Cross-Validation Methods
+### Methods
 
-| Method                      | Description                                                                                |
-| --------------------------- | ------------------------------------------------------------------------------------------ |
-| **Walk Forward**            | Train on expanding or rolling window, test on next period (respects time ordering)         |
-| **Combinatorial Purged CV** | Generate all combinations of train/test folds with purging gaps to prevent look-ahead bias |
-| **K-Fold (non-shuffled)**   | Standard K-fold without shuffling — preserves temporal blocks                              |
-| **Multiple Randomised CV**  | Repeated random splits for robustness assessment                                           |
-
-### Hyperparameter Tuning
-
-Systematically search for optimal model parameters:
-
-| Method                | Description                                                       |
-| --------------------- | ----------------------------------------------------------------- |
-| **Grid Search**       | Exhaustive search over a specified parameter grid                 |
-| **Randomised Search** | Sample parameters from distributions — efficient for large spaces |
-| **Online Search**     | Incrementally update optimal parameters as new data arrives       |
-
-**Example tuneable parameters:**
-
-- Risk measure (Variance vs CVaR vs CDaR)
-- Covariance estimator and its parameters (e.g. shrinkage intensity, decay factor)
-- L2 regularisation coefficient
-- Pre-selection K value
-- Lookback window length
+| Method                  | Description                                                                        |
+| ----------------------- | ----------------------------------------------------------------------------------- |
+| **Walk Forward**        | Train on a rolling window, test on the next period (respects time ordering)         |
+| **Strategy Comparison** | The `/cross-validate` evaluation runs a **fixed set of four strategies** and ranks them by out-of-sample Sharpe ratio |
 
 ### Evaluation Metrics
 
-| Metric                          | Description                                   |
-| ------------------------------- | --------------------------------------------- |
-| **Out-of-sample Sharpe Ratio**  | Risk-adjusted return on unseen data           |
-| **Out-of-sample Sortino Ratio** | Downside-risk-adjusted return on unseen data  |
-| **Turnover**                    | Average portfolio change per rebalance period |
-| **Maximum Drawdown**            | Worst drawdown on test data                   |
-| **Stability**                   | Consistency of results across CV folds        |
+| Metric                         | Description                          |
+| ------------------------------ | ------------------------------------- |
+| **Out-of-sample Sharpe Ratio** | Risk-adjusted return on unseen data   |
+| **Maximum Drawdown**           | Worst drawdown on test data           |
+
+> **Note:** Combinatorial purged CV, K-fold variants, and hyperparameter grid/random search are not available — validation is walk-forward plus the fixed strategy comparison.
 
 ---
 
@@ -416,131 +272,76 @@ Systematically search for optimal model parameters:
 
 Decompose portfolio returns into systematic risk factor exposures to understand what's truly driving performance.
 
-### Supported Factor Models
+### Supported Analyses
 
-| Model                    | Factors                                                           |
-| ------------------------ | ----------------------------------------------------------------- |
-| **CAPM**                 | Market (MKT)                                                      |
-| **Fama-French 3-Factor** | Market, Size (SMB), Value (HML)                                   |
-| **Carhart 4-Factor**     | Market, Size, Value, Momentum (MOM)                               |
-| **Fama-French 5-Factor** | Market, Size, Value, Profitability (RMW), Investment (CMA)        |
-| **q-Factor**             | Market, Size (ME), Investment (I/A), ROE, Expected Growth (EG)    |
-| **Custom**               | Any combination of available factors or user-uploaded time series |
-
-### Additional Factors
-
-| Factor                      | Description                                       |
-| --------------------------- | ------------------------------------------------- |
-| Short-term Reversal (STREV) | Recent losers outperform recent winners           |
-| Long-term Reversal (LTREV)  | Long-run mean reversion                           |
-| Quality (QMJ)               | Profitable, growing, safe firms outperform        |
-| Bet Against Beta (BAB)      | Low-beta assets outperform on risk-adjusted basis |
-| Term Risk                   | Interest rate sensitivity (for bonds)             |
-| Credit Risk                 | Credit spread sensitivity (for bonds)             |
+| Analysis                 | Description                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------- |
+| **PCA**                  | Principal Component Analysis with explained variance and per-asset loadings     |
+| **Fama-French 3-Factor** | Regression on Market, Size (SMB), and Value (HML) factors                       |
 
 ### Regression Output
 
-| Metric                   | Description                                                      |
-| ------------------------ | ---------------------------------------------------------------- |
-| Alpha                    | Return not explained by factor exposures (manager skill or luck) |
-| Factor loadings (betas)  | Exposure to each factor                                          |
-| R²                       | How much of the return variance the model explains               |
-| t-statistics             | Statistical significance of each factor loading                  |
-| Residual volatility      | Unexplained (idiosyncratic) risk                                 |
-| Rolling factor exposures | How factor loadings change over time                             |
+| Metric                  | Description                                                      |
+| ----------------------- | ---------------------------------------------------------------- |
+| Alpha                   | Return not explained by factor exposures (manager skill or luck) |
+| Factor loadings (betas) | Exposure to each factor                                          |
+| R²                      | How much of the return variance the model explains               |
 
 ### Use Cases
 
-- **Performance attribution** — Is your fund's return from skill (alpha) or factor exposure (beta)?
-- **Style analysis** — Is this "growth" fund actually a closet value fund?
-- **Risk budgeting** — How much risk comes from market, size, value, momentum?
-- **Fund comparison** — Compare factor exposures across similar funds
-- **Factor timing** — Analyse whether a manager rotates factor exposures
+- **Performance attribution** — Is your return from skill (alpha) or factor exposure (beta)?
+- **Risk budgeting** — How much risk comes from market, size, and value exposures?
+
+> **Note:** Carhart 4-factor, Fama-French 5-factor, q-factor, and custom factor models are not available — factor analysis is PCA plus the Fama-French 3-factor regression.
 
 ---
 
 ## Tactical Asset Allocation
 
-Test rules-based timing strategies that dynamically shift between assets or to cash based on market signals.
+Compute signal-based dynamic weights for your holdings (Analytics → Tactical Allocation).
 
-### Supported Models
+### Supported Strategies
 
-| Model                            | Signal              | Description                                                       |
-| -------------------------------- | ------------------- | ----------------------------------------------------------------- |
-| **Moving Averages (Single)**     | Price vs MA         | Invest when price > moving average, go to cash when below         |
-| **Moving Averages (Portfolio)**  | Per-asset MA        | Apply moving average rule to each asset independently             |
-| **Moving Average Cross-over**    | Fast MA vs Slow MA  | Buy when short-term MA crosses above long-term MA                 |
-| **Momentum (Relative Strength)** | Lookback return     | Rank assets by recent return, hold the top N                      |
-| **Dual Momentum**                | Absolute + Relative | Hold top asset only if it also beats cash (combines both signals) |
-| **Adaptive Allocation**          | Multi-signal        | Combine momentum, volatility, and correlation for dynamic weights |
-| **Target Volatility**            | Realised vol        | Scale exposure to maintain a target portfolio volatility          |
-| **Market Valuation**             | CAPE / Shiller PE   | Adjust equity allocation based on valuation metrics               |
-| **Seasonal**                     | Calendar            | Adjust allocation based on historical seasonal patterns           |
+| Strategy                     | Signal              | Description                                                       |
+| ---------------------------- | ------------------- | ----------------------------------------------------------------- |
+| **Momentum**                 | Lookback return     | Weight assets by recent return strength                           |
+| **Mean Reversion**           | Lookback return     | Weight toward recent underperformers expecting reversion          |
+| **Risk-Adjusted Momentum**   | Return ÷ volatility | Momentum scaled by realised volatility                            |
+| **Volatility Targeting**     | Realised vol        | Scale exposure to maintain a target portfolio volatility          |
+| **MA Crossover**             | Fast MA vs Slow MA  | Favour assets whose short-term MA is above the long-term MA       |
+| **Dual Momentum**            | Absolute + Relative | Combine absolute and relative momentum signals                    |
 
-### Configuration
+### Output
 
-| Parameter           | Description                                                         |
-| ------------------- | ------------------------------------------------------------------- |
-| Lookback period     | Window for calculating signals (e.g. 200-day MA, 12-month momentum) |
-| Out-of-market asset | Where to park capital when signal says "sell" (cash, bonds, gold)   |
-| Trading frequency   | Daily, weekly, monthly, quarterly                                   |
-| Stop loss           | Maximum drawdown before forced exit                                 |
-| Assets to hold      | How many top-ranked assets to hold (for momentum strategies)        |
-| Leverage            | Optional leverage multiplier                                        |
-| Trade execution     | Same day close, next day open                                       |
+Each strategy produces **signal scores and recommended weights** per asset, with a comparison chart across strategies.
 
-### Backtest Output
-
-All tactical models produce the same backtest output as standard portfolio backtests (see above), plus:
-
-- **Signal chart** — Visualise when the model is invested vs in cash
-- **Trade log** — Every entry and exit with dates and prices
-- **Time in market** — Percentage of time invested vs out
-- **Turnover** — Number of trades and portfolio turnover rate
-- **Tax impact** — Estimated short-term vs long-term gains from frequent trading
-- **Whipsaw analysis** — False signals that triggered unnecessary trades
+> **Note:** The tool outputs weights only — it does not run a trading backtest (no trade log, time-in-market, turnover, or whipsaw statistics), and out-of-market assets, stop losses, and leverage are not configurable.
 
 ---
 
-## Asset Correlations & Cointegration
+## Asset Correlations
 
-Analyse statistical relationships between assets to build diversified portfolios and identify pairs for relative value strategies.
+Analyse statistical relationships between assets to build diversified portfolios (Analytics → Correlation Analysis).
 
 ### Correlation Analysis
 
-| Feature              | Description                                            |
-| -------------------- | ------------------------------------------------------ |
-| Correlation matrix   | Pairwise correlations between all selected assets      |
-| Rolling correlations | How correlations change over time (regime-dependent)   |
-| Correlation heatmap  | Visual matrix with colour coding                       |
-| Cluster analysis     | Group assets by similarity of return patterns          |
-| Crisis correlations  | Correlations specifically during market stress periods |
+| Feature             | Description                                              |
+| ------------------- | --------------------------------------------------------- |
+| Correlation matrix  | Pairwise correlations, colour-coded from −1 (red) to +1 (blue) |
+| Cluster analysis    | Hierarchical clustering dendrogram grouping similar assets |
+| Period selector     | 1Y, 3Y, or 5Y correlation window                           |
 
-### Autocorrelation
-
-Analyse whether an asset's returns are serially correlated (today's return predicts tomorrow's). Important for:
-
-- Detecting momentum or mean-reversion tendencies
-- Identifying illiquidity premiums
-- Validating random walk assumptions
-
-### Cointegration
-
-Test whether two assets share a long-run equilibrium relationship (even if individually non-stationary). Used for:
-
-- Pairs trading strategy validation
-- Portfolio construction with mean-reverting spreads
-- Identifying economic relationships between assets
+The source can be a real portfolio or a model. _(Autocorrelation and cointegration testing are not available.)_
 
 ---
 
 ## Scenario & Stress Testing
 
-Model how your portfolio would perform under specific market scenarios — both historical and hypothetical.
+Model how your portfolio would perform under specific market scenarios (Analytics → Stress Testing, at `/analytics/stress-test`). Three modes are available: **historical**, **custom**, and **factor**.
 
 ### Historical Stress Scenarios
 
-Test portfolio performance during actual past crises:
+Test portfolio performance during six actual past crises:
 
 | Scenario                | Period              | Description                                       |
 | ----------------------- | ------------------- | ------------------------------------------------- |
@@ -549,64 +350,29 @@ Test portfolio performance during actual past crises:
 | Dot-com Bust            | Mar 2000 – Oct 2002 | Technology bubble burst, 78% NASDAQ decline       |
 | 2022 Rate Shock         | Jan – Oct 2022      | Rapid rate rises hitting both stocks and bonds    |
 | 1987 Black Monday       | Oct 1987            | 22% single-day market decline                     |
-| European Debt Crisis    | 2010–2012           | Sovereign debt fears across eurozone              |
 | Asian Financial Crisis  | 1997–1998           | Currency crises across emerging Asia              |
 
-### Hypothetical Scenarios
+### Custom Scenarios
 
-Define custom \"what if\" scenarios:
-
-- **Interest rate shock** — What if rates rise 200bps in 6 months?
-- **Equity crash** — What if equities fall 30% over 3 months?
-- **Stagflation** — What if inflation rises to 8% while growth stalls?
-- **Currency crisis** — What if AUD depreciates 20% against USD?
-- **Sector collapse** — What if a specific sector (e.g. property, tech) declines 50%?
-
-### Conditional Stress Testing (Copula-Based)
-
-The most sophisticated stress testing approach uses the fitted joint distribution (Vine Copula) to generate realistic correlated scenarios conditioned on a specific event:
-
-**How it works:**
-
-1. Fit a copula model to the historical joint return distribution of all portfolio assets
-2. Condition on a specific event (e.g. \"Bank of America drops 20%\")
-3. Sample thousands of scenarios from the conditional distribution
-4. Evaluate portfolio performance across all conditioned samples
-
-**Example:** \"What would happen to my portfolio if my largest holding dropped 20%?\"
-
-- The copula generates correlated movements in all other assets consistent with that shock
-- Output shows the distribution of portfolio outcomes, not just a single point estimate
-- Captures realistic tail dependencies (assets that crash together in crises)
+Define per-asset shocks — enter the percentage move for each holding and see the combined portfolio impact.
 
 ### Factor Stress Testing
 
-Apply stress to risk factors rather than individual assets:
-
-1. Fit a factor model to your portfolio (e.g. market, quality, momentum factors)
-2. Stress a specific factor (e.g. \"quality factor CVaR = 10%\")
-3. Propagate the factor stress to all assets through their factor loadings
-4. Evaluate portfolio impact
-
-**Advantages over asset-level stress testing:**
-
-- More parsimonious — stress a small number of factors instead of dozens of assets
-- More realistic — factor stresses propagate consistently across all exposures
-- Better for scenario design — easier to articulate economic narratives in factor terms
+"If the market drops X%, what happens?" — the market shock is propagated to each asset through its beta, producing a per-asset decomposition of the portfolio impact.
 
 ### Output
 
 - Portfolio return under each scenario
-- Comparison with benchmark
-- Distribution of outcomes (percentile fan) for conditional stress tests
 - Worst affected holdings
-- Which assets provide protection (hedging effectiveness)
-- Recovery timeline based on historical precedent
-- Probability of exceeding a loss threshold
+- Per-asset impact breakdown
+
+A simpler **What-If calculator** (`/analytics/what-if`) estimates the effect of a single broad market move. _(Copula-based conditional stress testing is not available.)_
 
 ---
 
-## Capital Market Expectations
+## Capital Market Expectations ⏳ Not yet implemented
+
+> **⏳ To be Implemented.** A standalone Capital Market Expectations tool is planned — see [GAPS.md](GAPS.md). The description below covers the intended experience.
 
 Define forward-looking assumptions for expected returns, volatility, and correlations used in optimisation and simulation tools.
 
@@ -678,14 +444,12 @@ at seed time; user models surface a green/amber/red health badge. See
 
 Advanced analytics tools integrate directly with your tracked portfolio:
 
-| Integration                    | Description                                                                                  |
-| ------------------------------ | -------------------------------------------------------------------------------------------- |
-| **Pre-filled allocations**     | Your current portfolio weights are automatically loaded into backtest and optimisation tools |
-| **Actual vs optimal**          | Compare your real portfolio to the efficient frontier                                        |
-| **What-if rebalancing**        | Model the impact of proposed trades before executing                                         |
-| **Factor exposure monitoring** | Ongoing factor regression as your portfolio changes                                          |
-| **Tax-aware optimisation**     | Optimisation respects unrealised gains when suggesting rebalancing trades                    |
-| **Backtest validation**        | Compare your actual tracked return against the theoretical backtest                          |
+| Integration                | Description                                                                                  |
+| -------------------------- | -------------------------------------------------------------------------------------------- |
+| **Pre-filled allocations** | Your current portfolio weights are automatically loaded into backtest and optimisation tools |
+| **Actual vs optimal**      | Compare your real portfolio to the efficient frontier                                        |
+| **What-if analysis**       | Model the impact of a market move (`/analytics/what-if`) or load holdings from a model       |
+| **Rebalance-to-model CGT** | The Unrealised CGT page estimates the tax cost of moving to a model's weights                |
 
 ---
 

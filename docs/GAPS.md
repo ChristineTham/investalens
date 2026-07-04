@@ -51,13 +51,16 @@ the feature docs; each item is flagged in place and gathered here for visibility
 | Feature | Status | 🎯 Target | Source |
 | ------- | ------ | --------- | ------ |
 | Automatic DRP reconciliation against the share registry | ⏳ Planned | — | [GETTING-STARTED](GETTING-STARTED.md) |
+| DRP rounding options (round down/nearest/up, track residual balance) | ⏳ Planned | — | [GETTING-STARTED](GETTING-STARTED.md) |
+| Dedicated DRP-recording form (recordDRP UI) | ⏳ Planned | — | [ACTIONS](ACTIONS.md) (toggle + manual BUY workaround ✅) |
 | Demergers (spin-offs) | ⏳ Planned | — | [ACTIONS](ACTIONS.md) |
 | IPO recording | ⏳ Planned | — | [ACTIONS](ACTIONS.md) |
 | Automated corporate-action detection | ⏳ Planned | — | [ACTIONS](ACTIONS.md) |
 | Name / ticker change tracking | ⏳ Planned | — | [ACTIONS](ACTIONS.md) |
 
-> **Implemented today:** manual DRP recording, splits, bonus issues, return of capital, rights
-> issues, and mergers (MERGER_IN/OUT).
+> **Implemented today:** DRP recording (toggle + manual BUY), splits, bonus issues, return of
+> capital, rights issues (parcels enter the CGT engine), and mergers with scrip-for-scrip
+> cost-base transfer (MERGER_IN/OUT) — all recorded via the Corporate Actions page.
 
 ## Assets
 
@@ -71,11 +74,14 @@ the feature docs; each item is flagged in place and gathered here for visibility
 
 | Feature | Status | 🎯 Target | Source |
 | ------- | ------ | --------- | ------ |
-| Multi-Period Report — full UI | 🟡 Partial (server action, stub UI) | — | [TOOLS](TOOLS.md) |
-| Dividend Calendar — full UI | 🟡 Partial (server action, stub UI) | — | [TOOLS](TOOLS.md) |
-| Drawdown Risk Report — full UI | 🟡 Partial (server action, stub UI) | — | [TOOLS](TOOLS.md) |
-| Historical Cost Report — full UI | 🟡 Partial (server action, stub UI) | — | [TOOLS](TOOLS.md) |
+| Multi-Period Report — custom/cumulative/per-FY period selection and grouping | ⏳ Planned | — | [TOOLS](TOOLS.md) (trailing 1M/3M/6M/1Y/3Y report ✅ at `/reports/multi-period`) |
+| Dividend Calendar — day-grid layout with status dots | ⏳ Planned | — | [TOOLS](TOOLS.md) (monthly bar chart + table ✅ at `/reports/calendar`) |
+| Future Income — multi-month horizon & custom-group filtering | ⏳ Planned | — | [TOOLS](TOOLS.md) |
 | Multi-Currency Valuation | ⏳ Planned | R3 | [TOOLS](TOOLS.md) |
+| Watchlist price alerts | ⏳ Planned | — | [TOOLS](TOOLS.md) |
+| Multiple watchlists | ⏳ Planned | — | [TOOLS](TOOLS.md) |
+| Broader ETF look-through coverage (beyond VAS/IOZ/STW/VGS/VDHG) | ⏳ Planned | — | [TOOLS](TOOLS.md) |
+| Report CSV export (per report page) | ⏳ Planned | — | [TOOLS](TOOLS.md) |
 
 ## Tax
 
@@ -85,6 +91,7 @@ the feature docs; each item is flagged in place and gathered here for visibility
 | Stapled securities (dual trust/company distributions) | ⏳ Planned | — | [TAX](TAX.md) |
 | Foreign-exchange rates for CGT | ⏳ Planned | R3 | [TAX](TAX.md) |
 | CGT method lock-in (save method per financial year) | ⏳ Planned | — | [TAX](TAX.md) |
+| CGT loss carry-forward entry (enter prior-year capital losses) | ⏳ Planned | — | [TAX](TAX.md) |
 | Tax-planning strategies UI (tax-loss selling, parcel comparison) | ⏳ Planned | — | [TAX](TAX.md) |
 | Division 296 (SMSF) | ⏳ Planned | — | [TAX](TAX.md) |
 | Xero integration | ⏳ Planned | — | [TAX](TAX.md) |
@@ -123,6 +130,19 @@ the feature docs; each item is flagged in place and gathered here for visibility
 | ------- | ------ | --------- | ------ |
 | PDF export of reports | ⏳ Planned | R4 | [DATA_IMPORT](DATA_IMPORT.md), [USER-MANUAL](../USER-MANUAL.md) |
 | Automated scheduled backups (email / cloud) | ⏳ Planned | R4 | [DATA_IMPORT](DATA_IMPORT.md), [USER-MANUAL](../USER-MANUAL.md) |
+
+## Sharing & Settings
+
+| Feature | Status | 🎯 Target | Source |
+| ------- | ------ | --------- | ------ |
+| Sharing — write/admin enforcement (Write and Admin levels currently grant read-only access) | ⏳ Planned | — | [ACCOUNT](ACCOUNT.md#share-your-portfolio), [USER-MANUAL](../USER-MANUAL.md) |
+| Sharing — inline access-level change dropdown | ⏳ Planned | — | [ACCOUNT](ACCOUNT.md) |
+| Performance Method setting (Simple/Compound) — currently unused in calculations | 🟡 Partial (setting exists, no effect) | — | [ACCOUNT](ACCOUNT.md), [GETTING-STARTED](GETTING-STARTED.md) |
+| Configurable Share Checker thresholds | ⏳ Planned | — | [TOOLS](TOOLS.md) |
+
+> **Implemented today:** read-only sharing — shared portfolios appear in the recipient's
+> Portfolio list with a "Shared" badge and are viewable on the detail page; they are not
+> included in the recipient's dashboard, reports, tax, or exports.
 
 ## Planning & Platform (R4)
 

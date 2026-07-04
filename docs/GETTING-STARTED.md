@@ -12,8 +12,9 @@
 > | Add holdings via instrument search | ✅ Implemented                   |
 > | Manual transaction entry           | ✅ Implemented                   |
 > | CSV import with field mapping      | ✅ Implemented                   |
-> | DRP recording (manual)             | ✅ Implemented (server action)   |
+> | DRP recording (toggle + manual BUY) | ✅ Implemented                  |
 > | Automatic DRP (registry reconcile) | ⏳ To be Implemented              |
+> | DRP rounding options               | ⏳ To be Implemented              |
 > | Labels                             | ✅ Implemented                   |
 > | Performance calc (simple/nominal)  | ✅ Implemented                   |
 > | Time-weighted / money-weighted (IRR) returns | ⏳ To be Implemented   |
@@ -31,7 +32,7 @@ You can choose to record either all of your previous historical buy and sell tra
 
 ## Setting Up Your Portfolio
 
-When you create your account, a default portfolio is automatically created with the settings of your selected tax residency country. InvestaLens portfolios represent tax entities — the base currency, tax settings and reporting are all related to the tax residency country.
+After you create your account, create your first portfolio yourself: from the sidebar click **Portfolio**, then **New Portfolio**, and choose a name, tax residency, and entity type. InvestaLens portfolios represent tax entities — the base currency, tax settings and reporting are all related to the tax residency country. _(Automatic portfolio creation on signup is ⏳ planned.)_
 
 > **Note:** InvestaLens only imports buy and sell trades. Cash balances and cash transactions are never imported automatically. To track your cash alongside your investments, set up a Cash Account under **Accounts** — you can import bank statements (OFX/QFX, QIF, or CSV) and reconcile them against your portfolio trades. See [ACCOUNTS.md](ACCOUNTS.md).
 
@@ -119,7 +120,7 @@ After import, InvestaLens calculates performance as **simple, nominal** returns 
 
 #### Opening Balances
 
-If you do not have all of your historical buy and sell transactions, you can import with **Opening Balances** instead. This sets up your current positions without full trade history.
+If you do not have all of your historical buy and sell transactions, you can set up your current positions without full trade history: record a **Buy** (or **Transfer In**) transaction at your cost base for each holding, dated when you acquired (or transferred) the position. Trades from that point forward are then recorded normally.
 
 ### Method 2: Import via Sharesight API ⏳ Not yet implemented
 
@@ -153,14 +154,12 @@ To add a new holding that isn't in your portfolio yet:
 1. From your portfolio, click **Add Holding**
 2. Search for the holding by company name or ticker code
 3. Enter the trade details:
+   - **Transaction type** — Buy (or Transfer In at cost base if you're setting up an existing position)
    - **Trade date** — the date of the original purchase
-   - **Transaction type** — Buy or Opening Balance
    - **Quantity** — number of shares
    - **Unit/share price** — price per share at time of purchase
-   - **Exchange rate** — (for foreign stocks only)
    - **Brokerage** — fees paid
-4. Optionally add comments and attachments for future reference
-5. Click **Save Trade**
+4. Click **Add to Portfolio**
 
 ## Adding Trades, Dividends and Adjustments
 
@@ -177,7 +176,7 @@ Once your portfolio is set up, there are multiple ways to keep it current:
 
 InvestaLens handles dividends in two ways:
 
-- **Automatic** — Dividends and corporate actions are automatically generated for holdings in your portfolio based on market data
+- **Automatic** — Dividends are automatically generated for holdings in your portfolio based on market data (corporate actions such as splits, bonus issues and returns of capital are recorded manually via the Corporate Actions page)
 - **Manual** — Add dividends or adjustments manually when needed
 
 For supported asset types and which actions are automated, see [ASSETS.md](ASSETS.md) and [ACTIONS.md](ACTIONS.md).
@@ -207,24 +206,16 @@ To enable automatic DRP:
 
 ### Manual DRP
 
-For international stocks or holdings without automatic DRP data:
+To record dividend reinvestments today:
 
-1. On the individual holding page, select the **Trades & Income** tab
-2. Click **Confirm** on the dividend you want to reinvest
-3. Tick **Dividend Reinvestment**
-4. Enter the number of shares received
-5. Enter the share price (or use the automated price)
-6. Click **Save and confirm payout**
+1. On the individual holding page, use the **DRP toggle** to mark the holding as participating in a dividend reinvestment plan
+2. When a reinvested dividend occurs, add a manual **BUY** transaction for the shares received (date = payment date, quantity = shares allotted, price = DRP issue price, brokerage = 0)
 
-### DRP Rounding Options
+The dividend itself remains recorded as income, and the BUY establishes the new parcel's cost base.
 
-- **Round down** — Rounds down shares allocated; residual value is lost
-- **Round to the nearest** — Standard rounding rules apply
-- **Round up** — Rounds up shares allocated
-- **Round down and track balance** — Rounds down and carries residual forward to the next reinvestment
-- **No rounding** — No rounding applied (suited to brokers that support fractional DRP)
+### DRP Rounding Options ⏳ Not yet implemented
 
-> **Important:** If using "round down and track balance", confirm dividends in chronological order as each balance carries forward to the next.
+> **⏳ Planned.** Configurable rounding (round down, round to nearest, round up, round down and track residual balance, no rounding) is not yet available — the manual BUY workflow above sidesteps rounding entirely, since you enter the exact shares allotted. See [GAPS.md](GAPS.md).
 
 ## Using Labels
 
@@ -234,22 +225,14 @@ Labels can be anything you like, and holdings can have more than one label assig
 
 ### Creating and Applying Labels
 
-Labels can be created and applied from:
+Labels are managed under **Settings → Labels**:
 
-- The **Settings** tab
-- The **Performance Report** (via "Filter by Label" > "Manage")
-- An **Individual Holding Page** (via "Manage Labels")
-
-To create a label:
-
-1. Navigate to one of the above locations
-2. Type in the label name
-3. Select the holdings to apply the label to
-4. Click **Create Label**
+1. Create a label by typing its name and saving it
+2. On the label's row, **attach** the holdings you want tagged (and detach them later if things change) — a holding can carry more than one label
 
 ### Using Labels in Reports
 
-Once labels are created, use the **Filter by Label** dropdown in the Performance Report to view performance for specific subsets of your portfolio.
+Once labels are created and holdings attached, use the **Label filter** in the Performance Report to view performance for specific subsets of your portfolio.
 
 ## After Importing Your Portfolio
 
@@ -260,11 +243,11 @@ Once your portfolio is populated:
 3. **Set up DRP** — Enable dividend reinvestment tracking where applicable
 4. **Add labels and custom groups** — Organise holdings for better reporting (see [ACCOUNT.md](ACCOUNT.md))
 5. **Explore reports** — Run performance, tax and diversity reports (see [TOOLS.md](TOOLS.md) and [TAX.md](TAX.md))
-6. **Set up ongoing sync** — Configure automatic trade imports from your broker
+6. **Set up ongoing sync** — Configure automatic trade imports from your broker _(⏳ planned — R4; re-import a CSV in the meantime, duplicates are resolved automatically)_
 
 ## Performance Calculation
 
-InvestaLens currently reports **simple, nominal** returns: capital gain (market value − cost base) plus income (dividends, interest, and coupons, net of accrued interest), less brokerage and custody/management fees, indexed from the start of the selected period. Returns are **not** time-weighted or money-weighted (they do not neutralise the size and timing of contributions and withdrawals) and are **not** inflation-indexed. The per-portfolio **Performance Method** setting (Simple or Compound) only controls how the percentage is compounded.
+InvestaLens currently reports **simple, nominal** returns: capital gain (market value − cost base) plus income (dividends, interest, and coupons, net of accrued interest), less brokerage and custody/management fees, indexed from the start of the selected period. Returns are **not** time-weighted or money-weighted (they do not neutralise the size and timing of contributions and withdrawals) and are **not** inflation-indexed. The per-portfolio **Performance Method** setting (Simple or Compound) exists but is not currently used in calculations _(⏳)_.
 
 > **⏳ Planned enhancement:** true time-weighted and money-weighted (IRR) return methodologies. See [GAPS.md](GAPS.md).
 
