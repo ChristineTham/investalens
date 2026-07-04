@@ -134,9 +134,14 @@ export async function generateTaxableIncomeReport(
         brokerage: tx.brokerage,
         exchangeRate: tx.exchangeRate,
         currency: tx.currency,
+        comments: tx.comments,
       }));
 
-    const parcels = buildParcels(priorTx);
+    const parcels = buildParcels(
+      priorTx,
+      allocationMethod,
+      portfolio.taxEntityType
+    );
     const parcelResults = allocateSale(
       parcels,
       disposal.tradeDate,

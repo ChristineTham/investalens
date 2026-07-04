@@ -29,11 +29,16 @@ export function calculatePosition(
     switch (tx.transactionType) {
       case "BUY":
       case "TRANSFER_IN":
+      case "RIGHTS_ISSUE":
+      // MERGER_IN units carry their transferred cost base in the recorded
+      // price (scrip-for-scrip rollover — see recordMerger).
+      case "MERGER_IN":
         totalCostBase += qty * price + broker;
         quantity += qty;
         break;
       case "SELL":
-      case "TRANSFER_OUT": {
+      case "TRANSFER_OUT":
+      case "MERGER_OUT": {
         const avgCost = quantity > 0 ? totalCostBase / quantity : 0;
         totalCostBase -= qty * avgCost;
         quantity -= qty;

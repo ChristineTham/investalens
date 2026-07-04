@@ -24,6 +24,7 @@ export interface TransactionData {
   brokerage: number | { toNumber(): number };
   exchangeRate: number | { toNumber(): number };
   currency: string;
+  comments?: string | null;
   accruedInterest?: number | { toNumber(): number } | null;
   frankedAmount?: number | { toNumber(): number } | null;
   unfrankedAmount?: number | { toNumber(): number } | null;

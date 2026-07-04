@@ -1,22 +1,33 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
   generateCgtReport,
   generateCgt2027Projection,
+  compareSaleAllocationMethods,
   type CgtItem,
   type CgtSummary,
   type Cgt2027ProjectionSummary,
+  type CgtMethodComparison,
 } from "@/lib/reports/tax/cgt-report";
+import type { SaleAllocationMethod } from "@/lib/calculations/parcels";
 import { INCOME_BANDS, taxOnGain } from "@/lib/calculations/income-tax";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { TaxFilter } from "@/components/reports/tax-filter";
 import { Cgt2027Controls } from "@/components/reports/cgt-2027-controls";
+import { CgtOptimiseToggle } from "@/components/reports/cgt-optimise-toggle";
+import Link from "next/link";
+import { CheckCircle2 } from "lucide-react";
 import { ChartCard } from "@/components/charts/chart-card";
 import { ChartGrid, ChartGridItem } from "@/components/charts/chart-grid";
 import { CgtCompositionChart } from "@/components/charts/cgt-composition-chart";
 import { SignedBarChart } from "@/components/charts/signed-bar-chart";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Capital Gains Tax",
+};
 
 export default async function CgtPage({
   searchParams,
@@ -26,6 +37,7 @@ export default async function CgtPage({
     year?: string;
     proj?: string;
     income?: string;
+    optimise?: string;
   }>;
 }) {
   const session = await auth();
@@ -152,6 +164,20 @@ export default async function CgtPage({
       : null;
   const estTaxCurrent = taxOnGain(otherIncome, summary.netCapitalGain);
 
+  // Sale-allocation method comparison (Optimise), toggled via ?optimise=1.
+  const showOptimise = params.optimise === "1";
+  const comparison: CgtMethodComparison | null =
+    showOptimise && selectedPortfolioId
+      ? await compareSaleAllocationMethods(selectedPortfolioId, selectedYear)
+      : null;
+  const methodLabels: Record<SaleAllocationMethod, string> = {
+    fifo: "FIFO (first in, first out)",
+    lifo: "LIFO (last in, first out)",
+    min_gain: "Minimise capital gain",
+    max_gain: "Maximise capital gain",
+    min_tax: "Minimise CGT",
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -180,6 +206,154 @@ export default async function CgtPage({
           disabled={!selectedPortfolioId}
         />
       </Suspense>
+
+      <Suspense>
+        <CgtOptimiseToggle
+          enabled={showOptimise}
+          disabled={!selectedPortfolioId}
+        />
+      </Suspense>
+
+      {/* Sale-allocation method comparison (Optimise) */}
+      {showOptimise && (
+        <div className="space-y-4 rounded-lg border border-border bg-card p-4">
+          <div>
+            <h2 className="font-medium">
+              Sale-allocation method comparison
+            </h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Assessable net capital gain for {summary.financialYear} if every
+              disposal had been allocated with each method. Prior sales are
+              re-allocated with the same method, so each row reflects using
+              that method throughout.
+            </p>
+          </div>
+
+          {!selectedPortfolioId || !comparison ? (
+            <p className="text-sm text-muted-foreground">
+              Select a single portfolio (above) to compare allocation methods.
+            </p>
+          ) : comparison.disposals === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No CGT disposals in {summary.financialYear} — nothing to
+              compare.
+            </p>
+          ) : (
+            <>
+              <div className="overflow-x-auto rounded-lg border border-border">
+                <table className="w-full">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                        Method
+                      </th>
+                      <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                        Gross Gains
+                      </th>
+                      <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                        Losses
+                      </th>
+                      <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                        CGT Discount
+                      </th>
+                      <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                        Indexation
+                      </th>
+                      <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                        Assessable Gain
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {comparison.rows.map((row) => {
+                      const isCurrent = row.method === comparison.currentMethod;
+                      const isOptimal = row.method === comparison.optimalMethod;
+                      return (
+                        <tr
+                          key={row.method}
+                          className={
+                            isOptimal ? "bg-primary/5" : "hover:bg-accent/50"
+                          }
+                        >
+                          <td className="px-4 py-3 text-sm font-medium">
+                            {methodLabels[row.method]}
+                          </td>
+                          <td className="px-4 py-3 text-right text-sm">
+                            {formatCurrency(row.grossGains)}
+                          </td>
+                          <td className="px-4 py-3 text-right text-sm">
+                            -{formatCurrency(row.losses)}
+                          </td>
+                          <td className="px-4 py-3 text-right text-sm">
+                            -{formatCurrency(row.cgtDiscount)}
+                          </td>
+                          <td className="px-4 py-3 text-right text-sm">
+                            -{formatCurrency(row.indexationRelief)}
+                          </td>
+                          <td className="px-4 py-3 text-right text-sm font-medium">
+                            {formatCurrency(row.netCapitalGain)}
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            <span className="flex flex-wrap items-center gap-2">
+                              {isOptimal && (
+                                <span className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                                  <CheckCircle2
+                                    className="h-3.5 w-3.5"
+                                    aria-hidden="true"
+                                  />
+                                  Optimal
+                                </span>
+                              )}
+                              {isCurrent && (
+                                <span className="inline-flex items-center rounded-full border border-border bg-muted px-2 py-0.5 text-xs font-medium">
+                                  Current setting
+                                </span>
+                              )}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <p className="text-xs text-muted-foreground">
+                {comparison.potentialSaving > 0 ? (
+                  <>
+                    Switching to{" "}
+                    <span className="font-medium text-foreground">
+                      {methodLabels[comparison.optimalMethod]}
+                    </span>{" "}
+                    would reduce the assessable gain by{" "}
+                    <span className="font-medium text-foreground">
+                      {formatCurrency(comparison.potentialSaving)}
+                    </span>{" "}
+                    for {summary.financialYear}.
+                  </>
+                ) : (
+                  <>
+                    Your current method (
+                    {methodLabels[comparison.currentMethod]}) already produces
+                    the lowest assessable gain for {summary.financialYear}.
+                  </>
+                )}{" "}
+                The sale-allocation method is set per portfolio under{" "}
+                <Link
+                  href="/settings/portfolio"
+                  className="font-medium text-foreground underline underline-offset-2 hover:text-primary"
+                >
+                  Settings → Tax &amp; CGT
+                </Link>
+                .
+              </p>
+            </>
+          )}
+        </div>
+      )}
 
       {/* ATO CGT Summary — mirrors Schedule 18 */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
@@ -450,7 +624,7 @@ export default async function CgtPage({
                 </div>
               </div>
 
-              <div className="overflow-hidden rounded-lg border border-border">
+              <div className="overflow-x-auto rounded-lg border border-border">
                 <table className="w-full">
                   <thead className="bg-muted/50">
                     <tr>
@@ -528,7 +702,7 @@ export default async function CgtPage({
           No asset sales in this tax year.
         </p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>

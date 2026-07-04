@@ -19,6 +19,10 @@ import {
   type TransitionMethod,
 } from "@/lib/calculations/cgt-2027";
 import { marginalRateOnGain, taxOnGain } from "@/lib/calculations/income-tax";
+import {
+  optimiseSaleAllocation,
+  ALLOCATION_METHODS,
+} from "@/lib/reports/tax/cgt-parcel-matcher";
 
 export interface CgtItem {
   instrumentCode: string;
@@ -110,9 +114,14 @@ export async function generateCgtReport(
         brokerage: tx.brokerage,
         exchangeRate: tx.exchangeRate,
         currency: tx.currency,
+        comments: tx.comments,
       }));
 
-    const parcels = buildParcels(priorTx);
+    const parcels = buildParcels(
+      priorTx,
+      allocationMethod,
+      portfolio.taxEntityType
+    );
     const saleQuantity = Number(sell.quantity);
     const salePrice = Number(sell.price);
     const brokerage = Number(sell.brokerage);
@@ -333,9 +342,14 @@ export async function generateCgt2027Projection(
         brokerage: tx.brokerage,
         exchangeRate: tx.exchangeRate,
         currency: tx.currency,
+        comments: tx.comments,
       }));
 
-    const parcels = buildParcels(priorTx);
+    const parcels = buildParcels(
+      priorTx,
+      allocationMethod,
+      portfolio.taxEntityType
+    );
     const saleQuantity = Number(sell.quantity);
     const salePrice = Number(sell.price);
     const brokerage = Number(sell.brokerage);
@@ -467,6 +481,175 @@ export async function generateCgt2027Projection(
     otherIncome: Math.max(0, otherIncome),
     incomeSupportRecipient: portfolio.incomeSupportRecipient,
     transitionMethod,
+    financialYear: `FY${financialYear - 1}-${String(financialYear).slice(2)}`,
+  };
+}
+
+// ─── Sale-allocation method comparison (Optimise) ────────────────────────────
+
+export interface CgtMethodComparisonRow {
+  method: SaleAllocationMethod;
+  /** Gross capital gains (positive per-disposal gains). */
+  grossGains: number;
+  /** Capital losses (absolute value). */
+  losses: number;
+  /** Relief from the 50% CGT discount method. */
+  cgtDiscount: number;
+  /** Relief from the CPI indexation method (pre-1999 assets). */
+  indexationRelief: number;
+  /** Assessable net capital gain under this method. */
+  netCapitalGain: number;
+}
+
+export interface CgtMethodComparison {
+  rows: CgtMethodComparisonRow[];
+  currentMethod: SaleAllocationMethod;
+  /** Method with the lowest assessable net capital gain (current method wins ties). */
+  optimalMethod: SaleAllocationMethod;
+  /** Assessable gain saved by switching from the current to the optimal method. */
+  potentialSaving: number;
+  disposals: number;
+  financialYear: string;
+}
+
+/**
+ * Compare the assessable net capital gain for a financial year under each of
+ * the 5 sale-allocation methods. Each method is evaluated end-to-end via
+ * `optimiseSaleAllocation` (prior disposals are consumed with the same
+ * method), and per-disposal results are aggregated exactly like
+ * `generateCgtReport` so the current-method row matches the main report.
+ */
+export async function compareSaleAllocationMethods(
+  portfolioId: string,
+  financialYear: number
+): Promise<CgtMethodComparison> {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const portfolio = await db.portfolio.findFirst({
+    where: { id: portfolioId, userId: session.user.id },
+  });
+  if (!portfolio) throw new Error("Portfolio not found");
+
+  const currentMethod = portfolio.saleAllocationMethod as SaleAllocationMethod;
+  const fyStart = new Date(financialYear - 1, portfolio.financialYearEnd, 1);
+  const fyEnd = new Date(financialYear, portfolio.financialYearEnd, 0);
+  const cpi = await loadCpiMap();
+
+  const sells = await db.transaction.findMany({
+    where: {
+      holding: { portfolioId },
+      transactionType: "SELL",
+      tradeDate: { gte: fyStart, lte: fyEnd },
+    },
+    include: {
+      holding: {
+        include: {
+          instrument: true,
+          transactions: { orderBy: { tradeDate: "asc" } },
+        },
+      },
+    },
+    orderBy: { tradeDate: "asc" },
+  });
+
+  const agg = new Map<SaleAllocationMethod, CgtMethodComparisonRow>(
+    ALLOCATION_METHODS.map((method) => [
+      method,
+      {
+        method,
+        grossGains: 0,
+        losses: 0,
+        cgtDiscount: 0,
+        indexationRelief: 0,
+        netCapitalGain: 0,
+      },
+    ])
+  );
+
+  let disposals = 0;
+  for (const sell of sells) {
+    if (isIncomeAsset(sell.holding.instrument)) continue;
+    disposals++;
+
+    const priorTx = sell.holding.transactions
+      .filter((tx) => tx.tradeDate <= sell.tradeDate && tx.id !== sell.id)
+      .map((tx) => ({
+        id: tx.id,
+        transactionType: tx.transactionType,
+        tradeDate: tx.tradeDate,
+        quantity: tx.quantity,
+        price: tx.price,
+        brokerage: tx.brokerage,
+        exchangeRate: tx.exchangeRate,
+        currency: tx.currency,
+        comments: tx.comments,
+      }));
+
+    const saleQuantity = Number(sell.quantity);
+    const salePrice = Number(sell.price);
+    const brokerage = Number(sell.brokerage);
+
+    const methodResults = optimiseSaleAllocation(
+      priorTx,
+      sell.tradeDate,
+      saleQuantity,
+      salePrice,
+      brokerage,
+      portfolio.taxEntityType,
+      cpi
+    );
+
+    for (const mr of methodResults) {
+      const row = agg.get(mr.method);
+      if (!row) continue;
+
+      // Item-level gain, mirroring generateCgtReport.
+      const itemProceeds = saleQuantity * salePrice - brokerage;
+      const itemCostBase = mr.results.reduce((s, r) => s + r.costBase, 0);
+      const itemGain = itemProceeds - itemCostBase;
+      if (itemGain > 0) row.grossGains += itemGain;
+      else if (itemGain < 0) row.losses += -itemGain;
+
+      for (const r of mr.results) {
+        if (r.gain <= 0) continue;
+        if (r.methodUsed === "indexation") {
+          row.indexationRelief += r.gain - r.indexationGain;
+        } else {
+          row.cgtDiscount += r.gain - r.discountedGain;
+        }
+      }
+    }
+  }
+
+  const rows = ALLOCATION_METHODS.map((m) => {
+    const row = agg.get(m)!;
+    row.netCapitalGain = Math.max(
+      0,
+      row.grossGains - row.losses - row.cgtDiscount - row.indexationRelief
+    );
+    return row;
+  });
+
+  // Lowest assessable gain wins; the current method wins ties so we never
+  // suggest a switch for no benefit.
+  let optimalMethod = currentMethod;
+  let best = rows.find((r) => r.method === currentMethod)?.netCapitalGain ?? 0;
+  for (const row of rows) {
+    if (row.netCapitalGain < best) {
+      best = row.netCapitalGain;
+      optimalMethod = row.method;
+    }
+  }
+  const currentNet =
+    rows.find((r) => r.method === currentMethod)?.netCapitalGain ?? 0;
+
+  return {
+    rows,
+    currentMethod,
+    optimalMethod,
+    potentialSaving: Math.max(0, currentNet - best),
+    disposals,
     financialYear: `FY${financialYear - 1}-${String(financialYear).slice(2)}`,
   };
 }

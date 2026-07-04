@@ -2,8 +2,12 @@
 
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { buildParcels } from "@/lib/calculations/parcels";
+import {
+  buildParcels,
+  type SaleAllocationMethod,
+} from "@/lib/calculations/parcels";
 import { isIncomeAsset } from "@/lib/calculations/asset-tax-class";
+import { getLatestPrices } from "@/lib/services/latest-prices";
 import {
   currentLawIndexationFactor,
   loadCpiMap,
@@ -53,6 +57,9 @@ export async function generateUnrealisedCgtReport(
   });
 
   const cpi = await loadCpiMap();
+  const latestPrices = await getLatestPrices(
+    holdings.map((h) => h.instrumentId)
+  );
   const items: UnrealisedCgtItem[] = [];
   const today = new Date();
 
@@ -69,18 +76,18 @@ export async function generateUnrealisedCgtReport(
       brokerage: tx.brokerage,
       exchangeRate: tx.exchangeRate,
       currency: tx.currency,
+      comments: tx.comments,
     }));
 
-    const parcels = buildParcels(txData);
+    const parcels = buildParcels(
+      txData,
+      portfolio.saleAllocationMethod as SaleAllocationMethod,
+      portfolio.taxEntityType
+    );
     const activeParcels = parcels.filter((p) => p.remainingQuantity > 0);
     if (activeParcels.length === 0) continue;
 
-    // Get latest price
-    const latestPrice = await db.price.findFirst({
-      where: { instrumentId: holding.instrumentId },
-      orderBy: { date: "desc" },
-    });
-    const currentPrice = latestPrice ? Number(latestPrice.close) : 0;
+    const currentPrice = latestPrices.get(holding.instrumentId)?.close ?? 0;
     if (currentPrice === 0) continue;
 
     const totalQuantity = activeParcels.reduce(

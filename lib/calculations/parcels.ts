@@ -38,7 +38,28 @@ export type SaleAllocationMethod =
   | "max_gain"
   | "min_tax";
 
-export function buildParcels(transactions: TransactionData[]): Parcel[] {
+/**
+ * Machine-readable acquisition-date marker embedded in a MERGER_IN
+ * transaction's comments by `recordMerger` (scrip-for-scrip rollover), e.g.
+ * `[acq:2015-03-01]`. When present, the merged-in parcel inherits that
+ * acquisition date so the CGT discount / indexation clock is not reset.
+ */
+const ACQUISITION_DATE_MARKER = /\[acq:(\d{4}-\d{2}-\d{2})\]/;
+
+/**
+ * Build CGT parcels from a holding's transaction history.
+ *
+ * Acquisitions (BUY, TRANSFER_IN, RIGHTS_ISSUE, MERGER_IN, BONUS) create
+ * parcels; disposals (SELL, TRANSFER_OUT, MERGER_OUT) consume parcel
+ * quantities in the order given by `disposalMethod` (the portfolio's
+ * sale-allocation method), so that later disposals only see the parcels
+ * that actually remain.
+ */
+export function buildParcels(
+  transactions: TransactionData[],
+  disposalMethod: SaleAllocationMethod = "fifo",
+  taxEntityType: string = "individual"
+): Parcel[] {
   const parcels: Parcel[] = [];
 
   const sorted = [...transactions].sort(
@@ -52,7 +73,11 @@ export function buildParcels(transactions: TransactionData[]): Parcel[] {
 
     switch (tx.transactionType) {
       case "BUY":
-      case "TRANSFER_IN": {
+      case "TRANSFER_IN":
+      case "RIGHTS_ISSUE": {
+        // Rights issues are ordinary acquisitions: cost base is the amount
+        // paid to exercise (quantity × issue price + fees), acquired at the
+        // transaction date.
         const totalCost = qty * price + broker;
         parcels.push({
           purchaseDate: new Date(tx.tradeDate),
@@ -63,6 +88,43 @@ export function buildParcels(transactions: TransactionData[]): Parcel[] {
           holdingPeriodDays: 0,
           isLongTerm: false,
         });
+        break;
+      }
+      case "MERGER_IN": {
+        // Units received in a merger. The recorded price carries the per-unit
+        // cost base transferred from the source holding (scrip-for-scrip
+        // rollover — see recordMerger). If the transaction comments carry an
+        // `[acq:YYYY-MM-DD]` marker, the parcel inherits that original
+        // acquisition date; otherwise the merger date is used.
+        const totalCost = qty * price + broker;
+        const acqMatch = tx.comments?.match(ACQUISITION_DATE_MARKER);
+        parcels.push({
+          purchaseDate: acqMatch
+            ? new Date(acqMatch[1])
+            : new Date(tx.tradeDate),
+          quantity: qty,
+          remainingQuantity: qty,
+          costPerUnit: totalCost / qty,
+          totalCost,
+          holdingPeriodDays: 0,
+          isLongTerm: false,
+        });
+        break;
+      }
+      case "SELL":
+      case "TRANSFER_OUT":
+      case "MERGER_OUT": {
+        // Disposals consume parcel quantities so later events (and the
+        // unrealised CGT report) only see what actually remains. A merger-out
+        // is recorded for all units held, so it drains every parcel.
+        consumeParcels(
+          parcels,
+          new Date(tx.tradeDate),
+          qty,
+          price,
+          disposalMethod,
+          taxEntityType
+        );
         break;
       }
       case "SPLIT": {
@@ -116,6 +178,44 @@ export function buildParcels(transactions: TransactionData[]): Parcel[] {
   }
 
   return parcels;
+}
+
+/**
+ * Consume `quantity` units from the given parcels (mutating
+ * `remainingQuantity`/`totalCost` in place), in the order implied by the
+ * sale-allocation method. Mirrors the ordering used by `allocateSale` so
+ * disposals recorded in the transaction history reduce the same parcels the
+ * CGT report would have allocated the sale against.
+ */
+function consumeParcels(
+  parcels: Parcel[],
+  disposalDate: Date,
+  quantity: number,
+  price: number,
+  method: SaleAllocationMethod,
+  taxEntityType: string
+): void {
+  const available = parcels.filter((p) => p.remainingQuantity > 0);
+  for (const p of available) {
+    const days = Math.floor(
+      (disposalDate.getTime() - p.purchaseDate.getTime()) /
+        (1000 * 60 * 60 * 24)
+    );
+    p.holdingPeriodDays = days;
+    p.isLongTerm = days >= 365;
+  }
+
+  const ordered = sortParcels(available, method, price, taxEntityType);
+
+  let remaining = quantity;
+  for (const parcel of ordered) {
+    if (remaining <= 0) break;
+    const consumed = Math.min(remaining, parcel.remainingQuantity);
+    parcel.remainingQuantity -= consumed;
+    parcel.totalCost -= consumed * parcel.costPerUnit;
+    if (parcel.totalCost < 0) parcel.totalCost = 0;
+    remaining -= consumed;
+  }
 }
 
 export function allocateSale(

@@ -4,17 +4,32 @@ import {
   type SaleAllocationMethod,
   type ParcelSaleResult,
 } from "@/lib/calculations/parcels";
+import type { CpiMap } from "@/lib/calculations/indexation";
 import type { TransactionData } from "@/lib/calculations/performance";
+
+export const ALLOCATION_METHODS: SaleAllocationMethod[] = [
+  "fifo",
+  "lifo",
+  "min_gain",
+  "max_gain",
+  "min_tax",
+];
 
 export interface ParcelMatchResult {
   method: SaleAllocationMethod;
+  /** Nominal gain (proceeds less cost base) across allocated parcels. */
   totalGain: number;
-  totalTax: number;
+  /** Assessable gain after the discount/indexation method per parcel. */
+  totalAssessable: number;
   results: ParcelSaleResult[];
 }
 
 /**
- * Run all 5 allocation methods and return the one that minimises tax.
+ * Run all 5 sale-allocation methods over a single sale and return each
+ * method's outcome, sorted by lowest assessable gain first. Prior disposals
+ * in the transaction history are consumed with the same method being
+ * evaluated, so each result reflects "what if the portfolio used this method
+ * throughout".
  */
 export function optimiseSaleAllocation(
   transactions: TransactionData[],
@@ -22,20 +37,13 @@ export function optimiseSaleAllocation(
   saleQuantity: number,
   salePrice: number,
   brokerage: number,
-  taxEntityType: string
+  taxEntityType: string,
+  cpi?: CpiMap
 ): ParcelMatchResult[] {
-  const methods: SaleAllocationMethod[] = [
-    "fifo",
-    "lifo",
-    "min_gain",
-    "max_gain",
-    "min_tax",
-  ];
-
   const results: ParcelMatchResult[] = [];
 
-  for (const method of methods) {
-    const parcels = buildParcels(transactions);
+  for (const method of ALLOCATION_METHODS) {
+    const parcels = buildParcels(transactions, method, taxEntityType);
     const saleResults = allocateSale(
       parcels,
       saleDate,
@@ -43,14 +51,18 @@ export function optimiseSaleAllocation(
       salePrice,
       brokerage,
       method,
-      taxEntityType
+      taxEntityType,
+      cpi
     );
 
     const totalGain = saleResults.reduce((s, r) => s + r.gain, 0);
-    const totalTax = saleResults.reduce((s, r) => s + r.discountedGain, 0);
+    const totalAssessable = saleResults.reduce(
+      (s, r) => s + r.assessableGain,
+      0
+    );
 
-    results.push({ method, totalGain, totalTax, results: saleResults });
+    results.push({ method, totalGain, totalAssessable, results: saleResults });
   }
 
-  return results.sort((a, b) => a.totalTax - b.totalTax);
+  return results.sort((a, b) => a.totalAssessable - b.totalAssessable);
 }
