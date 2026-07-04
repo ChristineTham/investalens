@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { ensurePortfolioId } from "./helpers";
 
 /**
  * Accessibility & responsive navigation (v2.1.0).
@@ -46,8 +47,12 @@ test.describe("page metadata", () => {
 
   for (const { path, title } of routes) {
     test(`${path} has a distinct <title>`, async ({ page }) => {
-      await page.goto(path);
-      await expect(page).toHaveTitle(title);
+      // Heavy routes (e.g. /tax/cgt, /reports/*) can take a while to compile the
+      // first time they're hit on a cold dev server — more than the default 60s
+      // budget once navigation + rendering is included. Give first-compile room.
+      test.setTimeout(120000);
+      await page.goto(path, { waitUntil: "commit" });
+      await expect(page).toHaveTitle(title, { timeout: 90000 });
     });
   }
 });
@@ -64,13 +69,10 @@ test.describe("skip link", () => {
 
 test.describe("instrument search a11y", () => {
   test("instrument search exposes role=combobox", async ({ page }) => {
-    // The Add Holding page renders the instrument search combobox.
-    await page.goto("/portfolio");
-    await page
-      .getByRole("link", { name: /portfolio|holding/i })
-      .filter({ hasNotText: "Consolidated" })
-      .first()
-      .click();
+    // The Add Holding page renders the instrument search combobox. Navigate to
+    // a real portfolio detail page (creating one if the account has none).
+    const portfolioId = await ensurePortfolioId(page);
+    await page.goto(`/portfolio/${portfolioId}`);
     await page.getByRole("link", { name: "Add Holding" }).click();
 
     const combobox = page.getByRole("combobox", { name: /search/i });

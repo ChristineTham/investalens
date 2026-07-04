@@ -93,22 +93,23 @@ export default defineConfig({
     // },
   ],
 
-  /* Run your local production server before starting the tests.
+  /* Boot a local DEV server for the tests and tear it down afterwards.
    *
-   * This is guarded so it ONLY starts when E2E_BASE_URL is unset — when you
-   * point the suite at an external URL there is nothing to boot locally.
+   * Guarded so it ONLY starts when E2E_BASE_URL is unset — point the suite at
+   * an external URL (e.g. a preview deployment) and nothing is booted locally.
    *
-   * NOTE: `npm run start` serves the ALREADY-BUILT app (run `npm run build`
-   * first) and the app expects a reachable Postgres database (DATABASE_URL /
-   * Prisma). Without a built app + DB this webServer — and therefore the
-   * whole suite — will fail to come up; that is expected in a bare dev
-   * environment. */
+   * Dev mode (not `npm run start`) is deliberate: a production build sets
+   * NextAuth's session cookie with the Secure flag, which browsers refuse to
+   * send over plain http://localhost, so authenticated flows can't sign in.
+   * `next dev` issues host-only, non-secure cookies that work over http.
+   * The app still needs a reachable Postgres database (DATABASE_URL / Prisma).
+   * The generous timeout covers dev first-compile. */
   webServer: process.env.E2E_BASE_URL
     ? undefined
     : {
-        command: "npm run start",
+        command: "npm run dev",
         url: "http://localhost:3000",
         reuseExistingServer: !process.env.CI,
-        timeout: 120_000,
+        timeout: 180_000,
       },
 });

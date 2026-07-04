@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { createPortfolio } from "./helpers";
 
 /**
  * Read-only portfolio sharing (v2.1.0).
@@ -21,12 +22,7 @@ test.describe("portfolio sharing", () => {
     browser,
   }) => {
     // --- As the primary user: create a portfolio to share ---
-    await page.goto("/portfolio/new");
-    await page.getByLabel("Portfolio Name").fill(sharedPortfolioName);
-    await page.getByRole("button", { name: /create portfolio/i }).click();
-    await expect(
-      page.getByRole("heading", { name: sharedPortfolioName })
-    ).toBeVisible();
+    await createPortfolio(page, sharedPortfolioName);
 
     // --- Register the second user in an isolated context first ---
     const recipientContext = await browser.newContext({
@@ -50,7 +46,9 @@ test.describe("portfolio sharing", () => {
       .selectOption({ label: sharedPortfolioName });
     await page.getByLabel("Email address").fill(secondUser.email);
     await page.getByLabel("Access level").selectOption("read");
-    await page.getByRole("button", { name: "Share" }).click();
+    // Exact match so this doesn't also resolve the "Remove share" buttons that
+    // accumulate from earlier runs.
+    await page.getByRole("button", { name: "Share", exact: true }).click();
 
     // Confirm the share is listed under "Shared by you".
     await expect(page.getByText(secondUser.email)).toBeVisible();

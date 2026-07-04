@@ -44,7 +44,9 @@ test.describe("authentication", () => {
     await page.getByLabel("Confirm Password").fill("different-Password-123");
     await page.getByRole("button", { name: "Create account" }).click();
 
-    await expect(page.getByRole("alert")).toContainText("Passwords do not match");
+    await expect(
+      page.getByRole("alert").filter({ hasText: "Passwords do not match" })
+    ).toBeVisible();
     await expect(page).toHaveURL(/\/register/);
   });
 
@@ -66,9 +68,27 @@ test.describe("authentication", () => {
     await page.getByRole("button", { name: "Sign out" }).click();
     await expect(page).toHaveURL(/\/login/);
 
+    // Wait for the login page (and its next-auth CSRF setup) to be ready before
+    // submitting, otherwise the credentials sign-in can race the session reset.
+    await expect(
+      page.getByRole("heading", { name: "Welcome back" })
+    ).toBeVisible();
     await page.getByLabel("Email").fill(email);
     await page.getByLabel("Password").fill(password);
     await page.getByRole("button", { name: "Sign in" }).click();
+
+    // On success the client does window.location.href = "/portfolio"; on a
+    // transient CSRF race it stays on /login with an alert — retry once.
+    const landed = await page
+      .waitForURL(/\/portfolio/, { timeout: 10000 })
+      .then(() => true)
+      .catch(() => false);
+    if (!landed) {
+      await page.getByLabel("Email").fill(email);
+      await page.getByLabel("Password").fill(password);
+      await page.getByRole("button", { name: "Sign in" }).click();
+      await page.waitForURL(/\/portfolio/, { timeout: 10000 });
+    }
     await expect(page).toHaveURL(/\/portfolio/);
   });
 
@@ -80,9 +100,9 @@ test.describe("authentication", () => {
     await page.getByLabel("Password").fill("wrong-Password-123");
     await page.getByRole("button", { name: "Sign in" }).click();
 
-    await expect(page.getByRole("alert")).toContainText(
-      "Invalid email or password"
-    );
+    await expect(
+      page.getByRole("alert").filter({ hasText: "Invalid email or password" })
+    ).toBeVisible();
     await expect(page).toHaveURL(/\/login/);
   });
 

@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { ensurePortfolioId } from "./helpers";
 
 /**
  * Import hub + guided wizard (v2.1.0).
@@ -7,18 +8,12 @@ import { test, expect } from "@playwright/test";
  * The guided import wizard walks Upload -> Configure -> Map -> Review.
  *
  * These navigate into a portfolio's /import route, so the authenticated user
- * needs at least one portfolio (see portfolio.spec.ts, or seed data). Runs
+ * needs at least one portfolio (created through the UI if absent). Runs
  * authenticated (shared storageState).
  */
 async function openFirstPortfolioImport(page: import("@playwright/test").Page) {
-  await page.goto("/portfolio");
-  // Open the first real portfolio card (skip the consolidated card).
-  const firstPortfolio = page
-    .getByRole("link", { name: /portfolio|holding/i })
-    .filter({ hasNotText: "Consolidated" })
-    .first();
-  await firstPortfolio.click();
-  await page.getByRole("link", { name: "Import" }).click();
+  const portfolioId = await ensurePortfolioId(page);
+  await page.goto(`/portfolio/${portfolioId}/import`);
   await expect(page.getByRole("heading", { name: "Import", exact: true })).toBeVisible();
 }
 
@@ -67,15 +62,23 @@ test.describe("import hub", () => {
       buffer: Buffer.from(csv),
     });
 
-    // Step 2 — Configure: "File Detected" then advance to mapping.
+    // Step 2 — Configure: "File Detected" then advance to mapping. The CSV
+    // uses ISO dates, so pick the matching date format for a clean parse.
     await expect(page.getByText("File Detected")).toBeVisible();
+    await page.getByLabel("Date Format").selectOption("yyyy-mm-dd");
     await page.getByRole("button", { name: "Next: Map Fields" }).click();
 
-    // Step 3 — Map: column mapping, then advance to review.
+    // Step 3 — Map: map each required column to the file header, then advance.
+    // Field labels include a "*" required marker, so match by prefix.
     await expect(page.getByText("Map Columns")).toBeVisible();
+    await page.getByLabel(/^Trade Date/).selectOption("Date");
+    await page.getByLabel(/^Instrument Code/).selectOption("Code");
+    await page.getByLabel(/^Quantity/).selectOption("Quantity");
+    await page.getByLabel(/^Price/).selectOption("Price");
+    await page.getByLabel(/^Transaction Type/).selectOption("Type");
     await page.getByRole("button", { name: "Next: Review" }).click();
 
     // Step 4 — Review: the parsed rows are shown for confirmation.
-    await expect(page.getByText("BHP")).toBeVisible();
+    await expect(page.getByText("BHP").first()).toBeVisible();
   });
 });

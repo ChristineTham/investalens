@@ -51,8 +51,11 @@ setup("authenticate primary user", async ({ page, baseURL }) => {
 
   // Successful sign-in redirects to /portfolio. If credentials are rejected
   // (first run — user doesn't exist yet) an inline alert appears instead.
+  // waitUntil "commit" resolves on the URL change without waiting for the
+  // dashboard to finish compiling (dev-mode first compile can be slow), so a
+  // valid login isn't misread as a failure.
   const signedIn = await page
-    .waitForURL("**/portfolio", { timeout: 8000 })
+    .waitForURL("**/portfolio", { timeout: 30000, waitUntil: "commit" })
     .then(() => true)
     .catch(() => false);
 
@@ -65,9 +68,9 @@ setup("authenticate primary user", async ({ page, baseURL }) => {
     await page.getByLabel("Password", { exact: true }).fill(PRIMARY_USER.password);
     await page.getByLabel("Confirm Password").fill(PRIMARY_USER.password);
     await page.getByRole("button", { name: "Create account" }).click();
-    await page.waitForURL("**/portfolio", { timeout: 15000 });
+    await page.waitForURL("**/portfolio", { timeout: 30000, waitUntil: "commit" });
   }
 
-  await expect(page).toHaveURL(/\/portfolio/);
+  await expect(page).toHaveURL(/\/portfolio/, { timeout: 15000 });
   await page.context().storageState({ path: USER_FILE });
 });
