@@ -1,6 +1,6 @@
 {
   "name": "investalens",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -11,7 +11,11 @@
     "update-data": "tsx scripts/update.ts",
     "validate": "tsx scripts/validate.ts",
     "verify:cgt2027": "tsx scripts/verify-cgt-2027.ts",
-    "seed:models": "tsx scripts/seed-models.ts"
+    "seed:models": "tsx scripts/seed-models.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
