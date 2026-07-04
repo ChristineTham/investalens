@@ -1,6 +1,21 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import {
+  authenticateApiRequest,
+  hasScope,
+  jsonError,
+} from "@/lib/api/middleware";
 
 export async function POST(request: Request) {
+  // Accept either a v1 API token (write scope) or an in-app NextAuth session.
+  const token = await authenticateApiRequest(request);
+  if (token instanceof Response) return token;
+  if (!token || !hasScope(token.scope, "write")) {
+    const session = await auth();
+    if (!session?.user?.id)
+      return jsonError("unauthorized", "Authentication required", 401);
+  }
+
   // Check if AI is available
   const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   if (!apiKey) {

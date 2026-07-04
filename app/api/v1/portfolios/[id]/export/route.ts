@@ -5,12 +5,15 @@ import {
 } from "@/lib/api/middleware";
 import { db } from "@/lib/db";
 import { calculatePosition } from "@/lib/calculations/position";
+import { getLatestPrices } from "@/lib/services/latest-prices";
+import { escapeCsv } from "@/lib/export/csv-escape";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await authenticateApiRequest(request);
+  if (auth instanceof Response) return auth;
   if (!auth)
     return jsonError("unauthorized", "Invalid or missing API token", 401);
   if (!hasScope(auth.scope, "read"))
@@ -66,7 +69,10 @@ export async function GET(
       }
     }
 
-    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const csv = [
+      headers.join(","),
+      ...rows.map((r) => r.map(escapeCsv).join(",")),
+    ].join("\n");
 
     return new Response(csv, {
       headers: {
@@ -77,14 +83,12 @@ export async function GET(
   }
 
   // JSON format — include holdings with positions
+  const latestPrices = await getLatestPrices(
+    portfolio.holdings.map((h) => h.instrumentId)
+  );
   const holdingsWithPositions = await Promise.all(
     portfolio.holdings.map(async (holding) => {
-      const latestPrice = await db.price.findFirst({
-        where: { instrumentId: holding.instrumentId },
-        orderBy: { date: "desc" },
-      });
-
-      const currentPrice = latestPrice ? Number(latestPrice.close) : 0;
+      const currentPrice = latestPrices.get(holding.instrumentId)?.close ?? 0;
       const txData = holding.transactions.map((tx) => ({
         id: tx.id,
         transactionType: tx.transactionType,

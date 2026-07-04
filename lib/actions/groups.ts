@@ -1,15 +1,14 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 export async function getGroups() {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   return db.customGroup.findMany({
-    where: { userId: session.user.id },
+    where: { userId: user.id },
     include: {
       categories: {
         include: { holdings: true },
@@ -20,11 +19,10 @@ export async function getGroups() {
 }
 
 export async function createCustomGroup(name: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   const group = await db.customGroup.create({
-    data: { userId: session.user.id, name },
+    data: { userId: user.id, name },
   });
 
   revalidatePath("/settings/groups");
@@ -32,11 +30,10 @@ export async function createCustomGroup(name: string) {
 }
 
 export async function addCategory(groupId: string, name: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   const group = await db.customGroup.findFirst({
-    where: { id: groupId, userId: session.user.id },
+    where: { id: groupId, userId: user.id },
   });
   if (!group) throw new Error("Group not found");
 
@@ -52,8 +49,12 @@ export async function assignInstrument(
   categoryId: string,
   instrumentId: string
 ) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
+
+  const category = await db.customGroupCategory.findFirst({
+    where: { id: categoryId, group: { userId: user.id } },
+  });
+  if (!category) throw new Error("Not found");
 
   await db.customGroupAssignment.create({
     data: { categoryId, instrumentId },
@@ -66,8 +67,12 @@ export async function removeAssignment(
   categoryId: string,
   instrumentId: string
 ) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
+
+  const category = await db.customGroupCategory.findFirst({
+    where: { id: categoryId, group: { userId: user.id } },
+  });
+  if (!category) throw new Error("Not found");
 
   await db.customGroupAssignment.deleteMany({
     where: { categoryId, instrumentId },
@@ -77,11 +82,10 @@ export async function removeAssignment(
 }
 
 export async function deleteGroup(groupId: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   await db.customGroup.deleteMany({
-    where: { id: groupId, userId: session.user.id },
+    where: { id: groupId, userId: user.id },
   });
 
   revalidatePath("/settings/groups");

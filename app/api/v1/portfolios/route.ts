@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 
 export async function GET(request: Request) {
   const auth = await authenticateApiRequest(request);
+  if (auth instanceof Response) return auth;
   if (!auth)
     return jsonError("unauthorized", "Invalid or missing API token", 401);
   if (!hasScope(auth.scope, "read"))
@@ -23,6 +24,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const auth = await authenticateApiRequest(request);
+  if (auth instanceof Response) return auth;
   if (!auth)
     return jsonError("unauthorized", "Invalid or missing API token", 401);
   if (!hasScope(auth.scope, "write"))

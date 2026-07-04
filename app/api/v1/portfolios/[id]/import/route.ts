@@ -7,6 +7,7 @@ import {
 import { db } from "@/lib/db";
 import { parseCsv } from "@/lib/import/csv-parser";
 import { mapRows } from "@/lib/import/mapper";
+import { findDuplicates } from "@/lib/import/dedup";
 import type { ImportConfig } from "@/lib/import/types";
 
 export async function POST(
@@ -14,6 +15,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await authenticateApiRequest(request);
+  if (auth instanceof Response) return auth;
   if (!auth)
     return jsonError("unauthorized", "Invalid or missing API token", 401);
   if (!hasScope(auth.scope, "write"))
@@ -46,9 +48,14 @@ export async function POST(
     return jsonError("bad_request", `Parse errors: ${errors[0]}`, 400);
   }
 
+  // Skip rows that duplicate transactions already in the portfolio
+  const duplicates = await findDuplicates(id, mapped);
+  const duplicateRows = new Set(duplicates.map((d) => d.row));
+  const toImport = mapped.filter((_, i) => !duplicateRows.has(i + 1));
+
   // Import transactions
   let imported = 0;
-  for (const tx of mapped) {
+  for (const tx of toImport) {
     // Find or create instrument
     let instrument = await db.instrument.findFirst({
       where: { code: tx.instrumentCode, marketCode: tx.marketCode || "ASX" },
@@ -94,5 +101,8 @@ export async function POST(
     imported++;
   }
 
-  return jsonSuccess({ imported, errors: errors.length, total: mapped.length });
+  return jsonSuccess(
+    { imported, errors: errors.length, total: mapped.length },
+    { skippedDuplicates: duplicateRows.size }
+  );
 }

@@ -25,6 +25,12 @@ export class AnalyticsClient {
     if (bypass) {
       headers["x-vercel-protection-bypass"] = bypass;
     }
+    // Shared secret required by the Python analytics service when
+    // ANALYTICS_SHARED_SECRET is set on both services.
+    const analyticsSecret = process.env.ANALYTICS_SHARED_SECRET;
+    if (analyticsSecret) {
+      headers["x-analytics-secret"] = analyticsSecret;
+    }
 
     const response = await fetch(`${this.baseUrl}/api/analytics/${endpoint}`, {
       method: "POST",

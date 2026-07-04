@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getBenchmarkTimeSeriesBetween } from "@/lib/services/analytics-data";
+import { getLatestPrices } from "@/lib/services/latest-prices";
 import { holdingColor } from "@/lib/constants/chart-colors";
 import {
   type ChartRange,
@@ -67,20 +68,17 @@ export async function GET(
 
   // Latest prices (for colour ordering by current market value).
   const latestPrices = new Map<string, number>();
-  await Promise.all(
-    instrumentIds.map(async (iid) => {
-      const p = await db.price.findFirst({
-        where: { instrumentId: iid },
-        orderBy: { date: "desc" },
-        select: { close: true },
-      });
-      latestPrices.set(iid, p ? num(p.close) : 0);
-    })
-  );
+  const latestRows = await getLatestPrices(instrumentIds);
+  for (const iid of instrumentIds) {
+    latestPrices.set(iid, latestRows.get(iid)?.close ?? 0);
+  }
 
   // Prices within the range for every holding instrument.
   const prices = await db.price.findMany({
-    where: { instrumentId: { in: instrumentIds }, date: { gte: from, lte: to } },
+    where: {
+      instrumentId: { in: instrumentIds },
+      date: { gte: from, lte: to },
+    },
     orderBy: { date: "asc" },
   });
 
@@ -89,7 +87,8 @@ export async function GET(
   for (const p of prices) {
     const d = p.date.toISOString().split("T")[0];
     allDatesSet.add(d);
-    if (!priceLookup.has(p.instrumentId)) priceLookup.set(p.instrumentId, new Map());
+    if (!priceLookup.has(p.instrumentId))
+      priceLookup.set(p.instrumentId, new Map());
     priceLookup.get(p.instrumentId)!.set(d, num(p.close));
   }
   const allDates = [...allDatesSet].sort();
@@ -180,7 +179,8 @@ export async function GET(
     .sort((a, b) => a.date.getTime() - b.date.getTime());
 
   const startValue = valueSeries.length > 0 ? Number(valueSeries[0].Total) : 0;
-  const startBoundary = allDates.length > 0 ? new Date(allDates[0]).getTime() : 0;
+  const startBoundary =
+    allDates.length > 0 ? new Date(allDates[0]).getTime() : 0;
 
   let benchmarkSeries: { dates: string[]; values: number[] } | null = null;
   if (benchmarkCode) {

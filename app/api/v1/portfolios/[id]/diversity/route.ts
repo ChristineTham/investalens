@@ -6,12 +6,14 @@ import {
 } from "@/lib/api/middleware";
 import { db } from "@/lib/db";
 import { calculatePosition } from "@/lib/calculations/position";
+import { getLatestPrices } from "@/lib/services/latest-prices";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await authenticateApiRequest(request);
+  if (auth instanceof Response) return auth;
   if (!auth)
     return jsonError("unauthorized", "Invalid or missing API token", 401);
   if (!hasScope(auth.scope, "read"))
@@ -37,13 +39,12 @@ export async function GET(
   const groupValues: Record<string, number> = {};
   let totalValue = 0;
 
-  for (const holding of holdings) {
-    const latestPrice = await db.price.findFirst({
-      where: { instrumentId: holding.instrumentId },
-      orderBy: { date: "desc" },
-    });
+  const latestPrices = await getLatestPrices(
+    holdings.map((h) => h.instrumentId)
+  );
 
-    const currentPrice = latestPrice ? Number(latestPrice.close) : 0;
+  for (const holding of holdings) {
+    const currentPrice = latestPrices.get(holding.instrumentId)?.close ?? 0;
     const txData = holding.transactions.map((tx) => ({
       id: tx.id,
       transactionType: tx.transactionType,

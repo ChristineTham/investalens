@@ -11,6 +11,7 @@ export async function GET(
   { params }: { params: Promise<{ code: string }> }
 ) {
   const auth = await authenticateApiRequest(request);
+  if (auth instanceof Response) return auth;
   if (!auth)
     return jsonError("unauthorized", "Invalid or missing API token", 401);
   if (!hasScope(auth.scope, "read"))

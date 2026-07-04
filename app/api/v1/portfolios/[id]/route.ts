@@ -5,12 +5,14 @@ import {
   jsonSuccess,
 } from "@/lib/api/middleware";
 import { db } from "@/lib/db";
+import { updatePortfolioSchema } from "@/lib/validators/portfolio";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await authenticateApiRequest(request);
+  if (auth instanceof Response) return auth;
   if (!auth)
     return jsonError("unauthorized", "Invalid or missing API token", 401);
   if (!hasScope(auth.scope, "read"))
@@ -32,17 +34,23 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await authenticateApiRequest(request);
+  if (auth instanceof Response) return auth;
   if (!auth)
     return jsonError("unauthorized", "Invalid or missing API token", 401);
   if (!hasScope(auth.scope, "write"))
     return jsonError("forbidden", "Insufficient scope", 403);
 
   const { id } = await params;
-  const body = await request.json();
+  const body = await request.json().catch(() => null);
+
+  // Allow-list updatable fields — never pass the raw body to Prisma.
+  const parsed = updatePortfolioSchema.safeParse(body);
+  if (!parsed.success)
+    return jsonError("bad_request", "Invalid portfolio data", 400);
 
   const updated = await db.portfolio.updateMany({
     where: { id, userId: auth.userId },
-    data: body,
+    data: parsed.data,
   });
 
   if (updated.count === 0)
@@ -55,6 +63,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await authenticateApiRequest(request);
+  if (auth instanceof Response) return auth;
   if (!auth)
     return jsonError("unauthorized", "Invalid or missing API token", 401);
   if (!hasScope(auth.scope, "admin"))

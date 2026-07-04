@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import type { DateRange } from "@/lib/calculations/performance";
+import { escapeCsv } from "./csv-escape";
 
 export async function exportTrades(
   portfolioId: string,
@@ -148,11 +149,4 @@ export async function exportFullBackup(portfolioId: string): Promise<string> {
 
   if (!portfolio) throw new Error("Portfolio not found");
   return JSON.stringify(portfolio, null, 2);
-}
-
-function escapeCsv(value: string): string {
-  if (value.includes(",") || value.includes('"') || value.includes("\n")) {
-    return `"${value.replace(/"/g, '""')}"`;
-  }
-  return value;
 }

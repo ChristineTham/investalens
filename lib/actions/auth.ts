@@ -14,8 +14,9 @@ const registerSchema = z.object({
 export async function register(input: unknown) {
   const data = registerSchema.parse(input);
 
+  // Generic message — don't reveal whether an email is already registered.
   const existing = await db.user.findUnique({ where: { email: data.email } });
-  if (existing) throw new Error("Email already registered");
+  if (existing) throw new Error("Unable to register with these details");
 
   const passwordHash = await bcrypt.hash(data.password, 12);
 

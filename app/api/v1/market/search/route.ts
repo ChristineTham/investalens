@@ -8,6 +8,7 @@ import { searchInstruments } from "@/lib/providers/instrument-search";
 
 export async function GET(request: Request) {
   const auth = await authenticateApiRequest(request);
+  if (auth instanceof Response) return auth;
   if (!auth)
     return jsonError("unauthorized", "Invalid or missing API token", 401);
   if (!hasScope(auth.scope, "read"))
