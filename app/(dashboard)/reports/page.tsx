@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { PortfolioSelector } from "@/components/reports/portfolio-selector";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Reports",
+};
 
 const reports = [
   {

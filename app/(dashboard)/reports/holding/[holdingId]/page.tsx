@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { formatCurrency, formatDate, formatPercent } from "@/lib/utils";
@@ -5,6 +6,10 @@ import { redirect } from "next/navigation";
 import { HoldingChartSection } from "@/components/charts/holding-chart-section";
 import { calculatePosition } from "@/lib/calculations/position";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Holding Report",
+};
 
 export default async function HoldingDetailPage({
   params,
@@ -224,7 +229,7 @@ export default async function HoldingDetailPage({
       {/* Transaction History */}
       <div>
         <h2 className="mb-3 text-lg font-medium">Transaction History</h2>
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>

@@ -174,7 +174,7 @@ function MatchCard({
           </p>
         </div>
         <span
-          className={`text-sm font-semibold tabular-nums ${tx.amount >= 0 ? "text-green-600" : "text-red-600"}`}
+          className={`text-sm font-semibold tabular-nums ${tx.amount >= 0 ? "text-gain" : "text-loss"}`}
         >
           {formatCurrency(tx.amount, currency)}
         </span>
@@ -320,7 +320,7 @@ function ReconciledCard({
           <p className="text-xs text-muted-foreground tabular-nums">{tx.date}</p>
         </div>
         <span
-          className={`text-sm font-semibold tabular-nums ${tx.amount >= 0 ? "text-green-600" : "text-red-600"}`}
+          className={`text-sm font-semibold tabular-nums ${tx.amount >= 0 ? "text-gain" : "text-loss"}`}
         >
           {formatCurrency(tx.amount, currency)}
         </span>

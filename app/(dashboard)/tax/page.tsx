@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -5,6 +6,10 @@ import { redirect } from "next/navigation";
 import { Calculator, FileText, TrendingUp } from "lucide-react";
 import { TaxFilter } from "@/components/reports/tax-filter";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Tax Reports",
+};
 
 export default async function TaxPage({
   searchParams,

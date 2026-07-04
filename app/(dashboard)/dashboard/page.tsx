@@ -2,8 +2,12 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
-import { calculatePosition, calculateIncome } from "@/lib/calculations/position";
+import {
+  calculatePosition,
+  calculateIncome,
+} from "@/lib/calculations/position";
 import { getUserCashTotal } from "@/lib/services/accounts";
+import { getLatestPrices } from "@/lib/services/latest-prices";
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
 import { VsModelCard } from "@/components/dashboard/vs-model-card";
 import { FetchPricesButton } from "@/components/forms/fetch-prices-button";
@@ -26,6 +30,10 @@ import {
   PiggyBank,
 } from "lucide-react";
 
+export const metadata = {
+  title: "Dashboard",
+};
+
 export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
@@ -43,93 +51,98 @@ export default async function DashboardPage() {
     },
   });
 
-  // Calculate portfolio summaries
-  const portfolioSummaries = await Promise.all(
-    portfolios.map(async (portfolio) => {
-      let portfolioValue = 0;
-      let portfolioCost = 0;
-      let portfolioIncome = 0;
-      const holdingValues: {
-        id: string;
-        code: string;
-        name: string;
-        instrumentType: string;
-        quantity: number;
-        marketValue: number;
-      }[] = [];
-
-      for (const holding of portfolio.holdings) {
-        const latestPrice = await db.price.findFirst({
-          where: { instrumentId: holding.instrumentId },
-          orderBy: { date: "desc" },
-        });
-
-        const currentPrice = latestPrice ? Number(latestPrice.close) : 0;
-        const txData = holding.transactions.map((tx) => ({
-          id: tx.id,
-          transactionType: tx.transactionType,
-          tradeDate: tx.tradeDate,
-          quantity: tx.quantity,
-          price: tx.price,
-          brokerage: tx.brokerage,
-          exchangeRate: tx.exchangeRate,
-          currency: tx.currency,
-          accruedInterest: tx.accruedInterest,
-        }));
-
-        const position = calculatePosition(txData, currentPrice);
-        portfolioValue += position.marketValue;
-        portfolioCost += position.totalCostBase;
-
-        if (position.marketValue > 0) {
-          holdingValues.push({
-            id: holding.id,
-            code: holding.instrument.code,
-            name: holding.instrument.name,
-            instrumentType: holding.instrument.instrumentType,
-            quantity: position.quantity,
-            marketValue: position.marketValue,
-          });
-        }
-
-        // Income (dividends/interest/coupons), net of accrued interest
-        portfolioIncome += calculateIncome(txData);
-      }
-
-      // Custody / management fees (portfolio level, e.g. bond custody fees)
-      const portfolioFees = portfolio.fees.reduce(
-        (sum, f) => sum + Number(f.total),
-        0
-      );
-
-      const capitalGain = portfolioValue - portfolioCost;
-      const totalGain = capitalGain + portfolioIncome - portfolioFees;
-
-      return {
-        id: portfolio.id,
-        name: portfolio.name,
-        icon: portfolio.icon,
-        color: portfolio.color,
-        currency: portfolio.baseCurrency,
-        holdingCount: portfolio.holdings.length,
-        marketValue: portfolioValue,
-        costBase: portfolioCost,
-        capitalGain,
-        income: portfolioIncome,
-        fees: portfolioFees,
-        totalGain,
-        totalGainPercent:
-          portfolioCost > 0 ? (totalGain / portfolioCost) * 100 : 0,
-        holdings: holdingValues,
-      };
-    })
+  // Latest price per instrument, batched across every portfolio (avoids one
+  // query per holding).
+  const latestPrices = await getLatestPrices(
+    portfolios.flatMap((p) => p.holdings.map((h) => h.instrumentId))
   );
 
-  const totalValue = portfolioSummaries.reduce((sum, p) => sum + p.marketValue, 0);
+  // Calculate portfolio summaries
+  const portfolioSummaries = portfolios.map((portfolio) => {
+    let portfolioValue = 0;
+    let portfolioCost = 0;
+    let portfolioIncome = 0;
+    const holdingValues: {
+      id: string;
+      code: string;
+      name: string;
+      instrumentType: string;
+      quantity: number;
+      marketValue: number;
+    }[] = [];
+
+    for (const holding of portfolio.holdings) {
+      const currentPrice = latestPrices.get(holding.instrumentId)?.close ?? 0;
+      const txData = holding.transactions.map((tx) => ({
+        id: tx.id,
+        transactionType: tx.transactionType,
+        tradeDate: tx.tradeDate,
+        quantity: tx.quantity,
+        price: tx.price,
+        brokerage: tx.brokerage,
+        exchangeRate: tx.exchangeRate,
+        currency: tx.currency,
+        accruedInterest: tx.accruedInterest,
+      }));
+
+      const position = calculatePosition(txData, currentPrice);
+      portfolioValue += position.marketValue;
+      portfolioCost += position.totalCostBase;
+
+      if (position.marketValue > 0) {
+        holdingValues.push({
+          id: holding.id,
+          code: holding.instrument.code,
+          name: holding.instrument.name,
+          instrumentType: holding.instrument.instrumentType,
+          quantity: position.quantity,
+          marketValue: position.marketValue,
+        });
+      }
+
+      // Income (dividends/interest/coupons), net of accrued interest
+      portfolioIncome += calculateIncome(txData);
+    }
+
+    // Custody / management fees (portfolio level, e.g. bond custody fees)
+    const portfolioFees = portfolio.fees.reduce(
+      (sum, f) => sum + Number(f.total),
+      0
+    );
+
+    const capitalGain = portfolioValue - portfolioCost;
+    const totalGain = capitalGain + portfolioIncome - portfolioFees;
+
+    return {
+      id: portfolio.id,
+      name: portfolio.name,
+      icon: portfolio.icon,
+      color: portfolio.color,
+      currency: portfolio.baseCurrency,
+      holdingCount: portfolio.holdings.length,
+      marketValue: portfolioValue,
+      costBase: portfolioCost,
+      capitalGain,
+      income: portfolioIncome,
+      fees: portfolioFees,
+      totalGain,
+      totalGainPercent:
+        portfolioCost > 0 ? (totalGain / portfolioCost) * 100 : 0,
+      holdings: holdingValues,
+    };
+  });
+
+  const totalValue = portfolioSummaries.reduce(
+    (sum, p) => sum + p.marketValue,
+    0
+  );
   const totalCost = portfolioSummaries.reduce((sum, p) => sum + p.costBase, 0);
   const totalIncome = portfolioSummaries.reduce((sum, p) => sum + p.income, 0);
   const totalFees = portfolioSummaries.reduce((sum, p) => sum + p.fees, 0);
-  const totalHoldings = portfolioSummaries.reduce((sum, p) => sum + p.holdingCount, 0);
+  const totalHoldings = portfolioSummaries.reduce(
+    (sum, p) => sum + p.holdingCount,
+    0
+  );
   const cashTotal = await getUserCashTotal();
   const netWorth = totalValue + cashTotal;
 
@@ -303,7 +316,8 @@ export default async function DashboardPage() {
             Total Value
           </div>
           <p className="mt-2 text-2xl font-bold">
-            ${totalValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            $
+            {totalValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
           </p>
         </div>
         <div className="rounded-lg border border-border bg-card p-6">
@@ -312,10 +326,12 @@ export default async function DashboardPage() {
             Capital Gain
           </div>
           <p
-            className={`mt-2 text-2xl font-bold ${totalCapitalGain >= 0 ? "text-green-600" : "text-red-600"}`}
+            className={`mt-2 text-2xl font-bold ${totalCapitalGain >= 0 ? "text-gain" : "text-loss"}`}
           >
             {totalCapitalGain >= 0 ? "+" : ""}$
-            {totalCapitalGain.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            {totalCapitalGain.toLocaleString(undefined, {
+              maximumFractionDigits: 0,
+            })}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">Since inception</p>
         </div>
@@ -324,8 +340,11 @@ export default async function DashboardPage() {
             <PiggyBank className="h-4 w-4" />
             Income
           </div>
-          <p className="mt-2 text-2xl font-bold text-green-600">
-            ${totalIncome.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+          <p className="mt-2 text-2xl font-bold text-gain">
+            $
+            {totalIncome.toLocaleString(undefined, {
+              maximumFractionDigits: 0,
+            })}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">Since inception</p>
         </div>
@@ -335,10 +354,12 @@ export default async function DashboardPage() {
             Total Gain
           </div>
           <p
-            className={`mt-2 text-2xl font-bold ${totalGainLoss >= 0 ? "text-green-600" : "text-red-600"}`}
+            className={`mt-2 text-2xl font-bold ${totalGainLoss >= 0 ? "text-gain" : "text-loss"}`}
           >
             {totalGainLoss >= 0 ? "+" : ""}$
-            {totalGainLoss.toLocaleString(undefined, { maximumFractionDigits: 0 })}{" "}
+            {totalGainLoss.toLocaleString(undefined, {
+              maximumFractionDigits: 0,
+            })}{" "}
             <span className="text-base font-normal">
               ({totalGainLossPercent >= 0 ? "+" : ""}
               {totalGainLossPercent.toFixed(1)}%)
@@ -368,7 +389,9 @@ export default async function DashboardPage() {
           <p className="mt-2 text-2xl font-bold">
             ${cashTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">Across bank accounts</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Across bank accounts
+          </p>
         </div>
         <div className="rounded-lg border border-border bg-card p-6">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -378,7 +401,9 @@ export default async function DashboardPage() {
           <p className="mt-2 text-2xl font-bold">
             ${netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">Investments + cash</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Investments + cash
+          </p>
         </div>
       </div>
 
@@ -491,19 +516,30 @@ export default async function DashboardPage() {
                       {p.holdingCount}
                     </td>
                     <td className="px-4 py-3 text-right text-sm">
-                      ${p.costBase.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      $
+                      {p.costBase.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}
                     </td>
                     <td className="px-4 py-3 text-right text-sm font-medium">
-                      ${p.marketValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      $
+                      {p.marketValue.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}
                     </td>
                     <td
-                      className={`px-4 py-3 text-right text-sm font-medium ${p.capitalGain >= 0 ? "text-green-600" : "text-red-600"}`}
+                      className={`px-4 py-3 text-right text-sm font-medium ${p.capitalGain >= 0 ? "text-gain" : "text-loss"}`}
                     >
                       {p.capitalGain >= 0 ? "+" : ""}$
-                      {p.capitalGain.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      {p.capitalGain.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-medium text-green-600">
-                      ${p.income.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    <td className="px-4 py-3 text-right text-sm font-medium text-gain">
+                      $
+                      {p.income.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}
                     </td>
                     <td className="px-4 py-3 text-right text-sm text-muted-foreground">
                       {p.fees > 0
@@ -511,10 +547,12 @@ export default async function DashboardPage() {
                         : "—"}
                     </td>
                     <td
-                      className={`px-4 py-3 text-right text-sm font-medium ${p.totalGain >= 0 ? "text-green-600" : "text-red-600"}`}
+                      className={`px-4 py-3 text-right text-sm font-medium ${p.totalGain >= 0 ? "text-gain" : "text-loss"}`}
                     >
                       {p.totalGain >= 0 ? "+" : ""}$
-                      {p.totalGain.toLocaleString(undefined, { maximumFractionDigits: 0 })}{" "}
+                      {p.totalGain.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}{" "}
                       ({p.totalGainPercent >= 0 ? "+" : ""}
                       {p.totalGainPercent.toFixed(1)}%)
                     </td>
@@ -574,12 +612,18 @@ export default async function DashboardPage() {
                   return (
                     <tr key={row.key} className="hover:bg-accent/50">
                       <td className="px-4 py-3 text-sm text-muted-foreground">
-                        <Link href={href} className="hover:text-primary hover:underline">
+                        <Link
+                          href={href}
+                          className="hover:text-primary hover:underline"
+                        >
                           {row.date.toISOString().split("T")[0]}
                         </Link>
                       </td>
                       <td className="px-4 py-3">
-                        <Link href={href} className="font-medium text-primary hover:underline">
+                        <Link
+                          href={href}
+                          className="font-medium text-primary hover:underline"
+                        >
                           {row.instrumentCode}
                         </Link>
                       </td>
@@ -592,7 +636,10 @@ export default async function DashboardPage() {
                             )}
                             aria-hidden
                           />
-                          <ActivityIcon icon={row.icon} className="h-3.5 w-3.5" />
+                          <ActivityIcon
+                            icon={row.icon}
+                            className="h-3.5 w-3.5"
+                          />
                           {row.typeLabel}
                         </span>
                       </td>
@@ -605,25 +652,43 @@ export default async function DashboardPage() {
                         </Link>
                       </td>
                       <td className="px-4 py-3 text-right text-sm">
-                        <Link href={href} className="hover:text-primary hover:underline">
-                          {row.quantity != null ? row.quantity.toLocaleString() : "—"}
+                        <Link
+                          href={href}
+                          className="hover:text-primary hover:underline"
+                        >
+                          {row.quantity != null
+                            ? row.quantity.toLocaleString()
+                            : "—"}
                         </Link>
                       </td>
                       <td className="px-4 py-3 text-right text-sm">
-                        <Link href={href} className="hover:text-primary hover:underline">
+                        <Link
+                          href={href}
+                          className="hover:text-primary hover:underline"
+                        >
                           {row.price != null
                             ? `$${row.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}`
                             : "—"}
                         </Link>
                       </td>
                       <td className="px-4 py-3 text-right text-sm text-muted-foreground">
-                        <Link href={href} className="hover:text-primary hover:underline">
+                        <Link
+                          href={href}
+                          className="hover:text-primary hover:underline"
+                        >
                           {row.fees > 0 ? `$${row.fees.toFixed(2)}` : "—"}
                         </Link>
                       </td>
                       <td className="px-4 py-3 text-right text-sm font-medium">
-                        <Link href={href} className="hover:text-primary hover:underline">
-                          ${row.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <Link
+                          href={href}
+                          className="hover:text-primary hover:underline"
+                        >
+                          $
+                          {row.amount.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
                         </Link>
                       </td>
                     </tr>

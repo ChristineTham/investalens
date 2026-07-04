@@ -118,6 +118,7 @@ export function RiskDashboardClient({
             <button
               key={t}
               type="button"
+              aria-pressed={tab === t}
               className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
                 tab === t
                   ? "border-primary text-foreground"

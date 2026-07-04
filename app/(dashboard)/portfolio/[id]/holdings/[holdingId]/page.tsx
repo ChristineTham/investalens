@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -23,6 +24,10 @@ import type {
   NewsItem,
   StockFinancials,
 } from "@/lib/services/stock-info";
+
+export const metadata: Metadata = {
+  title: "Holding",
+};
 
 export default async function HoldingDetailPage({
   params,
@@ -178,7 +183,7 @@ export default async function HoldingDetailPage({
             No transactions recorded yet.
           </p>
         ) : (
-          <div className="mt-4 overflow-hidden rounded-lg border border-border">
+          <div className="mt-4 overflow-x-auto rounded-lg border border-border">
             <table className="w-full">
               <thead className="bg-muted/50">
                 <tr>

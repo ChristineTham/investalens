@@ -183,7 +183,7 @@ export function HoldingDetailClient({
                     </span>
                     <span
                       className={
-                        stats.change >= 0 ? "text-green-600 font-semibold" : "text-red-600 font-semibold"
+                        stats.change >= 0 ? "text-gain font-semibold" : "text-loss font-semibold"
                       }
                     >
                       {stats.change >= 0 ? "+" : ""}${stats.change.toFixed(2)} (

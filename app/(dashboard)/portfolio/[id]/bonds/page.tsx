@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getMaturityLadder } from "@/lib/calculations/bond-analytics";
 import { formatDate } from "@/lib/utils";
 import { redirect } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: "Bond Portfolio",
+};
 
 const STALE_DAYS = 7;
 
@@ -150,7 +155,7 @@ export default async function BondsPage({
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="rounded-lg border border-border bg-card p-4">
               <p className="text-sm text-muted-foreground">Coupon Income</p>
-              <p className="mt-1 text-xl font-bold text-green-600">
+              <p className="mt-1 text-xl font-bold text-gain">
                 ${totalCoupons.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
@@ -162,13 +167,13 @@ export default async function BondsPage({
             </div>
             <div className="rounded-lg border border-border bg-card p-4">
               <p className="text-sm text-muted-foreground">Custody Fees</p>
-              <p className="mt-1 text-xl font-bold text-red-600">
+              <p className="mt-1 text-xl font-bold text-loss">
                 ${totalFees.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-lg border border-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full">
               <thead className="bg-muted/50">
                 <tr>
@@ -246,6 +251,7 @@ export default async function BondsPage({
               <div className="border-b border-border p-4">
                 <h2 className="font-medium">Income Payments</h2>
               </div>
+              <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-muted/50">
                   <tr>
@@ -284,6 +290,7 @@ export default async function BondsPage({
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           )}
 
@@ -293,6 +300,7 @@ export default async function BondsPage({
               <div className="border-b border-border p-4">
                 <h2 className="font-medium">Custody Fees</h2>
               </div>
+              <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-muted/50">
                   <tr>
@@ -335,6 +343,7 @@ export default async function BondsPage({
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           )}
 

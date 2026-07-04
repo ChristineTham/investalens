@@ -1,6 +1,10 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
+export const metadata = {
+  title: "Strategy Comparison",
+};
+
 export default async function BacktestComparePage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");

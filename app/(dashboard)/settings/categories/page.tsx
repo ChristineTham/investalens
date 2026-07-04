@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getCategoriesWithUsage } from "@/lib/actions/accounts";
 import { CategoryManager } from "@/components/accounts/category-manager";
+
+export const metadata: Metadata = {
+  title: "Transaction Categories",
+};
 
 export default async function CategoriesPage() {
   const session = await auth();

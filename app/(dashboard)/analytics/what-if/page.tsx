@@ -158,7 +158,9 @@ export default function WhatIfPage() {
           {PRESET_SCENARIOS.map((s) => (
             <button
               key={s.name}
+              type="button"
               onClick={() => setSelectedScenario(s)}
+              aria-pressed={selectedScenario?.name === s.name}
               className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                 selectedScenario?.name === s.name
                   ? "border-primary bg-primary text-primary-foreground"
@@ -215,7 +217,7 @@ export default function WhatIfPage() {
       </div>
 
       {/* Holdings impact table */}
-      <div className="overflow-hidden rounded-lg border border-border">
+      <div className="overflow-x-auto rounded-lg border border-border">
         <table className="w-full">
           <thead className="bg-muted/50">
             <tr>
@@ -264,7 +266,9 @@ export default function WhatIfPage() {
                 </td>
                 <td className="px-4 py-3">
                   <button
+                    type="button"
                     onClick={() => removeHolding(i)}
+                    aria-label={`Remove ${h.code}`}
                     className="text-xs text-muted-foreground hover:text-destructive"
                   >
                     ×

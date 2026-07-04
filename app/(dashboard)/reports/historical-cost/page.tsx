@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { generateHistoricalCostReport } from "@/lib/reports/historical-cost-report";
@@ -6,6 +7,10 @@ import { redirect } from "next/navigation";
 import { ReportFilters } from "@/components/reports/report-filters";
 import { HistoricalCostChart } from "@/components/charts/historical-cost-chart";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Historical Cost",
+};
 
 export default async function HistoricalCostPage({
   searchParams,
@@ -142,7 +147,7 @@ export default async function HistoricalCostPage({
             />
           </div>
 
-          <div className="overflow-hidden rounded-lg border border-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full">
               <thead className="bg-muted/50">
                 <tr>

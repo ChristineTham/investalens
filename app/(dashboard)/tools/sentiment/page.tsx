@@ -5,6 +5,10 @@ import { RadialGauge } from "@/components/charts/radial-bar";
 import { SignedBarChart } from "@/components/charts/signed-bar-chart";
 import { ChartCard } from "@/components/charts/chart-card";
 
+export const metadata = {
+  title: "Market Sentiment",
+};
+
 export default async function SentimentPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");

@@ -3,6 +3,10 @@ import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { RebalanceClient } from "./rebalance-client";
 
+export const metadata = {
+  title: "Rebalance",
+};
+
 export default async function RebalancePage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");

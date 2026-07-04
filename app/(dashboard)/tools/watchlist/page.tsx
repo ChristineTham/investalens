@@ -6,6 +6,10 @@ import {
   RemoveFromWatchlistButton,
 } from "@/components/forms/watchlist-forms";
 
+export const metadata = {
+  title: "Watchlist",
+};
+
 export default async function WatchlistPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
@@ -42,7 +46,7 @@ export default async function WatchlistPage() {
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>

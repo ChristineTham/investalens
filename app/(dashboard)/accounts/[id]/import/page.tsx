@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
@@ -6,6 +7,10 @@ import { getCategories } from "@/lib/actions/accounts";
 import { listTemplatesByCategory } from "@/lib/import/templates";
 import { AccountImportWizard } from "@/components/accounts/account-import-wizard";
 import { BreadcrumbLabel } from "@/components/layout/breadcrumb-context";
+
+export const metadata: Metadata = {
+  title: "Import Statement",
+};
 
 export default async function AccountImportPage({
   params,

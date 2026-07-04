@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import type { FieldMapping } from "@/lib/import/types";
 
 interface FieldMapperProps {
@@ -35,6 +36,8 @@ export function FieldMapper({
   mapping,
   onMappingChange,
 }: FieldMapperProps) {
+  const baseId = useId();
+
   function handleChange(key: keyof FieldMapping, value: string) {
     onMappingChange({
       ...mapping,
@@ -46,14 +49,17 @@ export function FieldMapper({
     <div className="space-y-3">
       {FIELDS.map((field) => (
         <div key={field.key} className="flex items-center gap-4">
-          <label className="w-48 text-sm font-medium">
+          <label
+            htmlFor={`${baseId}-${field.key}`}
+            className="w-48 text-sm font-medium"
+          >
             {field.label}
             {field.required && <span className="text-destructive"> *</span>}
           </label>
           <select
+            id={`${baseId}-${field.key}`}
             value={mapping[field.key] || ""}
             onChange={(e) => handleChange(field.key, e.target.value)}
-            aria-label={`Map ${field.label}`}
             className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           >
             <option value="">— Skip —</option>

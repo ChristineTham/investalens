@@ -52,6 +52,7 @@ export function DateRangeSelector({
         <button
           key={value}
           type="button"
+          aria-pressed={selected === value}
           className={`rounded px-3 py-1 text-sm font-medium transition-colors ${
             selected === value
               ? "bg-primary text-primary-foreground"

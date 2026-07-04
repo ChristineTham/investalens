@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createCustomGroup, addCategory, deleteGroup } from "@/lib/actions/groups";
 import { Plus, Trash2 } from "lucide-react";
 
 export function CreateGroupForm() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -15,7 +17,8 @@ export function CreateGroupForm() {
     try {
       await createCustomGroup(name.trim());
       setName("");
-      window.location.reload();
+      setLoading(false);
+      router.refresh();
     } catch {
       setLoading(false);
     }
@@ -44,6 +47,7 @@ export function CreateGroupForm() {
 }
 
 export function AddCategoryForm({ groupId }: { groupId: string }) {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -54,7 +58,8 @@ export function AddCategoryForm({ groupId }: { groupId: string }) {
     try {
       await addCategory(groupId, name.trim());
       setName("");
-      window.location.reload();
+      setLoading(false);
+      router.refresh();
     } catch {
       setLoading(false);
     }
@@ -74,6 +79,7 @@ export function AddCategoryForm({ groupId }: { groupId: string }) {
         type="submit"
         disabled={loading || !name.trim()}
         title="Add category"
+        aria-label="Add category"
         className="inline-flex h-8 items-center rounded-md px-2 text-xs text-primary hover:bg-accent disabled:opacity-50"
       >
         <Plus className="h-3 w-3" />
@@ -83,6 +89,7 @@ export function AddCategoryForm({ groupId }: { groupId: string }) {
 }
 
 export function DeleteGroupButton({ groupId }: { groupId: string }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   async function handleDelete() {
@@ -90,7 +97,8 @@ export function DeleteGroupButton({ groupId }: { groupId: string }) {
     setLoading(true);
     try {
       await deleteGroup(groupId);
-      window.location.reload();
+      setLoading(false);
+      router.refresh();
     } catch {
       setLoading(false);
     }
@@ -102,6 +110,7 @@ export function DeleteGroupButton({ groupId }: { groupId: string }) {
       disabled={loading}
       className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
       title="Delete group"
+      aria-label="Delete group"
     >
       <Trash2 className="h-4 w-4" />
     </button>

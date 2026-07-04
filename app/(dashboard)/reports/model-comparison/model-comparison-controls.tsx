@@ -43,6 +43,7 @@ export function ModelComparisonControls({
           <button
             key={r}
             type="button"
+            aria-pressed={range === r}
             onClick={() => push({ range: r })}
             className={`px-2.5 py-1.5 text-xs font-medium transition-colors ${
               range === r

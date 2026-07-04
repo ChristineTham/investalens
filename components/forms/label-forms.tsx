@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createLabel, deleteLabel } from "@/lib/actions/labels";
 import { Plus, Trash2 } from "lucide-react";
 
 export function CreateLabelForm() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -15,7 +17,8 @@ export function CreateLabelForm() {
     try {
       await createLabel(name.trim());
       setName("");
-      window.location.reload();
+      setLoading(false);
+      router.refresh();
     } catch {
       setLoading(false);
     }
@@ -44,6 +47,7 @@ export function CreateLabelForm() {
 }
 
 export function DeleteLabelButton({ labelId }: { labelId: string }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   async function handleDelete() {
@@ -51,7 +55,8 @@ export function DeleteLabelButton({ labelId }: { labelId: string }) {
     setLoading(true);
     try {
       await deleteLabel(labelId);
-      window.location.reload();
+      setLoading(false);
+      router.refresh();
     } catch {
       setLoading(false);
     }
@@ -63,6 +68,7 @@ export function DeleteLabelButton({ labelId }: { labelId: string }) {
       disabled={loading}
       className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
       title="Delete label"
+      aria-label="Delete label"
     >
       <Trash2 className="h-3.5 w-3.5" />
     </button>

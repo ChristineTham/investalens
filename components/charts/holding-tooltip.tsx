@@ -14,9 +14,9 @@ function Row({
 }) {
   const color =
     tone === "pos"
-      ? "text-green-600"
+      ? "text-gain"
       : tone === "neg"
-        ? "text-red-600"
+        ? "text-loss"
         : tone === "muted"
           ? "text-muted-foreground"
           : "";

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { generateContributionReport } from "@/lib/reports/contribution-report";
@@ -7,6 +8,10 @@ import { ReportFilters } from "@/components/reports/report-filters";
 import { ContributionBarChart } from "@/components/charts/contribution-bar";
 import { ChartCard } from "@/components/charts/chart-card";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Contribution Analysis",
+};
 
 export default async function ContributionReportPage({
   searchParams,
@@ -110,7 +115,7 @@ export default async function ContributionReportPage({
             )}
           </ChartCard>
 
-          <div className="overflow-hidden rounded-lg border border-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full">
               <thead className="bg-muted/50">
                 <tr>

@@ -100,7 +100,10 @@ export function AddPortfolioTransaction({
       </div>
 
       {error && (
-        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-2 text-sm text-destructive">
+        <div
+          role="alert"
+          className="rounded-md border border-destructive/50 bg-destructive/10 p-2 text-sm text-destructive"
+        >
           {error}
         </div>
       )}

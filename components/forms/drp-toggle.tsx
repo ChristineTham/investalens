@@ -33,13 +33,16 @@ export function DrpToggle({ holdingId, enabled }: DrpToggleProps) {
     <button
       onClick={handleToggle}
       disabled={loading}
+      role="switch"
+      aria-checked={isEnabled}
       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
         isEnabled ? "bg-rosely-teal" : "bg-muted"
       } disabled:opacity-50`}
       title={isEnabled ? "DRP enabled – click to disable" : "DRP disabled – click to enable"}
-      aria-label={`Dividend Reinvestment Plan: ${isEnabled ? "enabled" : "disabled"}`}
+      aria-label="Dividend Reinvestment Plan"
     >
       <span
+        aria-hidden="true"
         className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${
           isEnabled ? "translate-x-6" : "translate-x-1"
         }`}

@@ -38,7 +38,10 @@ export default function NewPortfolioPage() {
 
       <form onSubmit={handleSubmit} className="max-w-md space-y-4">
         {error && (
-          <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+          <div
+            role="alert"
+            className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive"
+          >
             {error}
           </div>
         )}
@@ -66,7 +69,6 @@ export default function NewPortfolioPage() {
             id="taxResidency"
             value={taxResidency}
             onChange={(e) => setTaxResidency(e.target.value)}
-            aria-label="Tax residency"
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           >
             <option value="AU">Australia</option>
@@ -84,7 +86,6 @@ export default function NewPortfolioPage() {
             id="taxEntityType"
             value={taxEntityType}
             onChange={(e) => setTaxEntityType(e.target.value)}
-            aria-label="Tax entity type"
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           >
             <option value="individual">Individual</option>

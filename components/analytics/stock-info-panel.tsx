@@ -119,6 +119,7 @@ export function StockInfoPanel({ data, currentPrice }: StockInfoPanelProps) {
             <button
               key={t.key}
               type="button"
+              aria-pressed={active}
               onClick={() => setTab(t.key)}
               className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                 active
@@ -389,7 +390,7 @@ function PriceTargetSummary({
     const pct = ((mean - currentPrice) / currentPrice) * 100;
     const dir = pct >= 0 ? "upside" : "downside";
     upside = `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}% ${dir}`;
-    upsideClass = pct >= 0 ? "text-green-600" : "text-red-600";
+    upsideClass = pct >= 0 ? "text-gain" : "text-loss";
   }
 
   return (

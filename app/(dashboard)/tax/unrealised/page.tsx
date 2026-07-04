@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
@@ -14,6 +15,10 @@ import { SignedBarChart } from "@/components/charts/signed-bar-chart";
 import { RadialGauge } from "@/components/charts/radial-bar";
 import { RebalanceToModel } from "./rebalance-to-model";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Unrealised CGT",
+};
 
 export default async function UnrealisedCgtPage({
   searchParams,
@@ -265,7 +270,7 @@ export default async function UnrealisedCgtPage({
           No open positions with price data available.
         </p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>

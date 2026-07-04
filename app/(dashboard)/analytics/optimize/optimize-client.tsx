@@ -206,6 +206,7 @@ export function OptimizeClient({
             <button
               type="button"
               onClick={() => setSource("portfolio")}
+              aria-pressed={source === "portfolio"}
               className={`flex-1 rounded-l-md px-3 py-2 text-sm font-medium ${
                 source === "portfolio"
                   ? "bg-primary text-primary-foreground"
@@ -217,6 +218,7 @@ export function OptimizeClient({
             <button
               type="button"
               onClick={() => setSource("model")}
+              aria-pressed={source === "model"}
               className={`flex-1 rounded-r-md px-3 py-2 text-sm font-medium ${
                 source === "model"
                   ? "bg-primary text-primary-foreground"
@@ -229,15 +231,18 @@ export function OptimizeClient({
         </div>
 
         <div>
-          <label className="text-sm font-medium">
+          <label
+            className="text-sm font-medium"
+            htmlFor={source === "model" ? "opt-model" : "opt-portfolio"}
+          >
             {source === "model" ? "Model" : "Portfolio"}
           </label>
           {source === "model" ? (
             <select
+              id="opt-model"
               className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               value={modelId}
               onChange={(e) => setModelId(e.target.value)}
-              aria-label="Model"
             >
               {models.map((m) => (
                 <option key={m.id} value={m.id}>
@@ -247,10 +252,10 @@ export function OptimizeClient({
             </select>
           ) : (
             <select
+              id="opt-portfolio"
               className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               value={portfolioId}
               onChange={(e) => setPortfolioId(e.target.value)}
-              aria-label="Portfolio"
             >
               {portfolios.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -278,6 +283,7 @@ export function OptimizeClient({
                   key={s.id}
                   type="button"
                   onClick={() => toggleStrategy(s.id)}
+                  aria-pressed={active}
                   className={`rounded-full border px-3 py-1 text-xs transition-colors ${
                     active
                       ? "border-primary bg-primary text-primary-foreground"
@@ -304,7 +310,7 @@ export function OptimizeClient({
       </div>
 
       {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+        <div role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
           {error}
         </div>
       )}

@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { addToWatchlist, removeFromWatchlist } from "@/lib/actions/watchlist";
 import { InstrumentSearch } from "@/components/forms/instrument-search";
 import type { InstrumentSearchResult } from "@/lib/providers/market-data";
 import { Plus, Trash2 } from "lucide-react";
 
 export function AddToWatchlistForm() {
+  const router = useRouter();
   const [selected, setSelected] = useState<InstrumentSearchResult | null>(null);
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,7 +20,8 @@ export function AddToWatchlistForm() {
       await addToWatchlist(selected.code, selected.exchange, notes || undefined);
       setSelected(null);
       setNotes("");
-      window.location.reload();
+      setLoading(false);
+      router.refresh();
     } catch {
       setLoading(false);
     }
@@ -59,13 +62,15 @@ export function AddToWatchlistForm() {
 }
 
 export function RemoveFromWatchlistButton({ itemId }: { itemId: string }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   async function handleRemove() {
     setLoading(true);
     try {
       await removeFromWatchlist(itemId);
-      window.location.reload();
+      setLoading(false);
+      router.refresh();
     } catch {
       setLoading(false);
     }
@@ -77,6 +82,7 @@ export function RemoveFromWatchlistButton({ itemId }: { itemId: string }) {
       disabled={loading}
       className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
       title="Remove from watchlist"
+      aria-label="Remove from watchlist"
     >
       <Trash2 className="h-3.5 w-3.5" />
     </button>

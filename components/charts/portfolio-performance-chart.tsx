@@ -159,7 +159,7 @@ export function PortfolioPerformanceChart({
           <p className="text-xs text-muted-foreground">Capital Gain</p>
           <p
             className={`mt-1 text-xl font-bold ${
-              !kpis || kpis.capitalGain >= 0 ? "text-green-600" : "text-red-600"
+              !kpis || kpis.capitalGain >= 0 ? "text-gain" : "text-loss"
             }`}
           >
             {kpis ? formatSignedCurrency(kpis.capitalGain) : "\u2014"}
@@ -170,7 +170,7 @@ export function PortfolioPerformanceChart({
         </div>
         <div className="rounded-md border border-border bg-card p-3">
           <p className="text-xs text-muted-foreground">Income</p>
-          <p className="mt-1 text-xl font-bold text-green-600">
+          <p className="mt-1 text-xl font-bold text-gain">
             {kpis ? formatCurrency(kpis.income) : "\u2014"}
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
@@ -181,7 +181,7 @@ export function PortfolioPerformanceChart({
           <p className="text-xs text-muted-foreground">Total Gain</p>
           <p
             className={`mt-1 text-xl font-bold ${
-              !kpis || kpis.totalGain >= 0 ? "text-green-600" : "text-red-600"
+              !kpis || kpis.totalGain >= 0 ? "text-gain" : "text-loss"
             }`}
           >
             {kpis ? formatSignedCurrency(kpis.totalGain) : "\u2014"}
@@ -204,7 +204,10 @@ export function PortfolioPerformanceChart({
 
       <div className="p-4">
         {loading ? (
-          <div className="flex h-[350px] items-center justify-center text-sm text-muted-foreground">
+          <div
+            role="status"
+            className="flex h-[350px] items-center justify-center text-sm text-muted-foreground"
+          >
             Loading chart data...
           </div>
         ) : chartData.length === 0 ? (

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
@@ -5,6 +6,10 @@ import { getAccountDetail } from "@/lib/services/accounts";
 import { getReconciliationData } from "@/lib/services/reconciliation";
 import { ReconcileClient } from "@/components/accounts/reconcile-client";
 import { BreadcrumbLabel } from "@/components/layout/breadcrumb-context";
+
+export const metadata: Metadata = {
+  title: "Reconcile",
+};
 
 export default async function ReconcilePage({
   params,

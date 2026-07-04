@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
@@ -5,6 +6,10 @@ import {
   SharePortfolioForm,
   RemoveShareButton,
 } from "@/components/forms/sharing-forms";
+
+export const metadata: Metadata = {
+  title: "Portfolio Sharing",
+};
 
 export default async function SharingPage() {
   const session = await auth();

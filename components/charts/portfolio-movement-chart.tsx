@@ -65,7 +65,7 @@ function MovementTooltip({
             />
             <span className="truncate">{r.code}</span>
             <span
-              className={`ml-auto tabular-nums ${r.value >= 0 ? "text-green-600" : "text-red-600"}`}
+              className={`ml-auto tabular-nums ${r.value >= 0 ? "text-gain" : "text-loss"}`}
             >
               {formatCurrency(r.value, currency)}
             </span>
@@ -75,7 +75,7 @@ function MovementTooltip({
       <div className="mt-1 flex items-center justify-between gap-6 border-t border-border pt-1">
         <span className="text-muted-foreground">Net flow</span>
         <span
-          className={`font-semibold tabular-nums ${net >= 0 ? "text-green-600" : "text-red-600"}`}
+          className={`font-semibold tabular-nums ${net >= 0 ? "text-gain" : "text-loss"}`}
         >
           {formatCurrency(net, currency)}
         </span>

@@ -120,8 +120,9 @@ export function BlackLittermanClient({
       {/* Parameters */}
       <div className="flex flex-wrap items-end gap-4">
         <div>
-          <label className="text-sm font-medium">Portfolio</label>
+          <label className="text-sm font-medium" htmlFor="bl-portfolio">Portfolio</label>
           <select
+            id="bl-portfolio"
             className="mt-1 block rounded-md border border-input bg-background px-3 py-2 text-sm"
             value={portfolioId}
             onChange={(e) => setPortfolioId(e.target.value)}
@@ -132,14 +133,15 @@ export function BlackLittermanClient({
           </select>
         </div>
         <div>
-          <label className="text-sm font-medium">Date Range</label>
+          <span className="text-sm font-medium">Date Range</span>
           <div className="mt-1">
             <DateRangeSelector selected={dateRange} onChange={setDateRange} />
           </div>
         </div>
         <div>
-          <label className="text-sm font-medium">Tau</label>
+          <label className="text-sm font-medium" htmlFor="bl-tau">Tau</label>
           <input
+            id="bl-tau"
             type="number"
             step="0.01"
             min="0.01"
@@ -150,8 +152,9 @@ export function BlackLittermanClient({
           />
         </div>
         <div>
-          <label className="text-sm font-medium">Risk Aversion</label>
+          <label className="text-sm font-medium" htmlFor="bl-risk-aversion">Risk Aversion</label>
           <input
+            id="bl-risk-aversion"
             type="number"
             step="0.5"
             min="0.5"
@@ -167,6 +170,7 @@ export function BlackLittermanClient({
             <button
               type="button"
               onClick={() => setPriorMode("market")}
+              aria-pressed={priorMode === "market"}
               className={`rounded-l-md px-3 py-2 text-sm font-medium ${
                 priorMode === "market"
                   ? "bg-primary text-primary-foreground"
@@ -179,6 +183,7 @@ export function BlackLittermanClient({
               type="button"
               onClick={() => setPriorMode("model")}
               disabled={models.length === 0}
+              aria-pressed={priorMode === "model"}
               className={`rounded-r-md px-3 py-2 text-sm font-medium disabled:opacity-40 ${
                 priorMode === "model"
                   ? "bg-primary text-primary-foreground"
@@ -236,6 +241,7 @@ export function BlackLittermanClient({
               {view.type === "absolute" ? (
                 <>
                   <select
+                    aria-label="Asset"
                     className="rounded border px-2 py-1 text-xs"
                     value={view.asset}
                     onChange={(e) => updateView(i, { asset: e.target.value })}
@@ -246,6 +252,7 @@ export function BlackLittermanClient({
                   </select>
                   <span className="text-xs">returns</span>
                   <input
+                    aria-label="Expected return"
                     type="number"
                     step="0.01"
                     className="w-20 rounded border px-2 py-1 text-xs"
@@ -256,6 +263,7 @@ export function BlackLittermanClient({
               ) : (
                 <>
                   <select
+                    aria-label="Outperforming asset"
                     className="rounded border px-2 py-1 text-xs"
                     value={view.longAsset}
                     onChange={(e) => updateView(i, { longAsset: e.target.value })}
@@ -266,6 +274,7 @@ export function BlackLittermanClient({
                   </select>
                   <span className="text-xs">outperforms</span>
                   <select
+                    aria-label="Underperforming asset"
                     className="rounded border px-2 py-1 text-xs"
                     value={view.shortAsset}
                     onChange={(e) => updateView(i, { shortAsset: e.target.value })}
@@ -276,6 +285,7 @@ export function BlackLittermanClient({
                   </select>
                   <span className="text-xs">by</span>
                   <input
+                    aria-label="Outperformance amount"
                     type="number"
                     step="0.01"
                     className="w-20 rounded border px-2 py-1 text-xs"
@@ -286,6 +296,7 @@ export function BlackLittermanClient({
               )}
               <span className="text-xs text-muted-foreground">conf:</span>
               <input
+                aria-label="View confidence"
                 type="range"
                 min="0.1"
                 max="1"
@@ -295,7 +306,7 @@ export function BlackLittermanClient({
                 onChange={(e) => updateView(i, { confidence: Number(e.target.value) })}
               />
               <span className="text-xs">{(view.confidence * 100).toFixed(0)}%</span>
-              <button type="button" className="text-xs text-red-500" onClick={() => removeView(i)}>✕</button>
+              <button type="button" aria-label="Remove view" className="text-xs text-red-500" onClick={() => removeView(i)}>✕</button>
             </div>
           ))}
         </div>
@@ -311,7 +322,7 @@ export function BlackLittermanClient({
       </button>
 
       {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+        <div role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
           {error}
         </div>
       )}

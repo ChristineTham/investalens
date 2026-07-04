@@ -81,7 +81,7 @@ function ChartLoader() {
 }
 
 function Kpi({ label, value, tone }: { label: string; value: string; tone?: "pos" | "neg" }) {
-  const color = tone === "pos" ? "text-green-600" : tone === "neg" ? "text-red-600" : "";
+  const color = tone === "pos" ? "text-gain" : tone === "neg" ? "text-loss" : "";
   return (
     <div className="rounded-lg border border-border bg-card p-3">
       <p className="text-xs text-muted-foreground">{label}</p>
@@ -487,7 +487,7 @@ function EditableTxRow({
       </td>
       {categoryCell}
       <td
-        className={`px-3 py-2.5 text-right text-sm font-medium tabular-nums ${credit ? "text-green-600" : "text-red-600"}`}
+        className={`px-3 py-2.5 text-right text-sm font-medium tabular-nums ${credit ? "text-gain" : "text-loss"}`}
       >
         {formatCurrency(signed, ccy)}
       </td>

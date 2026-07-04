@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getModelsForUser } from "@/lib/services/model-list";
@@ -16,6 +17,10 @@ import { MultiLineChart } from "@/components/charts/multi-line-chart";
 import { holdingColor } from "@/lib/constants/chart-colors";
 import { formatPercent } from "@/lib/utils";
 import { ModelComparisonControls } from "./model-comparison-controls";
+
+export const metadata: Metadata = {
+  title: "Model Comparison",
+};
 
 type Range = "1Y" | "3Y" | "5Y" | "10Y" | "MAX";
 const RANGES: Range[] = ["1Y", "3Y", "5Y", "10Y", "MAX"];

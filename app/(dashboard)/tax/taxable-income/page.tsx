@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
@@ -10,6 +11,10 @@ import { TaxFilter } from "@/components/reports/tax-filter";
 import { ChartCard } from "@/components/charts/chart-card";
 import { DiversityPieChart } from "@/components/charts/diversity-pie";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Taxable Income",
+};
 
 export default async function TaxableIncomePage({
   searchParams,
@@ -249,7 +254,7 @@ export default async function TaxableIncomePage({
           No income transactions in this period.
         </p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>

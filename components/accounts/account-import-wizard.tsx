@@ -196,7 +196,11 @@ export function AccountImportWizard({
             Preview
           </button>
         </div>
-        {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+        {error && (
+          <p role="alert" className="mt-2 text-sm text-destructive">
+            {error}
+          </p>
+        )}
       </div>
 
       {/* Review */}
@@ -277,7 +281,7 @@ export function AccountImportWizard({
                       </select>
                     </td>
                     <td
-                      className={`px-3 py-2 text-right text-sm font-medium tabular-nums ${r.amount >= 0 ? "text-green-600" : "text-red-600"}`}
+                      className={`px-3 py-2 text-right text-sm font-medium tabular-nums ${r.amount >= 0 ? "text-gain" : "text-loss"}`}
                     >
                       {formatCurrency(r.amount, currency)}
                     </td>

@@ -3,6 +3,10 @@ import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { TacticalClient } from "./tactical-client";
 
+export const metadata = {
+  title: "Tactical Allocation",
+};
+
 export default async function TacticalPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");

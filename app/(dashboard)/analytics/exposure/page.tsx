@@ -6,6 +6,10 @@ import { ExposureTreemap } from "@/components/charts/exposure-treemap";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import { Suspense } from "react";
 
+export const metadata = {
+  title: "Exposure",
+};
+
 export default async function ExposurePage({
   searchParams,
 }: {
@@ -131,6 +135,7 @@ export default async function ExposurePage({
           <a
             key={g}
             href={`?groupBy=${g}${selectedPortfolioId ? `&portfolio=${selectedPortfolioId}` : ""}`}
+            aria-current={groupBy === g ? "page" : undefined}
             className={`rounded-full border px-3 py-1 text-xs font-medium capitalize transition-colors ${
               groupBy === g
                 ? "border-primary bg-primary text-primary-foreground"
@@ -154,7 +159,7 @@ export default async function ExposurePage({
           </div>
 
           {/* Breakdown table */}
-          <div className="overflow-hidden rounded-lg border border-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full">
               <thead className="bg-muted/50">
                 <tr>

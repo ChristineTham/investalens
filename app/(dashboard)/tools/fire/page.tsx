@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { calculateFIRE, type FIREInput, type FIREResult } from "@/lib/calculations/fire";
 import { MetricCard } from "@/components/analytics/metric-card";
 import { GrowthChart } from "@/components/charts/growth-chart";
@@ -134,10 +134,12 @@ function InputField({
   onChange: (v: number) => void;
   step?: number;
 }) {
+  const id = useId();
   return (
     <div className="space-y-1">
-      <label className="text-xs font-medium text-muted-foreground">{label}</label>
+      <label htmlFor={id} className="text-xs font-medium text-muted-foreground">{label}</label>
       <input
+        id={id}
         type="number"
         step={step}
         value={value}

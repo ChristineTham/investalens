@@ -179,8 +179,16 @@ export function PortfolioCgtForm({ portfolio }: PortfolioCgtFormProps) {
         >
           {saving ? "Saving…" : "Save"}
         </button>
-        {saved && <span className="text-sm text-success">Saved</span>}
-        {error && <span className="text-sm text-destructive">{error}</span>}
+        {saved && (
+          <span role="status" className="text-sm text-success">
+            Saved
+          </span>
+        )}
+        {error && (
+          <span role="alert" className="text-sm text-destructive">
+            {error}
+          </span>
+        )}
       </div>
     </form>
   );

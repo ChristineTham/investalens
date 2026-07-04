@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { RefreshCw, X, Copy, Check } from "lucide-react";
 
@@ -249,7 +249,11 @@ export function FetchPricesButton() {
 
       {hasResults && (
         <div className="mt-3 space-y-2 rounded-md border border-border bg-muted/50 p-3 text-sm">
-          {topError && <p className="text-destructive">{topError}</p>}
+          {topError && (
+            <p role="alert" className="text-destructive">
+              {topError}
+            </p>
+          )}
 
           {/* Shares / ETFs */}
           {stockResult && (
@@ -266,7 +270,9 @@ export function FetchPricesButton() {
             </p>
           )}
           {sharesError && (
-            <p className="text-destructive">Shares &amp; ETFs: {sharesError}</p>
+            <p role="alert" className="text-destructive">
+              Shares &amp; ETFs: {sharesError}
+            </p>
           )}
 
           {/* Bonds */}
@@ -290,7 +296,10 @@ export function FetchPricesButton() {
               </p>
             ))}
           {bondError && (
-            <div className="flex items-center justify-between gap-3 text-destructive">
+            <div
+              role="alert"
+              className="flex items-center justify-between gap-3 text-destructive"
+            >
               <span>Bonds: {bondError}</span>
               {errorLog && (
                 <button
@@ -320,7 +329,10 @@ export function FetchPricesButton() {
               </p>
             ))}
           {infoError && (
-            <div className="flex items-center justify-between gap-3 text-destructive">
+            <div
+              role="alert"
+              className="flex items-center justify-between gap-3 text-destructive"
+            >
               <span>Stock info: {infoError}</span>
               {errorLog && (
                 <button
@@ -398,8 +410,22 @@ function ErrorLogModal({
   onCopy: () => void;
   onClose: () => void;
 }) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    dialogRef.current?.focus();
+  }, []);
+
   return (
     <div
+      ref={dialogRef}
+      tabIndex={-1}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          e.stopPropagation();
+          onClose();
+        }
+      }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       role="dialog"
       aria-modal="true"

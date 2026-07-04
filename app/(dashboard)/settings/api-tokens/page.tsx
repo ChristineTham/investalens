@@ -1,3 +1,9 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "API Tokens",
+};
+
 export default function ApiTokensPage() {
   return (
     <div className="space-y-6">

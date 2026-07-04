@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 import { getModelsForUser } from "@/lib/services/model-list";
 import { FrontierClient } from "./frontier-client";
 
+export const metadata = {
+  title: "Efficient Frontier",
+};
+
 export default async function FrontierPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");

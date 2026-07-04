@@ -2,6 +2,10 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { PublicNavAuth } from "@/components/layout/public-nav-auth";
 
+export const metadata = {
+  title: "Privacy",
+};
+
 export const dynamic = "force-dynamic";
 
 export default function PrivacyPage() {

@@ -21,6 +21,10 @@ function dateRangeToFrom(range: DashboardRange): Date {
   return now;
 }
 
+export const metadata = {
+  title: "Models",
+};
+
 export default async function ModelsPage({
   searchParams,
 }: {

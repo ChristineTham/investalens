@@ -59,21 +59,21 @@ function PerfTooltip({
             <div className="flex items-center justify-between gap-6">
               <span className="text-muted-foreground">Capital gain (Price)</span>
               <span
-                className={`font-medium tabular-nums ${point.capitalGain >= 0 ? "text-green-600" : "text-red-600"}`}
+                className={`font-medium tabular-nums ${point.capitalGain >= 0 ? "text-gain" : "text-loss"}`}
               >
                 {formatCurrency(point.capitalGain, currency)} ({point.priceGain != null ? (point.priceGain >= 0 ? "+" : "") + point.priceGain.toFixed(1) + "%" : "—"})
               </span>
             </div>
             <div className="flex items-center justify-between gap-6">
               <span className="text-muted-foreground">+ Income (Dividends)</span>
-              <span className="font-medium tabular-nums text-green-600">
+              <span className="font-medium tabular-nums text-gain">
                 {formatCurrency(point.income, currency)}
               </span>
             </div>
             <div className="flex items-center justify-between gap-6 border-t border-border pt-0.5">
               <span className="text-muted-foreground">= Total return</span>
               <span
-                className={`font-semibold tabular-nums ${point.totalGain >= 0 ? "text-green-600" : "text-red-600"}`}
+                className={`font-semibold tabular-nums ${point.totalGain >= 0 ? "text-gain" : "text-loss"}`}
               >
                 {formatCurrency(point.totalGain, currency)} ({point.Portfolio >= 0 ? "+" : ""}{point.Portfolio.toFixed(1)}%)
               </span>
@@ -84,7 +84,7 @@ function PerfTooltip({
             <div className="flex items-center justify-between gap-6">
               <span className="text-muted-foreground">Price return</span>
               <span
-                className={`font-medium tabular-nums ${point.priceGain != null && point.priceGain >= 0 ? "text-green-600" : "text-red-600"}`}
+                className={`font-medium tabular-nums ${point.priceGain != null && point.priceGain >= 0 ? "text-gain" : "text-loss"}`}
               >
                 {point.priceGain != null ? (point.priceGain >= 0 ? "+" : "") + point.priceGain.toFixed(1) + "%" : "—"}
               </span>
@@ -92,7 +92,7 @@ function PerfTooltip({
             <div className="flex items-center justify-between gap-6 border-t border-border pt-0.5">
               <span className="text-muted-foreground">Total return</span>
               <span
-                className={`font-semibold tabular-nums ${point.Portfolio >= 0 ? "text-green-600" : "text-red-600"}`}
+                className={`font-semibold tabular-nums ${point.Portfolio >= 0 ? "text-gain" : "text-loss"}`}
               >
                 {point.Portfolio >= 0 ? "+" : ""}{point.Portfolio.toFixed(1)}%
               </span>

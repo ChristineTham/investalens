@@ -4,6 +4,10 @@ import { getRecentCronLogs } from "@/lib/services/cron-logs";
 import { PublicNavAuth } from "@/components/layout/public-nav-auth";
 
 // Cron logs are live data — render at request time rather than prerendering.
+export const metadata = {
+  title: "About",
+};
+
 export const dynamic = "force-dynamic";
 
 interface ChangelogEntry {

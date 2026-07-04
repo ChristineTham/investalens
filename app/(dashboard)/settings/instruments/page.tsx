@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
@@ -5,6 +6,10 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { classifyTaxTreatment } from "@/lib/calculations/asset-tax-class";
 import { InstrumentTaxClassForm } from "@/components/forms/instrument-taxclass-form";
+
+export const metadata: Metadata = {
+  title: "Instruments",
+};
 
 export default async function InstrumentTaxClassPage() {
   const session = await auth();
@@ -56,7 +61,7 @@ export default async function InstrumentTaxClassPage() {
       {instruments.length === 0 ? (
         <p className="text-muted-foreground">No instruments held yet.</p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>

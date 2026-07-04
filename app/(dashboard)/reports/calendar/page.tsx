@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { generateCalendarReport } from "@/lib/reports/calendar-report";
@@ -7,6 +8,10 @@ import { PortfolioSelector } from "@/components/reports/portfolio-selector";
 import { MonthlyIncomeChart } from "@/components/charts/monthly-income";
 import { ChartCard } from "@/components/charts/chart-card";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Dividend Calendar",
+};
 
 const MONTH_NAMES = [
   "January",
@@ -139,7 +144,7 @@ export default async function CalendarReportPage({
           No projected dividend payments for {year}.
         </p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>

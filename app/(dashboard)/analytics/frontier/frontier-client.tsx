@@ -132,7 +132,7 @@ export function FrontierClient({
           onChange={setSrc}
         />
         <div>
-          <label className="text-sm font-medium">Date Range</label>
+          <span className="text-sm font-medium">Date Range</span>
           <div className="mt-1">
             <DateRangeSelector selected={dateRange} onChange={setDateRange} />
           </div>
@@ -156,6 +156,7 @@ export function FrontierClient({
                 key={m.id}
                 type="button"
                 onClick={() => toggleCompare(m.id)}
+                aria-pressed={compareModelIds.includes(m.id)}
                 className={cn(
                   "rounded-full border px-3 py-1 text-xs transition-colors",
                   compareModelIds.includes(m.id)
@@ -171,7 +172,7 @@ export function FrontierClient({
       )}
 
       {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+        <div role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
           {error}
         </div>
       )}

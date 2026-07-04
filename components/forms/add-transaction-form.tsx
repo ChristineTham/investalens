@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createTransaction } from "@/lib/actions/transaction";
 
 interface AddTransactionFormProps {
@@ -12,6 +13,7 @@ export function AddTransactionForm({
   holdingId,
   currency,
 }: AddTransactionFormProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -34,7 +36,8 @@ export function AddTransactionForm({
         currency,
       });
       setOpen(false);
-      window.location.reload();
+      setLoading(false);
+      router.refresh();
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to add transaction"
@@ -62,7 +65,10 @@ export function AddTransactionForm({
       <h3 className="font-medium">Add Transaction</h3>
 
       {error && (
-        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-2 text-sm text-destructive">
+        <div
+          role="alert"
+          className="rounded-md border border-destructive/50 bg-destructive/10 p-2 text-sm text-destructive"
+        >
           {error}
         </div>
       )}

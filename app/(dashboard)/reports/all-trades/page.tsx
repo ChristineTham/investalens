@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { ReportFilters } from "@/components/reports/report-filters";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "All Trades",
+};
 
 export default async function AllTradesPage({
   searchParams,
@@ -81,7 +86,7 @@ export default async function AllTradesPage({
       {transactions.length === 0 ? (
         <p className="text-muted-foreground">No transactions found for the selected period.</p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>

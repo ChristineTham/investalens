@@ -108,9 +108,7 @@ export async function VsModelCard({ userId }: { userId: string }) {
         1-year, rebased to a common start.{" "}
         <span
           className={
-            delta >= 0
-              ? "text-emerald-600 dark:text-emerald-500"
-              : "text-destructive"
+            delta >= 0 ? "text-gain" : "text-loss"
           }
         >
           {delta >= 0 ? "Ahead" : "Behind"} by {formatPercent(Math.abs(delta))}

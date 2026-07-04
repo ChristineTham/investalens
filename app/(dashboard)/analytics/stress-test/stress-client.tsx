@@ -112,6 +112,7 @@ export function StressTestClient({
             <button
               key={t}
               type="button"
+              aria-pressed={tab === t}
               className={`border-b-2 px-4 py-2 text-sm font-medium ${
                 tab === t ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
@@ -124,7 +125,7 @@ export function StressTestClient({
       </div>
 
       {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{error}</div>
+        <div role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{error}</div>
       )}
 
       {tab === "Historical" && (
@@ -183,8 +184,9 @@ export function StressTestClient({
       {tab === "Factor" && (
         <div className="space-y-4">
           <div className="flex items-center gap-4">
-            <label className="text-sm font-medium">If market drops:</label>
+            <label className="text-sm font-medium" htmlFor="factor-shock">If market drops:</label>
             <input
+              id="factor-shock"
               type="range"
               min="-50"
               max="0"

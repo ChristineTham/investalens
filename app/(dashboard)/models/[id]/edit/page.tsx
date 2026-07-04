@@ -9,6 +9,10 @@ import {
 } from "@/app/(dashboard)/models/_components/model-form";
 import { DuplicateModelButton } from "@/app/(dashboard)/models/_components/duplicate-model-button";
 
+export const metadata = {
+  title: "Edit Model",
+};
+
 export default async function EditModelPage({
   params,
 }: {

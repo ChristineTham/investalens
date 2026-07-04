@@ -11,6 +11,10 @@ import {
   type ModelWeightSlice,
 } from "@/app/(dashboard)/models/[id]/model-detail-client";
 
+export const metadata = {
+  title: "Model Details",
+};
+
 export default async function ModelDetailPage({
   params,
   searchParams,

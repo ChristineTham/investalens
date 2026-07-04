@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createCashAccount, addCashTransaction } from "@/lib/actions/cash-accounts";
 import { Plus } from "lucide-react";
 
 export function CreateCashAccountForm({ portfolioId }: { portfolioId: string }) {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [currency, setCurrency] = useState("AUD");
   const [loading, setLoading] = useState(false);
@@ -16,7 +18,8 @@ export function CreateCashAccountForm({ portfolioId }: { portfolioId: string }) 
     try {
       await createCashAccount(portfolioId, name.trim(), currency);
       setName("");
-      window.location.reload();
+      setLoading(false);
+      router.refresh();
     } catch {
       setLoading(false);
     }
@@ -56,6 +59,7 @@ export function CreateCashAccountForm({ portfolioId }: { portfolioId: string }) 
 }
 
 export function AddCashTransactionForm({ accountId }: { accountId: string }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<"DEPOSIT" | "WITHDRAWAL">("DEPOSIT");
   const [amount, setAmount] = useState("");
@@ -77,7 +81,8 @@ export function AddCashTransactionForm({ accountId }: { accountId: string }) {
       setOpen(false);
       setAmount("");
       setDescription("");
-      window.location.reload();
+      setLoading(false);
+      router.refresh();
     } catch {
       setLoading(false);
     }

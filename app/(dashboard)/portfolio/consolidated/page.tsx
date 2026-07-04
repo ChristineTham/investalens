@@ -1,3 +1,9 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Consolidated View",
+};
+
 export default function ConsolidatedPage() {
   return (
     <div className="space-y-6">

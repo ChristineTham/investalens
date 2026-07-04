@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 import { getModelsForUser } from "@/lib/services/model-list";
 import { FactorsClient } from "./factors-client";
 
+export const metadata = {
+  title: "Factor Analysis",
+};
+
 export default async function FactorsPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");

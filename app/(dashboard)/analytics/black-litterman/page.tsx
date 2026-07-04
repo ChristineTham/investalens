@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 import { getModelsForUser } from "@/lib/services/model-list";
 import { BlackLittermanClient } from "./bl-client";
 
+export const metadata = {
+  title: "Black-Litterman",
+};
+
 export default async function BlackLittermanPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");

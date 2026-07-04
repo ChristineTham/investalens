@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { generateSoldSecuritiesReport } from "@/lib/reports/sold-securities-report";
@@ -5,6 +6,10 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { ReportFilters } from "@/components/reports/report-filters";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Sold Securities",
+};
 
 export default async function SoldSecuritiesPage({
   searchParams,
@@ -95,7 +100,7 @@ export default async function SoldSecuritiesPage({
       {items.length === 0 ? (
         <p className="text-muted-foreground">No sales found for the selected period.</p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>

@@ -129,7 +129,10 @@ export function QuickImportButtons({
       </div>
 
       {result && (
-        <div className="flex items-center gap-2 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success">
+        <div
+          role="status"
+          className="flex items-center gap-2 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success"
+        >
           <Check className="h-4 w-4" />
           {result.templateName}: {result.imported} imported
           {result.duplicates > 0 && `, ${result.duplicates} duplicates skipped`}
@@ -138,7 +141,10 @@ export function QuickImportButtons({
       )}
 
       {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <div
+          role="alert"
+          className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+        >
           {error}
         </div>
       )}

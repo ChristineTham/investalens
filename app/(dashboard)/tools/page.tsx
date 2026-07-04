@@ -33,6 +33,10 @@ const tools = [
   },
 ];
 
+export const metadata = {
+  title: "Tools",
+};
+
 export default function ToolsPage() {
   return (
     <div className="space-y-6">

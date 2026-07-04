@@ -91,7 +91,10 @@ export default function CorporateActionsPage({
 
       <form onSubmit={handleSubmit} className="max-w-md space-y-4">
         {message && (
-          <div className="rounded-md border border-border bg-muted p-3 text-sm">
+          <div
+            role="status"
+            className="rounded-md border border-border bg-muted p-3 text-sm"
+          >
             {message}
           </div>
         )}

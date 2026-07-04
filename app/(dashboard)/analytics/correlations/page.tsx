@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 import { getModelsForUser } from "@/lib/services/model-list";
 import { CorrelationsClient } from "./correlations-client";
 
+export const metadata = {
+  title: "Correlations",
+};
+
 export default async function CorrelationsPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");

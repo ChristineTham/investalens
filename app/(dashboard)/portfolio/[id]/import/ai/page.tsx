@@ -127,7 +127,10 @@ export default function AIImportPage({
       </div>
 
       {error && (
-        <div className="bg-destructive/10 text-destructive rounded-lg p-4">
+        <div
+          role="alert"
+          className="bg-destructive/10 text-destructive rounded-lg p-4"
+        >
           {error}
         </div>
       )}
@@ -151,10 +154,11 @@ export default function AIImportPage({
           </div>
 
           <div>
-            <label className="text-sm font-medium">
+            <label htmlFor="doc-content" className="text-sm font-medium">
               Paste document content
             </label>
             <textarea
+              id="doc-content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Paste your contract note, trade confirmation, or statement text here..."

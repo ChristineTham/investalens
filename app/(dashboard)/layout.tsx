@@ -17,10 +17,16 @@ export default async function DashboardLayout({
   return (
     <Providers>
       <div className="flex h-screen">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-2 focus:rounded focus:bg-background focus:px-3 focus:py-2"
+        >
+          Skip to content
+        </a>
         <Sidebar />
         <div className="flex flex-1 flex-col overflow-hidden">
           <Header />
-          <main className="flex-1 overflow-y-auto p-6">
+          <main id="main-content" className="flex-1 overflow-y-auto p-6">
             <BreadcrumbProvider>
               <Breadcrumbs />
               {children}

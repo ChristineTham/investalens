@@ -6,7 +6,10 @@ import { ThemeProvider } from "next-themes";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "InvestaLens — Portfolio Tracker & Optimiser",
+  title: {
+    template: "%s · InvestaLens",
+    default: "InvestaLens — Portfolio Tracker & Optimiser",
+  },
   description:
     "Track, analyse and optimise your investment portfolio. Import from any broker, get performance reports, tax calculations, and advanced analytics.",
   icons: {

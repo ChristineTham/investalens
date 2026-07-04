@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { generateDrawdownReport } from "@/lib/reports/drawdown-report";
@@ -7,6 +8,10 @@ import { ReportFilters } from "@/components/reports/report-filters";
 import { DrawdownScatter } from "@/components/charts/drawdown-scatter";
 import { ChartCard } from "@/components/charts/chart-card";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Drawdown Risk",
+};
 
 export default async function DrawdownReportPage({
   searchParams,
@@ -135,7 +140,7 @@ export default async function DrawdownReportPage({
             )}
           </ChartCard>
 
-          <div className="overflow-hidden rounded-lg border border-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full">
               <thead className="bg-muted/50">
                 <tr>

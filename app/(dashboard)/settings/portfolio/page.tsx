@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { PortfolioCgtForm } from "@/components/forms/portfolio-cgt-form";
+
+export const metadata: Metadata = {
+  title: "Tax & CGT",
+};
 
 export default async function PortfolioCgtSettingsPage() {
   const session = await auth();

@@ -116,6 +116,7 @@ export function PortfolioActions({
       <button
         onClick={() => setEditOpen(true)}
         title="Edit portfolio details"
+        aria-label="Edit portfolio details"
         className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
       >
         <Pencil className="h-4 w-4" />
@@ -124,6 +125,7 @@ export function PortfolioActions({
         <button
           onClick={() => setMergeOpen(true)}
           title="Merge into another portfolio"
+          aria-label="Merge into another portfolio"
           className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
         >
           <GitMerge className="h-4 w-4" />
@@ -132,6 +134,7 @@ export function PortfolioActions({
       <button
         onClick={handleDelete}
         title="Delete portfolio"
+        aria-label="Delete portfolio"
         className="rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
       >
         <Trash2 className="h-4 w-4" />
@@ -251,7 +254,11 @@ export function PortfolioActions({
                 />
               </div>
             </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            {error && (
+              <p role="alert" className="text-sm text-destructive">
+                {error}
+              </p>
+            )}
             <DialogFooter>
               <button
                 type="button"
@@ -305,7 +312,11 @@ export function PortfolioActions({
                 ))}
               </select>
             </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            {error && (
+              <p role="alert" className="text-sm text-destructive">
+                {error}
+              </p>
+            )}
             <DialogFooter>
               <button
                 type="button"

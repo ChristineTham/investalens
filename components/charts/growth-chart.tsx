@@ -48,6 +48,7 @@ export function GrowthChart({
       <div className="mb-2 flex justify-end">
         <button
           type="button"
+          aria-pressed={logScale}
           className={`rounded px-2 py-1 text-xs ${logScale ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
           onClick={() => setLogScale(!logScale)}
         >

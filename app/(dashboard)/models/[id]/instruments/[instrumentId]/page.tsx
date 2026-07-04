@@ -20,6 +20,10 @@ import type {
   StockFinancials,
 } from "@/lib/services/stock-info";
 
+export const metadata = {
+  title: "Instrument Details",
+};
+
 export default async function ModelInstrumentDetailPage({
   params,
 }: {

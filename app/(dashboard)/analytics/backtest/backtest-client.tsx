@@ -198,6 +198,7 @@ export function BacktestClient({
                 key={p.id}
                 type="button"
                 onClick={() => toggle("portfolio", p.id, p.name)}
+                aria-pressed={isSelected("portfolio", p.id)}
                 className={cn(
                   "rounded-full border px-3 py-1 text-xs transition-colors",
                   isSelected("portfolio", p.id)
@@ -219,6 +220,7 @@ export function BacktestClient({
                 key={m.id}
                 type="button"
                 onClick={() => toggle("model", m.id, m.name)}
+                aria-pressed={isSelected("model", m.id)}
                 className={cn(
                   "rounded-full border px-3 py-1 text-xs transition-colors",
                   isSelected("model", m.id)
@@ -268,7 +270,7 @@ export function BacktestClient({
       </div>
 
       {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+        <div role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
           {error}
         </div>
       )}
@@ -303,8 +305,16 @@ export function BacktestClient({
                     <tr
                       key={label}
                       onClick={() => setHighlight(label)}
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          if (e.key === " ") e.preventDefault();
+                          setHighlight(label);
+                        }
+                      }}
+                      aria-current={highlight === label ? "true" : undefined}
                       className={cn(
-                        "cursor-pointer border-t border-border hover:bg-accent/50",
+                        "cursor-pointer border-t border-border hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                         highlight === label && "bg-accent/40"
                       )}
                     >

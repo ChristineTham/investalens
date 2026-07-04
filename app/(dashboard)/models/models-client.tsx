@@ -184,6 +184,7 @@ export function ModelsClient({
                 type="button"
                 onClick={() => toggleModel(m.id)}
                 disabled={pending}
+                aria-pressed={active}
                 className={cn(
                   "rounded-full border px-3 py-1 text-xs transition-colors disabled:opacity-50",
                   active
@@ -209,6 +210,7 @@ export function ModelsClient({
               type="button"
               onClick={() => pushParams({ range: r })}
               disabled={pending}
+              aria-pressed={range === r}
               className={cn(
                 "px-2.5 py-1.5 text-xs font-medium transition-colors disabled:opacity-50",
                 range === r

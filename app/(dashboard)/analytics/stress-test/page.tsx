@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 import { getModelsForUser } from "@/lib/services/model-list";
 import { StressTestClient } from "./stress-client";
 
+export const metadata = {
+  title: "Stress Test",
+};
+
 export default async function StressTestPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");

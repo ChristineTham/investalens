@@ -1,5 +1,7 @@
 "use client";
 
+import { useId } from "react";
+
 export type AnalyticsSource = "portfolio" | "model";
 
 export interface SourceValue {
@@ -28,6 +30,7 @@ export function SourcePicker({
   label = "Source",
 }: SourcePickerProps) {
   const list = value.source === "model" ? models : portfolios;
+  const selectId = useId();
 
   function setSource(source: AnalyticsSource) {
     if (source === value.source) return;
@@ -43,6 +46,7 @@ export function SourcePicker({
           <button
             type="button"
             onClick={() => setSource("portfolio")}
+            aria-pressed={value.source === "portfolio"}
             disabled={portfolios.length === 0}
             className={`rounded-l-md px-3 py-2 text-sm font-medium transition-colors disabled:opacity-40 ${
               value.source === "portfolio"
@@ -55,6 +59,7 @@ export function SourcePicker({
           <button
             type="button"
             onClick={() => setSource("model")}
+            aria-pressed={value.source === "model"}
             disabled={models.length === 0}
             className={`rounded-r-md px-3 py-2 text-sm font-medium transition-colors disabled:opacity-40 ${
               value.source === "model"
@@ -68,11 +73,11 @@ export function SourcePicker({
       </div>
 
       <div>
-        <label className="text-sm font-medium" htmlFor="source-select">
+        <label className="text-sm font-medium" htmlFor={selectId}>
           {value.source === "model" ? "Model" : "Portfolio"}
         </label>
         <select
-          id="source-select"
+          id={selectId}
           className="mt-1 block rounded-md border border-input bg-background px-3 py-2 text-sm"
           value={value.id}
           onChange={(e) => onChange({ source: value.source, id: e.target.value })}

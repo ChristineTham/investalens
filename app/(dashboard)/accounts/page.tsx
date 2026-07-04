@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Wallet, Landmark, ArrowRight } from "lucide-react";
@@ -6,6 +7,10 @@ import { getAccountsOverview } from "@/lib/services/accounts";
 import { seedDefaultCategories } from "@/lib/actions/accounts";
 import { CreateAccountButton } from "@/components/accounts/create-account-button";
 import { formatCurrency } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: "Accounts",
+};
 
 const TYPE_LABELS: Record<string, string> = {
   transaction: "Transaction",

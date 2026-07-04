@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 import { checkPortfolio } from "@/lib/services/share-checker";
 import { ModelChecker } from "./model-checker";
 
+export const metadata = {
+  title: "Model Checker",
+};
+
 export default async function CheckerPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");

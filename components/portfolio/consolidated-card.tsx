@@ -52,6 +52,7 @@ export function ConsolidatedCard({
             {data.map((a, i) => (
               <li key={a.name} className="flex items-center gap-2 text-xs">
                 <span
+                  aria-hidden="true"
                   className={`h-2.5 w-2.5 shrink-0 rounded-sm ${
                     ALLOCATION_SWATCH[i % ALLOCATION_SWATCH.length]
                   }`}

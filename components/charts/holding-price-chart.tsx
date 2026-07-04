@@ -248,6 +248,8 @@ export function TimeRangeSelector({ selected, onChange }: TimeRangeSelectorProps
       {TIME_RANGES.map((range) => (
         <button
           key={range}
+          type="button"
+          aria-pressed={selected === range}
           onClick={() => onChange(range)}
           className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
             selected === range
@@ -307,6 +309,8 @@ function ToggleChip({
 }) {
   return (
     <button
+      type="button"
+      aria-pressed={active}
       onClick={onToggle}
       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
         active
@@ -316,6 +320,7 @@ function ToggleChip({
     >
       {color && (
         <span
+          aria-hidden="true"
           className="inline-block h-2 w-2 rounded-full"
           style={{ backgroundColor: color }}
         />

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { generateFutureIncomeReport } from "@/lib/reports/future-income-report";
@@ -5,6 +6,10 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { PortfolioSelector } from "@/components/reports/portfolio-selector";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Future Income",
+};
 
 export default async function FutureIncomePage({
   searchParams,
@@ -85,7 +90,7 @@ export default async function FutureIncomePage({
           No income history to estimate from.
         </p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>

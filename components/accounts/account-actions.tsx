@@ -91,6 +91,7 @@ export function AccountActions({ account }: { account: AccountEditData }) {
       <button
         onClick={() => setOpen(true)}
         title="Edit account"
+        aria-label="Edit account"
         className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
       >
         <Pencil className="h-4 w-4" />
@@ -98,6 +99,7 @@ export function AccountActions({ account }: { account: AccountEditData }) {
       <button
         onClick={handleDelete}
         title="Delete account"
+        aria-label="Delete account"
         className="rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
       >
         <Trash2 className="h-4 w-4" />
@@ -210,7 +212,11 @@ export function AccountActions({ account }: { account: AccountEditData }) {
                 onChange={(e) => set("notes", e.target.value)}
               />
             </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            {error && (
+              <p role="alert" className="text-sm text-destructive">
+                {error}
+              </p>
+            )}
             <DialogFooter>
               <button
                 type="button"

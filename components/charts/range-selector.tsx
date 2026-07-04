@@ -24,6 +24,7 @@ export function RangeSelector({ value, onChange, label }: RangeSelectorProps) {
             key={opt.value}
             type="button"
             title={opt.title}
+            aria-pressed={value === opt.value}
             onClick={() => onChange(opt.value)}
             className={`px-2.5 py-1.5 text-xs font-medium transition-colors ${
               value === opt.value

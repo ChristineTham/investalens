@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { generateMultiPeriodReport } from "@/lib/reports/multi-period-report";
@@ -7,6 +8,10 @@ import { PortfolioSelector } from "@/components/reports/portfolio-selector";
 import { MultiPeriodBarChart } from "@/components/charts/multi-period-bar";
 import { ChartCard } from "@/components/charts/chart-card";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Multi-Period Comparison",
+};
 
 export default async function MultiPeriodReportPage({
   searchParams,
@@ -136,7 +141,7 @@ export default async function MultiPeriodReportPage({
             )}
           </ChartCard>
 
-          <div className="overflow-hidden rounded-lg border border-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>

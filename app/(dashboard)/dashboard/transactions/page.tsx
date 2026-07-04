@@ -4,6 +4,10 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
+export const metadata = {
+  title: "Transactions",
+};
+
 export default async function AllTransactionsPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");

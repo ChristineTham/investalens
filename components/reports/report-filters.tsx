@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 interface Portfolio {
   id: string;
@@ -27,6 +27,12 @@ export function ReportFilters({
 
   const [startDate, setStartDate] = useState(from);
   const [endDate, setEndDate] = useState(to);
+
+  const baseId = useId();
+  const portfolioId = `${baseId}-portfolio`;
+  const presetId = `${baseId}-preset`;
+  const startId = `${baseId}-start`;
+  const endId = `${baseId}-end`;
 
   function updateParams(updates: Record<string, string | null>) {
     const params = new URLSearchParams(searchParams.toString());
@@ -90,10 +96,14 @@ export function ReportFilters({
     <div className="flex flex-wrap items-center gap-4 rounded-lg border border-border bg-card p-4">
       {/* Portfolio Selector */}
       <div className="flex flex-col gap-1">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <label
+          htmlFor={portfolioId}
+          className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+        >
           Portfolio
-        </span>
+        </label>
         <select
+          id={portfolioId}
           value={selectedPortfolioId || "all"}
           onChange={(e) => updateParams({ portfolio: e.target.value })}
           className="h-9 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
@@ -109,10 +119,14 @@ export function ReportFilters({
 
       {/* Date Presets */}
       <div className="flex flex-col gap-1">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <label
+          htmlFor={presetId}
+          className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+        >
           Range Preset
-        </span>
+        </label>
         <select
+          id={presetId}
           value={searchParams.get("preset") || "1y"}
           onChange={(e) => handlePresetChange(e.target.value)}
           className="h-9 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
@@ -129,10 +143,14 @@ export function ReportFilters({
 
       {/* Custom Date Inputs */}
       <div className="flex flex-col gap-1">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <label
+          htmlFor={startId}
+          className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+        >
           Start Date
-        </span>
+        </label>
         <input
+          id={startId}
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
@@ -142,10 +160,14 @@ export function ReportFilters({
       </div>
 
       <div className="flex flex-col gap-1">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <label
+          htmlFor={endId}
+          className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+        >
           End Date
-        </span>
+        </label>
         <input
+          id={endId}
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}

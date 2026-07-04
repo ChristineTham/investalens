@@ -120,7 +120,7 @@ export function ConstituentEditor({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium">Constituents</label>
+        <span className="text-sm font-medium">Constituents</span>
         <button
           type="button"
           onClick={normalise}
@@ -144,7 +144,7 @@ export function ConstituentEditor({
           No constituents yet. Search above to add instruments.
         </p>
       ) : (
-        <div className="overflow-hidden rounded-md border border-border">
+        <div className="overflow-x-auto rounded-md border border-border">
           <table className="w-full text-sm">
             <thead className="bg-muted/40 text-xs text-muted-foreground">
               <tr>

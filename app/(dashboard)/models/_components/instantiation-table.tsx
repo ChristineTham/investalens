@@ -19,7 +19,7 @@ export function InstantiationTable({
     notionalCapital > 0 ? residualCash / notionalCapital : 0;
 
   return (
-    <div className="overflow-hidden rounded-md border border-border">
+    <div className="overflow-x-auto rounded-md border border-border">
       <table className="w-full text-sm">
         <caption className="border-b border-border bg-muted/30 px-3 py-2 text-left text-xs text-muted-foreground">
           Instantiated on {asOfDate} with{" "}

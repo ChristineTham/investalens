@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, use } from "react";
+import { useState, useCallback, useRef, useId, use } from "react";
 import { useRouter } from "next/navigation";
 import { useDropzone } from "react-dropzone";
 import { parseCsv, type CsvParseResult } from "@/lib/import/csv-parser";
@@ -70,6 +70,7 @@ export default function ImportPage({
 }) {
   const { id: portfolioId } = use(params);
   const router = useRouter();
+  const formId = useId();
 
   const [step, setStep] = useState<Step>("hub");
   const [category, setCategory] = useState<ImportCategory>("transactions");
@@ -466,7 +467,10 @@ export default function ImportPage({
           )}
 
           {errors.length > 0 && (
-            <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <div
+              role="alert"
+              className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+            >
               {errors[0].errors.join(", ")}
             </div>
           )}
@@ -492,7 +496,7 @@ export default function ImportPage({
               : "border-border hover:border-primary/50"
           }`}
         >
-          <input {...getInputProps()} />
+          <input {...getInputProps()} aria-label="Upload import file" />
           <Upload className="h-10 w-10 text-muted-foreground" />
           <p className="mt-4 text-sm font-medium">
             Drag & drop a file, or click to browse
@@ -516,11 +520,13 @@ export default function ImportPage({
 
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium">Template</label>
+              <label htmlFor={`${formId}-template`} className="text-sm font-medium">
+                Template
+              </label>
               <select
+                id={`${formId}-template`}
                 value={selectedTemplate}
                 onChange={(e) => handleTemplateSelect(e.target.value)}
-                aria-label="Template"
                 className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
               >
                 <option value="">Custom / Manual mapping</option>
@@ -534,11 +540,13 @@ export default function ImportPage({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium">Date Format</label>
+                <label htmlFor={`${formId}-date-format`} className="text-sm font-medium">
+                  Date Format
+                </label>
                 <select
+                  id={`${formId}-date-format`}
                   value={dateFormat}
                   onChange={(e) => setDateFormat(e.target.value)}
-                  aria-label="Date format"
                   className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
                 >
                   <option value="dd/mm/yyyy">DD/MM/YYYY</option>
@@ -547,11 +555,16 @@ export default function ImportPage({
                 </select>
               </div>
               <div>
-                <label className="text-sm font-medium">Decimal Separator</label>
+                <label
+                  htmlFor={`${formId}-decimal-separator`}
+                  className="text-sm font-medium"
+                >
+                  Decimal Separator
+                </label>
                 <select
+                  id={`${formId}-decimal-separator`}
                   value={decimalSeparator}
                   onChange={(e) => setDecimalSeparator(e.target.value)}
-                  aria-label="Decimal separator"
                   className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
                 >
                   <option value=".">Period (.)</option>
@@ -652,11 +665,16 @@ export default function ImportPage({
 
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium">Cash Account Name</label>
+              <label
+                htmlFor={`${formId}-cash-account-name`}
+                className="text-sm font-medium"
+              >
+                Cash Account Name
+              </label>
               <input
+                id={`${formId}-cash-account-name`}
                 value={cashAccountName}
                 onChange={(e) => setCashAccountName(e.target.value)}
-                aria-label="Cash account name"
                 className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
               />
               <p className="mt-1 text-xs text-muted-foreground">
@@ -666,11 +684,16 @@ export default function ImportPage({
             </div>
 
             <div>
-              <label className="text-sm font-medium">Template</label>
+              <label
+                htmlFor={`${formId}-cash-template`}
+                className="text-sm font-medium"
+              >
+                Template
+              </label>
               <select
+                id={`${formId}-cash-template`}
                 value={selectedTemplate}
                 onChange={(e) => handleTemplateSelect(e.target.value)}
-                aria-label="Cash template"
                 className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
               >
                 <option value="">Custom / Manual mapping</option>
@@ -725,11 +748,16 @@ export default function ImportPage({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium">Date Format</label>
+                <label
+                  htmlFor={`${formId}-cash-date-format`}
+                  className="text-sm font-medium"
+                >
+                  Date Format
+                </label>
                 <select
+                  id={`${formId}-cash-date-format`}
                   value={dateFormat}
                   onChange={(e) => setDateFormat(e.target.value)}
-                  aria-label="Date format"
                   className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
                 >
                   <option value="dd/mm/yyyy">DD/MM/YYYY</option>
@@ -738,11 +766,16 @@ export default function ImportPage({
                 </select>
               </div>
               <div>
-                <label className="text-sm font-medium">Decimal Separator</label>
+                <label
+                  htmlFor={`${formId}-cash-decimal-separator`}
+                  className="text-sm font-medium"
+                >
+                  Decimal Separator
+                </label>
                 <select
+                  id={`${formId}-cash-decimal-separator`}
                   value={decimalSeparator}
                   onChange={(e) => setDecimalSeparator(e.target.value)}
-                  aria-label="Decimal separator"
                   className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
                 >
                   <option value=".">Period (.)</option>
@@ -902,13 +935,16 @@ function CashColumnSelect({
   headers: string[];
   onChange: (value: string | null) => void;
 }) {
+  const id = useId();
   return (
     <div>
-      <label className="text-sm font-medium">{label}</label>
+      <label htmlFor={id} className="text-sm font-medium">
+        {label}
+      </label>
       <select
+        id={id}
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value || null)}
-        aria-label={label}
         className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
       >
         <option value="">— None —</option>
