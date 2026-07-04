@@ -308,13 +308,11 @@ export default async function PerformanceReportPage({
         description="Portfolio value over time"
         height={360}
       >
-        {(h) => (
-          <PortfolioGrowthChart
-            data={report.growthHistory}
-            showBenchmark={false}
-            height={h}
-          />
-        )}
+        <PortfolioGrowthChart
+          data={report.growthHistory}
+          showBenchmark={false}
+          height={360}
+        />
       </ChartCard>
 
       {/* Holdings table */}

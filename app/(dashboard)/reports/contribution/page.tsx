@@ -104,15 +104,13 @@ export default async function ContributionReportPage({
             description="Each holding's share of total return (%)"
             height={Math.max(300, items.length * 36)}
           >
-            {(h) => (
-              <ContributionBarChart
-                height={h}
-                data={items.map((item) => ({
-                  name: item.instrumentCode,
-                  contribution: item.contributionPercent,
-                }))}
-              />
-            )}
+            <ContributionBarChart
+              height={Math.max(300, items.length * 36)}
+              data={items.map((item) => ({
+                name: item.instrumentCode,
+                contribution: item.contributionPercent,
+              }))}
+            />
           </ChartCard>
 
           <div className="overflow-x-auto rounded-lg border border-border">

@@ -20,8 +20,14 @@ interface ChartCardProps {
   expandedHeight?: number;
   /** Allow the card to span more grid columns. */
   className?: string;
-  /** Render the chart for the given height (inline vs. expanded). */
-  children: (height: number) => ReactNode;
+  /**
+   * The chart to render. Either a plain node (rendered the same inline and
+   * expanded) or a render function that receives the target height so the chart
+   * can size itself differently inline vs. expanded. A plain node is required
+   * when rendering from a Server Component — a function child is not
+   * serializable across the server/client boundary.
+   */
+  children: ReactNode | ((height: number) => ReactNode);
 }
 
 /**
@@ -65,7 +71,9 @@ export function ChartCard({
         </div>
       </div>
 
-      <div className="min-w-0 flex-1 p-4">{children(height)}</div>
+      <div className="min-w-0 flex-1 p-4">
+        {typeof children === "function" ? children(height) : children}
+      </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-5xl">
@@ -75,7 +83,11 @@ export function ChartCard({
           {actions && (
             <div className="flex flex-wrap items-center gap-2">{actions}</div>
           )}
-          <div className="min-w-0">{children(expandedHeight)}</div>
+          <div className="min-w-0">
+            {typeof children === "function"
+              ? children(expandedHeight)
+              : children}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

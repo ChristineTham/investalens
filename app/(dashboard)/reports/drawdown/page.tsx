@@ -128,16 +128,14 @@ export default async function DrawdownReportPage({
             description="Upper-left = best (high return, low drawdown). Bubble size = holding value."
             height={360}
           >
-            {(h) => (
-              <DrawdownScatter
-                height={h}
-                data={items.map((i) => ({
-                  name: i.instrumentCode,
-                  maxDrawdown: i.maxDrawdownPercent,
-                  totalReturn: i.totalReturn,
-                }))}
-              />
-            )}
+            <DrawdownScatter
+              height={360}
+              data={items.map((i) => ({
+                name: i.instrumentCode,
+                maxDrawdown: i.maxDrawdownPercent,
+                totalReturn: i.totalReturn,
+              }))}
+            />
           </ChartCard>
 
           <div className="overflow-x-auto rounded-lg border border-border">

@@ -80,15 +80,13 @@ export default async function SentimentPage() {
           description="Daily change by sector"
           height={Math.max(240, Object.keys(sentiment.sectorPerformance).length * 28)}
         >
-          {(h) => (
-            <SignedBarChart
-              height={h}
-              unit="percent"
-              data={Object.entries(sentiment.sectorPerformance).map(
-                ([name, value]) => ({ name, value })
-              )}
-            />
-          )}
+          <SignedBarChart
+            height={Math.max(240, Object.keys(sentiment.sectorPerformance).length * 28)}
+            unit="percent"
+            data={Object.entries(sentiment.sectorPerformance).map(
+              ([name, value]) => ({ name, value })
+            )}
+          />
         </ChartCard>
       )}
     </div>

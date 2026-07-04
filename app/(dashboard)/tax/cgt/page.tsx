@@ -422,17 +422,15 @@ export default async function CgtPage({
               description="How gross gains net down to the assessable amount"
               height={260}
             >
-              {(h) => (
-                <CgtCompositionChart
-                  shortTerm={summary.shortTermGains}
-                  longTerm={summary.longTermGains}
-                  discount={summary.cgtDiscount}
-                  losses={summary.totalLosses}
-                  indexation={summary.indexationRelief}
-                  net={netAfterDiscount}
-                  height={h}
-                />
-              )}
+              <CgtCompositionChart
+                shortTerm={summary.shortTermGains}
+                longTerm={summary.longTermGains}
+                discount={summary.cgtDiscount}
+                losses={summary.totalLosses}
+                indexation={summary.indexationRelief}
+                net={netAfterDiscount}
+                height={260}
+              />
             </ChartCard>
           </ChartGridItem>
           <ChartGridItem>
@@ -441,17 +439,15 @@ export default async function CgtPage({
               description="Net capital gain per security this year"
               height={260}
             >
-              {(h) => (
-                <SignedBarChart
-                  height={h}
-                  data={Object.entries(
-                    items.reduce<Record<string, number>>((acc, it) => {
-                      acc[it.instrumentCode] = (acc[it.instrumentCode] ?? 0) + it.gain;
-                      return acc;
-                    }, {})
-                  ).map(([name, value]) => ({ name, value }))}
-                />
-              )}
+              <SignedBarChart
+                height={260}
+                data={Object.entries(
+                  items.reduce<Record<string, number>>((acc, it) => {
+                    acc[it.instrumentCode] = (acc[it.instrumentCode] ?? 0) + it.gain;
+                    return acc;
+                  }, {})
+                ).map(([name, value]) => ({ name, value }))}
+              />
             </ChartCard>
           </ChartGridItem>
         </ChartGrid>

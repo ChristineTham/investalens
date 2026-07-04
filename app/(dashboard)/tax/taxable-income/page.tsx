@@ -244,7 +244,7 @@ export default async function TaxableIncomePage({
           description="Assessable investment income by source"
           height={300}
         >
-          {(h) => <DiversityPieChart data={incomeChartData} height={h} />}
+          <DiversityPieChart data={incomeChartData} height={300} />
         </ChartCard>
       )}
 

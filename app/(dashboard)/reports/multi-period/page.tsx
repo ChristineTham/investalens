@@ -126,19 +126,17 @@ export default async function MultiPeriodReportPage({
             description="Per-holding returns across 1M / 3M / 6M / 1Y / 3Y"
             height={340}
           >
-            {(h) => (
-              <MultiPeriodBarChart
-                height={h}
-                data={rows.map((r) => {
-                  const obj: { name: string; [key: string]: string | number } = { name: r.instrumentCode };
-                  r.periods.forEach((p) => {
-                    obj[p.label] = Number(p.returnPercent.toFixed(2));
-                  });
-                  return obj;
-                })}
-                periods={periods.map((p) => p.label)}
-              />
-            )}
+            <MultiPeriodBarChart
+              height={340}
+              data={rows.map((r) => {
+                const obj: { name: string; [key: string]: string | number } = { name: r.instrumentCode };
+                r.periods.forEach((p) => {
+                  obj[p.label] = Number(p.returnPercent.toFixed(2));
+                });
+                return obj;
+              })}
+              periods={periods.map((p) => p.label)}
+            />
           </ChartCard>
 
           <div className="overflow-x-auto rounded-lg border border-border">

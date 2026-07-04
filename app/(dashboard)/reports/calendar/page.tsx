@@ -127,15 +127,13 @@ export default async function CalendarReportPage({
           description="Dividend & distribution income by month"
           height={280}
         >
-          {(h) => (
-            <MonthlyIncomeChart
-              height={h}
-              data={MONTH_NAMES.map((month, i) => ({
-                month: month.slice(0, 3),
-                amount: monthlyTotals[i],
-              }))}
-            />
-          )}
+          <MonthlyIncomeChart
+            height={280}
+            data={MONTH_NAMES.map((month, i) => ({
+              month: month.slice(0, 3),
+              amount: monthlyTotals[i],
+            }))}
+          />
         </ChartCard>
       )}
 

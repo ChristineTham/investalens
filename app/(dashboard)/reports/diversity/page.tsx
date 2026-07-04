@@ -147,7 +147,7 @@ export default async function DiversityReportPage({
             description="Share of current value"
             height={320}
           >
-            {(h) => <DiversityPieChart data={items} height={h} />}
+            <DiversityPieChart data={items} height={320} />
           </ChartCard>
 
           <div className="overflow-x-auto rounded-lg border border-border">
