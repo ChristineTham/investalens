@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
@@ -9,16 +9,15 @@ export async function createCashAccount(
   name: string,
   currency: string = "AUD"
 ) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   const portfolio = await db.portfolio.findFirst({
-    where: { id: portfolioId, userId: session.user.id },
+    where: { id: portfolioId, userId: user.id },
   });
   if (!portfolio) throw new Error("Portfolio not found");
 
   const account = await db.cashAccount.create({
-    data: { portfolioId, name, currency, userId: session.user.id },
+    data: { portfolioId, name, currency, userId: user.id },
   });
 
   revalidatePath(`/portfolio/${portfolioId}/cash`);
@@ -32,11 +31,10 @@ export async function addCashTransaction(
   date: Date,
   description?: string
 ) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   const account = await db.cashAccount.findFirst({
-    where: { id: accountId, portfolio: { userId: session.user.id } },
+    where: { id: accountId, portfolio: { userId: user.id } },
   });
   if (!account) throw new Error("Account not found");
 
@@ -57,21 +55,19 @@ export async function addCashTransaction(
 }
 
 export async function getCashAccount(id: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   return db.cashAccount.findFirst({
-    where: { id, portfolio: { userId: session.user.id } },
+    where: { id, portfolio: { userId: user.id } },
     include: { transactions: { orderBy: { date: "desc" } } },
   });
 }
 
 export async function getCashAccounts(portfolioId: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   return db.cashAccount.findMany({
-    where: { portfolioId, portfolio: { userId: session.user.id } },
+    where: { portfolioId, portfolio: { userId: user.id } },
     orderBy: { createdAt: "asc" },
   });
 }

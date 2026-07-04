@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import {
@@ -33,8 +33,7 @@ async function resolveInstrument(
 }
 
 export async function createModel(input: unknown) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
   const data = createModelSchema.parse(input);
   assertWeightsSumToOne(data.constituents.map((c) => c.targetWeight));
 
@@ -51,7 +50,7 @@ export async function createModel(input: unknown) {
 
   const model = await db.modelPortfolio.create({
     data: {
-      userId: session.user.id,
+      userId: user.id,
       name: data.name,
       description: data.description,
       category: data.category,
@@ -69,13 +68,12 @@ export async function createModel(input: unknown) {
 }
 
 export async function updateModel(input: unknown) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
   const data = updateModelSchema.parse(input);
 
   // Ownership: only the owner may edit; system models (userId null) are read-only.
   const existing = await db.modelPortfolio.findFirst({
-    where: { id: data.id, userId: session.user.id },
+    where: { id: data.id, userId: user.id },
   });
   if (!existing) throw new Error("Model not found or read-only");
 
@@ -128,10 +126,9 @@ export async function updateModel(input: unknown) {
 }
 
 export async function deleteModel(id: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
   const existing = await db.modelPortfolio.findFirst({
-    where: { id, userId: session.user.id },
+    where: { id, userId: user.id },
   });
   if (!existing) throw new Error("Model not found or read-only");
   await db.modelPortfolio.delete({ where: { id } });
@@ -140,16 +137,15 @@ export async function deleteModel(id: string) {
 
 /** Clone a model (incl. system defaults) into the user's own editable copy. */
 export async function duplicateModel(id: string, name?: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
   const src = await db.modelPortfolio.findFirst({
-    where: { id, OR: [{ userId: session.user.id }, { userId: null }] },
+    where: { id, OR: [{ userId: user.id }, { userId: null }] },
     include: { constituents: true },
   });
   if (!src) throw new Error("Model not found");
   const copy = await db.modelPortfolio.create({
     data: {
-      userId: session.user.id,
+      userId: user.id,
       name: name ?? `${src.name} (copy)`,
       description: src.description,
       category: src.category,
@@ -186,8 +182,7 @@ export async function createModelFromWeights(input: {
   market?: string;
   sourceLabel?: string;
 }) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   // Drop ~0 weights and renormalise (optimiser may leave a tiny residual).
   const entries = Object.entries(input.weights).filter(([, w]) => w > 1e-6);
@@ -213,7 +208,7 @@ export async function createModelFromWeights(input: {
 
   const model = await db.modelPortfolio.create({
     data: {
-      userId: session.user.id,
+      userId: user.id,
       name: input.name,
       description: input.description ?? input.sourceLabel,
       category: input.category ?? "growth",
@@ -234,10 +229,9 @@ export async function reinstantiateModel(
   id: string,
   opts?: { asOfDate?: string; notionalCapital?: number }
 ): Promise<Instantiation> {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
   const model = await db.modelPortfolio.findFirst({
-    where: { id, OR: [{ userId: session.user.id }, { userId: null }] },
+    where: { id, OR: [{ userId: user.id }, { userId: null }] },
     select: { id: true },
   });
   if (!model) throw new Error("Model not found");
@@ -252,10 +246,9 @@ export async function reinstantiateModel(
 export async function listModelsForPicker(): Promise<
   { id: string; name: string }[]
 > {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
   const models = await db.modelPortfolio.findMany({
-    where: { archived: false, OR: [{ userId: session.user.id }, { userId: null }] },
+    where: { archived: false, OR: [{ userId: user.id }, { userId: null }] },
     select: { id: true, name: true },
     orderBy: [{ isSystem: "desc" }, { name: "asc" }],
   });
@@ -264,17 +257,16 @@ export async function listModelsForPicker(): Promise<
 
 /** Persist the user's preferred dashboard "vs model" comparison model. */
 export async function setDashboardModel(modelId: string | null) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
   if (modelId) {
     const model = await db.modelPortfolio.findFirst({
-      where: { id: modelId, OR: [{ userId: session.user.id }, { userId: null }] },
+      where: { id: modelId, OR: [{ userId: user.id }, { userId: null }] },
       select: { id: true },
     });
     if (!model) throw new Error("Model not found");
   }
   await db.user.update({
-    where: { id: session.user.id },
+    where: { id: user.id },
     data: { dashboardModelId: modelId },
   });
   revalidatePath("/dashboard");
@@ -282,10 +274,9 @@ export async function setDashboardModel(modelId: string | null) {
 
 /** Run the Share-Checker model health checks for a chosen model. */
 export async function runModelHealthCheck(modelId: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
   const model = await db.modelPortfolio.findFirst({
-    where: { id: modelId, OR: [{ userId: session.user.id }, { userId: null }] },
+    where: { id: modelId, OR: [{ userId: user.id }, { userId: null }] },
     select: { id: true },
   });
   if (!model) throw new Error("Model not found");
@@ -298,35 +289,32 @@ export async function estimateRebalanceAction(
   portfolioId: string,
   modelId: string
 ) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
   const portfolio = await db.portfolio.findFirst({
-    where: { id: portfolioId, userId: session.user.id },
+    where: { id: portfolioId, userId: user.id },
     select: { id: true },
   });
   if (!portfolio) throw new Error("Portfolio not found");
   const model = await db.modelPortfolio.findFirst({
-    where: { id: modelId, OR: [{ userId: session.user.id }, { userId: null }] },
+    where: { id: modelId, OR: [{ userId: user.id }, { userId: null }] },
     select: { id: true },
   });
   if (!model) throw new Error("Model not found");
-  const { estimateRebalanceToModel } = await import(
-    "@/lib/reports/tax/rebalance-cgt"
-  );
+  const { estimateRebalanceToModel } =
+    await import("@/lib/reports/tax/rebalance-cgt");
   return estimateRebalanceToModel(portfolioId, modelId);
 }
 
 /** Compute target-vs-actual drift + buy/sell deltas for a portfolio and model. */
 export async function computeDriftAction(portfolioId: string, modelId: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
   const portfolio = await db.portfolio.findFirst({
-    where: { id: portfolioId, userId: session.user.id },
+    where: { id: portfolioId, userId: user.id },
     select: { id: true },
   });
   if (!portfolio) throw new Error("Portfolio not found");
   const model = await db.modelPortfolio.findFirst({
-    where: { id: modelId, OR: [{ userId: session.user.id }, { userId: null }] },
+    where: { id: modelId, OR: [{ userId: user.id }, { userId: null }] },
     select: { id: true },
   });
   if (!model) throw new Error("Model not found");
@@ -342,10 +330,9 @@ export async function computeDriftAction(portfolioId: string, modelId: string) {
 export async function getModelWhatIfHoldings(
   id: string
 ): Promise<{ code: string; value: number; beta: number }[]> {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
   const model = await db.modelPortfolio.findFirst({
-    where: { id, OR: [{ userId: session.user.id }, { userId: null }] },
+    where: { id, OR: [{ userId: user.id }, { userId: null }] },
     select: { id: true },
   });
   if (!model) throw new Error("Model not found");
@@ -388,8 +375,7 @@ export async function checkInstrumentCoverage(
   marketCode: string,
   lookbackYears = 3
 ): Promise<InstrumentCoverageResult> {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  await requireUser();
 
   const instrument = await db.instrument.findUnique({
     where: { code_marketCode: { code, marketCode } },

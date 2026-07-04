@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -18,12 +18,6 @@ import { syncPortfolioLedger } from "@/lib/services/cash-ledger";
 import { DEFAULT_CATEGORIES } from "@/lib/constants/categories";
 import { autoReconcileAccount } from "@/lib/services/reconciliation";
 
-async function requireUser() {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
-  return session.user.id;
-}
-
 /** Verify the account belongs to the user; returns it. */
 async function ownAccount(accountId: string, userId: string) {
   const account = await db.cashAccount.findFirst({
@@ -36,7 +30,7 @@ async function ownAccount(accountId: string, userId: string) {
 // ─── Accounts ───────────────────────────────────────────────────────────────
 
 export async function createAccount(input: unknown) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   const data = createAccountSchema.parse(input);
 
   const account = await db.cashAccount.create({
@@ -61,7 +55,7 @@ export async function createAccount(input: unknown) {
 }
 
 export async function updateAccount(id: string, input: unknown) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   await ownAccount(id, userId);
   const data = updateAccountSchema.parse(input);
 
@@ -73,10 +67,12 @@ export async function updateAccount(id: string, input: unknown) {
 }
 
 export async function deleteAccount(id: string) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   const account = await ownAccount(id, userId);
   if (account.isVirtual) {
-    throw new Error("Virtual accounts are managed automatically and cannot be deleted");
+    throw new Error(
+      "Virtual accounts are managed automatically and cannot be deleted"
+    );
   }
   await db.cashAccount.delete({ where: { id } });
   revalidatePath("/accounts");
@@ -86,10 +82,12 @@ export async function deleteAccount(id: string) {
 // ─── Cash transactions ──────────────────────────────────────────────────────
 
 export async function addAccountTransaction(accountId: string, input: unknown) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   const account = await ownAccount(accountId, userId);
   if (account.isVirtual) {
-    throw new Error("Cannot add transactions to a virtual portfolio cash account");
+    throw new Error(
+      "Cannot add transactions to a virtual portfolio cash account"
+    );
   }
   const data = cashTransactionSchema.parse(input);
 
@@ -197,7 +195,7 @@ async function findTransferPartner(tx: {
 }
 
 export async function deleteAccountTransaction(txId: string) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   const tx = await db.cashTransaction.findFirst({
     where: { id: txId, cashAccount: { userId } },
     select: {
@@ -211,7 +209,8 @@ export async function deleteAccountTransaction(txId: string) {
     },
   });
   if (!tx) throw new Error("Transaction not found");
-  if (tx.cashAccount.isVirtual) throw new Error("Virtual account transactions are read-only");
+  if (tx.cashAccount.isVirtual)
+    throw new Error("Virtual account transactions are read-only");
 
   // Resolve the mirror/counterpart before deleting, so we can keep the pair
   // referentially intact.
@@ -256,7 +255,7 @@ export async function deleteAccountTransaction(txId: string) {
  * apart. Counterparty re-assignment is handled by `setTransactionTransferAccount`.
  */
 export async function updateAccountTransaction(txId: string, input: unknown) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   const tx = await db.cashTransaction.findFirst({
     where: { id: txId, cashAccount: { userId } },
     select: {
@@ -270,7 +269,8 @@ export async function updateAccountTransaction(txId: string, input: unknown) {
     },
   });
   if (!tx) throw new Error("Transaction not found");
-  if (tx.cashAccount.isVirtual) throw new Error("Virtual account transactions are read-only");
+  if (tx.cashAccount.isVirtual)
+    throw new Error("Virtual account transactions are read-only");
 
   const data = updateCashTransactionSchema.parse(input);
 
@@ -310,7 +310,10 @@ export async function updateAccountTransaction(txId: string, input: unknown) {
             description: data.description ?? null,
           }
         : { type: mirrorType(data.type), amount: data.amount };
-    await db.cashTransaction.update({ where: { id: partner.id }, data: partnerData });
+    await db.cashTransaction.update({
+      where: { id: partner.id },
+      data: partnerData,
+    });
     await recomputeAccountBalance(partner.cashAccountId);
     revalidatePath(`/accounts/${partner.cashAccountId}`);
   }
@@ -323,7 +326,7 @@ export async function setTransactionCategory(
   txId: string,
   categoryId: string | null
 ) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   const tx = await db.cashTransaction.findFirst({
     where: { id: txId, cashAccount: { userId } },
     select: { id: true, cashAccountId: true },
@@ -350,7 +353,7 @@ export async function setTransactionTransferAccount(
   txId: string,
   transferAccountId: string | null
 ) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
 
   const tx = await db.cashTransaction.findFirst({
     where: { id: txId, cashAccount: { userId } },
@@ -421,7 +424,10 @@ export async function setTransactionTransferAccount(
       where: {
         cashAccountId: transferAccountId,
         date: { gte: windowStart, lte: windowEnd },
-        amount: { gte: Number(tx.amount) - 0.01, lte: Number(tx.amount) + 0.01 },
+        amount: {
+          gte: Number(tx.amount) - 0.01,
+          lte: Number(tx.amount) + 0.01,
+        },
         OR: [
           { transferAccountId: tx.cashAccountId },
           { transferAccountId: null, source: { not: "mirror" } },
@@ -488,7 +494,7 @@ export async function seedDefaultCategories(userId: string) {
 }
 
 export async function getCategories() {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   return db.cashCategory.findMany({
     where: { userId },
     orderBy: [{ kind: "asc" }, { name: "asc" }],
@@ -497,7 +503,7 @@ export async function getCategories() {
 
 /** Categories with the count of transactions using each — for the manager UI. */
 export async function getCategoriesWithUsage() {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   return db.cashCategory.findMany({
     where: { userId },
     orderBy: [{ kind: "asc" }, { name: "asc" }],
@@ -506,7 +512,7 @@ export async function getCategoriesWithUsage() {
 }
 
 export async function createCategory(input: unknown) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   const data = categorySchema.parse(input);
   await db.cashCategory.create({
     data: {
@@ -522,7 +528,7 @@ export async function createCategory(input: unknown) {
 }
 
 export async function updateCategory(id: string, input: unknown) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   const data = updateCategorySchema.parse(input);
   const existing = await db.cashCategory.findFirst({
     where: { id, userId },
@@ -542,7 +548,7 @@ export async function updateCategory(id: string, input: unknown) {
 }
 
 export async function deleteCategory(id: string, reassignToId?: string | null) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   const cat = await db.cashCategory.findFirst({
     where: { id, userId },
     select: { id: true },
@@ -550,7 +556,8 @@ export async function deleteCategory(id: string, reassignToId?: string | null) {
   if (!cat) throw new Error("Category not found");
 
   if (reassignToId) {
-    if (reassignToId === id) throw new Error("Cannot reassign to the category being deleted");
+    if (reassignToId === id)
+      throw new Error("Cannot reassign to the category being deleted");
     const target = await db.cashCategory.findFirst({
       where: { id: reassignToId, userId },
       select: { id: true },
@@ -573,12 +580,19 @@ export async function deleteCategory(id: string, reassignToId?: string | null) {
  * (and re-parent its children) onto the target, then delete the source.
  */
 export async function mergeCategories(sourceId: string, targetId: string) {
-  const userId = await requireUser();
-  if (sourceId === targetId) throw new Error("Cannot merge a category into itself");
+  const { id: userId } = await requireUser();
+  if (sourceId === targetId)
+    throw new Error("Cannot merge a category into itself");
 
   const [source, target] = await Promise.all([
-    db.cashCategory.findFirst({ where: { id: sourceId, userId }, select: { id: true } }),
-    db.cashCategory.findFirst({ where: { id: targetId, userId }, select: { id: true } }),
+    db.cashCategory.findFirst({
+      where: { id: sourceId, userId },
+      select: { id: true },
+    }),
+    db.cashCategory.findFirst({
+      where: { id: targetId, userId },
+      select: { id: true },
+    }),
   ]);
   if (!source || !target) throw new Error("Category not found");
 
@@ -601,7 +615,7 @@ export async function mergeCategories(sourceId: string, targetId: string) {
  * categories nulls any transactions that referenced them (FK onDelete: SetNull).
  */
 export async function resetCategoriesToDefault() {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   await db.cashCategory.deleteMany({ where: { userId } });
   await seedDefaultCategories(userId);
   revalidatePath("/settings/categories");
@@ -611,7 +625,7 @@ export async function resetCategoriesToDefault() {
 // ─── Debit cards ────────────────────────────────────────────────────────────
 
 export async function addDebitCard(accountId: string, input: unknown) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   await ownAccount(accountId, userId);
   const data = debitCardSchema.parse(input);
   await db.debitCard.create({
@@ -627,7 +641,7 @@ export async function addDebitCard(accountId: string, input: unknown) {
 }
 
 export async function deleteDebitCard(cardId: string) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   const card = await db.debitCard.findFirst({
     where: { id: cardId, cashAccount: { userId } },
     select: { id: true, cashAccountId: true },
@@ -644,7 +658,7 @@ export async function linkPortfolioAccount(
   portfolioId: string,
   isDefault = false
 ) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   await ownAccount(accountId, userId);
   const portfolio = await db.portfolio.findFirst({
     where: { id: portfolioId, userId },
@@ -658,7 +672,9 @@ export async function linkPortfolioAccount(
     });
   }
   await db.portfolioAccount.upsert({
-    where: { portfolioId_cashAccountId: { portfolioId, cashAccountId: accountId } },
+    where: {
+      portfolioId_cashAccountId: { portfolioId, cashAccountId: accountId },
+    },
     create: { portfolioId, cashAccountId: accountId, isDefault },
     update: { isDefault },
   });
@@ -677,7 +693,7 @@ export async function unlinkPortfolioAccount(
   accountId: string,
   portfolioId: string
 ) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   await ownAccount(accountId, userId);
   await db.portfolioAccount.deleteMany({
     where: { portfolioId, cashAccountId: accountId },
@@ -688,7 +704,7 @@ export async function unlinkPortfolioAccount(
 
 /** Rebuild a virtual account's auto-posted ledger from its portfolio. */
 export async function syncVirtualLedger(accountId: string) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   const account = await db.cashAccount.findFirst({
     where: { id: accountId, userId },
     select: { isVirtual: true, portfolioId: true },
@@ -708,7 +724,7 @@ export async function syncVirtualLedger(accountId: string) {
  * has no default yet). Reconciliation is then run against the portfolio.
  */
 export async function convertVirtualAccount(accountId: string) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   const account = await db.cashAccount.findFirst({
     where: { id: accountId, userId },
     select: { id: true, isVirtual: true, portfolioId: true },
@@ -737,8 +753,14 @@ export async function convertVirtualAccount(accountId: string) {
         select: { id: true },
       });
       await tx.portfolioAccount.upsert({
-        where: { portfolioId_cashAccountId: { portfolioId, cashAccountId: accountId } },
-        create: { portfolioId, cashAccountId: accountId, isDefault: !existingDefault },
+        where: {
+          portfolioId_cashAccountId: { portfolioId, cashAccountId: accountId },
+        },
+        create: {
+          portfolioId,
+          cashAccountId: accountId,
+          isDefault: !existingDefault,
+        },
         update: {},
       });
     }

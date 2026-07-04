@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { createTransaction } from "@/lib/actions/transaction";
@@ -36,11 +36,10 @@ export async function addHolding(
     instrumentType?: string;
   }
 ) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   const portfolio = await db.portfolio.findFirst({
-    where: { id: portfolioId, userId: session.user.id },
+    where: { id: portfolioId, userId: user.id },
   });
   if (!portfolio) throw new Error("Portfolio not found");
 
@@ -98,11 +97,10 @@ export async function addHoldingWithTransaction(input: {
     currency?: string;
   };
 }) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   const portfolio = await db.portfolio.findFirst({
-    where: { id: input.portfolioId, userId: session.user.id },
+    where: { id: input.portfolioId, userId: user.id },
   });
   if (!portfolio) throw new Error("Portfolio not found");
 
@@ -139,11 +137,10 @@ export async function addHoldingWithTransaction(input: {
 }
 
 export async function deleteHolding(holdingId: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   const holding = await db.holding.findFirst({
-    where: { id: holdingId, portfolio: { userId: session.user.id } },
+    where: { id: holdingId, portfolio: { userId: user.id } },
   });
   if (!holding) throw new Error("Not found");
 

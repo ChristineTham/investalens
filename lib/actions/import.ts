@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { parseCsv } from "@/lib/import/csv-parser";
 import { mapRows } from "@/lib/import/mapper";
@@ -31,11 +31,10 @@ function isBond(parsed: ParsedTransaction): boolean {
 }
 
 async function verifyPortfolio(portfolioId: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   const portfolio = await db.portfolio.findFirst({
-    where: { id: portfolioId, userId: session.user.id },
+    where: { id: portfolioId, userId: user.id },
   });
   if (!portfolio) throw new Error("Portfolio not found");
   return portfolio;
@@ -49,7 +48,12 @@ async function persistTransactions(
   portfolioId: string,
   mapped: ParsedTransaction[],
   errors: ImportResult["rejected"],
-  meta: { source: string; fileName?: string; template?: string; totalRows: number },
+  meta: {
+    source: string;
+    fileName?: string;
+    template?: string;
+    totalRows: number;
+  },
   skipDuplicates: boolean,
   instrumentMeta?: Map<string, InstrumentMeta>
 ): Promise<ImportResult> {
@@ -98,7 +102,10 @@ async function persistTransactions(
               data: {
                 code: parsed.instrumentCode,
                 marketCode: parsed.marketCode,
-                name: extraMeta?.name || parsed.instrumentName || parsed.instrumentCode,
+                name:
+                  extraMeta?.name ||
+                  parsed.instrumentName ||
+                  parsed.instrumentCode,
                 currency:
                   extraMeta?.currency ||
                   (parsed.marketCode === "ASX" ? "AUD" : parsed.currency),
@@ -121,10 +128,13 @@ async function persistTransactions(
                 instrumentType:
                   extraMeta?.instrumentType ||
                   (bond ? "bond" : instrument.instrumentType),
-                name: instrument.name || extraMeta?.name || parsed.instrumentName,
+                name:
+                  instrument.name || extraMeta?.name || parsed.instrumentName,
                 sector: instrument.sector ?? extraMeta?.sector,
                 faceValue:
-                  instrument.faceValue ?? extraMeta?.faceValue ?? parsed.faceValue,
+                  instrument.faceValue ??
+                  extraMeta?.faceValue ??
+                  parsed.faceValue,
                 couponRate:
                   instrument.couponRate ??
                   extraMeta?.couponRate ??
@@ -137,7 +147,8 @@ async function persistTransactions(
                   instrument.maturityDate ??
                   extraMeta?.maturityDate ??
                   parsed.maturityDate,
-                creditRating: instrument.creditRating ?? extraMeta?.creditRating,
+                creditRating:
+                  instrument.creditRating ?? extraMeta?.creditRating,
               },
             });
           }
@@ -269,7 +280,8 @@ export async function importParsedTransactions(
   // Dates may be serialized to strings when crossing the server boundary
   const normalized = transactions.map((t) => ({
     ...t,
-    tradeDate: t.tradeDate instanceof Date ? t.tradeDate : new Date(t.tradeDate),
+    tradeDate:
+      t.tradeDate instanceof Date ? t.tradeDate : new Date(t.tradeDate),
     maturityDate: t.maturityDate
       ? t.maturityDate instanceof Date
         ? t.maturityDate
@@ -310,7 +322,12 @@ async function findCashAccount(portfolioId: string, accountName: string) {
   return account;
 }
 
-function cashKey(t: { date: Date; amount: number; type: string; description: string }) {
+function cashKey(t: {
+  date: Date;
+  amount: number;
+  type: string;
+  description: string;
+}) {
   const dateStr =
     t.date instanceof Date
       ? t.date.toISOString().split("T")[0]
@@ -329,7 +346,13 @@ async function persistCashTransactions(
   // Resolve duplicates against existing cash transactions in this account
   const existing = await db.cashTransaction.findMany({
     where: { cashAccountId: account.id },
-    select: { id: true, date: true, amount: true, type: true, description: true },
+    select: {
+      id: true,
+      date: true,
+      amount: true,
+      type: true,
+      description: true,
+    },
   });
   const existingKeys = new Map<string, string>();
   for (const e of existing) {
@@ -428,7 +451,8 @@ function normalizeTransactionDates(
 ): ParsedTransaction[] {
   return transactions.map((t) => ({
     ...t,
-    tradeDate: t.tradeDate instanceof Date ? t.tradeDate : new Date(t.tradeDate),
+    tradeDate:
+      t.tradeDate instanceof Date ? t.tradeDate : new Date(t.tradeDate),
     maturityDate: t.maturityDate
       ? t.maturityDate instanceof Date
         ? t.maturityDate
@@ -437,7 +461,11 @@ function normalizeTransactionDates(
   }));
 }
 
-function feeKey(f: { invoiceNumber?: string; invoiceDate: Date; total: number }) {
+function feeKey(f: {
+  invoiceNumber?: string;
+  invoiceDate: Date;
+  total: number;
+}) {
   if (f.invoiceNumber) return `inv:${f.invoiceNumber}`;
   const dateStr =
     f.invoiceDate instanceof Date
@@ -575,4 +603,3 @@ export async function importBondData(
 
   return { transactions: txResult, fees: feeResult };
 }
-

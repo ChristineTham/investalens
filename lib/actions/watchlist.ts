@@ -1,21 +1,20 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 export async function getWatchlist() {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   let watchlist = await db.watchlist.findFirst({
-    where: { userId: session.user.id },
+    where: { userId: user.id },
     include: { items: true },
   });
 
   if (!watchlist) {
     watchlist = await db.watchlist.create({
-      data: { userId: session.user.id, name: "Default" },
+      data: { userId: user.id, name: "Default" },
       include: { items: true },
     });
   }
@@ -28,16 +27,15 @@ export async function addToWatchlist(
   marketCode: string,
   notes?: string
 ) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   let watchlist = await db.watchlist.findFirst({
-    where: { userId: session.user.id },
+    where: { userId: user.id },
   });
 
   if (!watchlist) {
     watchlist = await db.watchlist.create({
-      data: { userId: session.user.id, name: "Default" },
+      data: { userId: user.id, name: "Default" },
     });
   }
 
@@ -76,11 +74,10 @@ export async function addToWatchlist(
 }
 
 export async function removeFromWatchlist(itemId: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   await db.watchlistItem.deleteMany({
-    where: { id: itemId, watchlist: { userId: session.user.id } },
+    where: { id: itemId, watchlist: { userId: user.id } },
   });
 
   revalidatePath("/tools/watchlist");
@@ -90,11 +87,10 @@ export async function updateWatchlistItem(
   itemId: string,
   data: { notes?: string; alertAbove?: number; alertBelow?: number }
 ) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   await db.watchlistItem.updateMany({
-    where: { id: itemId, watchlist: { userId: session.user.id } },
+    where: { id: itemId, watchlist: { userId: user.id } },
     data,
   });
 

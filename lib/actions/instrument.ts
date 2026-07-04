@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
@@ -14,8 +14,7 @@ export async function updateInstrumentTaxClass(
   instrumentId: string,
   taxClass: TaxClassOverride
 ) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   if (taxClass !== null && taxClass !== "cgt" && taxClass !== "income") {
     throw new Error("Invalid tax class");
@@ -23,7 +22,7 @@ export async function updateInstrumentTaxClass(
 
   // Ensure the user actually holds this instrument before editing it.
   const owned = await db.holding.findFirst({
-    where: { instrumentId, portfolio: { userId: session.user.id } },
+    where: { instrumentId, portfolio: { userId: user.id } },
     select: { id: true },
   });
   if (!owned) throw new Error("Instrument not found");

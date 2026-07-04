@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { parseOfx } from "@/lib/import/ofx-parser";
@@ -75,7 +75,10 @@ function descriptionTokens(text: string | null | undefined): Set<string> {
 }
 
 /** Shared-token count between two descriptions — a cheap relevance score. */
-function descriptionOverlap(a: string | null | undefined, b: string | null | undefined): number {
+function descriptionOverlap(
+  a: string | null | undefined,
+  b: string | null | undefined
+): number {
   const ta = descriptionTokens(a);
   if (ta.size === 0) return 0;
   const tb = descriptionTokens(b);
@@ -129,11 +132,15 @@ function matchTransferCandidate(
     // Direction must match: a credit import reconciles with a credit transfer.
     if (CREDIT_TYPES.has(c.type) !== rowIsCredit) continue;
     if (Math.abs(c.amount - magnitude) > TRANSFER_AMOUNT_TOLERANCE) continue;
-    const dayDiff = Math.abs(c.date.getTime() - row.date.getTime()) / 86_400_000;
+    const dayDiff =
+      Math.abs(c.date.getTime() - row.date.getTime()) / 86_400_000;
     if (dayDiff > TRANSFER_DAY_WINDOW) continue;
     const overlap = descriptionOverlap(c.description, row.description);
     // Prefer the closest date; break ties by stronger description overlap.
-    if (dayDiff < bestDayDiff || (dayDiff === bestDayDiff && overlap > bestOverlap)) {
+    if (
+      dayDiff < bestDayDiff ||
+      (dayDiff === bestDayDiff && overlap > bestOverlap)
+    ) {
       bestDayDiff = dayDiff;
       bestOverlap = overlap;
       best = c;
@@ -171,14 +178,14 @@ function toTransferCandidates(
 }
 
 async function ownPhysicalAccount(accountId: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
   const account = await db.cashAccount.findFirst({
-    where: { id: accountId, userId: session.user.id },
+    where: { id: accountId, userId: user.id },
   });
   if (!account) throw new Error("Account not found");
-  if (account.isVirtual) throw new Error("Virtual accounts cannot import statements");
-  return { account, userId: session.user.id };
+  if (account.isVirtual)
+    throw new Error("Virtual accounts cannot import statements");
+  return { account, userId: user.id };
 }
 
 /** Parse a statement file into signed transactions for the given kind. */
@@ -186,7 +193,10 @@ function parseStatement(
   fileText: string,
   kind: ImportKind,
   csvTemplateId?: string
-): { transactions: BankStatementTransaction[]; detectedAccount?: ImportPreview["detectedAccount"] } {
+): {
+  transactions: BankStatementTransaction[];
+  detectedAccount?: ImportPreview["detectedAccount"];
+} {
   if (kind === "ofx") {
     const r = parseOfx(fileText);
     return { transactions: r.transactions, detectedAccount: r.account };
@@ -257,12 +267,19 @@ export async function previewAccountImport(
   const learned = new Map<string, string>();
   for (const c of categorised) {
     const key = normaliseNarrative(c.description);
-    if (key && c.categoryId && validCategoryIds.has(c.categoryId) && !learned.has(key)) {
+    if (
+      key &&
+      c.categoryId &&
+      validCategoryIds.has(c.categoryId) &&
+      !learned.has(key)
+    ) {
       learned.set(key, c.categoryId);
     }
   }
 
-  const existingFit = new Set(existing.map((e) => e.fitId).filter(Boolean) as string[]);
+  const existingFit = new Set(
+    existing.map((e) => e.fitId).filter(Boolean) as string[]
+  );
   const existingHash = new Set(
     existing.map((e) => e.importHash).filter(Boolean) as string[]
   );
@@ -318,7 +335,9 @@ export async function commitAccountImport(
       transferAccountId: true,
     },
   });
-  const seenFit = new Set(existing.map((e) => e.fitId).filter(Boolean) as string[]);
+  const seenFit = new Set(
+    existing.map((e) => e.fitId).filter(Boolean) as string[]
+  );
   const seenHash = new Set(
     existing.map((e) => e.importHash).filter(Boolean) as string[]
   );
@@ -362,12 +381,17 @@ export async function commitAccountImport(
   // and keep the more descriptive narrative (imported rows are often richer).
   for (const m of toReconcile) {
     const candidate = transferCandidates.find((c) => c.id === m.id);
-    const description = betterDescription(candidate?.description, m.description);
+    const description = betterDescription(
+      candidate?.description,
+      m.description
+    );
     await db.cashTransaction.update({
       where: { id: m.id },
       data: {
         reconciled: true,
-        ...(description !== (candidate?.description ?? null) ? { description } : {}),
+        ...(description !== (candidate?.description ?? null)
+          ? { description }
+          : {}),
         ...(candidate?.fitId == null && m.fitId ? { fitId: m.fitId } : {}),
         ...(candidate?.importHash == null ? { importHash: m.importHash } : {}),
       },

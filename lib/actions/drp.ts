@@ -1,15 +1,14 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 export async function enableDRP(holdingId: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   await db.holding.updateMany({
-    where: { id: holdingId, portfolio: { userId: session.user.id } },
+    where: { id: holdingId, portfolio: { userId: user.id } },
     data: { drpEnabled: true },
   });
 
@@ -17,11 +16,10 @@ export async function enableDRP(holdingId: string) {
 }
 
 export async function disableDRP(holdingId: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   await db.holding.updateMany({
-    where: { id: holdingId, portfolio: { userId: session.user.id } },
+    where: { id: holdingId, portfolio: { userId: user.id } },
     data: { drpEnabled: false },
   });
 
@@ -34,11 +32,10 @@ export async function recordDRP(
   sharesReceived: number,
   pricePerShare: number
 ) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireUser();
 
   const holding = await db.holding.findFirst({
-    where: { id: holdingId, portfolio: { userId: session.user.id } },
+    where: { id: holdingId, portfolio: { userId: user.id } },
   });
   if (!holding) throw new Error("Holding not found");
 

@@ -32,11 +32,11 @@ export interface ReturnsMatrix {
   prices: Record<string, number[]>;
 }
 
-type DateRange = "1Y" | "3Y" | "5Y" | "10Y" | "MAX";
+type AnalyticsRange = "1Y" | "3Y" | "5Y" | "10Y" | "MAX";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function dateRangeToFrom(range: DateRange): Date {
+function dateRangeToFrom(range: AnalyticsRange): Date {
   if (range === "MAX") return new Date(2000, 0, 1);
   const now = new Date();
   const years = parseInt(range);
@@ -68,7 +68,7 @@ function computeReturns(values: number[]): {
 
 export async function getPortfolioTimeSeries(
   portfolioId: string,
-  dateRange: DateRange
+  dateRange: AnalyticsRange
 ): Promise<TimeSeriesResult> {
   const from = dateRangeToFrom(dateRange);
   const to = new Date();
@@ -80,12 +80,10 @@ export async function getPortfolioTimeSeriesBetween(
   from: Date,
   to: Date
 ): Promise<TimeSeriesResult> {
-
   // Get all holdings with their instruments
   const holdings = await db.holding.findMany({
     where: { portfolioId },
     include: {
-      instrument: true,
       transactions: { orderBy: { tradeDate: "asc" } },
     },
   });
@@ -104,6 +102,7 @@ export async function getPortfolioTimeSeriesBetween(
       date: { gte: from, lte: to },
     },
     orderBy: { date: "asc" },
+    select: { instrumentId: true, date: true, close: true },
   });
 
   // Build price lookup: instrumentId → date → close
@@ -296,20 +295,11 @@ export async function getPortfolioPeriodMetricsFromSeries(
   };
 }
 
-/** Convenience wrapper: compute period metrics for a portfolio over a range. */
-export async function getPortfolioPeriodMetrics(
-  portfolioId: string,
-  dateRange: DateRange
-): Promise<PeriodMetrics> {
-  const ts = await getPortfolioTimeSeries(portfolioId, dateRange);
-  return getPortfolioPeriodMetricsFromSeries(portfolioId, ts);
-}
-
 // ─── Benchmark Time Series ──────────────────────────────────────────────────
 
 export async function getBenchmarkTimeSeries(
   benchmarkCode: string,
-  dateRange: DateRange
+  dateRange: AnalyticsRange
 ): Promise<TimeSeriesResult> {
   const from = dateRangeToFrom(dateRange);
   const to = new Date();
@@ -336,6 +326,7 @@ export async function getBenchmarkTimeSeriesBetween(
       date: { gte: from, lte: to },
     },
     orderBy: { date: "asc" },
+    select: { date: true, close: true },
   });
 
   if (prices.length === 0) {
@@ -349,81 +340,11 @@ export async function getBenchmarkTimeSeriesBetween(
   return { dates, values, returns, cumReturns };
 }
 
-// ─── Holding Time Series ────────────────────────────────────────────────────
-
-export async function getHoldingTimeSeries(
-  holdingId: string,
-  dateRange: DateRange
-): Promise<TimeSeriesResult> {
-  const from = dateRangeToFrom(dateRange);
-  const to = new Date();
-
-  const holding = await db.holding.findUnique({
-    where: { id: holdingId },
-    include: {
-      instrument: true,
-      transactions: { orderBy: { tradeDate: "asc" } },
-    },
-  });
-
-  if (!holding) throw new Error(`Holding not found: ${holdingId}`);
-
-  const prices = await db.price.findMany({
-    where: {
-      instrumentId: holding.instrumentId,
-      date: { gte: from, lte: to },
-    },
-    orderBy: { date: "asc" },
-  });
-
-  if (prices.length === 0) {
-    return { dates: [], values: [], returns: [], cumReturns: [] };
-  }
-
-  // Compute quantity per date
-  const txs = holding.transactions.sort(
-    (a, b) => a.tradeDate.getTime() - b.tradeDate.getTime()
-  );
-
-  const dates: string[] = [];
-  const values: number[] = [];
-  let qty = 0;
-  let txIdx = 0;
-
-  for (const p of prices) {
-    const dateTs = p.date.getTime();
-    while (txIdx < txs.length && txs[txIdx].tradeDate.getTime() <= dateTs) {
-      const tx = txs[txIdx];
-      const txQty = toNumber(tx.quantity);
-      switch (tx.transactionType) {
-        case "BUY":
-        case "TRANSFER_IN":
-        case "BONUS":
-          qty += txQty;
-          break;
-        case "SELL":
-        case "TRANSFER_OUT":
-          qty -= txQty;
-          break;
-        case "SPLIT":
-          qty *= txQty;
-          break;
-      }
-      txIdx++;
-    }
-    dates.push(p.date.toISOString().split("T")[0]);
-    values.push(qty * toNumber(p.close));
-  }
-
-  const { returns, cumReturns } = computeReturns(values);
-  return { dates, values, returns, cumReturns };
-}
-
 // ─── Returns Matrix ─────────────────────────────────────────────────────────
 
 export async function getPortfolioReturnsMatrix(
   portfolioId: string,
-  dateRange: DateRange
+  dateRange: AnalyticsRange
 ): Promise<ReturnsMatrix> {
   const from = dateRangeToFrom(dateRange);
   const to = new Date();
@@ -431,7 +352,7 @@ export async function getPortfolioReturnsMatrix(
   const holdings = await db.holding.findMany({
     where: { portfolioId },
     include: {
-      instrument: true,
+      instrument: { select: { code: true } },
       transactions: { orderBy: { tradeDate: "asc" } },
     },
   });
@@ -449,6 +370,7 @@ export async function getPortfolioReturnsMatrix(
       date: { gte: from, lte: to },
     },
     orderBy: { date: "asc" },
+    select: { instrumentId: true, date: true, close: true },
   });
 
   // Build price lookup
@@ -525,8 +447,7 @@ export async function getPortfolioReturnsMatrix(
           break;
       }
     }
-    const price =
-      priceLookup.get(holding.instrumentId)?.get(latestDate) ?? 0;
+    const price = priceLookup.get(holding.instrumentId)?.get(latestDate) ?? 0;
     const value = qty * price;
     holdingValues.push(value);
     totalValue += value;

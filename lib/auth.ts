@@ -11,6 +11,20 @@ const loginSchema = z.object({
   password: z.string().min(8),
 });
 
+/**
+ * The authenticated user's id and email, for server actions and services.
+ * Throws "Unauthorized" — matching the inline session checks it replaces —
+ * when there is no signed-in user.
+ */
+export async function requireUser(): Promise<{
+  id: string;
+  email: string | null;
+}> {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+  return { id: session.user.id, email: session.user.email ?? null };
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },

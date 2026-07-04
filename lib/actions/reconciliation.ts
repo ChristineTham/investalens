@@ -1,18 +1,12 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import {
   recomputeReconciledFlag,
   writeBackCategoryAndType,
 } from "@/lib/services/reconciliation";
-
-async function requireUser() {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
-  return session.user.id;
-}
 
 export interface ReconcileTarget {
   kind: "transaction" | "fee";
@@ -34,7 +28,7 @@ export async function reconcileTransactions(
   targets: ReconcileTarget[],
   matchType: "auto" | "manual" = "manual"
 ) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
   if (targets.length === 0) return;
 
   const accountTx = await db.cashTransaction.findFirst({
@@ -79,7 +73,12 @@ export async function reconcileTransactions(
     });
     portfolioTxType = ptx?.transactionType ?? null;
   }
-  await writeBackCategoryAndType(accountTxId, userId, first.kind, portfolioTxType);
+  await writeBackCategoryAndType(
+    accountTxId,
+    userId,
+    first.kind,
+    portfolioTxType
+  );
 
   await recomputeReconciledFlag(accountTxId);
 
@@ -89,10 +88,13 @@ export async function reconcileTransactions(
 
 /** Remove a single reconciliation link (re-evaluates the reconciled flag). */
 export async function unreconcile(reconciliationId: string) {
-  const userId = await requireUser();
+  const { id: userId } = await requireUser();
 
   const rec = await db.reconciliation.findFirst({
-    where: { id: reconciliationId, cashTransaction: { cashAccount: { userId } } },
+    where: {
+      id: reconciliationId,
+      cashTransaction: { cashAccount: { userId } },
+    },
     select: { id: true, cashTransactionId: true },
   });
   if (!rec) throw new Error("Reconciliation not found");

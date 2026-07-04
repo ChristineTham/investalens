@@ -33,7 +33,8 @@ export async function getRecentCronLogs(limit = 10): Promise<CronLogEntry[]> {
         message: true,
       },
     });
-  } catch {
+  } catch (error) {
+    console.error("Failed to load recent cron logs:", error);
     return [];
   }
 }
