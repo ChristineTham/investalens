@@ -1,14 +1,16 @@
 import { test, expect } from "@playwright/test";
+import { SEEDED_PORTFOLIO } from "./helpers";
 
 /**
- * Capital Gains Tax report — sale-allocation optimisation (v2.1.0).
+ * Capital Gains Tax report — sale-allocation optimisation (v2.1.x).
  *
  * Toggling "Optimise" on the CGT report reveals a sale-allocation method
  * comparison table (FIFO / LIFO / etc.) with the optimal method flagged.
- * The comparison needs a single selected portfolio that has realised disposals
- * in the selected tax year. Runs authenticated (shared storageState).
+ * The seeded "Sample Growth Portfolio" has a REALISED disposal (a partial BHP
+ * SELL in 2024 → long-term CGT), so the comparison renders with a row badged
+ * "Optimal". Runs authenticated (shared storageState = test@investalens.dev).
  */
-test.describe("CGT optimisation", () => {
+test.describe("CGT optimisation (seeded)", () => {
   test("toggling Optimise shows the method comparison with the optimal method flagged", async ({
     page,
   }) => {
@@ -21,22 +23,18 @@ test.describe("CGT optimisation", () => {
       page.getByRole("heading", { name: "Capital Gains Tax" })
     ).toBeVisible({ timeout: 60000 });
 
-    // Select a single portfolio — the comparison is only computed for one
-    // portfolio. Prefer the seeded "Sample Growth Portfolio", which has REALISED
-    // disposals (a BHP SELL) in a tax year, so the comparison table renders with
-    // an "Optimal" method flagged rather than an empty-state. Selecting drives a
-    // client navigation that adds ?portfolio=<id>.
-    const portfolioSelect = page.getByLabel(/portfolio/i).first();
-    const hasSeeded = await portfolioSelect
-      .locator("option", { hasText: "Sample Growth Portfolio" })
-      .count();
-    if (hasSeeded > 0) {
-      await portfolioSelect.selectOption({ label: "Sample Growth Portfolio" });
-    } else {
-      // Fallback: any real portfolio (option 0 is "All Portfolios").
-      await portfolioSelect.selectOption({ index: 1 });
-    }
+    // Select the seeded portfolio — the comparison is only computed for a single
+    // portfolio, and this one has realised disposals. Selecting drives a client
+    // navigation that adds ?portfolio=<id>.
+    const portfolioSelect = page.getByLabel("Portfolio:", { exact: true });
+    await portfolioSelect.selectOption({ label: SEEDED_PORTFOLIO });
     await expect(page).toHaveURL(/portfolio=/, { timeout: 30000 });
+
+    // The seeded BHP SELL is dated 2024-11-20 → Australian FY2024/25 (year=2025).
+    // The report defaults to the current FY, which has no disposals, so pick the
+    // year that contains the realised sale.
+    await page.getByLabel("Tax Year:", { exact: true }).selectOption("2025");
+    await expect(page).toHaveURL(/year=2025/, { timeout: 30000 });
 
     // Toggle "Optimise". It is a controlled checkbox that drives ?optimise=1 via
     // client navigation (router.push), which can race the just-completed
@@ -62,12 +60,9 @@ test.describe("CGT optimisation", () => {
     ).toBeVisible();
 
     // The comparison table lists methods; the optimal one is badged "Optimal".
-    // With no realised disposals for this portfolio, a clear empty-state notice
-    // is shown instead — accept either.
-    const optimalBadge = page.getByText("Optimal", { exact: true });
-    const emptyNotice = page.getByText(
-      /Select a single portfolio|No CGT disposals|nothing to\s+compare/i
-    );
-    await expect(optimalBadge.or(emptyNotice).first()).toBeVisible();
+    // The seeded BHP disposal guarantees real CGT data, so the badge renders.
+    await expect(page.getByText("Optimal", { exact: true })).toBeVisible({
+      timeout: 30000,
+    });
   });
 });

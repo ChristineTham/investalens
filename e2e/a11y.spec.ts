@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { ensurePortfolioId } from "./helpers";
+import { openSeededPortfolio } from "./helpers";
 
 /**
  * Accessibility & responsive navigation (v2.1.0).
@@ -69,10 +69,10 @@ test.describe("skip link", () => {
 
 test.describe("instrument search a11y", () => {
   test("instrument search exposes role=combobox", async ({ page }) => {
-    // The Add Holding page renders the instrument search combobox. Navigate to
-    // a real portfolio detail page (creating one if the account has none).
-    const portfolioId = await ensurePortfolioId(page);
-    await page.goto(`/portfolio/${portfolioId}`);
+    // The Add Holding page renders the instrument search combobox. Navigate via
+    // the seeded portfolio's detail page (no live search is triggered — we only
+    // inspect the combobox's a11y attributes, never type into it).
+    await openSeededPortfolio(page);
     await page.getByRole("link", { name: "Add Holding" }).click();
 
     const combobox = page.getByRole("combobox", { name: /search/i });

@@ -16,6 +16,47 @@ import { expect, type Page } from "@playwright/test";
 // subsequent heading assertion fails.
 const PORTFOLIO_DETAIL_URL = /\/portfolio\/(?!new(?:$|\?|\/))[a-z0-9]+(?:\?.*)?$/i;
 
+/** The standing seeded portfolio owned by the test user. */
+export const SEEDED_PORTFOLIO = "Sample Growth Portfolio";
+
+/**
+ * Credentials of the standing seeded test user. Kept here (not in
+ * global-setup.ts) because Playwright forbids one test file importing another,
+ * and global-setup.ts is itself a test file. Override via env to run against a
+ * different seeded database.
+ */
+export const PRIMARY_USER = {
+  email: process.env.E2E_USER_EMAIL ?? "test@investalens.dev",
+  password: process.env.E2E_USER_PASSWORD ?? "investalens-test-2026",
+};
+
+/**
+ * Open the seeded "Sample Growth Portfolio" from the /portfolio list and land
+ * on its detail page. Returns the portfolio id parsed from the URL so callers
+ * can navigate to nested routes (/bonds, /holdings/<id>, …) deterministically.
+ *
+ * READ-ONLY: this navigates to pre-seeded data — it never creates anything, so
+ * parallel workers can share it safely.
+ */
+export async function openSeededPortfolio(page: Page): Promise<string> {
+  await page.goto("/portfolio");
+  // The /portfolio list also renders a "Consolidated View" card (href
+  // /portfolio/consolidated) whose aggregate breakdown mentions each portfolio
+  // by name — so match the real portfolio's own summary card by its heading,
+  // excluding the consolidated card. Portfolio cards link to /portfolio/<id>.
+  const card = page
+    .locator('a[href^="/portfolio/"]')
+    .filter({ has: page.getByRole("heading", { name: SEEDED_PORTFOLIO }) })
+    .filter({ hasNot: page.getByRole("heading", { name: "Consolidated View" }) })
+    .first();
+  await card.click();
+  await page.waitForURL(PORTFOLIO_DETAIL_URL);
+  await expect(
+    page.getByRole("heading", { name: SEEDED_PORTFOLIO })
+  ).toBeVisible();
+  return page.url().split("/").pop()!.split("?")[0];
+}
+
 /**
  * Return the id of a portfolio the E2E user owns. Existing cards on /portfolio
  * may include portfolios shared TO this user (which reject owner-only mutations
