@@ -13,13 +13,17 @@
  * other users and model constituents are unaffected.
  *
  * Usage: npx tsx scripts/seed-sample-portfolio.ts
- * Target user via SAMPLE_USER_EMAIL (default e2e.primary@investalens.test).
+ * Target user via SAMPLE_USER_EMAIL (default test@investalens.dev).
+ *
+ * Shared prices are left intact: an instrument that already has price history
+ * keeps it (so the portfolio values on real market data and other users are
+ * unaffected); a fallback price is only added for instruments that have none.
  */
 import { config } from "dotenv";
 config({ path: ".env.local" });
 config({ path: ".env" });
 
-const EMAIL = process.env.SAMPLE_USER_EMAIL ?? "e2e.primary@investalens.test";
+const EMAIL = process.env.SAMPLE_USER_EMAIL ?? "test@investalens.dev";
 
 // Today is fixed by the app context (2026) — use dates comfortably in the past
 // so long-term CGT discount eligibility (>12 months) is exercised.
@@ -105,24 +109,19 @@ async function main() {
         maturityDate: s.maturityDate,
         taxClass: s.taxClass,
       },
-      update: {
-        name: s.name,
-        sector: s.sector,
-        country: s.country,
-        instrumentType: s.instrumentType,
-        faceValue: s.faceValue,
-        couponRate: s.couponRate,
-        paymentFrequency: s.paymentFrequency,
-        maturityDate: s.maturityDate,
-        taxClass: s.taxClass,
-      },
+      // Never overwrite an existing (possibly real) instrument's metadata.
+      update: {},
     });
     instrumentIds[s.code] = inst.id;
-    await db.price.upsert({
-      where: { instrumentId_date: { instrumentId: inst.id, date: PRICE_DATE } },
-      create: { instrumentId: inst.id, date: PRICE_DATE, close: s.price, adjustedClose: s.price },
-      update: { close: s.price, adjustedClose: s.price },
-    });
+    // Only supply a fallback price when the instrument has no price history —
+    // instruments with real prices (e.g. shared with other users) are left
+    // untouched so their valuations aren't clobbered.
+    const priceCount = await db.price.count({ where: { instrumentId: inst.id } });
+    if (priceCount === 0) {
+      await db.price.create({
+        data: { instrumentId: inst.id, date: PRICE_DATE, close: s.price, adjustedClose: s.price },
+      });
+    }
   }
 
   // --- Create the portfolio ---
@@ -187,7 +186,7 @@ async function main() {
   }
 
   // BHP — two buy parcels + a partial sell (realised long-term CGT) + a franked dividend.
-  const bhp = await addHolding("BHP", [
+  await addHolding("BHP", [
     { type: "BUY", date: d("2019-08-15"), quantity: 200, price: 34.2, brokerage: 19.95 },
     { type: "BUY", date: d("2022-03-10"), quantity: 100, price: 46.8, brokerage: 19.95 },
     { type: "SELL", date: d("2024-11-20"), quantity: 120, price: 43.1, brokerage: 19.95, comments: "Trim position" },
