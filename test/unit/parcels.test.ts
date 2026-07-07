@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import {
   buildParcels,
   allocateSale,
-  type SaleAllocationMethod,
 } from "@/lib/calculations/parcels";
 import type { TransactionData } from "@/lib/calculations/performance";
 import type { CpiMap } from "@/lib/calculations/indexation";

@@ -3,6 +3,7 @@ import "@fontsource-variable/noto-sans/wght.css";
 import "@fontsource-variable/noto-serif/wght.css";
 import "@fontsource-variable/noto-sans-mono/wght.css";
 import { ThemeProvider } from "next-themes";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -32,6 +33,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

@@ -9,6 +9,7 @@ import { AddTransactionForm } from "@/components/forms/add-transaction-form";
 import { TransactionRow } from "@/components/forms/transaction-row";
 import { DeleteHoldingButton } from "@/components/forms/delete-holding-button";
 import { DrpToggle } from "@/components/forms/drp-toggle";
+import { DelistedToggle } from "@/components/forms/delisted-toggle";
 import {
   StockInfoPanel,
   type StockInfoData,
@@ -126,7 +127,7 @@ export default async function HoldingDetailPage({
 
       <div className="rounded-lg border border-border bg-card p-6">
         <h2 className="text-lg font-medium">Holding Summary</h2>
-        <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-5">
           <div>
             <p className="text-sm text-muted-foreground">Type</p>
             <p className="font-medium capitalize">
@@ -143,6 +144,20 @@ export default async function HoldingDetailPage({
               <DrpToggle holdingId={holdingId} enabled={holding.drpEnabled} />
               <span className="text-sm text-muted-foreground">
                 {holding.drpEnabled ? "Enabled" : "Disabled"}
+              </span>
+            </div>
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Delisted</p>
+            <div className="mt-1 flex items-center gap-2">
+              <DelistedToggle
+                instrumentId={holding.instrumentId}
+                portfolioId={id}
+                holdingId={holdingId}
+                enabled={holding.instrument.info?.quoteType === "DELISTED"}
+              />
+              <span className="text-sm text-muted-foreground">
+                {holding.instrument.info?.quoteType === "DELISTED" ? "Yes" : "No"}
               </span>
             </div>
           </div>

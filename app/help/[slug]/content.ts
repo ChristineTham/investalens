@@ -164,6 +164,16 @@ export const HELP_CONTENT: Record<string, HelpPage> = {
 <li><strong>Events</strong> &mdash; next earnings date, ex-dividend/dividend dates, EPS estimates</li>
 </ul>`,
       },
+      {
+        heading: "Delisted Securities",
+        content: `<p>If an ASX security is delisted, InvestaLens provides complete support to keep your portfolio records and tracking intact:</p>
+<ul>
+<li><strong>Search Fallback:</strong> If a stock ticker is not found on Yahoo Finance, the system automatically falls back to search <strong>deListed Australia</strong> (<code>delisted.com.au</code>).</li>
+<li><strong>Once-Off Enrichment:</strong> Adding a delisted security triggers a once-off fetch to scrape company details (ABN, ACN, sector, activities, news events, and former names) from <code>delisted.com.au</code> and downloads the full historical daily price history from <strong>EODHD</strong>.</li>
+<li><strong>Price Sync Skip:</strong> Delisted securities are marked in the system to automatically skip subsequent daily price sync updates, optimizing sync performance.</li>
+<li><strong>Manual Toggle:</strong> You can manually mark any holding as delisted (or active) from the holding summary page. Toggling to delisted opens a confirmation modal and progress bar showing the once-off data fetch.</li>
+</ul>`,
+      },
     ],
   },
 

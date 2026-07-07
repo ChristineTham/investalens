@@ -270,10 +270,7 @@ export async function syncSharePrices(
         select: { quoteType: true },
       });
       if (info?.quoteType === "DELISTED") {
-        const priceCount = await db.price.count({ where: { instrumentId: inst.id } });
-        if (priceCount > 0) {
-          continue;
-        }
+        continue;
       }
       const earliestTxDate = holding.transactions.reduce(
         (earliest, tx) => (tx.tradeDate < earliest ? tx.tradeDate : earliest),
@@ -373,10 +370,7 @@ export async function syncSharePrices(
         select: { quoteType: true },
       });
       if (info?.quoteType === "DELISTED") {
-        const priceCount = await db.price.count({ where: { instrumentId: m.id } });
-        if (priceCount > 0) {
-          continue;
-        }
+        continue;
       }
       const latestPrice = await db.price.findFirst({
         where: { instrumentId: m.id },

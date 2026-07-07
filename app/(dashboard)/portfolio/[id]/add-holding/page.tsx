@@ -6,7 +6,7 @@ import { InstrumentSearch } from "@/components/forms/instrument-search";
 import type { InstrumentSearchResult } from "@/lib/providers/market-data";
 import { TRANSACTION_TYPE_META } from "@/lib/constants/activity-meta";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, AlertTriangle } from "lucide-react";
 
 const fieldClass =
   "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
@@ -46,6 +46,7 @@ export default function AddHoldingPage({
         marketCode: selected.exchange || "ASX",
         instrumentName: selected.name,
         instrumentType: selected.type,
+        isDelisted: selected.isDelisted,
         transaction: {
           transactionType,
           tradeDate,
@@ -97,6 +98,18 @@ export default function AddHoldingPage({
 
         {selected && (
           <>
+            {selected.isDelisted && (
+              <div className="rounded-md border border-yellow-200 bg-yellow-50 p-3 text-yellow-800 dark:border-yellow-800 dark:bg-yellow-950 dark:text-yellow-200 flex items-start gap-2">
+                <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-yellow-600 dark:text-yellow-400" />
+                <div>
+                  <p className="font-medium text-sm">Delisted Security</p>
+                  <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-0.5">
+                    This security is delisted on the {selected.exchange} exchange. Live price sync and automatic updates are not available.
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div className="rounded-md border border-border bg-muted/50 p-4">
               <p className="font-medium">{selected.code}</p>
               <p className="text-sm text-muted-foreground">{selected.name}</p>

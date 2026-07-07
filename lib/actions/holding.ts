@@ -4,19 +4,20 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { createTransaction } from "@/lib/actions/transaction";
+import { enrichDelistedInstrument } from "@/lib/services/delisted-enrichment";
 
-/** Find-or-create an instrument by code + market. */
 async function resolveInstrument(
   code: string,
   marketCode: string,
   name?: string,
-  instrumentType?: string
+  instrumentType?: string,
+  isDelisted?: boolean
 ) {
   const existing = await db.instrument.findUnique({
     where: { code_marketCode: { code, marketCode } },
   });
-  if (existing) return existing;
-  return db.instrument.create({
+  
+  const instrument = existing || await db.instrument.create({
     data: {
       code,
       marketCode,
@@ -25,6 +26,15 @@ async function resolveInstrument(
       currency: marketCode === "ASX" ? "AUD" : "USD",
     },
   });
+
+  if (isDelisted) {
+    // Perform once-off enrichment of company details & EODHD prices in the background
+    enrichDelistedInstrument(instrument.id).catch((err) => {
+      console.error(`Failed background enrichment for ${code}:`, err);
+    });
+  }
+
+  return instrument;
 }
 
 export async function addHolding(
@@ -34,6 +44,7 @@ export async function addHolding(
     marketCode: string;
     instrumentName?: string;
     instrumentType?: string;
+    isDelisted?: boolean;
   }
 ) {
   const user = await requireUser();
@@ -43,26 +54,13 @@ export async function addHolding(
   });
   if (!portfolio) throw new Error("Portfolio not found");
 
-  let instrument = await db.instrument.findUnique({
-    where: {
-      code_marketCode: {
-        code: data.instrumentCode,
-        marketCode: data.marketCode,
-      },
-    },
-  });
-
-  if (!instrument) {
-    instrument = await db.instrument.create({
-      data: {
-        code: data.instrumentCode,
-        marketCode: data.marketCode,
-        name: data.instrumentName || data.instrumentCode,
-        instrumentType: data.instrumentType || "equity",
-        currency: data.marketCode === "ASX" ? "AUD" : "USD",
-      },
-    });
-  }
+  const instrument = await resolveInstrument(
+    data.instrumentCode,
+    data.marketCode,
+    data.instrumentName,
+    data.instrumentType,
+    data.isDelisted
+  );
 
   const holding = await db.holding.upsert({
     where: {
@@ -88,6 +86,7 @@ export async function addHoldingWithTransaction(input: {
   marketCode: string;
   instrumentName?: string;
   instrumentType?: string;
+  isDelisted?: boolean;
   transaction: {
     transactionType: string;
     tradeDate: string;
@@ -108,7 +107,8 @@ export async function addHoldingWithTransaction(input: {
     input.instrumentCode,
     input.marketCode,
     input.instrumentName,
-    input.instrumentType
+    input.instrumentType,
+    input.isDelisted
   );
 
   const holding = await db.holding.upsert({

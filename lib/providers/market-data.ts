@@ -34,6 +34,7 @@ export interface InstrumentSearchResult {
   name: string;
   exchange: string;
   type: string;
+  isDelisted?: boolean;
 }
 
 export interface MarketDataProvider {

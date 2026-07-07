@@ -96,6 +96,15 @@ Beyond price tracking, every share and ETF holding carries rich company informat
 
 Fetched data is cached per instrument (`InstrumentInfo`) and shared across portfolios. Bonds, cash and currencies are skipped. Sector, industry and country are also backfilled onto the instrument when missing, improving diversity reports.
 
+### Delisted Securities
+
+If an ASX security is delisted:
+- **Search Fallback**: If a ticker search returns no results from Yahoo Finance, InvestaLens automatically searches [deListed Australia](https://www.delisted.com.au/) to locate the delisted security.
+- **Enrichment & Profile**: Upon adding a delisted security, the system executes a once-off fetch to scrape company details (ABN, ACN, former names, sector, activities, and listing/delisting news events) from `delisted.com.au` and saves them in `InstrumentInfo`.
+- **Historical Prices**: Daily price history up to the delisting date is downloaded once-off from the premium **EODHD** provider and permanently saved to the database.
+- **Price Sync Exclusion**: Delisted holdings are flagged to completely skip subsequent price updates.
+- **Manual Toggle**: Users can manually mark any holding as delisted (or active) on the holding summary card, which opens a confirmation modal and progress bar showing the once-off data fetch.
+
 ---
 
 ## Property

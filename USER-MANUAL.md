@@ -246,6 +246,14 @@ Stock information is fetched together with prices. Go to the **Dashboard**, find
 
 > **Note (self-hosted on Vercel):** company information is computed by the Python `yfinance` backend, which the app calls server-to-server. If your deployment has **Deployment Protection** enabled, enable **Protection Bypass for Automation** (Settings → Deployment Protection) so these internal calls aren't blocked with a 401, then redeploy.
 
+### Delisted Holdings
+
+If you hold a delisted ASX security or wish to manually flag a holding as delisted:
+- **Search Fallback**: If a ticker search returns no results from Yahoo Finance, the system automatically falls back to search [deListed Australia](https://www.delisted.com.au/).
+- **Automatic Enrichment**: When a delisted holding is added, InvestaLens scrapes company details (ABN, ACN, listing/delisting dates, former names, sector, and activities) from `delisted.com.au` and fetches the complete historical price history from **EODHD**. This is a once-off fetch that permanently populates the holding's profile and price charts.
+- **Price Sync Exclusions**: Delisted holdings are automatically excluded from subsequent price updates to optimize sync speed.
+- **Manual Toggle**: You can manually toggle the delisted status of any holding under the **Holding Summary** card. Toggling to delisted opens a confirmation modal showing a step-by-step progress bar as the once-off data fetch executes.
+
 > **Full guide:** [Asset Support](docs/ASSETS.md)
 
 ---
