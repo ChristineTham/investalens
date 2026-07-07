@@ -229,7 +229,29 @@ export default async function HoldingDetailPage({
                 {transactions.map((tx) => (
                   <TransactionRow
                     key={tx.id}
-                    transaction={tx}
+                    transaction={{
+                      id: tx.id,
+                      transactionType: tx.transactionType,
+                      tradeDate: tx.tradeDate,
+                      quantity: Number(tx.quantity),
+                      price: Number(tx.price),
+                      brokerage: Number(tx.brokerage),
+                      comments: tx.comments,
+                      frankedAmount:
+                        tx.frankedAmount == null ? null : Number(tx.frankedAmount),
+                      unfrankedAmount:
+                        tx.unfrankedAmount == null
+                          ? null
+                          : Number(tx.unfrankedAmount),
+                      frankingCredits:
+                        tx.frankingCredits == null
+                          ? null
+                          : Number(tx.frankingCredits),
+                      taxDeferred:
+                        tx.taxDeferred == null ? null : Number(tx.taxDeferred),
+                      foreignTax:
+                        tx.foreignTax == null ? null : Number(tx.foreignTax),
+                    }}
                     currency={holding.instrument.currency}
                   />
                 ))}
