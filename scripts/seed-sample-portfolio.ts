@@ -171,12 +171,16 @@ async function main() {
         data: { instrumentId: inst.id, date: PRICE_DATE, close: s.price, adjustedClose: s.price },
       });
     } else if (s.priceStrategy === "history" && s.history) {
-      // Delisted security: replace with an explicit historical series.
-      await db.price.deleteMany({ where: { instrumentId: inst.id } });
-      await db.price.createMany({
-        data: s.history.map((h) => ({ instrumentId: inst.id, date: d(h.date), close: h.close, adjustedClose: h.close })),
-        skipDuplicates: true,
-      });
+      // Delisted security: seed a fallback historical series only when there's
+      // no price history — so real prices later backfilled from EODHD's
+      // delisted endpoint (via the delisted-enrichment feature) are preserved.
+      const priceCount = await db.price.count({ where: { instrumentId: inst.id } });
+      if (priceCount === 0) {
+        await db.price.createMany({
+          data: s.history.map((h) => ({ instrumentId: inst.id, date: d(h.date), close: h.close, adjustedClose: h.close })),
+          skipDuplicates: true,
+        });
+      }
     }
 
     // Delisted flag via InstrumentInfo.quoteType (what the UI reads).
@@ -337,7 +341,7 @@ async function main() {
   );
   // Delisted security — bought before delisting, frozen at last traded price.
   await addHolding("APT", [
-    { type: "BUY", date: d("2018-06-15"), quantity: 100, price: 28.5, brokerage: 19.95, comments: "Held through the Block acquisition" },
+    { type: "BUY", date: d("2018-06-15"), quantity: 100, price: 9.12, brokerage: 19.95, comments: "Held through the Block acquisition" },
   ], { notes: "Delisted 02 Feb 2022 — valued at last traded price" });
 
   // --- Labels ---
