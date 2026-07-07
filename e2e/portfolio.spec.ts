@@ -23,11 +23,12 @@ test.describe("portfolio detail (seeded)", () => {
 
     await openSeededPortfolio(page);
 
-    // --- Holdings table shows representative holdings ---
-    // Direct ASX share, an ETF, the delisted security and a FIIG bond all
+    // --- Holdings table shows representative CURRENT holdings ---
+    // A direct ASX share, an ETF, an international share and a FIIG bond all
     // appear as rows (holding codes render as links to the holding detail page).
     // Codes can appear more than once (holdings table + performers list), so
-    // scope each assertion to the first match.
+    // scope each assertion to the first match. (APT is a closed position and is
+    // covered by delisted.spec.ts via the "Show closed holdings" toggle.)
     await expect(
       page.getByRole("link", { name: "BHP", exact: true }).first()
     ).toBeVisible();
@@ -35,7 +36,7 @@ test.describe("portfolio detail (seeded)", () => {
       page.getByRole("link", { name: "VAS", exact: true }).first()
     ).toBeVisible();
     await expect(
-      page.getByRole("link", { name: "APT", exact: true }).first()
+      page.getByRole("link", { name: "AAPL", exact: true }).first()
     ).toBeVisible();
     // A FIIG bond (fixed-interest) holding — matched by its ISIN-style code.
     await expect(

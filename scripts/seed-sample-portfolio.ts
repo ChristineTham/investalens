@@ -339,10 +339,13 @@ async function main() {
     ],
     { notes: "FIIG bond — CGT exempt (income)" }
   );
-  // Delisted security — bought before delisting, frozen at last traded price.
+  // Delisted security — bought in 2018, sold at the last traded price on
+  // delisting (02 Feb 2022), so it is a CLOSED position with a realised
+  // long-term gain (not a current holding).
   await addHolding("APT", [
-    { type: "BUY", date: d("2018-06-15"), quantity: 100, price: 9.12, brokerage: 19.95, comments: "Held through the Block acquisition" },
-  ], { notes: "Delisted 02 Feb 2022 — valued at last traded price" });
+    { type: "BUY", date: d("2018-06-15"), quantity: 100, price: 9.12, brokerage: 19.95 },
+    { type: "SELL", date: d("2022-02-01"), quantity: 100, price: 66.47, brokerage: 19.95, comments: "Sold at last traded price on delisting" },
+  ], { notes: "Delisted 02 Feb 2022 — sold at the last traded price (closed position)" });
 
   // --- Labels ---
   const core = await db.label.create({ data: { userId, name: "Core" } });
