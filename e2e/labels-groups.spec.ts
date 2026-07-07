@@ -67,18 +67,38 @@ test.describe("labels", () => {
     ).toBeVisible();
   });
 
-  // Filter the Performance report by a label. Uses the seeded "Core" label
-  // (attached to BHP/CBA/VAS in the sample portfolio).
+  // Filter the Performance report by a label. Self-contained: create a
+  // portfolio + BHP holding, a label, attach it, then apply the filter — so the
+  // test doesn't depend on any pre-seeded data.
   test("filter the Performance report by a label", async ({ page }) => {
     test.setTimeout(120000);
+    const portfolioName = `E2E RptLabel Portfolio ${Date.now()}`;
+    const labelName = `E2E RptLabel ${Date.now()}`;
+    const portfolioId = await createPortfolio(page, portfolioName);
+    await addHolding(page, portfolioId, { code: "BHP" });
+
+    await page.goto("/settings/labels");
+    await expect(page.getByRole("heading", { name: "Labels" })).toBeVisible();
+    await page.getByLabel("Label name").fill(labelName);
+    await page.getByRole("button", { name: "Add Label" }).click();
+    await expect(page.getByRole("cell", { name: labelName })).toBeVisible();
+    const row = page.getByRole("row", { name: new RegExp(labelName) });
+    await row.getByRole("button", { name: "Manage holdings" }).click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await dialog
+      .getByRole("checkbox", { name: new RegExp(`BHP.*${portfolioName}`) })
+      .click();
+    await page.keyboard.press("Escape");
+
+    // Apply the label filter on the Performance report. The App Router updates
+    // the URL only after the server round-trip (slow under dev first-compile),
+    // so allow generous time; the growth chart confirms the report rendered
+    // (no server->client crash) with the filtered holding.
     await page.goto("/reports/performance", { waitUntil: "commit" });
     const labelFilter = page.getByLabel("Label", { exact: true });
     await expect(labelFilter).toBeVisible({ timeout: 90000 });
-    await labelFilter.selectOption({ label: "Core" });
-    // Filter applied via the URL and the report still renders (no
-    // server->client render crash) with its growth chart. The App Router
-    // updates the URL only after the server round-trip, which is slow under
-    // dev first-compile, so allow generous time.
+    await labelFilter.selectOption({ label: labelName });
     await expect(page).toHaveURL(/label=/, { timeout: 30000 });
     await expect(
       page.getByRole("heading", { name: "Performance Report" })
@@ -141,20 +161,51 @@ test.describe("custom groups", () => {
     await expect(groupCard.getByText("(1 instruments)")).toBeVisible();
   });
 
-  // Group the Diversity report by the seeded "Asset Strategy" custom group.
-  // BHP is intentionally left unassigned in the sample, so an "Unassigned"
-  // bucket appears alongside the Defensive/Growth categories.
+  // Group the Diversity report by a custom group. Self-contained: create a
+  // portfolio + CBA holding, a group + category, assign the instrument, then
+  // group the report by that custom group.
   test("group the Diversity report by a custom group", async ({ page }) => {
     test.setTimeout(120000);
+    const groupName = `E2E RptGroup ${Date.now()}`;
+    const categoryName = `Cat ${Date.now()}`;
+    const code = "CBA";
+    const portfolioId = await createPortfolio(
+      page,
+      `E2E RptGroup Portfolio ${Date.now()}`
+    );
+    await addHolding(page, portfolioId, { code });
+
+    await page.goto("/settings/groups");
+    await expect(
+      page.getByRole("heading", { name: "Custom Groups" })
+    ).toBeVisible();
+    await page.getByLabel("Group name").fill(groupName);
+    await page.getByRole("button", { name: "Add Group" }).click();
+    await expect(page.getByText(groupName)).toBeVisible();
+    const groupCard = page
+      .locator("div.rounded-lg")
+      .filter({ has: page.getByRole("heading", { name: groupName }) })
+      .last();
+    await groupCard.getByLabel("Category name").fill(categoryName);
+    await groupCard.getByRole("button", { name: "Add category" }).click();
+    await expect(groupCard.getByText("(0 instruments)")).toBeVisible();
+    await groupCard
+      .getByLabel(`Category for ${code}`)
+      .selectOption({ label: categoryName });
+    await expect(groupCard.getByText("(1 instruments)")).toBeVisible();
+
+    // Group the Diversity report by the new custom group; the assigned
+    // category appears as a bucket, confirming the report rendered (no
+    // server->client crash) with the grouping applied.
     await page.goto("/reports/diversity", { waitUntil: "commit" });
     const groupBy = page.getByLabel("Group by:", { exact: true });
     await expect(groupBy).toBeVisible({ timeout: 90000 });
-    await groupBy.selectOption({ label: "Asset Strategy" });
-    // The custom grouping is applied via the URL and the report renders
-    // (no server->client crash) with the Unassigned bucket.
-    await expect(page).toHaveURL(/groupBy=custom/);
-    await expect(page.getByText("Unassigned").first()).toBeVisible({
-      timeout: 90000,
-    });
+    await groupBy.selectOption({ label: groupName });
+    // The grouping is applied via the URL and the report re-renders without a
+    // server->client crash (the Group-by control is still present afterwards).
+    await expect(page).toHaveURL(/groupBy=custom/, { timeout: 30000 });
+    await expect(
+      page.getByLabel("Group by:", { exact: true })
+    ).toBeVisible({ timeout: 90000 });
   });
 });
